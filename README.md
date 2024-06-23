@@ -19,7 +19,7 @@ Modules
 
   ◦ Major module: Implementing a remote authentication.
 
-Gameplay and user experience
+• Gameplay and user experience
 
   ◦ Major module: Remote players
   
