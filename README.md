@@ -22,12 +22,16 @@ Modules
 • Gameplay and user experience
 
   ◦ Major module: Remote players
+
+multijoueurs+++++
   
   ◦ Minor module: Game Customization Options.
   
   ◦ Major module: Live chat.
 
 • AI-Algo
+
+ai+++++
 
   ◦ Minor module: User and Game Stats Dashboards
   
@@ -41,27 +45,19 @@ Modules
 
 • Devops
 
-  ◦ Major module: Infrastructure Setup for Log Management.
-
-  ◦ Minor module: Monitoring system.
+gaming customisation++++++
 
 • Graphics
 
   ◦ Major module: Use of advanced 3D techniques.
   
 • Accessibility
-
-  ◦ Minor module: Support on all devices.
   
   ◦ Minor module: Expanding Browser Compatibility.
   
   ◦ Minor module: Multiple language supports.
 
-  ◦ Minor module: Server-Side Rendering (SSR) Integration.
-
 • Server-Side Pong
 
   ◦ Major module: Replacing Basic Pong with Server-Side Pong and Implementing an API.
-  
-  ◦ Major module: Enabling Pong Gameplay via CLI against Web Users with API Integration.
   
