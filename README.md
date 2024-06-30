@@ -23,7 +23,7 @@ Modules
 
   ◦ Major module: Remote players
 
-multijoueurs+++++
+  ◦ Major module: Multiplayers (more than 2 in the same game).
   
   ◦ Minor module: Game Customization Options.
   
@@ -31,8 +31,8 @@ multijoueurs+++++
 
 • AI-Algo
 
-ai+++++
-
+  ◦ Major module: Introduce an AI Opponent.
+  
   ◦ Minor module: User and Game Stats Dashboards
   
 • Cybersecurity
@@ -45,7 +45,7 @@ ai+++++
 
 • Devops
 
-gaming customisation++++++
+  ◦ Major module: Infrastructure Setup for Log Management.
 
 • Graphics
 
