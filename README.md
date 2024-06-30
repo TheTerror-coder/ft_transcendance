@@ -1,7 +1,7 @@
 # ft_transcendance
 
 
-#Modules
+# Modules
 
 ## • Web
 
@@ -51,13 +51,13 @@
 
   ◦ Major module: Use of advanced 3D techniques.
   
-##• Accessibility
+## • Accessibility
   
   ◦ Minor module: Expanding Browser Compatibility.
   
   ◦ Minor module: Multiple language supports.
 
-##• Server-Side Pong
+## • Server-Side Pong
 
   ◦ Major module: Replacing Basic Pong with Server-Side Pong and Implementing an API.
   
