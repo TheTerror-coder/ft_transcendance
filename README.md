@@ -4,13 +4,13 @@
 
 ## • [Web](about/WEB.md/#web)
 
-  - [x] Major module: Use a Framework as backend.
+  - [x] [Major module: Use a Framework as backend.](about/WEB.md/#-major-module-use-a-framework-as-backend)
   
-  - [x] Minor module: Use a front-end framework or toolkit.
+  - [x] [Minor module: Use a front-end framework or toolkit.](about/WEB.md/#-minor-module-use-a-front-end-framework-or-toolkit)
   
-  - [x] Minor module: Use a database for the backend.
+  - [x] [Minor module: Use a database for the backend.](about/WEB.md/#-minor-module-use-a-database-for-the-backend--and-more)
   
-  - [x] Major module: Store the score of a tournament in the Blockchain.
+  - [x] [Major module: Store the score of a tournament in the Blockchain.](about/WEB.md/#-major-module-store-the-score-of-a-tournament-in-the-blockchain)
 
 ## • User Management
 
