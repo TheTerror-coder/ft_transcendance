@@ -2,7 +2,7 @@
 
 # Modules
 
-## • [Web](about/WEB.md/Web)
+## • [Web](about/WEB.md/#web)
 
   - [x] Major module: Use a Framework as backend.
   
