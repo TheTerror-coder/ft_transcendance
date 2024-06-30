@@ -12,7 +12,7 @@
   
   - [x] [Major module: Store the score of a tournament in the Blockchain.](about/WEB.md/#-major-module-store-the-score-of-a-tournament-in-the-blockchain)
 
-## • User Management
+## • [User Management](#-gameplay-and-user-experience)
 
   - [x] Major module: Standard user management, authentication, users across tournaments.
 
