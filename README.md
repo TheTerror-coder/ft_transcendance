@@ -29,7 +29,7 @@
   
   - [x] Major module: Live chat.
   
-  - [ ] Major module: Add Another Game with User History and Matchmaking.
+  - [ ] ~~Major module: Add Another Game with User History and Matchmaking.~~
 
 ## • AI-Algo
 
@@ -49,9 +49,9 @@
 
   - [x] Major module: Infrastructure Setup for Log Management.
 
-  - [ ] Minor module: Monitoring system.
+  - [ ] ~~Minor module: Monitoring system.~~
 
-  - [ ] Major module: Designing the Backend as Microservices.
+  - [ ] ~~Major module: Designing the Backend as Microservices.~~
 
 ## • Graphics
 
@@ -63,15 +63,15 @@
   
   - [x] Minor module: Multiple language supports.
 
-  - [ ] Minor module: Support on all devices.
+  - [ ] ~~Minor module: Support on all devices.~~
 
-  - [ ] Minor module: Add accessibility for Visually Impaired Users.
+  - [ ] ~~Minor module: Add accessibility for Visually Impaired Users.~~
 
-  - [ ] Minor module: Server-Side Rendering (SSR) Integration.
+  - [ ] ~~Minor module: Server-Side Rendering (SSR) Integration.~~
 
 ## • Server-Side Pong
 
   - [x] Major module: Replacing Basic Pong with Server-Side Pong and Implementing an API.
 
-  - [ ] Major module: Enabling Pong Gameplay via CLI against Web Users with API Integration.
+  - [ ] ~~Major module: Enabling Pong Gameplay via CLI against Web Users with API Integration.~~
   
