@@ -3,7 +3,7 @@
 
 #Modules
 
-##• Web
+## • Web
 
   ◦ Major module: Use a Framework as backend.
   
@@ -13,13 +13,13 @@
   
   ◦ Major module: Store the score of a tournament in the Blockchain.
 
-##• User Management
+## • User Management
 
   ◦ Major module: Standard user management, authentication, users across tournaments.
 
   ◦ Major module: Implementing a remote authentication.
 
-##• Gameplay and user experience
+## • Gameplay and user experience
 
   ◦ Major module: Remote players
 
@@ -29,13 +29,13 @@
   
   ◦ Major module: Live chat.
 
-##• AI-Algo
+## • AI-Algo
 
   ◦ Major module: Introduce an AI Opponent.
   
   ◦ Minor module: User and Game Stats Dashboards
   
-##• Cybersecurity
+## • Cybersecurity
 
   ◦ Major module: Implement WAF/ModSecurity with Hardened Configuration and HashiCorp Vault for Secrets Management.
 
@@ -43,11 +43,11 @@
 
   ◦ Major module: Implement Two-Factor Authentication (2FA) and JWT.
 
-##• Devops
+## • Devops
 
   ◦ Major module: Infrastructure Setup for Log Management.
 
-##• Graphics
+## • Graphics
 
   ◦ Major module: Use of advanced 3D techniques.
   
