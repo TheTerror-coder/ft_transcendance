@@ -4,12 +4,12 @@ These modules enable the integration of advanced web features into your Pong gam
 
 ## • Major module: Use a Framework as backend.
 
-	In this major module, you are required to utilize a specific web framework for your
-	backend development, and that framework is Django.
-	
-	> You can create a backend without using the constraints of this module
-	> by using the default language/framework. However, this module will
-	> only be valid if you use the associated constraints.
+In this major module, you are required to utilize a specific web framework for your
+backend development, and that framework is Django.
+
+> You can create a backend without using the constraints of this module
+> by using the default language/framework. However, this module will
+> only be valid if you use the associated constraints.
 
 ## • Minor module: Use a front-end framework or toolkit.
 
