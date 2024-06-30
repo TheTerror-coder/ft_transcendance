@@ -38,13 +38,16 @@ the programming language used for smart contract development.
 	This integration ensures the secure and immutable storage of tournament
 	scores, providing players with a transparent and tamper-proof record of their
 	gaming achievements.
+
 ◦ Solidity Smart Contracts: To interact with the blockchain, we will develop
 	Solidity smart contracts. These contracts will be responsible for recording,
 	managing, and retrieving tournament scores.
+
 ◦ Testing Blockchain: As mentioned earlier, a testing blockchain will be 
 	employed for development and testing purposes. This ensures that all blockchain-
 	related functionalities are thoroughly validated without any risks associated
 	with a live blockchain.
+
 ◦ Interoperability: This module may have dependencies on other modules, particularly 
 	the Backend Framework module. Integrating blockchain functionality might necessitate 
 	adjustments in the backend to accommodate interactions with the blockchain.
