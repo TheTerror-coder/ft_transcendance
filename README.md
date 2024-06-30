@@ -5,7 +5,7 @@
 
 ## • Web
 
-  - [x] $${\color{red}Major module: Use a Framework as backend.}$$
+  - [x] ${\color{red}Major module: Use a Framework as backend.}$
   
   - [x] Minor module: Use a front-end framework or toolkit.
   
