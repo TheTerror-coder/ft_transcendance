@@ -1,0 +1,49 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
+#    Updated: 2024/06/30 22:38:49 by jm               ###   ########lyon.fr    #
+#                                                                              #
+# **************************************************************************** #
+
+FROM python:3.10-alpine
+
+WORKDIR /usr/src/apps
+
+COPY ./tools/requirements.txt .
+RUN chown -R :root ./requirements.txt
+RUN chmod 700 ./requirements.txt
+
+RUN pip install -r ./requirements.txt
+
+COPY ./project_init/ .
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# FROM ubuntu:22.04
+
+# RUN apt update -y && \
+# 	apt install -y curl vim python3 python3-pip python3-venv
+
+# RUN apt update -y && \
+# 	apt install -y build-essential zlib1g-dev libncurses5-dev \
+# 	libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+
+# RUN mkdir -p /django
+
+# COPY ./tools/script.sh /etc/script.sh
+# COPY ./tools/requirements.txt /django/
+
+# RUN chown -R :root /etc/script.sh
+# RUN chown -R :root /django/requirements.txt
+
+# RUN chmod 700 /etc/script.sh
+# RUN chmod 700 /django/requirements.txt
+
+# CMD [ "/etc/script.sh" ]
+
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

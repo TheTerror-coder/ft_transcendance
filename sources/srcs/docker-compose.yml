@@ -1,0 +1,32 @@
+name: transcendance
+
+services:
+  web:
+    image: web
+    container_name: web_c
+    pull_policy: never
+    build: ./requirements/web/
+    env_file:
+      - ./.env
+    volumes:
+      - webapps:/usr/src/apps
+    expose:
+      - 8000
+    networks:
+      - transcendance
+    ports:
+      - 8888:8000
+    # restart: on-failure
+
+networks:
+  transcendance:
+    driver: bridge
+
+volumes:
+  webapps:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./requirements/web/webapps/
+      # device: /home/jm/data/website/
