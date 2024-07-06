@@ -1,0 +1,4 @@
+-- CREATE USER pguser;
+-- CREATE DATABASE pguser;
+GRANT ALL PRIVILEGES ON DATABASE pgdb TO pgdb;
+ALTER USER pgdb with PASSWORD 'pgdb';

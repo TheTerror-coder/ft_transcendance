@@ -1,9 +1,36 @@
-name: transcendance
+name: ${PROJECT_NAME}
 
 services:
+  db_postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: ${POSTGRES_CONTAINER}
+    pull_policy: never
+    build: ./requirements/db_postgres/
+    env_file:
+      - ./.env
+    # volumes:
+    #   - webapps:/usr/src/apps
+    healthcheck: &my_healthcheck
+      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+      interval: 2s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
+    expose:
+      - ${POSTGRES_PORT}
+    # ports:
+    #   - 5432:5432
+    networks:
+      - ${NETWORK_NAME}
+    # restart: on-failure
+
   web:
-    image: web
-    container_name: web_c
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+        restart: true
+    image: ${WEB_IMAGE}
+    container_name: ${WEB_CONTAINER}
     pull_policy: never
     build: ./requirements/web/
     env_file:
@@ -11,11 +38,11 @@ services:
     volumes:
       - webapps:/usr/src/apps
     expose:
-      - 8000
+      - ${WEB_PORT}
     networks:
-      - transcendance
+      - ${NETWORK_NAME}
     ports:
-      - 8888:8000
+      - 8888:${WEB_PORT}
     # restart: on-failure
 
 networks:
@@ -29,4 +56,3 @@ volumes:
       type: none
       o: bind
       device: ./requirements/web/webapps/
-      # device: /home/jm/data/website/
