@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bfaure < bfaure@student.42lyon.fr>         +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/07/09 15:31:45 by bfaure           ###   ########lyon.fr    #
+#    Updated: 2024/07/17 13:02:37 by bfaure           ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,6 +61,7 @@ kill k : # Force stop service containers.
 
 clean c : down rm rmi rmv
 fclean fc : clean
+	rm -rf ./srcs/requirements/web/webapps
 	-yes | sudo docker system prune
 reset : clean all
 freset : fclean all
