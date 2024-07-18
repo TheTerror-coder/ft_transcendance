@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42lyon.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/06 21:16:24 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/17 13:47:22 by bfaure           ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,13 +14,15 @@ FROM python:3.10-alpine
 
 WORKDIR /usr/src/apps
 
+RUN pip install --upgrade pip
+
 RUN mkdir -p /etc/container-init.d
 
 COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
 
 COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
 
 COPY ./project_init/ .
 

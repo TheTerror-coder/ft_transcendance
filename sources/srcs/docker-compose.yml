@@ -43,7 +43,26 @@ services:
       - ${NETWORK_NAME}
     ports:
       - 8888:${WEB_PORT}
-    # restart: on-failure
+    restart: on-failure
+  
+  nodejs:
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+        restart: true
+    image: ${NODEJS_IMAGE}
+    container_name: ${NODEJS_CONTAINER}
+    # pull_policy: never
+    build: ./requirements/nodejs/
+    env_file:
+      - ./.env
+    expose:
+      - ${NODEJS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - 3000:${NODEJS_PORT}
+    restart: on-failure
 
 networks:
   transcendance:
