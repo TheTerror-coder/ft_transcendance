@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/06 21:16:24 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/19 14:34:05 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
 RUN pip install -r requirements.txt
 
-COPY ./project_init/ .
+COPY ./srcs/ .
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
