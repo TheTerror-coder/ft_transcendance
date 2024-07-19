@@ -80,6 +80,29 @@ window.onload = function() {
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     scene.add(ball);
 
+    // Créer les bordures marron
+    const borderMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Couleur marron
+
+    // Bordure supérieure
+    const topBorder = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0), borderMaterial);
+    topBorder.position.set(0, 2.65, 0);
+    scene.add(topBorder);
+
+    // Bordure inférieure
+    const bottomBorder = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0), borderMaterial);
+    bottomBorder.position.set(0, -2.65, 0);
+    scene.add(bottomBorder);
+
+    // Bordure gauche
+    const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(0.1, 5.5, 0), borderMaterial);
+    leftBorder.position.set(-2.65, 0, 0);
+    scene.add(leftBorder);
+
+    // Bordure droite
+    const rightBorder = new THREE.Mesh(new THREE.BoxGeometry(0.1, 5.5, 0), borderMaterial);
+    rightBorder.position.set(2.65, 0, 0);
+    scene.add(rightBorder);
+
     camera.position.z = 5;
 
     // Positionner les objets
@@ -104,27 +127,31 @@ window.onload = function() {
             if (playerRole === 'player1')
                 {
                     paddle1.position.x -= 0.05;
-                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x });
+                    console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                 }
             else if (playerRole === 'player2')
                 {
                     paddle2.position.x -= 0.05;
-                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x });
+                    console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                 }
         }
         if (keys['d']) {
             if (playerRole === 'player1')
                 {
                     paddle1.position.x += 0.05;
-                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x });
+                    console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                 }
             else if (playerRole === 'player2')
                 {
                     paddle2.position.x += 0.05;
-                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x });
+                    console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                 }
         }
-    }, 100); // Envoyer la position toutes les 100ms
+    }, 16); // Envoyer la position toutes les 100ms
 
     // Fonction d'animation
     function animate() {
@@ -132,6 +159,15 @@ window.onload = function() {
 
         if (!gameStarted) {
             return;
+        }
+
+        // Positionner le paddle du joueur en bas de l'écran
+        if (playerRole === 'player1') {
+            paddle1.position.y = -2;
+            paddle2.position.y = 2;
+        } else if (playerRole === 'player2') {
+            paddle1.position.y = 2;
+            paddle2.position.y = -2;
         }
 
         renderer.render(scene, camera);

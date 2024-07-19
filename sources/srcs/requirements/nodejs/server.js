@@ -25,19 +25,29 @@ app.use(cors({
 
 app.use(express.static('public'));
 
-let ballPosition = { x: 0, y: 0 };
+let ballPosition = { x: 0, y: 0, width: 0.1, height: 0.1 }; // Ajout des dimensions de la balle
 let ballDirection = { x: 0.02, y: 0.02 };
 const players = {}; // Stocker les joueurs connectés
 let playerCount = 0; // Compter le nombre de joueurs connectés
 let gameInterval = null; // Référence à l'intervalle de mise à jour du jeu
 
 function detectCollision(paddle, ball) {
-    return (
-        ball.x < paddle.x + paddle.width &&
-        ball.x + ball.width > paddle.x &&
-        ball.y < paddle.y + paddle.height &&
-        ball.y + ball.height > paddle.y
-    );
+    console.log(`=================================================================`);
+    console.log(`Paddle position: ${paddle.x}, ${paddle.y}`);
+    console.log(`Ball position: ${ball.x}, ${ball.y}`);
+    console.log(`=================================================================`);
+    
+    if (ball.x == 0)
+        return false;
+    else if (ball.y == 0)
+        return false;
+
+    // Vérifier si la balle est à l'intérieur des limites du paddle
+    if ((ball.x >= paddle.x && (ball.x <= paddle.x + paddle.width / 2 || ball.x <= paddle.x - paddle.width)) &&
+        (ball.y >= paddle.y && ball.y <= paddle.y + paddle.height)) {
+        return true;
+    }
+    return false;
 }
 
 function updateBallPosition() {
@@ -56,7 +66,8 @@ function updateBallPosition() {
     for (let id in players) {
         const player = players[id];
         if (detectCollision(player.paddle, ballPosition)) {
-            ballDirection.x = -ballDirection.x;
+            console.log('Collision detected');
+            ballDirection.y = -ballDirection.y;
         }
     }
 
@@ -104,6 +115,9 @@ io.on('connection', (socket) => {
     // Gérer les événements de position des paddles
     socket.on('paddlePosition', (data) => {
         players[socket.id].paddle.x = data.x;
+        players[socket.id].paddle.y = data.y;
+        console.log(`Data Paddle position updated for player ${players[socket.id].playerId}: ${data.x}, ${data.y}`);
+        console.log(`Player Paddle position updated for player ${players[socket.id].playerId}: ${players[socket.id].paddle.x}, ${players[socket.id].paddle.y}`);
         // Envoyer la position du paddle à tous les clients
         io.emit('paddlePosition', data);
     });
