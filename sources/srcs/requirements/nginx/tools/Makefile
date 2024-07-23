@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/07/19 18:23:35 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/22 16:47:14 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,5 +37,8 @@ ls :
 	sudo docker container ls
 logs :
 	sudo docker logs $(NGINX_CONTAINER)
+
+restart :
+	sudo docker restart $(NGINX_CONTAINER)
 
 re : fclean all
