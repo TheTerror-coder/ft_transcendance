@@ -37,14 +37,9 @@ function detectCollision(paddle, ball) {
     console.log(`Ball position: ${ball.x}, ${ball.y}`);
     console.log(`=================================================================`);
     
-    if (ball.x == 0)
-        return false;
-    else if (ball.y == 0)
-        return false;
-
     // Vérifier si la balle est à l'intérieur des limites du paddle
-    if ((ball.x >= paddle.x && (ball.x <= paddle.x + paddle.width / 2 || ball.x <= paddle.x - paddle.width)) &&
-        (ball.y >= paddle.y && ball.y <= paddle.y + paddle.height)) {
+    if (ball.x >= paddle.x - paddle.width / 2 && ball.x <= paddle.x + paddle.width / 2 &&
+        ball.y >= paddle.y - paddle.height / 2 && ball.y <= paddle.y + paddle.height / 2) {
         return true;
     }
     return false;
@@ -71,8 +66,12 @@ function updateBallPosition() {
         }
     }
 
-    // Envoyer la position mise à jour de la balle à tous les clients
+    // Envoyer la position mise à jour de la balle et des paddles à tous les clients
     io.emit('ballPosition', ballPosition);
+    io.emit('paddlesPosition', Object.values(players).map(player => ({
+        playerId: player.playerId,
+        paddle: player.paddle
+    })));
 }
 
 function resetGame() {

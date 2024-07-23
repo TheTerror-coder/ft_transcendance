@@ -67,8 +67,28 @@ window.onload = function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('gameCanvas').appendChild(renderer.domElement);
 
+    const objLoader = new THREE.OBJLoader();
+    objLoader.load('./static/pong/assets/models/Luffy.obj',
+        function ( object ) {
+            scene.add( object );
+            object.position.set(1, 1, 1);
+            console.log("Luffy loaded");
+        },
+        // called when loading is in progresses
+        function ( xhr ) {
+
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+        },
+        // called when loading has errors
+        function ( error ) {
+
+            console.log(error);
+        }
+    );
+
     // Créer les objets du jeu Pong
-    const paddleGeometry = new THREE.BoxGeometry(1, 0.2, 0.1);
+    const paddleGeometry = new THREE.BoxGeometry(1, 0.2, 0.5);
     const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
     const paddle2 = new THREE.Mesh(paddleGeometry, paddleMaterial);
@@ -82,32 +102,44 @@ window.onload = function() {
 
     // Créer les bordures marron
     const borderMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Couleur marron
+    const borderMaterial2 = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Couleur noir
+    const borderGeometryV = new THREE.BoxGeometry(5.5, 0.1, 0.5);
+    const borderGeometryH = new THREE.BoxGeometry(0.1, 5.5, 0.5);
 
     // Bordure supérieure
-    const topBorder = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0), borderMaterial);
+    const topBorder = new THREE.Mesh(borderGeometryV, borderMaterial2);
     topBorder.position.set(0, 2.65, 0);
     scene.add(topBorder);
 
     // Bordure inférieure
-    const bottomBorder = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0), borderMaterial);
+    const bottomBorder = new THREE.Mesh(borderGeometryV, borderMaterial);
     bottomBorder.position.set(0, -2.65, 0);
     scene.add(bottomBorder);
 
     // Bordure gauche
-    const leftBorder = new THREE.Mesh(new THREE.BoxGeometry(0.1, 5.5, 0), borderMaterial);
+    const leftBorder = new THREE.Mesh(borderGeometryH, borderMaterial);
     leftBorder.position.set(-2.65, 0, 0);
     scene.add(leftBorder);
 
     // Bordure droite
-    const rightBorder = new THREE.Mesh(new THREE.BoxGeometry(0.1, 5.5, 0), borderMaterial);
+    const rightBorder = new THREE.Mesh(borderGeometryH, borderMaterial);
     rightBorder.position.set(2.65, 0, 0);
     scene.add(rightBorder);
 
-    camera.position.z = 5;
+    // Ajouter les hitboxes autour des paddles
+    const paddle1Hitbox = new THREE.BoxHelper(paddle1, 0xff0000); // Couleur rouge pour la hitbox
+    const paddle2Hitbox = new THREE.BoxHelper(paddle2, 0xff0000); // Couleur rouge pour la hitbox
+    scene.add(paddle1Hitbox);
+    scene.add(paddle2Hitbox);
+
+    // camera.position.z = 5;
 
     // Positionner les objets
-    paddle1.position.y = -2;
-    paddle2.position.y = 2;
+    // paddle1.position.y = -2;
+    // paddle2.position.y = 2;
+
+    paddle1.position.set(0, -2, 0);
+    paddle2.position.set(0, 2, 0);
 
     // Variables pour suivre les touches enfoncées
     const keys = {};
@@ -124,29 +156,29 @@ window.onload = function() {
     // Fonction pour envoyer la position du paddle à des intervalles réguliers
     setInterval(() => {
         if (keys['a']) {
-            if (playerRole === 'player1')
+            if (playerRole === 'player1' && paddle1.position.x > -2)
                 {
                     paddle1.position.x -= 0.05;
                     console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                     socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                 }
-            else if (playerRole === 'player2')
+            else if (playerRole === 'player2' && paddle2.position.x < 2)
                 {
-                    paddle2.position.x -= 0.05;
+                    paddle2.position.x += 0.05;
                     console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                     socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                 }
         }
         if (keys['d']) {
-            if (playerRole === 'player1')
+            if (playerRole === 'player1' && paddle1.position.x < 2)
                 {
                     paddle1.position.x += 0.05;
                     console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                     socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                 }
-            else if (playerRole === 'player2')
+            else if (playerRole === 'player2' && paddle2.position.x > -2)
                 {
-                    paddle2.position.x += 0.05;
+                    paddle2.position.x -= 0.05;
                     console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                     socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                 }
@@ -161,14 +193,21 @@ window.onload = function() {
             return;
         }
 
-        // Positionner le paddle du joueur en bas de l'écran
-        if (playerRole === 'player1') {
-            paddle1.position.y = -2;
-            paddle2.position.y = 2;
-        } else if (playerRole === 'player2') {
-            paddle1.position.y = 2;
-            paddle2.position.y = -2;
+        // Appliquer une rotation à la caméra pour le joueur 2
+        if (playerRole === 'player2') {
+            camera.position.set(0, 10, 10);
+            camera.lookAt(new THREE.Vector3(0, 0, 0));
+            camera.rotation.z = Math.PI; // Rotation de 180 degrés
         }
+        else if (playerRole === 'player1')
+        {
+            camera.position.set(0, -10, 10);
+            camera.lookAt(new THREE.Vector3(0, 0, 0));
+        }
+
+        // Mettre à jour les hitboxes
+        paddle1Hitbox.update();
+        paddle2Hitbox.update();
 
         renderer.render(scene, camera);
     }
