@@ -6,29 +6,18 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/23 21:27:46 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/23 21:29:26 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 ARG STATICFILES_DIR
 
-FROM python:3.10-alpine
+FROM nginx:alpine
 
-WORKDIR /usr/src/apps
-
-RUN apk add --no-cache curl
 RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR}
 
-COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
+COPY ./templates/404.html /usr/share/nginx/html/
+COPY ./templates/404.css ${STATICFILES_DIR}
 
-COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
-
-RUN pip install -r requirements.txt
-
-COPY ./srcs/ .
-# COPY ./project_init/ .
-
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-CMD [ "/etc/container-init.d/script.sh" ]
+ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

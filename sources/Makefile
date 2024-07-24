@@ -3,20 +3,22 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bfaure < bfaure@student.42lyon.fr>         +#+  +:+       +#+         #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/07/09 15:31:45 by bfaure           ###   ########lyon.fr    #
+#    Updated: 2024/07/23 13:27:17 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-
+ENV :=./srcs/.env
 COMPOSE_FILE= ./srcs/docker-compose.yml 
+
+include $(ENV)
 
 all : build up
 
 build b : # Build or rebuild services
-	-mkdir -p ./srcs/requirements/web/webapps
+	-mkdir -p $(PATHTO_WEBAPPS_DATA)
 	-sudo docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
 	-sudo docker compose -f $(COMPOSE_FILE) create --remove-orphans
@@ -50,17 +52,18 @@ rm remove : # Removes stopped service containers
 	-sudo docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
 	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
-rmv : # clean volumes
-	- yes | sudo docker volume prune
-	# -sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
-	-sudo rm -rf ./srcs/requirements/web/webapps/*
-	# -sudo rm -rf /home/jm/data/website/*
+rmv : # clean data
+	-yes | sudo docker volume prune
+	-sudo rm -rf $(PATHTO_WEBAPPS_DATA)*
 kill k : # Force stop service containers.
 	-sudo docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
 
+cleanv cv : # clean all volumes
+	-yes | sudo docker volume prune
+	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
 clean c : down rm rmi rmv
-fclean fc : clean
+fclean fc : clean cleanv
 	-yes | sudo docker system prune
 reset : clean all
 freset : fclean all
