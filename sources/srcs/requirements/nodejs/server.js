@@ -23,6 +23,13 @@ app.use(cors({
     credentials: true
 }));
 
+// Définir les en-têtes de sécurité
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
+
 app.use(express.static('public'));
 
 let ballPosition = { x: 0, y: 0, width: 0.1, height: 0.1 }; // Ajout des dimensions de la balle

@@ -67,31 +67,52 @@ window.onload = function() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('gameCanvas').appendChild(renderer.domElement);
 
-    const objLoader = new THREE.OBJLoader();
-    objLoader.load('./static/pong/assets/models/Luffy.obj',
-        function ( object ) {
-            scene.add( object );
-            object.position.set(1, 1, 1);
-            console.log("Luffy loaded");
-        },
-        // called when loading is in progresses
-        function ( xhr ) {
+    // Ajouter un fond bleu plus océan
+    const oceanColor = 0x1E90FF; // Couleur bleu océan
+    scene.background = new THREE.Color(oceanColor);
 
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+    // Ajouter des lumières
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Lumière ambiante
+    scene.add(ambientLight);
 
-        },
-        // called when loading has errors
-        function ( error ) {
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau1
+    directionalLight1.position.set(0, 20, 10);
+    scene.add(directionalLight1);
 
-            console.log(error);
-        }
-    );
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau2
+    directionalLight2.position.set(0, -20, 10);
+    scene.add(directionalLight2);
+
+    // Charger le modèle GLTF
+    let bateau1 = null;
+    let bateau2 = null;
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load('../static/pong/assets/models/onepiece.gltf', function (gltf) {
+        // Paddle 1
+        bateau1 = gltf.scene.clone();
+        bateau1.position.set(0, 20, -1);
+        bateau1.scale.set(10, 5, 5);
+        bateau1.rotation.set(Math.PI / 2, 0, 0);
+
+        // Paddle 2
+        bateau2 = gltf.scene.clone();
+        bateau2.position.set(0, -20, -1);
+        bateau2.scale.set(10, 5, 5);
+        bateau2.rotation.set(Math.PI / 2, 0, 0);
+
+        scene.add(bateau1);
+        scene.add(bateau2);
+        console.log('Model loaded successfully');
+    }, undefined, function (error) {
+        console.error('An error occurred while loading the GLTF file', error);
+    });
 
     // Créer les objets du jeu Pong
     const paddleGeometry = new THREE.BoxGeometry(1, 0.2, 0.5);
-    const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
-    const paddle2 = new THREE.Mesh(paddleGeometry, paddleMaterial);
+    const paddle1Material = new THREE.MeshBasicMaterial({ color: 0x800080 });
+    const paddle2Material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const paddle1 = new THREE.Mesh(paddleGeometry, paddle1Material);
+    const paddle2 = new THREE.Mesh(paddleGeometry, paddle2Material);
     scene.add(paddle1);
     scene.add(paddle2);
 
@@ -109,22 +130,22 @@ window.onload = function() {
     // Bordure supérieure
     const topBorder = new THREE.Mesh(borderGeometryV, borderMaterial2);
     topBorder.position.set(0, 2.65, 0);
-    scene.add(topBorder);
+    // scene.add(topBorder);
 
     // Bordure inférieure
     const bottomBorder = new THREE.Mesh(borderGeometryV, borderMaterial);
     bottomBorder.position.set(0, -2.65, 0);
-    scene.add(bottomBorder);
+    // scene.add(bottomBorder);
 
     // Bordure gauche
     const leftBorder = new THREE.Mesh(borderGeometryH, borderMaterial);
     leftBorder.position.set(-2.65, 0, 0);
-    scene.add(leftBorder);
+    // scene.add(leftBorder);
 
     // Bordure droite
     const rightBorder = new THREE.Mesh(borderGeometryH, borderMaterial);
     rightBorder.position.set(2.65, 0, 0);
-    scene.add(rightBorder);
+    // scene.add(rightBorder);
 
     // Ajouter les hitboxes autour des paddles
     const paddle1Hitbox = new THREE.BoxHelper(paddle1, 0xff0000); // Couleur rouge pour la hitbox
@@ -138,8 +159,8 @@ window.onload = function() {
     // paddle1.position.y = -2;
     // paddle2.position.y = 2;
 
-    paddle1.position.set(0, -2, 0);
-    paddle2.position.set(0, 2, 0);
+    // paddle1.position.set(0, -2, bateau1.position.z);
+    // paddle2.position.set(0, 2, bateau2.position.z);
 
     // Variables pour suivre les touches enfoncées
     const keys = {};
@@ -188,29 +209,40 @@ window.onload = function() {
     // Fonction d'animation
     function animate() {
         requestAnimationFrame(animate);
-
+    
         if (!gameStarted) {
             return;
         }
+    
+        // Vérifier que les bateaux existent avant d'accéder à leurs propriétés
+        if (bateau1 && bateau2) {
+            // Positionner les paddles légèrement au-dessus des bateaux
+            paddle1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, bateau1.position.y - 2.5, bateau1.position.z * bateau1.scale.z + 9.7);
+            paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 4.28, bateau2.position.z * bateau2.scale.z + 9.7);
 
-        // Appliquer une rotation à la caméra pour le joueur 2
-        if (playerRole === 'player2') {
-            camera.position.set(0, 10, 10);
-            camera.lookAt(new THREE.Vector3(0, 0, 0));
-            camera.rotation.z = Math.PI; // Rotation de 180 degrés
+            // Appliquer une rotation à la caméra pour le joueur 2
+            if (playerRole === 'player2') {
+                camera.position.set(paddle2.position.x, paddle2.position.y - 2.8, paddle2.position.z + 0.5); // Derrière le paddle
+                camera.lookAt(new THREE.Vector3(paddle2.position.x, paddle2.position.y, paddle2.position.z));
+                // camera.rotation.z = Math.PI; // Rotation de 180 degrés
+                camera.rotation.x = 90 * (Math.PI / 180);
+            }
+            else if (playerRole === 'player1') {
+                camera.position.set(paddle1.position.x, paddle1.position.y + 2.8, paddle1.position.z + 0.5); // Derrière le paddle
+                camera.lookAt(new THREE.Vector3(paddle1.position.x, paddle1.position.y, paddle1.position.z));
+                camera.rotation.x = -90 * (Math.PI / 180);
+                camera.rotation.z = Math.PI; // Rotation de 180 degrés
+                // camera.rotation.y = Math.PI;
+                // camera.rotation.y = 180 * (Math.PI / 180);
+            }
         }
-        else if (playerRole === 'player1')
-        {
-            camera.position.set(0, -10, 10);
-            camera.lookAt(new THREE.Vector3(0, 0, 0));
-        }
-
+    
         // Mettre à jour les hitboxes
         paddle1Hitbox.update();
         paddle2Hitbox.update();
-
+    
         renderer.render(scene, camera);
     }
-
+    
     animate();
 };
