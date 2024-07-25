@@ -3,4 +3,22 @@
     background-image: url(picturePng/loginPage/landscapeOnePiece.png);
     background-repeat: no-repeat;
     background-size: cover;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+.flag
+{
+    width: 14%;
+    margin-left: 84%; 
+    position: fixed;
+}
+
+.loginButton
+{
+    width: 18%;
+    margin-left: 41%; 
+    z-index: 3; 
+    position: fixed
 }
