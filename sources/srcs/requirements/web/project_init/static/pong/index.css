@@ -1,0 +1,17 @@
+/* Assurez-vous que le corps et le html occupent toute la fenêtre */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Empêche les barres de défilement */
+}
+
+/* Style pour le canevas de jeu */
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
