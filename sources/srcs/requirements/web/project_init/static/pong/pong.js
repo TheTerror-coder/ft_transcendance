@@ -28,14 +28,24 @@ window.onload = function() {
     socket.on('playerInfo', (data) => {
         playerId = data.playerId;
         playerRole = data.playerRole;
+        ball.direction = data.ballDirection;
         console.log(`Player ID: ${playerId}`);
         console.log(`Player Role: ${playerRole}`);
+        console.log(`Ball Direction: ${ball.direction}`);
     });
 
     // Recevoir la position de la balle du serveur
     socket.on('ballPosition', (data) => {
         ball.position.x = data.x;
         ball.position.y = data.y;
+        ball.position.z = data.z;
+        updateDirectionLine();
+    });
+
+    socket.on('ballDirection', (data) => {
+        ball.direction.x = data.x;
+        ball.direction.y = data.y;
+        ball.direction.z = data.z;
     });
 
     // Recevoir la position des paddles du serveur
@@ -51,9 +61,16 @@ window.onload = function() {
 
     // Recevoir le signal de démarrage du jeu
     socket.on('startGame', () => {
-        gameStarted = true;
-        waitingMessage.style.display = 'none';
-        console.log('Game started');
+        if (playerRole != null){
+            gameStarted = true;
+            waitingMessage.style.display = 'none';
+            console.log('Game started');
+        }
+        else {
+            waitingMessage.style.display = 'block';
+            console.log('Game not started');
+            socket.emit('playerInfo unknown');
+        }
     });
 
     // Recevoir le signal d'arrêt du jeu
@@ -303,6 +320,10 @@ window.onload = function() {
 
     function PlaceElements() {
         if (bateau1 && bateau2 && !elementsPlaced) {
+            if (playerRole === 'player1')
+                socket.emit('bateauPosition', { playerId, x: bateau1.position.x, y: bateau1.position.y, z: bateau1.position.z, width: bateau1.scale.x, height: bateau1.scale.y });
+            else if (playerRole === 'player2')
+                socket.emit('bateauPosition', { playerId, x: bateau2.position.x, y: bateau2.position.y, z: bateau2.position.z, width: bateau2.scale.x, height: bateau2.scale.y });
             // Positionner les paddles légèrement au-dessus des bateaux
             paddle1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, bateau1.position.y - 3.2, bateau1.position.z * bateau1.scale.z + 9.9);
             paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 5, bateau2.position.z * bateau2.scale.z + 9.9);
@@ -361,6 +382,35 @@ window.onload = function() {
         }
     }, 16); // Envoyer la position toutes les 100ms
 
+    let directionLine; // Déclaration de la ligne de direction
+
+    function createDirectionLine() {
+        const material = new THREE.LineBasicMaterial({ color: 0xff0000 }); // Couleur de la ligne
+        const points = [];
+        points.push(new THREE.Vector3(ball.position.x, ball.position.y, ball.position.z)); // Position de la balle
+        points.push(new THREE.Vector3(ball.position.x + ball.direction.x * 10, ball.position.y + ball.direction.y * 10, ball.position.z)); // Point de direction
+
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        directionLine = new THREE.Line(geometry, material);
+        scene.add(directionLine); // Ajouter la ligne à la scène
+    }
+
+    function updateDirectionLine() {
+        if (directionLine) {
+            // Mettre à jour les points de la ligne
+            const points = directionLine.geometry.attributes.position.array;
+            points[0] = ball.position.x;
+            points[1] = ball.position.y;
+            points[2] = ball.position.z;
+
+            points[3] = ball.position.x + ball.direction.x * 10; // Point de direction
+            points[4] = ball.position.y + ball.direction.y * 10; // Point de direction
+            points[5] = ball.position.z;
+
+            directionLine.geometry.attributes.position.needsUpdate = true; // Indiquer que la géométrie a besoin d'être mise à jour
+        }
+    }
+
     // Fonction d'animation
     function animate() {
         requestAnimationFrame(animate);
@@ -370,6 +420,8 @@ window.onload = function() {
         }
 
         PlaceElements();
+        // Appeler createDirectionLine() une fois pour créer la ligne
+        createDirectionLine();
 
         if (mixer) {
             mixer.update(0.01); // Mettre à jour le mixer

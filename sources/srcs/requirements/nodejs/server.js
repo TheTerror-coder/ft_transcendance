@@ -32,11 +32,62 @@ app.use((req, res, next) => {
 
 app.use(express.static('public'));
 
-let ballPosition = { x: 0, y: 0, width: 0.1, height: 0.1 }; // Ajout des dimensions de la balle
-let ballDirection = { x: 0.02, y: 0.02 };
+function nombreAleatoire(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+let ballPosition = { x: 0, y: 0, z: 5.5, width: 0.1, height: 0.1 }; // Position initiale de la balle plus haute
 const players = {}; // Stocker les joueurs connectés
+// let ballDirection = { x: 0, y: 0, z: 0 };
+// players[socket.id].ballDirection = { x: nombreAleatoire(-0.05, 0.05), y: nombreAleatoire(-0.05, 0.05), z: 0 };
 let playerCount = 0; // Compter le nombre de joueurs connectés
 let gameInterval = null; // Référence à l'intervalle de mise à jour du jeu
+
+io.on('bateauPosition', (data) => {
+    console.log(`Bateau position updated for player ${data.playerId}: ${data.x}, ${data.y}, ${data.z}`);
+    players[socket.id].bateau.x = data.x;
+    players[socket.id].bateau.y = data.y;
+    players[socket.id].bateau.z = data.z;
+    players[socket.id].bateau.width = data.width;
+    players[socket.id].bateau.height = data.height;
+});
+
+function getRandomDirection(currentPosition) {
+    // Définir les limites de la zone
+    const xMin = -5.65;
+    const xMax = -0.30;
+    const yOptions = [-0.15, 0.15]; // Options pour y
+
+    // Générer une position cible aléatoire
+    const targetX = Math.random() * (xMax - xMin) + xMin; // x aléatoire entre xMin et xMax
+    let targetY;
+    if (currentPosition.y >= 15) {
+        targetY = -0.15;
+    }
+    else if (currentPosition.y <= -15) {
+        targetY = 0.15;
+    }
+    else {
+        targetY = yOptions[Math.floor(Math.random() * yOptions.length)]; // y aléatoire entre -15 et 15
+    }
+
+    // Position actuelle
+    const currentX = currentPosition.x;
+    const currentY = currentPosition.y;
+
+    // Calculer le vecteur directionnel
+    const directionX = targetX - currentX;
+    const directionY = targetY - currentY;
+
+    // Normaliser le vecteur
+    const length = Math.sqrt(directionX * directionX + directionY * directionY);
+    const normalizedDirection = {
+        x: directionX / length,
+        y: directionY / length
+    };
+
+    return normalizedDirection; // Retourner le vecteur directionnel normalisé
+}
 
 function detectCollision(paddle, ball) {
     console.log(`=================================================================`);
@@ -52,16 +103,35 @@ function detectCollision(paddle, ball) {
     return false;
 }
 
+const speed = 0.1;
+
 function updateBallPosition() {
-    ballPosition.x += ballDirection.x;
-    ballPosition.y += ballDirection.y;
+    ballPosition.x += ballDirection.x * speed;
+    ballPosition.y += ballDirection.y * speed;
+    currentPosition = { x: ballPosition.x, y: ballPosition.y };
+    directionVector = getRandomDirection(currentPosition);
+
+    // Normaliser le vecteur de direction
+    const length = Math.sqrt(directionVector.x * directionVector.x + directionVector.y * directionVector.y);
+    if (length > 0) {
+        directionVector.x /= length; // Normaliser
+        directionVector.y /= length; // Normaliser
+    }
 
     // Vérifier les collisions avec les murs
-    if (ballPosition.x > 2.5 || ballPosition.x < -2.5) {
-        ballDirection.x = -ballDirection.x;
+    if (ballPosition.x > 15 || ballPosition.x < -15) {
+        if (currentPosition.x > -0.30 || currentPosition.x < -5.65) {
+            ballDirection.x = -ballDirection.x;
+        } else {
+            ballDirection.x = directionVector.x * speed; // Multiplier par une vitesse constante
+        }
     }
-    if (ballPosition.y > 2.5 || ballPosition.y < -2.5) {
-        ballDirection.y = -ballDirection.y;
+    if (ballPosition.y > 15 || ballPosition.y < -15) {
+        if (currentPosition.y >= 15) {
+            ballDirection.y = -ballDirection.y;
+        } else {
+            ballDirection.y = directionVector.y * speed; // Multiplier par une vitesse constante
+        }
     }
 
     // Vérifier les collisions avec les paddles
@@ -75,15 +145,21 @@ function updateBallPosition() {
 
     // Envoyer la position mise à jour de la balle et des paddles à tous les clients
     io.emit('ballPosition', ballPosition);
+    io.emit('ballDirection', ballDirection);
     io.emit('paddlesPosition', Object.values(players).map(player => ({
         playerId: player.playerId,
         paddle: player.paddle
     })));
 }
 
+setInterval(() => {
+    ballDirection.x *= 1.01;
+    ballDirection.y *= 1.01;
+}, 10000);
+
 function resetGame() {
-    ballPosition = { x: 0, y: 0 };
-    ballDirection = { x: 0.02, y: 0.02 };
+    ballPosition = { x: 0, y: 0, z: 6 };
+    ballDirection = { x: 0.02, y: 0.02, z: 0 };
     playerCount = 0;
     for (let id in players) {
         delete players[id];
@@ -102,19 +178,25 @@ io.on('connection', (socket) => {
     players[socket.id] = { 
         playerId, 
         playerRole, 
-        paddle: { x: 0, y: 0, width: 1, height: 0.2 } // Initialiser le paddle
+        paddle: { x: 0, y: 0, width: 1, height: 0.2 },
+        ballDirection: { x: nombreAleatoire(-0.05, 0.05), y: nombreAleatoire(-0.05, 0.05), z: 0 }
     };
+    ballDirection = players[socket.id].ballDirection;
     console.log(`Player connected: ${playerId} as ${playerRole}`);
 
     // Envoyer l'identifiant unique et le rôle au client
-    socket.emit('playerInfo', { playerId, playerRole });
+    socket.emit('playerInfo', { playerId, playerRole, ballDirection: players[socket.id].ballDirection });
 
     // Envoyer la position initiale de la balle au nouveau client
     socket.emit('ballPosition', ballPosition);
+    // socket.emit('ballDirection', ballDirection);
 
     // Démarrer le jeu lorsque deux joueurs sont connectés
     if (playerCount === 2) {
         io.emit('startGame');
+        io.on('playerInfo unknown', (data) => {
+            socket.emit('playerInfo', { playerId, playerRole });
+        });
         gameInterval = setInterval(updateBallPosition, 16); // Mettre à jour la position de la balle toutes les 16ms (~60fps)
     }
 
