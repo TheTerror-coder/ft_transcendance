@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from authlib.integrations.django_client import OAuth
+from . import variables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +30,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [ '*' ]
 
-CSRF_TRUSTED_ORIGINS = [
-	'http://transcendance.fr:8080'
-]
+# CSRF_TRUSTED_ORIGINS = [
+# 	'http://transcendance.fr:8080'
+# ]
 
 # Application definition
 
@@ -41,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+	# 'authlib',
+	'registration',
 ]
 
 MIDDLEWARE = [
@@ -78,14 +83,18 @@ WSGI_APPLICATION = 'web.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-        'PORT': os.environ.get('POSTGRES_PORT'),
+	'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('POSTGRES_DB'),
+    #     'USER': os.environ.get('POSTGRES_USER'),
+    #     'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+    #     'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+    #     'PORT': os.environ.get('POSTGRES_PORT'),
+    # }
 }
 
 
@@ -107,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# AUTHENTICATION_BACKENDS = [
+# 	'django.contrib.auth.backends.ModelBackend',
+# 	'authlib.backends.EmailBackend',
+# ]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -125,7 +139,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATIC_ROOT = os.environ.get('STATICFILES_DIR')
+# STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 
 STATICFILES_DIRS = [
 	BASE_DIR / "static",
@@ -135,3 +149,29 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = '/home'
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO: remove when ssl security will be activated for oauth2 42 api redirect url (e.g https://transcendance.fr:8000)
+
+oauth = OAuth()
+oauth.register(
+    name='ultimapi',
+    client_id=variables.OAUTH2_CLIENT_ID,
+    client_secret=variables.OAUTH2_CLIENT_SECRET,
+    access_token_url=variables.OAUTH2_ACCESS_TOKEN_URL,
+    access_token_params=None,
+    authorize_url=variables.OAUTH2_AUTHORIZE_URL,
+    authorize_params=None,
+    api_base_url=variables.OAUTH2_BASE_URL,
+    client_kwargs={
+		'grant_type': 'authorization_code',
+		'token_endpoint_auth_method': 'client_secret_post',
+		'prompt_force': 'consent'
+		# 'scope': 'public',
+	}
+)
+
+# SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_COOKIE_SECURE = False
