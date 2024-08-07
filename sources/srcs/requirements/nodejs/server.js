@@ -52,6 +52,8 @@ io.on('bateauPosition', (data) => {
     players[socket.id].bateau.height = data.height;
 });
 
+// io.on()
+
 function getRandomDirection(currentPosition) {
     // Définir les limites de la zone
     const xMin = -5.65;
@@ -90,10 +92,10 @@ function getRandomDirection(currentPosition) {
 }
 
 function detectCollision(paddle, ball) {
-    console.log(`=================================================================`);
-    console.log(`Paddle position: ${paddle.x}, ${paddle.y}`);
-    console.log(`Ball position: ${ball.x}, ${ball.y}`);
-    console.log(`=================================================================`);
+    // console.log(`=================================================================`);
+    // console.log(`Paddle position: ${paddle.x}, ${paddle.y}`);
+    // console.log(`Ball position: ${ball.x}, ${ball.y}`);
+    // console.log(`=================================================================`);
     
     // Vérifier si la balle est à l'intérieur des limites du paddle
     if (ball.x >= paddle.x - paddle.width / 2 && ball.x <= paddle.x + paddle.width / 2 &&
@@ -103,35 +105,37 @@ function detectCollision(paddle, ball) {
     return false;
 }
 
-const speed = 0.1;
+const speed = 10;
 
-function updateBallPosition() {
-    ballPosition.x += ballDirection.x * speed;
-    ballPosition.y += ballDirection.y * speed;
-    currentPosition = { x: ballPosition.x, y: ballPosition.y };
-    directionVector = getRandomDirection(currentPosition);
+const FPS = 60;
+const TICK_RATE = 1000 / FPS;
+let lastUpdateTime = Date.now();
 
-    // Normaliser le vecteur de direction
-    const length = Math.sqrt(directionVector.x * directionVector.x + directionVector.y * directionVector.y);
-    if (length > 0) {
-        directionVector.x /= length; // Normaliser
-        directionVector.y /= length; // Normaliser
-    }
+function updateGameState() {
+    const now = Date.now();
+    const deltaTime = (now - lastUpdateTime) / 1000;
+    lastUpdateTime = now;
 
-    // Vérifier les collisions avec les murs
-    if (ballPosition.x > 15 || ballPosition.x < -15) {
-        if (currentPosition.x > -0.30 || currentPosition.x < -5.65) {
-            ballDirection.x = -ballDirection.x;
-        } else {
-            ballDirection.x = directionVector.x * speed; // Multiplier par une vitesse constante
+    // Mettre à jour la position de la balle
+    updateBallPosition(deltaTime);
+
+    io.emit('gameState', { ballPosition, ballDirection });
+    console.log(`Game state updated: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
+}
+
+function updateBallPosition(deltaTime) {
+    ballDirection.x += ballPosition.x * speed * deltaTime;
+    ballDirection.y += ballPosition.y * speed * deltaTime;
+
+    if (ballPosition.x >= 15 || ballPosition.x <= -15)
+    {
+        if (!(ballPosition.x >= 5.65 || ballPosition.x <= -0.30)) 
+        {
+            ballDirection = getRandomDirection(ballPosition);
         }
     }
-    if (ballPosition.y > 15 || ballPosition.y < -15) {
-        if (currentPosition.y >= 15) {
-            ballDirection.y = -ballDirection.y;
-        } else {
-            ballDirection.y = directionVector.y * speed; // Multiplier par une vitesse constante
-        }
+    if (ballPosition.y >= 15 || ballPosition.y <= -15) {
+        ballDirection = getRandomDirection(ballPosition);
     }
 
     // Vérifier les collisions avec les paddles
@@ -142,14 +146,6 @@ function updateBallPosition() {
             ballDirection.y = -ballDirection.y;
         }
     }
-
-    // Envoyer la position mise à jour de la balle et des paddles à tous les clients
-    io.emit('ballPosition', ballPosition);
-    io.emit('ballDirection', ballDirection);
-    io.emit('paddlesPosition', Object.values(players).map(player => ({
-        playerId: player.playerId,
-        paddle: player.paddle
-    })));
 }
 
 setInterval(() => {
@@ -174,7 +170,9 @@ function resetGame() {
 io.on('connection', (socket) => {
     const playerId = uuidv4(); // Générer un identifiant unique pour le joueur
     playerCount++;
-    const playerRole = playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur
+    console.log(`Player count: ${playerCount}`);
+    const playerRole = 'player' + playerCount;
+    // const playerRole = playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur
     players[socket.id] = { 
         playerId, 
         playerRole, 
@@ -197,7 +195,7 @@ io.on('connection', (socket) => {
         io.on('playerInfo unknown', (data) => {
             socket.emit('playerInfo', { playerId, playerRole });
         });
-        gameInterval = setInterval(updateBallPosition, 16); // Mettre à jour la position de la balle toutes les 16ms (~60fps)
+        gameInterval = setInterval(updateGameState, TICK_RATE); // Mettre à jour la position de la balle toutes les 16ms (~60fps)
     }
 
     // Gérer les événements de position des paddles
@@ -211,7 +209,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log(`Player disconnected: ${players[socket.id].playerId}`);
+        // console.log(`Player disconnected: ${players[socket.id].playerId}`);
+        io.emit('playerDisconnected', players[socket.id].playerId);
         delete players[socket.id];
         playerCount--;
         // Réinitialiser le jeu si un joueur se déconnecte

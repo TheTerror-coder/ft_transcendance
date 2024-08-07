@@ -31,21 +31,16 @@ window.onload = function() {
         ball.direction = data.ballDirection;
         console.log(`Player ID: ${playerId}`);
         console.log(`Player Role: ${playerRole}`);
-        console.log(`Ball Direction: ${ball.direction}`);
+        console.log(`Ball Direction: ${ball.direction.x}, ${ball.direction.y}, ${ball.direction.z}`);
     });
 
-    // Recevoir la position de la balle du serveur
-    socket.on('ballPosition', (data) => {
-        ball.position.x = data.x;
-        ball.position.y = data.y;
-        ball.position.z = data.z;
-        updateDirectionLine();
-    });
-
-    socket.on('ballDirection', (data) => {
-        ball.direction.x = data.x;
-        ball.direction.y = data.y;
-        ball.direction.z = data.z;
+    socket.on('gameState', (data) => {
+        ball.position.x = data.ballPosition.x;
+        ball.position.y = data.ballPosition.y;
+        ball.position.z = data.ballPosition.z;
+        ball.direction.x = data.ballDirection.x;
+        ball.direction.y = data.ballDirection.y;
+        ball.direction.z = data.ballDirection.z;
     });
 
     // Recevoir la position des paddles du serveur
@@ -179,7 +174,7 @@ window.onload = function() {
 
     // Charge le modèle GLB de l'ocean
     let ocean = null;
-    let mixer = null;
+    // let mixer = null;
     const gltfLoader = new THREE.GLTFLoader();
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load('../static/pong/assets/textures/ocean_texture.jpg'); // Remplacez par le chemin de votre texture
@@ -200,10 +195,10 @@ window.onload = function() {
 
         scene.add(ocean);
 
-        mixer = new THREE.AnimationMixer(ocean); // Créer un mixer pour les animations
-        gltf.animations.forEach((clip) => {
-            mixer.clipAction(clip).play(); // Jouer chaque animation
-        });
+        // mixer = new THREE.AnimationMixer(ocean); // Créer un mixer pour les animations
+        // gltf.animations.forEach((clip) => {
+        //     mixer.clipAction(clip).play(); // Jouer chaque animation
+        // });
     }, undefined, function (error) {
         console.error('Une erreur est survenue lors du chargement du modèle GLB', error);
     });
@@ -421,11 +416,11 @@ window.onload = function() {
 
         PlaceElements();
         // Appeler createDirectionLine() une fois pour créer la ligne
-        createDirectionLine();
+        // createDirectionLine();
 
-        if (mixer) {
-            mixer.update(0.01); // Mettre à jour le mixer
-        }
+        // if (mixer) {
+        //     mixer.update(0.01); // Mettre à jour le mixer
+        // }
     
         // Mettre à jour les hitboxes
         paddle1Hitbox.update();
