@@ -6,18 +6,19 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/25 22:46:37 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/25 21:59:47 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ARG STATICFILES_DIR
+ARG STACK_VERSION
 
-FROM nginx:alpine
+FROM elasticsearch:${STACK_VERSION}
 
-RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR} /etc/nginx/ssl/
+USER "0"
 
-COPY ./templates/404.html /usr/share/nginx/html/
-COPY ./templates/404.css ${STATICFILES_DIR}
+RUN mkdir -p /etc/container-init.d
 
-ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
+COPY --chown=root:root --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+
+ENTRYPOINT [ "/etc/container-init.d/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]
