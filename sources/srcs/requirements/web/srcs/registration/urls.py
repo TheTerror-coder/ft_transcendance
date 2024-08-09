@@ -19,9 +19,8 @@ from django.contrib import auth
 from django.contrib.auth.views import LoginView
 from django.views import debug
 from django.urls import include, path
-from web import variables
+from web import parameters
 from . import views
-from . import oauth2views
 
 urlpatterns = [
     path('', views.home),
@@ -29,6 +28,4 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('sign_up/', views.sign_up, name='sign_up'),
-    path(f'{variables.OAUTH2_AUTHORIZATION_PAGE_URI}/', oauth2views.user_authorization, name='authorization_page'),
-    path(f'{variables.OAUTH2_AUTHORIZATION_CALLBACK_URI}/', oauth2views.authorization_callback, name='authorization_callback'),
 ]

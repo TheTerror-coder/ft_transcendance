@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-from authlib.integrations.django_client import OAuth
-from . import variables
+from . import parameters
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,8 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
-	# 'authlib',
+	# allauth
+	'allauth',
+    'allauth.account',
+	'allauth.socialaccount',
+	'ultimapi',
+
 	'registration',
 ]
 
@@ -56,6 +61,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+	# Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'web.urls'
@@ -116,10 +124,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTHENTICATION_BACKENDS = [
-# 	'django.contrib.auth.backends.ModelBackend',
-# 	'authlib.backends.EmailBackend',
-# ]
+AUTHENTICATION_BACKENDS = [
+	#default
+	'django.contrib.auth.backends.ModelBackend',
+
+	# `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 
 # Internationalization
@@ -150,28 +161,29 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/login'
-LOGOUT_REDIRECT_URL = '/home'
+########################
+### ADD your customs ###
+########################
 
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO: remove when ssl security will be activated for oauth2 42 api redirect url (e.g https://transcendance.fr:8000)
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'account_login'
 
-oauth = OAuth()
-oauth.register(
-    name='ultimapi',
-    client_id=variables.OAUTH2_CLIENT_ID,
-    client_secret=variables.OAUTH2_CLIENT_SECRET,
-    access_token_url=variables.OAUTH2_ACCESS_TOKEN_URL,
-    access_token_params=None,
-    authorize_url=variables.OAUTH2_AUTHORIZE_URL,
-    authorize_params=None,
-    api_base_url=variables.OAUTH2_BASE_URL,
-    client_kwargs={
-		'grant_type': 'authorization_code',
-		'token_endpoint_auth_method': 'client_secret_post',
-		'prompt_force': 'consent'
-		# 'scope': 'public',
-	}
-)
+# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO: remove when ssl security will be activated for oauth2 42 api redirect url (e.g https://transcendance.fr:8000)
 
-# SESSION_SAVE_EVERY_REQUEST = True
-# SESSION_COOKIE_SECURE = False
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'ultimapi': {
+        'APP': {
+            'client_id': parameters.OAUTH2_CLIENT_ID,
+            'secret': parameters.OAUTH2_CLIENT_SECRET,
+            'key': ''
+        },
+		'AUTH_PARAMS': {
+			'redirect_uri': 'http://transcendance.fr:8000/accounts/ultimapi/login/callback/',
+        },
+    }
+}
+
+SITE_ID = 1

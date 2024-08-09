@@ -23,4 +23,5 @@ import registration
 urlpatterns = [
     path('', include('registration.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
 ]

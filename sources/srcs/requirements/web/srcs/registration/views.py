@@ -4,12 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from .forms import SignUpForm, LogInForm
-from web import variables
-from requests_oauthlib import OAuth2Session
-from authlib.integrations.django_client import OAuth
+from web import parameters
 # Create your views here.
 
-@login_required(login_url='/login/')
+@login_required(login_url='account_login')
 def home(request):
 	return (render(request, 'home.html'))
 def login(request):

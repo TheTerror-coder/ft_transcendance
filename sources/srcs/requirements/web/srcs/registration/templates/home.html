@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load socialaccount %}
+
 <!doctype html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html lang="{{ LANGUAGE_CODE|default:'en-us' }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
@@ -219,7 +221,10 @@
         </svg>
         <h1>{% translate "The install worked successfully! Congratulations!" %}</h1>
         <p>{% blocktranslate %}You are seeing this page because <a href="https://docs.djangoproject.com/en/{{ version }}/ref/settings/#debug" target="_blank" rel="noopener">DEBUG=True</a> is in your settings file and you have not configured any URLs.{% endblocktranslate %}</p>
-        <h1> Logged User ->> {{ user }} <a href=" {% url "logout" %} "> __ logout __ </a> </h1>
+        
+		
+		<h1> Logged in as : {{ user }} <a href=" {% url "account_logout" %} "> __ logout __ </a> </h1>
+		
       </main>
       <footer>
         <a class="option" href="https://docs.djangoproject.com/en/{{ version }}/" target="_blank" rel="noopener">
