@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if request.path == '/profile/' %}
+        <a href="{% url 'home' %}">
+    {% endif %}
+    {% block profile %}
+        <h2>Profil de {{ user.username }}</h2>
+        <img src="{{ user.photo.url }}" alt="Photo de profil">
+        {% comment %} bouton pour en ligne, hors ligne {% endcomment %}
+        {% if user.is_authenticated %}
+            <span style="color: green;">● En ligne</span>
+        {% else %}
+        <span style="color: red;">● Hors ligne</span>
+        {% endif %}
+    {% endblock %}
+
+    {% if request.path == '/profile/' %}
+    {% block update_info %}
+        <a href="{% url 'update_profile' %}">Mettre à jour le nom d'utilisateur</a>
+        <a href="{% url 'update_photo' %}">Mettre à jour la photo de profile</a>
+    {% endblock %}
+    {% endif %}
+    
+    {% if request.path == '/profile/' %}
+    {% block logout %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Déconnexion</button>
+        </form>
+    {% endblock %}
+    {% endif %}
+{% endblock %}

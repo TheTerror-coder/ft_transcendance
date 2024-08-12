@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if request.path != '/friend/' %}
+        <h1>Mes Amis</h1>
+    {% endif %}
+    {% if request.path == '/friend/' %}
+        {% block friend %}
+            <h2>Amis</h2>
+            <ul>
+                {% for friend in friend_list %}
+                    <li>{{ friend.username }}</li>
+                {% empty %}
+                    <li>Vous n'avez pas encore d'amis.</li>
+                {% endfor %}
+            </ul>
+            <p>Nombre d'amis : {{ friend_list|length }}</p>
+        {% endblock %}
+
+        {% block add_friend %}
+            <h2>Ajouter un ami</h2>
+            <form method="post" action="{% url 'add_friend' %}">
+                {% csrf_token %}
+                <label for="username">Nom d'utilisateur de l'ami :</label>
+                <input type="text" name="username" id="username">
+                <button type="submit">Ajouter l'ami</button>
+            </form>
+        {% endblock %}
+
+        {% comment %} {% block remove_friend %}
+            <h2>Supprimer un ami</h2>
+            <form method="post" action="{% url 'remove_friend' %}">
+                {% csrf_token %}
+                <label for="username">Nom d'utilisateur de l'ami :</label>
+                <input type="text" name="username" id="username">
+                <button type="submit">Supprimer l'ami</button>
+            </form>
+        {% endblock %} {% endcomment %}
+    {% endif %}
+{% endblock %}

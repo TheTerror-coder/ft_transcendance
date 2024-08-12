@@ -17,3 +17,8 @@ class UpdateUsernameForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['username']
+
+class UpdatePhotoForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['photo']
