@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% block user %}
+        <h2>Profil de {{ user.username }}</h2>
+        {% if user.is_superuser %}
+            <p>Pas de photo de profil.</p>
+        {% else %}
+            <img src="{{ user.photo.url }}" alt="Photo de profil">
+        {% endif %}
+        {% if user.is_authenticated %}
+            <span style="color: green;">● En ligne</span>
+        {% else %}
+            <span style="color: red;">● Hors ligne</span>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

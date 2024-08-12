@@ -13,4 +13,6 @@ urlpatterns = [
     path('update-photo/', views.update_photo, name='update_photo'),
     path('friend/', views.friend, name='friend'),
     path('add_friend/', views.add_friend, name='add_friend'),
+    path('remove_friend/', views.remove_friend, name='remove_friend'),
+    path('user/<str:username>', views.users, name='user_profile'),
 ]

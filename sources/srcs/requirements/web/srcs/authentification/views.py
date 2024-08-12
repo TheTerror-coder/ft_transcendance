@@ -4,6 +4,7 @@ from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsern
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 def register(request):
     if request.method == 'POST':
@@ -101,3 +102,27 @@ def add_friend(request):
         return redirect('friend')
     else:
         return render(request, 'friend.html')
+    
+@login_required
+def remove_friend(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            friend = User.objects.get(username=username)
+            if friend == request.user:
+                messages.error(request, "Vous ne pouvez pas vous retirer vous-même comme ami.")
+            elif not request.user.friend_list.filter(id=friend.id).exists():
+                messages.error(request, "Cet utilisateur n'est pas votre amis.")
+            else:
+                request.user.friend_list.remove(friend)
+                messages.success(request, f"{friend.username} a été retiré avec succées")
+        except User.DoesNotExist:
+            messages.error(request, "Cet utilisateur n'existe pas.")
+        return redirect('friend')
+    else:
+        return render(request, 'friend.html')
+
+@login_required
+def users(request, username):
+    user = get_object_or_404(User, username=username)
+    return render(request, 'user.html', {'user': user})
