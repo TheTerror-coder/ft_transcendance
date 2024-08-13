@@ -101,3 +101,7 @@ def add_friend(request):
         return redirect('friend')
     else:
         return render(request, 'friend.html')
+    
+@login_required
+def user_profile(request, user.id):
+    
