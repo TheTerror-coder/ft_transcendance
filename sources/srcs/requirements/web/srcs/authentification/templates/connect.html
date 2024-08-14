@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <p>welcome {{ user.username }}</p>
+        {%block logout%}
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Déconnexion</button>
+            </form>
+        {%endblock%}
+        {% else %}
+        <nav>
+            <ul>
+                <li><a href="{% url 'base' %}">Connexion API 42</a></li>
+                <li><a href="{% url 'login' %}">Connexion par mail</a></li>
+                <li><a href="{% url 'register' %}">Créer un compte</a></li>
+            </ul>
+        </nav>
+        {% endif %}
+{% endblock %}
+
