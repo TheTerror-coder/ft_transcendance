@@ -36,12 +36,33 @@ function nombreAleatoire(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-let ballPosition = { x: 0, y: 0, z: 5.5, width: 0.1, height: 0.1 }; // Position initiale de la balle plus haute
+let ballPosition = { x: -2, y: 0, z: 5.5, width: 0.1, height: 0.1 }; // Position initiale de la balle plus haute
 const players = {}; // Stocker les joueurs connectés
-// let ballDirection = { x: 0, y: 0, z: 0 };
+let ballDirection = { x: 0, y: 0, z: 0 };
 // players[socket.id].ballDirection = { x: nombreAleatoire(-0.05, 0.05), y: nombreAleatoire(-0.05, 0.05), z: 0 };
-let playerCount = 0; // Compter le nombre de joueurs connectés
+global.playerCount = 0; // Compter le nombre de joueurs connectés
 let gameInterval = null; // Référence à l'intervalle de mise à jour du jeu
+
+function initializeBallDirection() {
+    // Choisissez un paddle cible au hasard
+    console.log(`Players: ${players}`);
+    const playerIds = Object.keys(players);
+    const randomPlayersId = playerIds[Math.floor(Math.random() * playerIds.length)];
+    const targetPaddle = players[randomPlayersId].paddle;
+
+    // Calculer le vecteur directionnel
+    let directionX = targetPaddle.x - ballPosition.x;
+    let directionY = targetPaddle.y - ballPosition.y;
+
+    // Normaliser le vecteur directionnel
+    const length = Math.sqrt(directionX * directionX + directionY * directionY);
+    ballDirection = {
+        x: directionX / length,
+        y: directionY / length
+    };
+    return ballDirection;
+}
+
 
 io.on('bateauPosition', (data) => {
     console.log(`Bateau position updated for player ${data.playerId}: ${data.x}, ${data.y}, ${data.z}`);
@@ -52,34 +73,20 @@ io.on('bateauPosition', (data) => {
     players[socket.id].bateau.height = data.height;
 });
 
-// io.on()
-
-function getRandomDirection(currentPosition) {
+function getRandomDirection(currentPosition, xMin, xMax) {
     // Définir les limites de la zone
-    const xMin = -5.65;
-    const xMax = -0.30;
-    const yOptions = [-0.15, 0.15]; // Options pour y
+    // const xMin = -5.65;
+    // const xMax = -0.30;
 
-    // Générer une position cible aléatoire
-    const targetX = Math.random() * (xMax - xMin) + xMin; // x aléatoire entre xMin et xMax
-    let targetY;
-    if (currentPosition.y >= 15) {
-        targetY = -0.15;
-    }
-    else if (currentPosition.y <= -15) {
-        targetY = 0.15;
-    }
-    else {
-        targetY = yOptions[Math.floor(Math.random() * yOptions.length)]; // y aléatoire entre -15 et 15
-    }
+    // Générer une position cible aléatoire sur l'axe x
+    const targetX = Math.random() * (xMax - xMin) + xMin;
 
-    // Position actuelle
-    const currentX = currentPosition.x;
-    const currentY = currentPosition.y;
+    // Calculer le y cible (inverse du y actuel)
+    const targetY = -currentPosition.y;
 
     // Calculer le vecteur directionnel
-    const directionX = targetX - currentX;
-    const directionY = targetY - currentY;
+    const directionX = targetX - currentPosition.x;
+    const directionY = targetY - currentPosition.y;
 
     // Normaliser le vecteur
     const length = Math.sqrt(directionX * directionX + directionY * directionY);
@@ -120,43 +127,54 @@ function updateGameState() {
     updateBallPosition(deltaTime);
 
     io.emit('gameState', { ballPosition, ballDirection });
-    console.log(`Game state updated: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
+    // console.log(`Game state updated: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
 }
 
 function updateBallPosition(deltaTime) {
-    ballDirection.x += ballPosition.x * speed * deltaTime;
-    ballDirection.y += ballPosition.y * speed * deltaTime;
+    // ballDirection.x += ballPosition.x * speed * deltaTime;
+    // ballDirection.y += ballPosition.y * speed * deltaTime;
+
+    ballPosition.x += ballDirection.x * speed * deltaTime;
+    ballPosition.y += ballDirection.y * speed * deltaTime;
 
     if (ballPosition.x >= 15 || ballPosition.x <= -15)
     {
-        if (!(ballPosition.x >= 5.65 || ballPosition.x <= -0.30)) 
+        console.log(`Ball position 1: ${ballPosition.x}, ${ballPosition.y}`);
+        if (!(ballPosition.x >= -5.65 || ballPosition.x <= -0.30)) 
         {
-            ballDirection = getRandomDirection(ballPosition);
+            ballDirection = getRandomDirection(ballPosition, -5.65, -0.30);
+            console.log(`Ball direction updated: ${ballDirection.x}, ${ballDirection.y}`);
+        }
+        else
+        {
+            console.log(`Ball position 2: ${ballPosition.x}, ${ballPosition.y}`);
+            ballDirection.x = -ballDirection.x;
         }
     }
     if (ballPosition.y >= 15 || ballPosition.y <= -15) {
-        ballDirection = getRandomDirection(ballPosition);
+        ballDirection.y = -ballDirection.y;
+        console.log(`Ball direction 1: ${ballDirection.x}, ${ballDirection.y}`);
     }
 
     // Vérifier les collisions avec les paddles
     for (let id in players) {
         const player = players[id];
         if (detectCollision(player.paddle, ballPosition)) {
-            console.log('Collision detected');
+            // console.log('Collision detected');
             ballDirection.y = -ballDirection.y;
         }
     }
 }
 
-setInterval(() => {
-    ballDirection.x *= 1.01;
-    ballDirection.y *= 1.01;
-}, 10000);
+// setInterval(() => {
+//     ballDirection.x *= 1.01;
+//     ballDirection.y *= 1.01;
+// }, 10000);
 
 function resetGame() {
-    ballPosition = { x: 0, y: 0, z: 6 };
+    ballPosition = { x: 0, y: 0, z: 5.5 };
     ballDirection = { x: 0.02, y: 0.02, z: 0 };
-    playerCount = 0;
+    // global.playerCount = 0;
     for (let id in players) {
         delete players[id];
     }
@@ -167,30 +185,47 @@ function resetGame() {
     io.emit('stopGame');
 }
 
-io.on('connection', (socket) => {
+let lock = false;
+function acquireLock() {
+    return new Promise(resolve => {
+        const interval = setInterval(() => {
+            if (!lock) {
+                lock = true;
+                clearInterval(interval);
+                resolve();
+            }
+        }, 10); // Vérifie toutes les 10ms
+    });
+}
+
+io.on('connection', async (socket) => {
+    await acquireLock();
     const playerId = uuidv4(); // Générer un identifiant unique pour le joueur
-    playerCount++;
-    console.log(`Player count: ${playerCount}`);
-    const playerRole = 'player' + playerCount;
-    // const playerRole = playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur
+    console.log(`Player count Connection before: ${global.playerCount}`);
+    global.playerCount++;
+    console.log(`Player count Connection after: ${global.playerCount}`);
+    const playerRole = 'player' + global.playerCount;
+    // const playerRole = global.playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur
     players[socket.id] = { 
         playerId, 
         playerRole, 
         paddle: { x: 0, y: 0, width: 1, height: 0.2 },
-        ballDirection: { x: nombreAleatoire(-0.05, 0.05), y: nombreAleatoire(-0.05, 0.05), z: 0 }
+        // ballDirection: {x: 0, y:0},
     };
-    ballDirection = players[socket.id].ballDirection;
+    lock = false;
+    // ballDirection = {x: 0, y:0};
     console.log(`Player connected: ${playerId} as ${playerRole}`);
 
     // Envoyer l'identifiant unique et le rôle au client
-    socket.emit('playerInfo', { playerId, playerRole, ballDirection: players[socket.id].ballDirection });
+    socket.emit('playerInfo', { playerId, playerRole, ballDirection: ballDirection });
 
     // Envoyer la position initiale de la balle au nouveau client
+    console.log(`Ball position: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
     socket.emit('ballPosition', ballPosition);
     // socket.emit('ballDirection', ballDirection);
 
     // Démarrer le jeu lorsque deux joueurs sont connectés
-    if (playerCount === 2) {
+    if (global.playerCount === 2) {
         io.emit('startGame');
         io.on('playerInfo unknown', (data) => {
             socket.emit('playerInfo', { playerId, playerRole });
@@ -202,19 +237,35 @@ io.on('connection', (socket) => {
     socket.on('paddlePosition', (data) => {
         players[socket.id].paddle.x = data.x;
         players[socket.id].paddle.y = data.y;
-        console.log(`Data Paddle position updated for player ${players[socket.id].playerId}: ${data.x}, ${data.y}`);
-        console.log(`Player Paddle position updated for player ${players[socket.id].playerId}: ${players[socket.id].paddle.x}, ${players[socket.id].paddle.y}`);
+        if (!global.ballDirectionInitialized) {
+            ballDirection = initializeBallDirection();
+            console.log(`Ball base direction updated: ${ballDirection.x}, ${ballDirection.y}`);
+            global.ballDirectionInitialized = true; 
+        }
+        // console.log(`Data Paddle position updated for player ${players[socket.id].playerId}: ${data.x}, ${data.y}`);
+        // console.log(`Player Paddle position updated for player ${players[socket.id].playerId}: ${players[socket.id].paddle.x}, ${players[socket.id].paddle.y}`);
         // Envoyer la position du paddle à tous les clients
         io.emit('paddlePosition', data);
     });
 
-    socket.on('disconnect', () => {
-        // console.log(`Player disconnected: ${players[socket.id].playerId}`);
-        io.emit('playerDisconnected', players[socket.id].playerId);
+    socket.on('disconnect', async () => {
+        await acquireLock();
         delete players[socket.id];
-        playerCount--;
+        console.log(`Player count disconnect before: ${global.playerCount}`);
+        global.playerCount--;
+        console.log(`Player count disconnect after: ${global.playerCount}`);
+        if (global.playerCount === 0)
+            resetGame();
+        if (global.playerCount === 1)
+        {
+            io.emit('stopGame');
+            io.emit('winner', players[Object.keys(players)[0]].playerRole);
+            // window.location.href = '/lobby';
+            io.emit('stopGame');
+        }
         // Réinitialiser le jeu si un joueur se déconnecte
-        resetGame();
+        lock = false;
+        // resetGame();
     });
 });
 

@@ -1,6 +1,15 @@
-window.onload = function() {
-    const socket = io('http://localhost:3000'); // Si vous accédez directement depuis votre machine
 
+window.onload = function() {
+    // Vérifier si l'utilisateur doit être redirigé vers le lobby après un rechargement
+    const shouldRedirect = localStorage.getItem('redirectAfterReload');
+    if (shouldRedirect) {
+        localStorage.removeItem('redirectAfterReload');
+        window.location.href = '/lobby';
+        return; // Arrêter l'exécution supplémentaire pour éviter de reconnecter le socket
+    }
+    const socket = io('http://localhost:3000'); // Si vous accédez directement depuis votre machine
+    console.log("Loading game script...");
+    
     let playerId = null;
     let gameStarted = false;
     let elementsPlaced = false; 
@@ -16,11 +25,20 @@ window.onload = function() {
     waitingMessage.innerText = 'En attente d\'un autre joueur...';
     document.body.appendChild(waitingMessage);
 
+    window.addEventListener('beforeunload', function(event) {
+        console.log('Page is being reloaded');
+        localStorage.setItem('redirectAfterReload', 'true'); // Définir l'indicateur pour la redirection après rechargement
+        socket.disconnect();
+        event.preventDefault(); // Utiliser preventDefault pour déclencher la boîte de dialogue de confirmation standard
+    });
+    
     socket.on('connect', () => {
         console.log('Connected to the server');
     });
-
+    
     socket.on('disconnect', () => {
+        socket.emit('stopGame');
+        window.location.href = '/lobby';
         console.log('Disconnected from the server');
     });
 
@@ -38,9 +56,9 @@ window.onload = function() {
         ball.position.x = data.ballPosition.x;
         ball.position.y = data.ballPosition.y;
         ball.position.z = data.ballPosition.z;
-        ball.direction.x = data.ballDirection.x;
-        ball.direction.y = data.ballDirection.y;
-        ball.direction.z = data.ballDirection.z;
+        // ball.direction.x = data.ballDirection.x;
+        // ball.direction.y = data.ballDirection.y;
+        // ball.direction.z = data.ballDirection.z;
     });
 
     // Recevoir la position des paddles du serveur
@@ -73,6 +91,16 @@ window.onload = function() {
         gameStarted = false;
         waitingMessage.style.display = 'block';
         console.log('Game stopped');
+        window.location.href = '/lobby';
+    });
+
+    socket.on('winner', (winner) => {
+        console.log(`Le joueur ${winner} a gagné !`);
+        waitingMessage.style.display = 'block';
+        waitingMessage.innerText = `Le joueur ${winner} a gagné !`;
+        // document.getElementById('PartieFinie').style.display = 'block';
+        window.location.href = '/lobby';
+        // window.location.reload();
     });
 
     // Initialiser Three.js
@@ -89,6 +117,17 @@ window.onload = function() {
     renderer.domElement.style.height = '100%';
 
     document.getElementById('gameCanvas').appendChild(renderer.domElement);
+
+    // Créer un rectangle vert
+    const rectangleGeometry = new THREE.PlaneGeometry(2, 1);
+    const rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+    
+    // Positionner le rectangle au centre de la scène
+    rectangle.position.set(0, 0, 0);
+    
+    // Ajouter le rectangle à la scène
+    scene.add(rectangle);
 
     // Vérifie cette partie
     camera2.position.set(0, 0, 20);
@@ -177,9 +216,9 @@ window.onload = function() {
     // let mixer = null;
     const gltfLoader = new THREE.GLTFLoader();
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load('../static/pong/assets/textures/ocean_texture.jpg'); // Remplacez par le chemin de votre texture
+    const texture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg'); // Remplacez par le chemin de votre texture
 
-    gltfLoader.load('../static/pong/assets/models/mar.glb', function (gltf) {
+    gltfLoader.load('../../static/pong/assets/models/mar.glb', function (gltf) {
         ocean = gltf.scene.clone();
         ocean.scale.set(5000, 5, 5000);
         ocean.position.set(0, 0, 1);
@@ -207,7 +246,7 @@ window.onload = function() {
     let bateau1 = null;
     let bateau2 = null;
     // const gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('../static/pong/assets/models/onepiece.gltf', function (gltf) {
+    gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
         // Paddle 1
         bateau1 = gltf.scene.clone();
         bateau1.position.set(0, 20, -1);
@@ -230,13 +269,13 @@ window.onload = function() {
     let cannon1 = null;
     let cannon2 = null;
     const MTLloader = new THREE.MTLLoader();
-    MTLloader.setPath('../static/pong/assets/textures/');
+    MTLloader.setPath('../../static/pong/assets/textures/');
     MTLloader.load('cannon.mtl', function(materials) {
         materials.preload();
 
         const OBJLoader = new THREE.OBJLoader();
         OBJLoader.setMaterials(materials);
-        OBJLoader.setPath('../static/pong/assets/models/');
+        OBJLoader.setPath('../../static/pong/assets/models/');
         OBJLoader.load('cannon.obj', function(object) {
             // cannon1
             cannon1 = object.clone();
@@ -301,6 +340,20 @@ window.onload = function() {
     scene.add(paddle1Hitbox);
     scene.add(paddle2Hitbox);
 
+    // const bateau1Hitbox = new THREE.BoxHelper(bateau1, 0xff0000); // Couleur rouge pour la hitbox
+    // const bateau2Hitbox = new THREE.BoxHelper(bateau2, 0xff0000); // Couleur rouge pour la hitbox
+    // scene.add(bateau1Hitbox);
+    // scene.add(bateau2Hitbox);
+
+    // const Player1Zone = {x: -2.67, y: 20, z: 0, width: 5.34, height: 40}
+    // const Player2Zone = {x: 2.67, y: -20, z: 0, width: 5.34, height: 40}
+    const playerZoneGeometry = new THREE.BoxGeometry(5.75, 1.5, 0.1);
+    const playerZoneMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Couleur marron
+    const Player1Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
+    const Player2Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
+    // scene.add(Player1Zone);
+    // scene.add(Player2Zone);
+
     // Variables pour suivre les touches enfoncées
     const keys = {};
 
@@ -322,8 +375,19 @@ window.onload = function() {
             // Positionner les paddles légèrement au-dessus des bateaux
             paddle1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, bateau1.position.y - 3.2, bateau1.position.z * bateau1.scale.z + 9.9);
             paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 5, bateau2.position.z * bateau2.scale.z + 9.9);
+            socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
+            socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
             cannon1.position.set(paddle1.position.x, paddle1.position.y + 1.02, paddle1.position.z - 1.8);
             cannon2.position.set(paddle2.position.x, paddle2.position.y - 1.02, paddle2.position.z - 1.8);
+            Player1Zone.position.set(paddle1.position.x, paddle1.position.y + 0.5, paddle1.position.z);
+            Player2Zone.position.set(paddle2.position.x, paddle2.position.y - 0.5, paddle2.position.z);
+            Player1Zone.rotation.set(90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
+            Player2Zone.rotation.set(-90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
+        
+            const Player1ZoneHitbox = new THREE.BoxHelper(Player1Zone, 0xff0000); // Couleur rouge pour la hitbox
+            const Player2ZoneHitbox = new THREE.BoxHelper(Player2Zone, 0xff0000); // Couleur rouge pour la hitbox
+            scene.add(Player1ZoneHitbox);
+            scene.add(Player2ZoneHitbox);
 
             // Appliquer une rotation à la caméra pour le joueur 2
             if (playerRole === 'player2') {
@@ -417,10 +481,6 @@ window.onload = function() {
         PlaceElements();
         // Appeler createDirectionLine() une fois pour créer la ligne
         // createDirectionLine();
-
-        // if (mixer) {
-        //     mixer.update(0.01); // Mettre à jour le mixer
-        // }
     
         // Mettre à jour les hitboxes
         paddle1Hitbox.update();

@@ -23,5 +23,6 @@ urlpatterns = [
     path('', pollproject.views.home),
     path('admin/', admin.site.urls),
 	path('polls/', include("polls.urls")),
-    path('pong/', TemplateView.as_view(template_name='pong/index.html')),
+    path('lobby/pong/', TemplateView.as_view(template_name='pong/index.html')),
+    path('lobby/', TemplateView.as_view(template_name='pong/lobby.html')),
 ]
