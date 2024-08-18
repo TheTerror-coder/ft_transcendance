@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
-from . import parameters
+
+import requests
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,9 +30,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [ '*' ]
 
-# CSRF_TRUSTED_ORIGINS = [
-# 	'http://transcendance.fr:8080'
-# ]
+CSRF_TRUSTED_ORIGINS = [
+	'http://transcendance.fr:8080'
+]
 
 # Application definition
 
@@ -42,15 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-
-	# allauth
-	'allauth',
-    'allauth.account',
-	'allauth.socialaccount',
-	'ultimapi',
-
-	'registration',
 ]
 
 MIDDLEWARE = [
@@ -61,9 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-	# Add the account middleware:
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'web.urls'
@@ -91,18 +80,14 @@ WSGI_APPLICATION = 'web.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-	'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': str(requests.get("http://vault_c:8200/v1/secret/data/elastic",  headers={"Authorization": "Bearer myroot"}).json()["data"]["data"]["password"]),
+        'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.environ.get('POSTGRES_DB'),
-    #     'USER': os.environ.get('POSTGRES_USER'),
-    #     'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-    #     'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-    #     'PORT': os.environ.get('POSTGRES_PORT'),
-    # }
 }
 
 
@@ -124,14 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-	#default
-	'django.contrib.auth.backends.ModelBackend',
-
-	# `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -150,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# STATIC_ROOT = os.environ.get('STATICFILES_DIR')
+STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 
 STATICFILES_DIRS = [
 	BASE_DIR / "static",
@@ -160,30 +137,3 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-########################
-### ADD your customs ###
-########################
-
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'account_login'
-
-# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' # TODO: remove when ssl security will be activated for oauth2 42 api redirect url (e.g https://transcendance.fr:8000)
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Provider specific settings
-SOCIALACCOUNT_PROVIDERS = {
-    'ultimapi': {
-        'APP': {
-            'client_id': parameters.OAUTH2_CLIENT_ID,
-            'secret': parameters.OAUTH2_CLIENT_SECRET,
-            'key': ''
-        },
-		'AUTH_PARAMS': {
-			'redirect_uri': 'http://transcendance.fr:8000/accounts/ultimapi/login/callback/',
-        },
-    }
-}
-
-SITE_ID = 1

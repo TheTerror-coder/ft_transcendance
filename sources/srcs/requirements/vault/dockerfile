@@ -6,24 +6,23 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/18 14:13:49 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/16 21:11:28 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-FROM postgres:alpine
+ARG VAULT_VERSION
 
-WORKDIR /usr/src/apps
+FROM hashicorp/vault:${VAULT_VERSION}
 
-RUN apk add --no-cache curl jq
+# USER "0"
+
+RUN apk add --no-cache curl
 RUN mkdir -p /etc/container-init.d
 
-COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
-
-COPY --chmod=644 ./conf/pg_hba.conf /usr/local/share/postgresql/pg_hba.conf.sample
-COPY --chmod=644 ./conf/postgresql.conf /usr/local/share/postgresql/postgresql.conf.sample
-# COPY --chmod=644 ./conf/init.sql /docker-entrypoint-initdb.d
+COPY --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+# COPY --chmod=500 ./conf/payload.json payload.json
 
 CMD [ "/etc/container-init.d/script.sh" ]
-
-# ENTRYPOINT [ "docker-entrypoint.sh", "postgres" ]
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["server" "-dev"]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

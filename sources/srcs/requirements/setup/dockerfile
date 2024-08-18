@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/25 21:59:47 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/17 18:16:21 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ FROM elasticsearch:${STACK_VERSION}
 
 USER "0"
 
+RUN apt update && apt install curl jq -y
 RUN mkdir -p /etc/container-init.d
 
 COPY --chown=root:root --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh

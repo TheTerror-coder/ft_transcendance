@@ -1,6 +1,44 @@
 #!/bin/bash
 
 bash -c '
+	curl -s -H "Authorization: Bearer myroot" --data @/run/secrets/password_policy_json http://vault_c:8200/v1/sys/policies/password/password_policy
+'
+
+bash -c '
+	postgres_password=$(curl -s -H "Authorization: Bearer myroot" http://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"optio -sns\": {    \"cas\": 0  },  \"data\": {    \"password\": $postgres_password }})
+	curl -s  -H "Authorization: Bearer myroot" --data "$payload" http://vault_c:8200/v1/secret/data/postgres
+'
+
+bash -c '
+	elastic_password=$(curl -s -H "Authorization: Bearer myroot" http://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $elastic_password }})
+	curl -s  -H "Authorization: Bearer myroot" --data "$payload" http://vault_c:8200/v1/secret/data/elastic
+'
+
+bash -c '
+	kibana_password=$(curl -s -H "Authorization: Bearer myroot" http://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $kibana_password }})
+	curl -s  -H "Authorization: Bearer myroot" --data "$payload" http://vault_c:8200/v1/secret/data/kibana
+'
+
+bash -c '
+	logstash_password=$(curl -s -H "Authorization: Bearer myroot" http://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_password }})
+	curl -s  -H "Authorization: Bearer myroot" --data "$payload" http://vault_c:8200/v1/secret/data/logstash
+'
+
+bash -c '
+	logstash_es_client_password=$(curl -s -H "Authorization: Bearer myroot" http://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_es_client_password }})
+	curl -s  -H "Authorization: Bearer myroot" --data "$payload" http://vault_c:8200/v1/secret/data/logstash_es_client
+'
+
+bash -c '
+	curl -s  -H "Authorization: Bearer myroot" --data @/run/secrets/payload_json http://vault_c:8200/v1/secret/data/helloworld
+'
+
+bash -c '
 	mkdir -p config/certs/
 	if [ ! -f config/certs/ca.zip ]; then
 		echo "Creating CA";
@@ -31,6 +69,8 @@ bash -c '
 
 	echo "All done!";
 '
+
+tail -f /dev/null # TODO remove
 
 # bash -c '
 # 	if [ x$(cat $ELASTIC_PASSWORD_FILE) == x ]; then

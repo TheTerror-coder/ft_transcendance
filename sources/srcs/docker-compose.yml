@@ -1,7 +1,45 @@
 name: ${PROJECT_NAME}
 
 services:
+  vault:
+    image: ${VAULT_IMAGE}
+    container_name: ${VAULT_CONTAINER}
+    build:
+      context: ./requirements/vault/
+      args:
+        - VAULT_VERSION=${VAULT_VERSION}
+    environment:
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN_ID_FILE=${VAULT_TOKEN_ID_LOCALFILE}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+    cap_add:
+      - IPC_LOCK
+    # volumes:
+    #   - certs:/usr/share/elasticsearch/config/certs
+    secrets:
+      - token_id_file
+    expose:
+      - ${VAULT_API_PORT}
+    ports:
+      - ${VAULT_API_PORT}:${VAULT_API_PORT}
+    networks:
+      - transcendance
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s  http://0.0.0.0:8200 | grep -q ''",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
   setup:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
     image: ${SETUP_IMAGE}
     container_name: ${SETUP_CONTAINER}
     build:
@@ -10,6 +48,11 @@ services:
         - STACK_VERSION=${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
+    secrets:
+      - payload_json
+      - password_policy_json
+    networks:
+      - transcendance
     healthcheck:
       test: ["CMD-SHELL", "[ -f config/certs/nginx/nginx.crt ]"]
       interval: 1s
@@ -27,7 +70,7 @@ services:
     build: ./requirements/db_postgres/
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
@@ -58,7 +101,7 @@ services:
     environment:
       - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      # - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
@@ -134,3 +177,11 @@ volumes:
     driver: local
   certs:
     driver: local
+
+secrets:
+  token_id_file:
+    file: ${VAULT_TOKEN_ID_HOSTFILE}
+  payload_json:
+    file: ./secrets/payload_json
+  password_policy_json:
+    file: ./secrets/password_policy_json
