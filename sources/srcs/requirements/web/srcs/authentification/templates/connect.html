@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block Connectcontent %}
     {% if user.is_authenticated %}
         <p>welcome {{ user.username }}</p>
         {%block logout%}

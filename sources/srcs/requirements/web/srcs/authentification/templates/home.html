@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 
-{% block content %}
-    <a href="{% url 'profile' %}">
+
+{% block Homecontent %}
+
+
+<h1> LOLOLOLOL </h1>
+<h2> DES BARRES </h2>
+
+
+    {% comment %} <a href="{% url 'profile' %}">
     {% block profile_content %}
         {% include "profile.html" %}
     {% endblock %}
@@ -9,5 +16,6 @@
     <a href="{% url 'friend' %}">
     {% block friend %}
         {% include "friend.html" %}
-    {% endblock %}
+    {% endblock %} {% endcomment %}
+
 {% endblock %}
