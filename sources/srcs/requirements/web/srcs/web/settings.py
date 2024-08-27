@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import requests
+from . import tools
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,7 +85,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': str(requests.get("http://vault_c:8200/v1/secret/data/elastic",  headers={"Authorization": "Bearer myroot"}).json()["data"]["data"]["password"]),
+        'PASSWORD': str(
+			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+				verify=os.environ.get('VAULT_CACERT'),
+				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+		),
         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
         'PORT': os.environ.get('POSTGRES_PORT'),
     }

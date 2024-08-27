@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/18 14:13:49 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/27 11:40:30 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ FROM postgres:alpine
 
 WORKDIR /usr/src/apps
 
-RUN apk add --no-cache curl jq
+RUN apk add --update --no-cache curl jq
 RUN mkdir -p /etc/container-init.d
 
 COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d

@@ -6,20 +6,25 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/27 15:02:26 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/21 13:19:47 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ARG ALPINE_VERSION
+ARG VAULT_VERSION
 
-FROM alpine:${ALPINE_VERSION}
+FROM hashicorp/vault:${VAULT_VERSION}
 
-RUN apk add --update --no-cache curl openssl vim
-RUN mkdir -p /etc/container-init.d
+# USER "0"
+
+RUN apk add --no-cache curl jq
+RUN mkdir -p /etc/container-init.d # /vault/data
+# RUN chown vault:vault /vault/data
 
 COPY --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
-COPY --chmod=500 ./conf/vault_ssl.cnf /vault/vault_ssl.cnf
-COPY --chmod=500 ./conf/nginx_ssl.cnf /nginx/nginx_ssl.cnf
+# COPY --chmod=500 ./conf/payload.json payload.json
+# COPY --chown=vault:vault --chmod=500 ./conf/vault.hcl /vault/config/vault.hcl
 
-ENTRYPOINT [ "/etc/container-init.d/script.sh" ]
+CMD [ "/etc/container-init.d/script.sh" ]
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["server" "-dev"]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

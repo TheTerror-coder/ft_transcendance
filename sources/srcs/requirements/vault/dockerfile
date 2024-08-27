@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/16 21:11:28 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/27 11:46:24 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,15 +14,16 @@ ARG VAULT_VERSION
 
 FROM hashicorp/vault:${VAULT_VERSION}
 
-# USER "0"
+ARG VAULT_USER_UID
+ARG VAULT_USER_GID
 
-RUN apk add --no-cache curl
-RUN mkdir -p /etc/container-init.d
+RUN apk add --update --no-cache curl openssl vim
+RUN mkdir -p /etc/container-init.d # /vault/data
+# RUN chown vault:vault /vault/data
 
-COPY --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+COPY --chown=${VAULT_USER_UID}:${VAULT_USER_GID} --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+COPY --chown=${VAULT_USER_UID}:${VAULT_USER_GID} --chmod=500 ./conf/vault.hcl /vault/config/vault.hcl
 # COPY --chmod=500 ./conf/payload.json payload.json
 
 CMD [ "/etc/container-init.d/script.sh" ]
-# ENTRYPOINT ["docker-entrypoint.sh"]
-# CMD ["server" "-dev"]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]
