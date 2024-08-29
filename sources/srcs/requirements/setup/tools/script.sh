@@ -19,37 +19,13 @@ generate_vault_tls_certificates() {
 	find /vault/ -type f -exec chmod 640 \{\} \;;
 }
 
-generate_nginx_tls_certificates() {
-	echo "Creating nginx's TLS CA"
-	openssl genrsa -out /nginx/certs/ca/ca.key 2048
-	openssl req -x509 -new -nodes -key /nginx/certs/ca/ca.key -sha256 -days 365 -out /nginx/certs/ca/ca.crt -config /nginx/nginx_ssl.cnf -extensions v3_ca -subj "/CN=localhost"
-	
-	echo "Creating nginx's TLS Certificates"
-	openssl genrsa -out /nginx/certs/nginx.key 2048
-	openssl req -new -key /nginx/certs/nginx.key -out /nginx/certs/nginx.csr -config /nginx/nginx_ssl.cnf -extensions v3_req
-	openssl x509 -req -in /nginx/certs/nginx.csr -CA /nginx/certs/ca/ca.crt -CAkey /nginx/certs/ca/ca.key -CAcreateserial -out /nginx/certs/nginx.crt -days 365 -sha256 -extfile /nginx/nginx_ssl.cnf -extensions v3_req
-	# openssl pkcs12 -export -out /nginx/certs/nginx.pfx -inkey /nginx/certs/nginx.key -in /nginx/certs/nginx.crt -certfile /nginx/certs/ca/ca.crt -passout pass:
-	
-	echo "Setting nginx's TLS certificate files permissions"
-	chown -R 101:101 nginx;
-	find /nginx/ -type d -exec chmod 750 \{\} \;;
-	find /nginx/ -type f -exec chmod 640 \{\} \;;
-}
-
-mkdir -p /vault/certs/ca /nginx/certs/ca
+mkdir -p /vault/certs/ca
 
 if [ -s /vault/certs/ca/ca.crt ] && [ -s /vault/certs/vault.crt ] && [ -s /vault/certs/vault.key ]; then
 	echo "vault tls certificates already exist!"
 	echo "[INFO] Clean the holding volume and restart the container to update/recreate them."
 else
 	generate_vault_tls_certificates
-fi
-
-if [ -s /nginx/certs/ca/ca.crt ] && [ -s /nginx/certs/nginx.crt ] && [ -s /nginx/certs/nginx.key ]; then
-	echo "nginx tls certificates already exist!"
-	echo "[INFO] Clean the holding volume and restart the container to update/recreate them."
-else
-	generate_nginx_tls_certificates
 fi
 
 touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE

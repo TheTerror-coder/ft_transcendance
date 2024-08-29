@@ -12,7 +12,6 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
       - vault_certs:/vault/certs
-      - nginx_certs:/nginx/certs
     # secrets:
     #   - payload_json
     #   - password_policy_json
@@ -79,17 +78,21 @@ services:
     environment:
       - VAULT_ADDR=${VAULT_INIT_ADDR}
       - VAULT_CACERT=${VAULT_CACERT}
+      - NGINX_ALT_NAMES=${NGINX_ALT_NAMES}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
       - IPC_LOCK
     volumes:
       - vault_data:/vault/file
       - vault_certs:/vault/certs
+      - nginx_certs:/nginx/certs
     secrets:
       - root_access_token
       - secret_access_token
       - password_policy_json
       - secret_access_policy_json
+      - nginx_pki_access_policy_json
+      - nginx_pki_access_token
     networks:
       - transcendance
     healthcheck:
@@ -239,3 +242,7 @@ secrets:
     file: ./secrets/password_policy_json
   secret_access_policy_json:
     file: ./secrets/secret_access_policy_json
+  nginx_pki_access_policy_json:
+    file: ./secrets/nginx_pki_access_policy_json
+  nginx_pki_access_token:
+    file: ./secrets/nginx_pki_access_token
