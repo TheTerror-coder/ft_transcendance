@@ -9,7 +9,7 @@
             <h2>Amis</h2>
             <ul>
                 {% for friend in friend_list %}
-                    <li>{{ friend.username }}</li>
+                    <li><a href="{% url 'user' friend.username %}">{{ friend.username }} <img src="{{ user.photo.url }}" alt="Photo de profil"></a></li>
                 {% empty %}
                     <li>Vous n'avez pas encore d'amis.</li>
                 {% endfor %}
@@ -18,17 +18,52 @@
 
         {% block add_friend %}
             <h2>Ajouter un ami</h2>
-            <form method="post" action="{% url 'add_friend' %}">
+            <form id="add_friend_form" method="post" action="{% url 'add_friend' %}">
                 {% csrf_token %}
                 <label for="username">Nom d'utilisateur de l'ami :</label>
                 <input type="text" name="username" id="username">
                 <button type="submit">Ajouter l'ami</button>
             </form>
+            <script>
+                var socket = new WebSocket("ws://localhost:8000/ws/friend_invite/");
+                console.log("sockeeet", socket);
+                //======================
+                {% comment %} socket.onopen = function(event) {
+                    var message = {
+                        'username': '{{ user.username }}',
+                        'type': 'invitation'
+                    };
+                    
+                    socket.send(JSON.stringify(message));
+                    console.log("socket open", event);
+                }; {% endcomment %}
+                //======================
+                socket.onmessage = function(event) {
+                    var data = JSON.parse(event.data);
+                    console.log("ici", data);
+                    if (data.type === 'invitation') {
+                        alert('Vous avez reçu une invitation de ' + data.from + ' !');
+                    }
+                };
+                
+                document.querySelector('#add_friend_form').onsubmit = function(event) {
+                    event.preventDefault();
+                    var usernameInput = document.querySelector('#username');
+                    var username = usernameInput.value;
+                    socket.send(JSON.stringify({
+                        'username': username,
+                        'type' : 'invitation'
+                    }));
+            
+                    usernameInput.value = '';
+                    alert('Invitation envoyée à ' + username + ' !');
+                };
+            </script>
         {% endblock %}
 
         {% block remove_friend %}
             <h2>Supprimer un ami</h2>
-            <form method="post" action="{% url 'remove_friend' %}">
+            <form id="remove_friend_form" method="post" action="{% url 'remove_friend' %}">
                 {% csrf_token %}
                 <label for="username">Nom d'utilisateur de l'ami :</label>
                 <input type="text" name="username" id="username">
