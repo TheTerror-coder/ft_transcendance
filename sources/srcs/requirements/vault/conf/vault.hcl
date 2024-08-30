@@ -10,8 +10,9 @@ listener "tcp" {
 	address			= "0.0.0.0:8200"
 	tls_cert_file	= "/vault/certs/vault.crt"
 	tls_key_file	= "/vault/certs/vault.key"
+	### These two below lines comes to bolster the security wall of the vault server by rejecting unauthorized sources ###
 	// proxy_protocol_behavior = "deny_unauthorized"
-	// proxy_protocol_authorized_addrs = "172.19.0.4"
+	// proxy_protocol_authorized_addrs = "127.0.0.1,172.19.0.4,172.19.0.5,172.19.0.6,172.19.0.7"
 }
 
 storage "file" {

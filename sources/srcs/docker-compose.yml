@@ -193,6 +193,7 @@ services:
     volumes:
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
       - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
+      - ./requirements/nginx/conf/vault.conf:/etc/nginx/conf.d/vault.conf
       - staticfiles:${STATICFILES_DIR}
       - nginx_certs:/etc/nginx/ssl/
     healthcheck:
