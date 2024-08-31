@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/07/22 16:47:14 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/31 23:30:13 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,26 +19,26 @@ PORTS = #-p 8080:443
 all : build run
 
 build :
-	sudo docker build ../ -t  $(NGINX_IMAGE)
+	sudo docker build ../ -t  $(MODSEC_IMAGE)
 run :
-	sudo docker run $(ENV) -it --rm --name $(NGINX_CONTAINER) $(PORTS) $(NGINX_IMAGE) 
+	sudo docker run $(ENV) -it --rm --name $(MODSEC_CONTAINER) $(PORTS) $(MODSEC_IMAGE) 
 exec :
-	sudo docker exec -it  $(NGINX_CONTAINER) sh
+	sudo docker exec -it  $(MODSEC_CONTAINER) sh
 clean :
-	sudo docker image rm $(NGINX_IMAGE)
+	sudo docker image rm $(MODSEC_IMAGE)
 fclean : stop
-	sudo docker image rm $(NGINX_IMAGE)
+	sudo docker image rm $(MODSEC_IMAGE)
 stop :
-	sudo docker stop  $(NGINX_CONTAINER)
+	sudo docker stop  $(MODSEC_CONTAINER)
 ps :
 	sudo docker ps -a
 ls :
 	sudo docker image ls
 	sudo docker container ls
 logs :
-	sudo docker logs $(NGINX_CONTAINER)
+	sudo docker logs $(MODSEC_CONTAINER)
 
 restart :
-	sudo docker restart $(NGINX_CONTAINER)
+	sudo docker restart $(MODSEC_CONTAINER)
 
 re : fclean all

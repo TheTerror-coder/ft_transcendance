@@ -8,7 +8,7 @@ create_nginx_intermediate_ca_role () {
 	echo -e "\nNginx Intermediate CA - Creating a role"
 	vault write nginx/roles/nginx_intermediate_ca_role \
 		issuer_ref="$(vault read -field=default nginx/config/issuers)" \
-		allowed_domains="$NGINX_ALT_NAMES" \
+		allowed_domains="$MODSEC_ALT_NAMES" \
 		allow_subdomains=true \
 		allow_bare_domains=true \
 		organization="42 Lyon Ft_transcendance Group" \
@@ -33,8 +33,8 @@ generate_nginx_intermediate_ca () {
 		/nginx/ \
 		common_name="Transcendance Intermediate Authority" \
 		exclude_cn_from_sans=true \
-		alt_names="$NGINX_ALT_NAMES" \
-		permitted_dns_domains="$NGINX_ALT_NAMES" \
+		alt_names="$MODSEC_ALT_NAMES" \
+		permitted_dns_domains="$MODSEC_ALT_NAMES" \
 		ip_sans="127.0.0.1" \
 		issuer_name="Root-Certificate-Authority" \
 		key_name="ca-key" \
@@ -68,7 +68,7 @@ request_nginx_certificate () {
 	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output /nginx/certs/ca/root_ca.crt
 	vault write -format=json nginx/issue/nginx_intermediate_ca_role \
 		common_name="transcendance.fr" \
-		alt_names="$NGINX_ALT_NAMES" \
+		alt_names="$MODSEC_ALT_NAMES" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \

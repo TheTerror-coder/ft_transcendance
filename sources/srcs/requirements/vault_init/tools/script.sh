@@ -109,7 +109,7 @@ create_logstash_es_client_password () {
 ######## Create certificates ##########
 #######################################
 
-create_nginx_tls_certs () {
+create_tls_certs () {
 	enable_root_ca_pki_engine
 	generate_root_ca
 	
@@ -139,7 +139,7 @@ else
 	create_kibana_password
 	create_logstash_password
 	create_logstash_es_client_password
-	create_nginx_tls_certs
+	create_tls_certs
 	create_tokens
 # tail -f /dev/null
 	vault token revoke -mode="orphan" $(grep 'Initial Root Token:' /vault/file/keys | awk '{print $NF}') >> /dev/null

@@ -40,7 +40,7 @@ generate_root_ca () {
 		province="Auvergne-Rhône-Alpes" \
 		locality="Lyon" \
 		max_path_length=1 \
-		ttl=87600h > /dev/null #/nginx/certs/ca/root_ca.crt
+		ttl=87600h > /dev/null
 		# OU ssl certificate field is depreciated at the request of the CA/Browser Forum since August 1, 2022. So it is pointless.
 	create_root_ca_role
 	setup_ca_crl_urls
