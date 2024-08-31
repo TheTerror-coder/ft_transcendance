@@ -15,8 +15,8 @@ generate_vault_tls_certificates() {
 	
 	echo "Setting Vault's TLS certificate files permissions"
 	chown -R 100:1000 vault;
-	find /vault/ -type d -exec chmod 750 \{\} \;;
-	find /vault/ -type f -exec chmod 640 \{\} \;;
+	find /vault/ -type d -exec chmod 755 \{\} \;;
+	find /vault/ -type f -exec chmod 644 \{\} \;;
 }
 
 mkdir -p /vault/certs/ca
@@ -31,10 +31,6 @@ fi
 touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 
 echo "All done!";
-
-sleep 10s
-
-rm -rf $HEALTHFLAG_FILE
 
 tail -f /dev/null # TODO remove
 

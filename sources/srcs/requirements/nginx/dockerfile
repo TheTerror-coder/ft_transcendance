@@ -6,13 +6,13 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/07/25 22:46:37 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/30 21:58:01 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ARG STATICFILES_DIR
-
 FROM nginx:alpine
+
+ARG STATICFILES_DIR
 
 RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR} /etc/nginx/ssl/
 

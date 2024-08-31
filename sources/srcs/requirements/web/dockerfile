@@ -6,13 +6,13 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/02 20:21:29 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/08/30 21:50:33 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ARG STATICFILES_DIR
-
 FROM python:3.10-alpine
+
+ARG STATICFILES_DIR
 
 WORKDIR /usr/src/apps
 

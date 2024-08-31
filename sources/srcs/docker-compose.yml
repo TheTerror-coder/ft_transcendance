@@ -12,9 +12,6 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
       - vault_certs:/vault/certs
-    # secrets:
-    #   - payload_json
-    #   - password_policy_json
     networks:
       - transcendance
     healthcheck:
@@ -46,8 +43,6 @@ services:
     volumes:
       - vault_data:/vault/file
       - vault_certs:/vault/certs
-    # secrets:
-    #   - token_id_file
     expose:
       - ${VAULT_API_PORT}
     ports:
@@ -78,7 +73,9 @@ services:
     environment:
       - VAULT_ADDR=${VAULT_INIT_ADDR}
       - VAULT_CACERT=${VAULT_CACERT}
+      - ALT_NAMES=${ALT_NAMES}
       - NGINX_ALT_NAMES=${NGINX_ALT_NAMES}
+      - WEB_ALT_NAMES=${WEB_ALT_NAMES}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
       - IPC_LOCK
@@ -86,13 +83,14 @@ services:
       - vault_data:/vault/file
       - vault_certs:/vault/certs
       - nginx_certs:/nginx/certs
+      - web_certs:/web/certs
     secrets:
       - root_access_token
       - secret_access_token
       - password_policy_json
       - secret_access_policy_json
-      - nginx_pki_access_policy_json
-      - nginx_pki_access_token
+      - pki_access_policy_json
+      - pki_access_token
     networks:
       - transcendance
     healthcheck:
@@ -154,19 +152,22 @@ services:
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${STATICFILES_DIR}
+      - WEB_ROOT_CA=${WEB_ROOT_CA}
       - VAULT_CACERT=${VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
       - webapps:/usr/src/apps
       - staticfiles:${STATICFILES_DIR}
       - vault_certs:/vault/certs
+      - web_certs:${WEB_SSL_DIR}
     secrets:
       - secret_access_token
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:${WEB_PORT} | grep -q ''",
+          "curl -s http://localhost:${WEB_PORT} | grep -q ''",
+          # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
         ]
       interval: 1s
       timeout: 5s
@@ -187,15 +188,19 @@ services:
     container_name: ${NGINX_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/nginx/
+      context: ./requirements/waf/
       args:
         - STATICFILES_DIR=${STATICFILES_DIR}
+    # environment:
+    #   - METRICS_ALLOW_FROM="127.0.0.0/24"
+    #   - METRICS_DENY_FROM="all"
     volumes:
-      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-      - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
-      - ./requirements/nginx/conf/vault.conf:/etc/nginx/conf.d/vault.conf
+      - ./requirements/waf/conf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template
+      - ./requirements/waf/conf/vault.conf.template:/etc/nginx/templates/conf.d/vault.conf.template
+      - ./requirements/waf/conf/location_common.conf.template:/etc/nginx/templates/includes/location_common.conf.template
       - staticfiles:${STATICFILES_DIR}
       - nginx_certs:/etc/nginx/ssl/
+      - vault_certs:/volumes/vault/certs/
     healthcheck:
       test:
         [
@@ -206,12 +211,45 @@ services:
       timeout: 5s
       retries: 15
     ports:
-      - ${NGINX_HTTP_PORT}:80
-      - ${NGINX_HTTPS_PORT}:${NGINX_HTTPS_PORT}
+      - ${NGINX_HTTP_PORT}:8080
+      - ${NGINX_HTTPS_PORT}:8443
     networks:
       - ${NETWORK_NAME}
     # restart: on-failure
 
+  # nginx:
+  #   depends_on:
+  #     web:
+  #       condition: service_healthy
+  #   image: ${NGINX_IMAGE}
+  #   container_name: ${NGINX_CONTAINER}
+  #   pull_policy: never
+  #   build:
+  #     context: ./requirements/nginx/
+  #     args:
+  #       - STATICFILES_DIR=${STATICFILES_DIR}
+  #   volumes:
+  #     - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+  #     - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
+  #     - ./requirements/nginx/conf/vault.conf:/etc/nginx/conf.d/vault.conf
+  #     - staticfiles:${STATICFILES_DIR}
+  #     - nginx_certs:/etc/nginx/ssl/
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "curl -s  https://localhost:443 | grep -q ''",
+  #       ]
+  #     interval: 1s
+  #     timeout: 5s
+  #     retries: 15
+  #   ports:
+  #     - ${NGINX_HTTP_PORT}:80
+  #     - ${NGINX_HTTPS_PORT}:${NGINX_HTTPS_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   # restart: on-failure
+  
 networks:
   transcendance:
     driver: bridge
@@ -233,6 +271,8 @@ volumes:
     driver: local
   nginx_certs:
     driver: local
+  web_certs:
+    driver: local
 
 secrets:
   secret_access_token:
@@ -243,7 +283,7 @@ secrets:
     file: ./secrets/password_policy_json
   secret_access_policy_json:
     file: ./secrets/secret_access_policy_json
-  nginx_pki_access_policy_json:
-    file: ./secrets/nginx_pki_access_policy_json
-  nginx_pki_access_token:
-    file: ./secrets/nginx_pki_access_token
+  pki_access_policy_json:
+    file: ./secrets/pki_access_policy_json
+  pki_access_token:
+    file: ./secrets/pki_access_token
