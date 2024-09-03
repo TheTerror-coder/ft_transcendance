@@ -56,9 +56,6 @@ window.onload = function() {
         ball.position.x = data.ballPosition.x;
         ball.position.y = data.ballPosition.y;
         ball.position.z = data.ballPosition.z;
-        // ball.direction.x = data.ballDirection.x;
-        // ball.direction.y = data.ballDirection.y;
-        // ball.direction.z = data.ballDirection.z;
     });
 
     // Recevoir la position des paddles du serveur
