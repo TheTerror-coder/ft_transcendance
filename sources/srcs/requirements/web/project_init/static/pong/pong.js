@@ -359,10 +359,12 @@ window.onload = function() {
 
     // Écouteurs d'événements pour les touches
     window.addEventListener('keydown', (event) => {
+        console.log(`Key pressed: ${event.key}`);
         keys[event.key] = true;
     });
 
     window.addEventListener('keyup', (event) => {
+        console.log(`Key released : ${event.key}`);
         keys[event.key] = false;
     });
 
@@ -436,6 +438,38 @@ window.onload = function() {
                     paddle2.position.x += 0.05;
                     cannon2.position.x += 0.05;
                     console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
+                }
+        }
+        if (keys['v'])
+        {
+            console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
+            if (playerRole === 'player1' && bateau1.position.x > -15)
+                {
+                    bateau1.position.x -= 0.05;
+                    console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
+                }
+            else if (playerRole === 'player2' && bateau2.position.x < 15)
+                {
+                    bateau2.position.x += 0.05;
+                    console.log(`Bateau position updated for player ${playerId}: ${bateau2.position.x}, ${bateau2.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
+                }
+        }
+        if (keys['n'])
+        {
+            console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
+            if (playerRole === 'player1' && bateau1.position.y < 15)
+                {
+                    bateau1.position.y += 0.05;
+                    console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
+                    socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
+                }
+            else if (playerRole === 'player2' && bateau2.position.y > -15)
+                {
+                    bateau2.position.y -= 0.05;
+                    console.log(`Bateau position updated for player ${playerId}: ${bateau2.position.x}, ${bateau2.position.y}`);
                     socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                 }
         }
