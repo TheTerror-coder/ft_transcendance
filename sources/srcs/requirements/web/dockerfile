@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/30 21:50:33 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/09/04 16:00:47 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,8 @@ ARG STATICFILES_DIR
 
 WORKDIR /usr/src/apps
 
+RUN pip install --upgrade pip
+
 RUN apk add --no-cache curl
 RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR}
 
@@ -23,10 +25,9 @@ COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
 
 COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
 
 COPY ./srcs/ .
-# COPY ./project_init/ .
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 

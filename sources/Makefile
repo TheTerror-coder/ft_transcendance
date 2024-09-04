@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/07/23 13:27:17 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/09/04 15:47:26 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,9 +47,9 @@ top : # Display the running processes
 down : # Stop and remove containers, networks
 	-sudo docker compose -f $(COMPOSE_FILE) down --remove-orphans
 s stop : # Stop services
-	-sudo docker compose -f $(COMPOSE_FILE) stop
+	-docker compose -f $(COMPOSE_FILE) stop
 rm remove : # Removes stopped service containers
-	-sudo docker compose -f $(COMPOSE_FILE) rm -f
+	-docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
 	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
 rmv : # clean data
