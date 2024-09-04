@@ -9,12 +9,17 @@ let flagSelected = "en";
 
 // CONNEXION VARIABLE
 let buttonConnectionAPI42 = document.querySelector("#connectionApi");
-let buttonConnecEmail = document.querySelector("#connectionEmail");
+let buttonConnec = document.querySelector("#connectionEmail");
 let buttonCreateAccount = document.querySelector("#createAnAccount");
-let createAccountChange = document.querySelector("#connect");
 
-let email;
-let pasword;
+let createAccountChange = document.querySelector("#formAccount");
+
+
+let formConnect = document.querySelector("#formConnect");
+
+// let user;
+// let email;
+// let password;
 
 let createAccountForm;
 

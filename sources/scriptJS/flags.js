@@ -1,8 +1,6 @@
 
 
 
-
-
 englandFlag.onclick = translateEnglish;
 spainFlag.onclick = translateSpanish;
 franceFlag.onclick = translateFrench;
@@ -16,7 +14,7 @@ function translateEnglish()
     {
         const stringConnexion = `CONNECTION API <img src="picturePng/logo42.png" alt="42-logo" style="margin-top:-10px;">`
         buttonConnectionAPI42.innerHTML = stringConnexion;
-        buttonConnecEmail.innerHTML = "CONNECTION E-MAIL";
+        buttonConnec.innerHTML = "CONNECTION";
         buttonCreateAccount.innerHTML = "CREATE AN ACCOUNT";
         flagSelected = "en";
     }
@@ -29,7 +27,7 @@ function translateSpanish()
     {
         const stringConnexion = `CONEXION API <img src="picturePng/logo42.png" alt="42-logo" style="margin-top:-10px;">`
         buttonConnectionAPI42.innerHTML = stringConnexion;
-        buttonConnecEmail.innerHTML = "CONEXION E-MAIL";
+        buttonConnec.innerHTML = "CONEXION";
         buttonCreateAccount.innerHTML = "CREAR UNA CUENTA";
         flagSelected = "es";
     }
@@ -43,7 +41,7 @@ function translateFrench()
     {
         const stringConnexion = `CONNEXION API <img src="picturePng/logo42.png" alt="42-logo" style="margin-top:-10px;">`
         buttonConnectionAPI42.innerHTML = stringConnexion;
-        buttonConnecEmail.innerHTML = "CONNEXION E-MAIL";
+        buttonConnec.innerHTML = "CONNEXION";
         buttonCreateAccount.innerHTML = "CREER UN COMPTE";
         flagSelected = "fr";
     }
