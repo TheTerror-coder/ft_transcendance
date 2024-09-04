@@ -190,16 +190,23 @@ services:
     build:
       context: ./requirements/modsec/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
-    # environment:
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+    environment:
+      - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - RESTRICTED_HEADERS_EXTENDED=
     #   - METRICS_ALLOW_FROM="127.0.0.0/24"
     #   - METRICS_DENY_FROM="all"
     volumes:
       - ./requirements/modsec/conf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template
       - ./requirements/modsec/conf/vault.conf.template:/etc/nginx/templates/conf.d/vault.conf.template
       - ./requirements/modsec/conf/location_common.conf.template:/etc/nginx/templates/includes/location_common.conf.template
+      # - ./requirements/modsec/conf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
       - staticfiles:${STATICFILES_DIR}
-      - modsec_data:/tmp/modsecurity/data/
+      - modsec_data:${MODSEC_DATA_DIR}
+      - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
       - nginx_certs:/etc/nginx/ssl/
       - vault_certs:/volumes/vault/certs/
     healthcheck:
@@ -226,6 +233,10 @@ volumes:
   vault_data:
     driver: local
   modsec_data:
+    driver: local
+  modsec_audit_logs:
+    driver: local
+  modsec_debug_logs:
     driver: local
   webapps:
     driver: local

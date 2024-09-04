@@ -6,14 +6,21 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/08/31 17:59:23 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/09/01 19:10:37 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 FROM owasp/modsecurity-crs:4.6-nginx-alpine-202408280908
 
+ARG MODSEC_DEBUG_LOG_DIR MODSEC_AUDIT_LOG_DIR
+
+USER root
+RUN apk add --update --no-cache jq
+RUN mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR}
+RUN chown nginx ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR}
+
+USER nginx
 COPY ./templates/404.html /usr/share/nginx/html/
-# COPY ./templates/404.css ${STATICFILES_DIR}
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
 CMD [ "nginx", "-g", "daemon off;" ]
