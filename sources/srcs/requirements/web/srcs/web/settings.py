@@ -75,8 +75,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'web.wsgi.application'
-
-ASGI_APPLICATION = 'web.routing.websocket_urlpatterns'
+ASGI_APPLICATION = 'web.asgi.application'
 
 #prod
 # CHANNEL_LAYERS = {

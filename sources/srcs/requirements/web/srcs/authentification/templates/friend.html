@@ -25,24 +25,38 @@
                 <button type="submit">Ajouter l'ami</button>
             </form>
             <script>
-                var socket = new WebSocket("ws://localhost:8000/ws/friend_invite/");
-                console.log("sockeeet", socket);
-                //======================
-                {% comment %} socket.onopen = function(event) {
-                    var message = {
-                        'username': '{{ user.username }}',
-                        'type': 'invitation'
-                    };
-                    
-                    socket.send(JSON.stringify(message));
-                    console.log("socket open", event);
-                }; {% endcomment %}
-                //======================
+                var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
                 socket.onmessage = function(event) {
                     var data = JSON.parse(event.data);
-                    console.log("ici", data);
+                    console.log(data);
                     if (data.type === 'invitation') {
-                        alert('Vous avez reçu une invitation de ' + data.from + ' !');
+                        var invitation = JSON.parse(data.text);
+
+                        // Create accept and reject buttons
+                        var acceptButton = document.createElement('button');
+                        acceptButton.textContent = 'Accept';
+                        acceptButton.onclick = function() {
+                            socket.send(JSON.stringify({
+                                type: 'response.invitation',
+                                response: 'accept',
+                                invitationId: invitation.id
+                            }));
+                        };
+
+                        var rejectButton = document.createElement('button');
+                        rejectButton.textContent = 'Reject';
+                        rejectButton.onclick = function() {
+                            socket.send(JSON.stringify({
+                                type: 'response.invitation',
+                                response: 'reject',
+                                invitationId: invitation.id
+                            }));
+                        };
+
+                        // Add buttons to the document
+                        document.body.appendChild(acceptButton);
+                        document.body.appendChild(rejectButton);
+                        //alert('Vous avez reçu une invitation de ' + data.from + ' !');
                     }
                 };
                 
@@ -52,7 +66,8 @@
                     var username = usernameInput.value;
                     socket.send(JSON.stringify({
                         'username': username,
-                        'type' : 'invitation'
+                        'type' : 'invitation',
+                        'room_name': 'add_friend'
                     }));
             
                     usernameInput.value = '';
