@@ -1,11 +1,63 @@
+<!DOCTYPE html>
+<html>
 <head>
     <title>Login</title>
 </head>
 <body>
     <h2>Login</h2>
-    <form method="post" action="{% url 'login' %}">
+    <form id="login" method="post" action="{% url 'login' %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Login</button>
     </form>
 </body>
+</html>
+
+<script>
+    function setUpEventListeners(){
+        document.getElementById('login').addEventListener('submit', function(event) {
+            event.preventDefault();
+            sendLoginRequest();
+        });
+    }
+
+    function sendLoginRequest(){
+        var form = document.getElementById('login');
+        var formData = new FormData(form);
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        fetch("{% url 'login' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json().then(data => ({ok: response.ok, data})))
+        //.then(({ok, data}) => {
+            //    if (!ok) {
+                //        console.log('Error:', data);
+                //    } else {
+                    //        console.log('Success:', data);
+                    //        window.location.href = data.redirect_url ;
+                    //    }
+                    //})
+        .then(({ok, data}) => {
+            if (data.errors) {
+                for (let field in data.errors) {
+                    let errorMessages = data.errors[field];
+                    errorMessages.forEach(errorMessage => {
+                        let errorElement = document.createElement('div');
+                        errorElement.textContent = errorMessage;
+                        document.body.appendChild(errorElement);
+                    });
+                }
+            } else if (data.redirect) {
+                // Redirect to home page
+                window.location.href = data.redirect_url;
+            }
+    })
+    .catch(error => console.error('Error:', error));
+    }
+
+    setUpEventListeners();
+</script>

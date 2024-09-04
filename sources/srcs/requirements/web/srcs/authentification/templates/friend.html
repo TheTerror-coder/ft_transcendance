@@ -9,7 +9,7 @@
             <h2>Amis</h2>
             <ul>
                 {% for friend in friend_list %}
-                    <li>{{ friend.username }}</li>
+                    <li><a href="{% url 'user' friend.username %}">{{ friend.username }} <img src="{{ user.photo.url }}" alt="Photo de profil"></a></li>
                 {% empty %}
                     <li>Vous n'avez pas encore d'amis.</li>
                 {% endfor %}
@@ -18,17 +18,67 @@
 
         {% block add_friend %}
             <h2>Ajouter un ami</h2>
-            <form method="post" action="{% url 'add_friend' %}">
+            <form id="add_friend_form" method="post" action="{% url 'add_friend' %}">
                 {% csrf_token %}
                 <label for="username">Nom d'utilisateur de l'ami :</label>
                 <input type="text" name="username" id="username">
                 <button type="submit">Ajouter l'ami</button>
             </form>
+            <script>
+                var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
+                socket.onmessage = function(event) {
+                    var data = JSON.parse(event.data);
+                    console.log(data);
+                    if (data.type === 'invitation') {
+                        var invitation = JSON.parse(data.text);
+
+                        // Create accept and reject buttons
+                        var acceptButton = document.createElement('button');
+                        acceptButton.textContent = 'Accept';
+                        acceptButton.onclick = function() {
+                            socket.send(JSON.stringify({
+                                type: 'response.invitation',
+                                response: 'accept',
+                                invitationId: invitation.id
+                            }));
+                        };
+
+                        var rejectButton = document.createElement('button');
+                        rejectButton.textContent = 'Reject';
+                        rejectButton.onclick = function() {
+                            socket.send(JSON.stringify({
+                                type: 'response.invitation',
+                                response: 'reject',
+                                invitationId: invitation.id
+                            }));
+                        };
+
+                        // Add buttons to the document
+                        document.body.appendChild(acceptButton);
+                        document.body.appendChild(rejectButton);
+                        //alert('Vous avez reçu une invitation de ' + data.from + ' !');
+                    }
+                };
+                
+                document.querySelector('#add_friend_form').onsubmit = function(event) {
+                    event.preventDefault();
+                    var usernameInput = document.querySelector('#username');
+                    var username = usernameInput.value;
+                    socket.send(JSON.stringify({
+                        'username': username,
+                        'type' : 'invitation',
+                        'room_name': 'add_friend'
+                    }));
+            
+                    usernameInput.value = '';
+                    alert('Invitation envoyée à ' + username + ' !');
+                };
+            </script>
         {% endblock %}
 
         {% block remove_friend %}
             <h2>Supprimer un ami</h2>
-            <form method="post" action="{% url 'remove_friend' %}">
+            <form id="remove_friend_form" method="post" action="{% url 'remove_friend' %}">
                 {% csrf_token %}
                 <label for="username">Nom d'utilisateur de l'ami :</label>
                 <input type="text" name="username" id="username">

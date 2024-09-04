@@ -11,11 +11,10 @@
         {% else %}
             <img src="{{ user.photo.url }}" alt="Photo de profil">
         {% endif %}
-        {% comment %} bouton pour en ligne, hors ligne {% endcomment %}
         {% if user.is_authenticated %}
             <span style="color: green;">● En ligne</span>
         {% else %}
-        <span style="color: red;">● Hors ligne</span>
+            <span style="color: red;">● Hors ligne</span>
         {% endif %}
     {% endblock %}
 

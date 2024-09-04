@@ -1,22 +1,27 @@
 {% extends "base.html" %}
 
-{% block Connectcontent %}
-    {% if user.is_authenticated %}
-        <p>welcome {{ user.username }}</p>
-        {%block logout%}
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit">Déconnexion</button>
-            </form>
-        {%endblock%}
-        {% else %}
-        <nav>
-            <ul>
-                <li><a href="{% url 'base' %}">Connexion API 42</a></li>
-                <li><a href="{% url 'login' %}">Connexion par mail</a></li>
-                <li><a href="{% url 'register' %}">Créer un compte</a></li>
-            </ul>
-        </nav>
-        {% endif %}
-{% endblock %}
-
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Transcendance</title>
+        <link rel="stylesheet" href="{% static 'authentification/css/main.css' %}">
+    </head>
+    <body>
+    </body>
+        {% if user.is_authenticated %}
+            <p>welcome {{ user.username }}</p>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Déconnexion</button>
+                </form>
+            {% else %}
+            <nav>
+                <ul>
+                    <li><a href="{% url 'base' %}">Connexion API 42</a></li>
+                    <li><a href="{% url 'login' %}">Connexion par mail</a></li>
+                    <li><a href="{% url 'register' %}">Créer un compte</a></li>
+                </ul>
+            </nav>
+            {% endif %}
+</html>

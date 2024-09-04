@@ -1,0 +1,24 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
+#    Updated: 2024/08/31 17:45:18 by jm               ###   ########lyon.fr    #
+#                                                                              #
+# **************************************************************************** #
+
+ARG ALPINE_VERSION
+
+FROM alpine:${ALPINE_VERSION}
+
+RUN apk add --update --no-cache curl openssl
+RUN mkdir -p /etc/container-init.d
+
+COPY --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+COPY --chmod=500 ./conf/vault_ssl.cnf /vault/vault_ssl.cnf
+
+ENTRYPOINT [ "/etc/container-init.d/script.sh" ]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

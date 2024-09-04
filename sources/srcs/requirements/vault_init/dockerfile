@@ -1,0 +1,33 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
+#    Updated: 2024/08/31 00:17:56 by jm               ###   ########lyon.fr    #
+#                                                                              #
+# **************************************************************************** #
+
+ARG VAULT_VERSION
+
+FROM hashicorp/vault:${VAULT_VERSION}
+
+# USER "0"
+
+RUN apk add --no-cache curl jq
+RUN mkdir -p /etc/container-init.d # /vault/data
+# RUN chown vault:vault /vault/data
+
+COPY --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+COPY --chmod=500 ./tools/create-root-ca.sh /etc/container-init.d/create-root-ca.sh
+COPY --chmod=500 ./tools/generate-nginx-ssl-certs.sh /etc/container-init.d/generate-nginx-ssl-certs.sh
+COPY --chmod=500 ./tools/generate-web-ssl-certs.sh /etc/container-init.d/generate-web-ssl-certs.sh
+# COPY --chmod=500 ./conf/payload.json payload.json
+# COPY --chown=vault:vault --chmod=500 ./conf/vault.hcl /vault/config/vault.hcl
+
+CMD [ "/etc/container-init.d/script.sh" ]
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["server" "-dev"]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]
