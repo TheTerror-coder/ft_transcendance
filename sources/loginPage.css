@@ -14,7 +14,7 @@ p
     background-repeat: no-repeat;
     background-size: cover;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; 
     z-index: 1;
     margin: 0;
 }
@@ -70,8 +70,17 @@ button
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    min-height: 663px;
+    min-height: 600px; /* 663*/
+    margin-top: auto;
     /* min-width: 100vw; */
+}
+
+.createAccount
+{
+    margin-top: 15px;
+    display: flex; 
+    flex-direction: column;
+    gap: 14px;
 }
 
 .woodPresentationContent
@@ -80,7 +89,7 @@ button
     display: flex; 
     flex-direction: column; 
     position: absolute; 
-    margin-top: 200px;
+    margin-top: 192px;
     
     /* min-width: 25%;
     min-height: 25%; */
