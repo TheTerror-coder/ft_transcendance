@@ -102,8 +102,9 @@ window.onload = function() {
 
     // Initialiser Three.js
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const camera2 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const cameraPlayer1 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const cameraSpectateur = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const cameraPlayer2 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -127,11 +128,11 @@ window.onload = function() {
     scene.add(rectangle);
 
     // Vérifie cette partie
-    camera2.position.set(0, 0, 20);
-    camera2.rotation.set(0, 0, 0);
-    // Ajouter la camera2 à la scène
-    scene.add(camera2);
-    // Contrôles clavier de la camera2 avec les touches WASD
+    cameraSpectateur.position.set(0, 0, 20);
+    cameraSpectateur.rotation.set(0, 0, 0);
+    // Ajouter la cameraSpectateur à la scène
+    scene.add(cameraSpectateur);
+    // Contrôles clavier de la cameraSpectateur avec les touches WASD
     const keys2 = {};
     window.addEventListener('keydown', (event) => {
         keys2[event.key] = true;
@@ -141,53 +142,63 @@ window.onload = function() {
     });
     setInterval(function() {
         if (keys2['w']) {
-            camera2.position.x -= Math.sin(camera2.rotation.y) * 0.05;
-            camera2.position.z -= Math.cos(camera2.rotation.y) * 0.05;
+            cameraSpectateur.position.x -= Math.sin(cameraSpectateur.rotation.y) * 0.05;
+            cameraSpectateur.position.z -= Math.cos(cameraSpectateur.rotation.y) * 0.05;
         }
         if (keys2['s']) {
-            camera2.position.x += Math.sin(camera2.rotation.y) * 0.05;
-            camera2.position.z += Math.cos(camera2.rotation.y) * 0.05;
+            cameraSpectateur.position.x += Math.sin(cameraSpectateur.rotation.y) * 0.05;
+            cameraSpectateur.position.z += Math.cos(cameraSpectateur.rotation.y) * 0.05;
         }
         if (keys2['ArrowUp']) {
-            camera2.position.y += 0.05;
+            cameraSpectateur.position.y += 0.05;
         }
         if (keys2['ArrowDown']) {
-            camera2.position.y -= 0.05;
+            cameraSpectateur.position.y -= 0.05;
         }
         if (keys2['ArrowLeft']) {
-            camera2.position.x -= 0.05;
+            cameraSpectateur.position.x -= 0.05;
         }
         if (keys2['ArrowRight']) {
-            camera2.position.x += 0.05;
+            cameraSpectateur.position.x += 0.05;
         }
         if (keys2['y']) {
-            camera2.rotation.x += 0.05;
+            cameraSpectateur.rotation.x += 0.05;
         }
         if (keys2['h']) {
-            camera2.rotation.x -= 0.05;
+            cameraSpectateur.rotation.x -= 0.05;
         }
         if (keys2['g']) {
-            camera2.rotation.y += 0.05;
+            cameraSpectateur.rotation.y += 0.05;
         }
         if (keys2['j']) {
-            camera2.rotation.y -= 0.05;
+            cameraSpectateur.rotation.y -= 0.05;
         }
         if (keys2['t']) {
-            camera2.rotation.z += 0.05;
+            cameraSpectateur.rotation.z += 0.05;
         }
         if (keys2['u']) {
-            camera2.rotation.z -= 0.05;
+            cameraSpectateur.rotation.z -= 0.05;
         }
     }, 16);
 
-    let activeCamera = camera; // Par défaut, la camera1 est active
+    let activeCamera = cameraPlayer1; // Par défaut, la camera1 est active
 
     window.addEventListener('keydown', (event) => {
         if (event.key === 'c') { // Appuyer sur 'c' pour changer de caméra
-            if (activeCamera === camera) {
-                activeCamera = camera2;
+            if (activeCamera != cameraSpectateur) {
+                activeCamera = cameraSpectateur;
             } else {
-                activeCamera = camera;
+                activeCamera = cameraPlayer1;
+            }
+            if (playerCount === 2)
+            {
+                if (event.key === 'c')
+                {
+                    if (activeCamera != cameraPlayer2)
+                        activeCamera = cameraPlayer2;
+                    else
+                        activeCamera = cameraPlayer1;
+                }
             }
         }
     });
@@ -231,10 +242,6 @@ window.onload = function() {
 
         scene.add(ocean);
 
-        // mixer = new THREE.AnimationMixer(ocean); // Créer un mixer pour les animations
-        // gltf.animations.forEach((clip) => {
-        //     mixer.clipAction(clip).play(); // Jouer chaque animation
-        // });
     }, undefined, function (error) {
         console.error('Une erreur est survenue lors du chargement du modèle GLB', error);
     });
@@ -242,7 +249,6 @@ window.onload = function() {
     // Charger le modèle GLTF des bateau
     let bateau1 = null;
     let bateau2 = null;
-    // const gltfLoader = new THREE.GLTFLoader();
     gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
         // Paddle 1
         bateau1 = gltf.scene.clone();
@@ -276,13 +282,11 @@ window.onload = function() {
         OBJLoader.load('cannon.obj', function(object) {
             // cannon1
             cannon1 = object.clone();
-            // cannon1.position.set(0, 20, -1);
             cannon1.scale.set(0.01, 0.03, 0.03);
             cannon1.rotation.set(0, 0, -(Math.PI / 2));
 
             // cannon2
             cannon2 = object.clone();
-            // cannon2.position.set(6, -20, -1);
             cannon2.scale.set(0.01, 0.03, 0.03);
             cannon2.rotation.set(0, 0, Math.PI / 2);
 
@@ -337,19 +341,10 @@ window.onload = function() {
     scene.add(paddle1Hitbox);
     scene.add(paddle2Hitbox);
 
-    // const bateau1Hitbox = new THREE.BoxHelper(bateau1, 0xff0000); // Couleur rouge pour la hitbox
-    // const bateau2Hitbox = new THREE.BoxHelper(bateau2, 0xff0000); // Couleur rouge pour la hitbox
-    // scene.add(bateau1Hitbox);
-    // scene.add(bateau2Hitbox);
-
-    // const Player1Zone = {x: -2.67, y: 20, z: 0, width: 5.34, height: 40}
-    // const Player2Zone = {x: 2.67, y: -20, z: 0, width: 5.34, height: 40}
     const playerZoneGeometry = new THREE.BoxGeometry(5.75, 1.5, 0.1);
     const playerZoneMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Couleur marron
     const Player1Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
     const Player2Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
-    // scene.add(Player1Zone);
-    // scene.add(Player2Zone);
 
     // Variables pour suivre les touches enfoncées
     const keys = {};
@@ -390,15 +385,25 @@ window.onload = function() {
 
             // Appliquer une rotation à la caméra pour le joueur 2
             if (playerRole === 'player2') {
-                camera.position.set(paddle2.position.x, paddle2.position.y - 2.9, paddle2.position.z + 2.5); // Derrière le paddle
-                camera.lookAt(new THREE.Vector3(paddle2.position.x, paddle2.position.y, paddle2.position.z));
-                camera.rotation.x = 60 * (Math.PI / 180);
+                cameraPlayer1.position.set(paddle2.position.x, paddle2.position.y - 2.9, paddle2.position.z + 2.5); // Derrière le paddle
+                cameraPlayer1.lookAt(new THREE.Vector3(paddle2.position.x, paddle2.position.y, paddle2.position.z));
+                cameraPlayer1.rotation.x = 60 * (Math.PI / 180);
             } else if (playerRole === 'player1') {
-                camera.position.set(paddle1.position.x, paddle1.position.y + 2.9, paddle1.position.z + 2.5); // Derrière le paddle
-                camera.lookAt(new THREE.Vector3(paddle1.position.x, paddle1.position.y, paddle1.position.z));
-                camera.rotation.x = -60 * (Math.PI / 180);
-                camera.rotation.z = 180 * (Math.PI / 180); // Rotation de 180 degrés
+                cameraPlayer1.position.set(paddle1.position.x, paddle1.position.y + 2.9, paddle1.position.z + 2.5); // Derrière le paddle
+                cameraPlayer1.lookAt(new THREE.Vector3(paddle1.position.x, paddle1.position.y, paddle1.position.z));
+                cameraPlayer1.rotation.x = -60 * (Math.PI / 180);
+                cameraPlayer1.rotation.z = 180 * (Math.PI / 180); // Rotation de 180 degrés
 
+            }
+            else if (playerRole === 'player3')
+            {
+                cameraPlayer1.position.set(0, 0, 20);
+                cameraPlayer1.rotation.set(0, 0, 0);
+            }
+            else if (playerRole === 'player4')
+            {
+                cameraPlayer2.position.set(0, 0, 20);
+                cameraPlayer2.rotation.set(0, 0, 0);
             }
             elementsPlaced = true; // Marquer les éléments comme placés
         }
@@ -524,8 +529,8 @@ window.onload = function() {
 
     // Écouteur d'événements pour le redimensionnement de la fenêtre
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        cameraPlayer1.aspect = window.innerWidth / window.innerHeight;
+        cameraPlayer1.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 };
