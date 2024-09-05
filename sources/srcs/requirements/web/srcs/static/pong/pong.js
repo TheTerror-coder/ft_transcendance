@@ -295,6 +295,50 @@ window.onload = function() {
         });
     });
 
+    let cannon1_support = null;
+    let cannon2_support = null;
+    MTLloader.load('Juste_Support.mtl', function(materials) {
+        materials.preload();
+
+        const OBJLoader = new THREE.OBJLoader();
+        OBJLoader.setMaterials(materials);
+        OBJLoader.setPath('../../static/pong/assets/models/');
+        OBJLoader.load('Juste_Support.obj', function(object) {
+            cannon1_support = object.clone();
+            cannon1_support.scale.set(0.01, 0.03, 0.03);
+            cannon1_support.rotation.set(0, 0, -(Math.PI / 2));
+
+            cannon2_support = object.clone();
+            cannon2_support.scale.set(0.01, 0.03, 0.03);
+            cannon2_support.rotation.set(0, 0, Math.PI / 2);
+
+            scene.add(cannon1_support);
+            scene.add(cannon2_support);
+        });
+    });
+
+    let cannon1_tube = null;
+    let cannon2_tube = null;
+    MTLloader.load('Juste_Cannon.mtl', function(materials) {
+        materials.preload();
+
+        const OBJLoader = new THREE.OBJLoader();
+        OBJLoader.setMaterials(materials);
+        OBJLoader.setPath('../../static/pong/assets/models/');
+        OBJLoader.load('Juste_Cannon.obj', function(object) {
+            cannon1_tube = object.clone();
+            cannon1_tube.scale.set(0.01, 0.03, 0.03);
+            cannon1_tube.rotation.set(0, 0, -(Math.PI / 2));
+
+            cannon2_tube = object.clone();
+            cannon2_tube.scale.set(0.01, 0.03, 0.03);
+            cannon2_tube.rotation.set(0, 0, Math.PI / 2);
+
+            scene.add(cannon1_tube);
+            scene.add(cannon2_tube);
+        });
+    });
+
     // Créer les objets du jeu Pong
     const paddleGeometry = new THREE.BoxGeometry(0.7, 0.2, 0.6);
     const paddle1Material = new THREE.MeshBasicMaterial({ color: 0x800080 });
