@@ -98,9 +98,12 @@ def send_friend_request(request):
             to_user = User.objects.get(username=username)
             if to_user == request.user:
                 messages.error(request, "Vous ne pouvez pas vous ajouter vous-même comme ami.")
+                print("Vous ne pouvez pas vous ajouter vous-même comme ami.")
             elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
                 messages.error(request, "Vous avez déjà envoyé une demande d'ami à cet utilisateur.")
+                print("Vous avez déjà envoyé une demande d'ami à cet utilisateur.")
             else:
+                print("loool", channel_layer)
                 friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user, status='PENDING')
                 channel_layer = get_channel_layer()
                 async_to_sync(channel_layer.group_send)('friend_invite', {

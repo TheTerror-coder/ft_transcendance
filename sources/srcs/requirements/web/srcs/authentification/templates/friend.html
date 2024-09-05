@@ -24,6 +24,7 @@
                 <input type="text" name="username" id="username">
                 <button type="submit">Ajouter l'ami</button>
             </form>
+
             <script>
                 var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
                 socket.onmessage = function(event) {
@@ -64,14 +65,31 @@
                     event.preventDefault();
                     var usernameInput = document.querySelector('#username');
                     var username = usernameInput.value;
+                    
+                    fetch('{% url 'add_friend' %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                        body: new URLSearchParams({
+                            'username': username,
+                        }),
+                    })
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data);
+                        alert('Invitation envoyée à ' + username + ' !');
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
                     socket.send(JSON.stringify({
                         'username': username,
                         'type' : 'invitation',
                         'room_name': 'add_friend'
                     }));
-            
                     usernameInput.value = '';
-                    alert('Invitation envoyée à ' + username + ' !');
                 };
             </script>
         {% endblock %}
