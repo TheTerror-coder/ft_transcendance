@@ -214,6 +214,8 @@ io.on('connection', async (socket) => {
     const playerId = uuidv4(); // Générer un identifiant unique pour le joueur
     console.log(`Player count Connection before: ${global.playerCount}`);
     global.playerCount++;
+    const playerCount = global.playerCount;
+    io.emit('playerCount', playerCount);
     console.log(`Player count Connection after: ${global.playerCount}`);
     const playerRole = 'player' + global.playerCount;
     // const playerRole = global.playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur

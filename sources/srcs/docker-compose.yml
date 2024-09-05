@@ -239,7 +239,7 @@ services:
       retries: 15
     ports:
       - ${MODSEC_HTTP_PORT}:8080
-      - ${MODSEC_HTTPS_PORT}:8443
+      - ${MODSEC_HTTPS_PORT}:443
     networks:
       - ${NETWORK_NAME}
     # restart: on-failure
