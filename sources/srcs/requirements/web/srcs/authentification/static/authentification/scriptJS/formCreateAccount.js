@@ -40,20 +40,23 @@ document.getElementById('formAccount').addEventListener('submit', function(event
             alert('Form is valid and passwords match! Submitting...');
             // Uncomment the line below to actually submit the form
             // this.submit();
+            // var tgben = hashStringSHA256(email);
+            // hashStringSHA256(email).then(hashed);
+
             console.log(registerURL);
-            // fetch(registerURL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/x-www-form-urlencoded',
-            //         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            //     },
-            //     body: new URLSearchParams({
-            //         'username': username,
-            //         'password': password,
-            //         'confirmPassword': confirmPassword,
-            //         'email': email,
-            //     }),
-            // })
+            fetch(registerURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: new URLSearchParams({
+                    'username': username,
+                    'password': password,
+                    'confirmPassword': confirmPassword,
+                    'email': hashStringSHA256(email),
+                }),
+            })
         } else {
             alert('Passwords do not match. Please try again.');
         }
@@ -62,3 +65,13 @@ document.getElementById('formAccount').addEventListener('submit', function(event
         alert('Some of the required information is not complete.');
     }
 });
+
+
+async function hashStringSHA256(input) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }

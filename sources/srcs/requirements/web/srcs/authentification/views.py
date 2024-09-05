@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm, MyForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -12,28 +12,16 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import FriendRequest
 
-# def register(request):
-#     print("ici", request.POST)
-#     if request.method == 'POST':
-#         form = CustomUserCreationForm(request.POST, request.FILES)
-#         # print("form gang", form)
-#     else:
-#         form = CustomUserCreationForm()
-#     # return render(request, 'register.html', {'form': form})
-#     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 def register(request):
+    print("ici", request.POST)
     if request.method == 'POST':
-        print("CHELOU ")
-        form = MyForm(request.POST)
-        print("je suis la la team ", form)
-        if form.is_valid():
-            print("valid")
-            # Traitez les données du formulaire ici
-            return redirect('success')
+        form = CustomUserCreationForm(request.POST, request.FILES)
+        return (JsonResponse({"error": "found"}, status=302))
+
     else:
-        form = MyForm()
-    return render(request, 'register.html', {'form': form})
+        form = CustomUserCreationForm()
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+    # return render(request, 'register.html', {'form': form})
 
 
 def connect(request):

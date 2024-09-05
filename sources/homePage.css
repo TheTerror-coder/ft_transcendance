@@ -1,0 +1,43 @@
+
+
+.playButton
+{
+    display: none;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    z-index: 6;
+}
+
+
+.homePage
+{
+    display: none;
+}
+
+
+
+.homepageFlag
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+#homepageFlag button
+{
+    /* float: right; */
+    /* margin-right: 0%; */
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+}
+
+#homepageFlag button img
+{
+    height: 100%;
+    width: auto;
+}
+
+.englandFlag
+{
+    transform: scale(1.2);
+}

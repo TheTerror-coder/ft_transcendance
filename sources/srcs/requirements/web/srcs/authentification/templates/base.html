@@ -40,21 +40,16 @@
 
 
 
-                <form class="createAccount" id="formAccount" method="post" action='{% url 'register' %}'>
+                <form class="createAccount" id="formAccount">
                     {% csrf_token %}
                     <p class="fontConnexion">
-                        {% csrf_token %}
-                        {% comment %} <input id="createEmail" type="email" name="email" class="form-control" placeholder="E-mail" aria-label="Username" style="font-family: arial" required> {% endcomment %}
-                        {{ form.email }}
+                        <input id="createEmail" type="email" name="email" class="form-control" placeholder="E-mail" aria-label="Username" style="font-family: arial" required>
                     </p>
                     <p class="fontConnexion">
-                        {% csrf_token %}
-                        {% comment %} <input id="createUser" name="username" class="form-control" placeholder="User" aria-label="Username" style="font-family: arial" required> {% endcomment %}
-                        {{ form.nom }}
+                        <input id="createUser" name="username" class="form-control" placeholder="User" aria-label="Username" style="font-family: arial" required>
                     </p>
                     <p class="fontConnexion" style="margin-top: -2px;">
-                        {% comment %} <input id="createPassword" type="password" name="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required> {% endcomment %}
-                        {{ form.message }}
+                        <input id="createPassword" type="password" name="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
                     </p>
                     <p class="fontConnexion" style="margin-top: -3px;">
                         <input id="createConfirmPassword" type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" style="font-family: arial" aria-label="Username" required>

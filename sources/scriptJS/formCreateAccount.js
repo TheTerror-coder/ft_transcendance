@@ -20,6 +20,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
     // Prevent the form from submitting immediately
     event.preventDefault();
 
+
     // Check if the form is valid
     if (this.checkValidity()) {
         // Additional validation: check if passwords match
