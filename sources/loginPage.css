@@ -1,0 +1,96 @@
+@font-face {
+    font-family: onePieceFont;
+    src: url(http://127.0.0.1:5500/onePieceFont.ttf);
+}
+
+p
+{
+    font-family: onePieceFont;
+}
+
+.background
+{
+    background-image: url(picturePng/loginPage/landscapeOnePiece.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100vw;
+    height: 100vh; 
+    z-index: 1;
+    margin: 0;
+}
+
+body
+{
+    display: flex;
+    flex-direction: column;
+}
+
+.flag
+{
+    /* float: right; */
+    display: flex;
+    margin-right: 2%;
+    justify-content: flex-end;
+}
+
+.loginButton
+{
+    z-index: 3; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* position: fixed */
+}
+
+
+.fontConnexion
+{
+    font-family: onePieceFont;
+    color: #FEF698;
+    background:none;
+    border:none;
+    cursor: pointer;
+    z-index: 4;
+    position:relative;
+    font-size: 300%;
+    display: absolute;
+}
+
+button
+{
+    /* display: block; */
+    /* margin: 0.5rem 0; */
+    background:none;
+    cursor: pointer;
+    border:none;
+}
+
+.woodPresentation
+{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 600px; /* 663*/
+    margin-top: auto;
+    /* min-width: 100vw; */
+}
+
+.createAccount
+{
+    margin-top: 15px;
+    display: flex; 
+    flex-direction: column;
+    gap: 14px;
+}
+
+.woodPresentationContent
+{
+    /* height: 97%; */
+    display: flex; 
+    flex-direction: column; 
+    position: absolute; 
+    margin-top: 192px;
+    
+    /* min-width: 25%;
+    min-height: 25%; */
+}

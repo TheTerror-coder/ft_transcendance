@@ -14,7 +14,7 @@ def validate_image_extension(value):
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
-    photo = models.ImageField(upload_to='photos/', blank=True, null=True, default='photos/default.png', validators=[validate_image_extension])
+    photo = models.ImageField(upload_to='../static/media/photos/', blank=True, null=True, default='../static/media/photos/default.png', validators=[validate_image_extension])
     friend_list = models.ManyToManyField('self', symmetrical=False, related_name='friend_set', blank=True)
 
 class FriendRequest(models.Model):
