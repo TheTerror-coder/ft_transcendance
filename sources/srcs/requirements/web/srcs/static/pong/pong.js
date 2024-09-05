@@ -70,10 +70,12 @@ window.onload = function() {
     socket.on('paddlePosition', (data) => {
         if (data.paddle === 'paddle1') {
             paddle1.position.x = data.x;
-            cannon1.position.x = data.x;
+            cannon1_support.position.x = data.x;
+            cannon1_tube.position.x = data.x;
         } else if (data.paddle === 'paddle2') {
             paddle2.position.x = data.x;
-            cannon2.position.x = data.x;
+            cannon2_support.position.x = data.x;
+            cannon2_tube.position.x = data.x;
         }
     });
 
@@ -320,8 +322,8 @@ window.onload = function() {
             cannon2_support.scale.set(0.01, 0.03, 0.03);
             cannon2_support.rotation.set(0, 0, Math.PI / 2);
 
-            scene.add(cannon1_support);
-            scene.add(cannon2_support);
+            // scene.add(cannon1_support);
+            // scene.add(cannon2_support);
         });
     });
 
@@ -337,15 +339,61 @@ window.onload = function() {
             cannon1_tube = object.clone();
             cannon1_tube.scale.set(0.01, 0.03, 0.03);
             cannon1_tube.rotation.set(0, 0, -(Math.PI / 2));
+            cannon1_tube.position.set(0, 0, 3);
 
             cannon2_tube = object.clone();
             cannon2_tube.scale.set(0.01, 0.03, 0.03);
             cannon2_tube.rotation.set(0, 0, Math.PI / 2);
 
-            scene.add(cannon1_tube);
-            scene.add(cannon2_tube);
+            // scene.add(cannon1_tube);
+            // scene.add(cannon2_tube);
         });
     });
+
+    // Transformer en groupe pour pouvoir les déplacer en bloc
+    const cannon1TubeGroup = new THREE.Group();
+    cannon1TubeGroup.add(cannon1_tube);
+    cannon1TubeGroup.position.set(-0.5, 0, 0);
+    scene.add(cannon1TubeGroup);
+
+    const cannon2TubeGroup = new THREE.Group();
+    cannon2TubeGroup.add(cannon2_tube);
+    cannon2TubeGroup.position.set(-0.5, 0, 0);
+    scene.add(cannon2TubeGroup);
+
+    const cannon1Group = new THREE.Group();
+    cannon1Group.add(cannon1_support);
+    cannon1Group.add(cannon1TubeGroup);
+    scene.add(cannon1Group);
+
+    const cannon2Group = new THREE.Group();
+    cannon2Group.add(cannon2_support);
+    cannon2Group.add(cannon2TubeGroup);
+    scene.add(cannon2Group);
+
+    function PlaceCannons1(x, y, z)
+    {
+        cannon1_support.position.set(x, y + 1.02, z - 1.8);
+        cannon1_tube.position.set(x, y + 1.02, z - 1.8);
+    }
+
+    function PlaceCannons2(x, y, z)
+    {
+        cannon2_support.position.set(x, y - 1.02, z - 1.8);
+        cannon2_tube.position.set(x, y - 1.02, z - 1.8);
+    }
+
+    function MoveCannons1X(x)
+    {
+        cannon1_support.position.x += x;
+        cannon1_tube.position.x += x;
+    }
+
+    function MoveCannons2X(x)
+    {
+        cannon2_support.position.x += x;
+        cannon2_tube.position.x += x;
+    }
 
     // Créer les objets du jeu Pong
     const paddleGeometry = new THREE.BoxGeometry(0.7, 0.2, 0.6);
@@ -428,8 +476,8 @@ window.onload = function() {
             paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 5, bateau2.position.z * bateau2.scale.z + 9.9);
             socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
             socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-            cannon1.position.set(paddle1.position.x, paddle1.position.y + 1.02, paddle1.position.z - 1.8);
-            cannon2.position.set(paddle2.position.x, paddle2.position.y - 1.02, paddle2.position.z - 1.8);
+            PlaceCannons1(paddle1.position.x, paddle1.position.y, paddle1.position.z);
+            PlaceCannons2(paddle2.position.x, paddle2.position.y, paddle2.position.z);
             Player1Zone.position.set(paddle1.position.x, paddle1.position.y + 0.5, paddle1.position.z);
             Player2Zone.position.set(paddle2.position.x, paddle2.position.y - 0.5, paddle2.position.z);
             Player1Zone.rotation.set(90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
@@ -491,19 +539,19 @@ window.onload = function() {
     setInterval(() => {
         if (activeCamera === cameraPlayer1)
         {
-            console.log("True");
+            // console.log("True");
             if (keys['a']) {
                 if (playerRole === 'player1' && paddle1.position.x < getXMinMax(Player1Zone).xMax)
                     {
                         paddle1.position.x += 0.05;
-                        cannon1.position.x += 0.05;
+                        MoveCannons1X(0.05);
                         console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                     }
                 else if (playerRole === 'player2' && paddle2.position.x > getXMinMax(Player2Zone).xMin)
                     {
                         paddle2.position.x -= 0.05;
-                        cannon2.position.x -= 0.05;
+                        MoveCannons2X(-0.05);
                         console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                     }
@@ -512,17 +560,33 @@ window.onload = function() {
                 if (playerRole === 'player1' && paddle1.position.x > getXMinMax(Player1Zone).xMin)
                     {
                         paddle1.position.x -= 0.05;
-                        cannon1.position.x -= 0.05;
+                        MoveCannons1X(-0.05);
                         console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                     }
                 else if (playerRole === 'player2' && paddle2.position.x < getXMinMax(Player2Zone).xMax)
                     {
                         paddle2.position.x += 0.05;
-                        cannon2.position.x += 0.05;
+                        MoveCannons2X(0.05);
                         console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                     }
+            }
+            if (keys['w'])
+            {
+                if (playerRole === 'player1' && cannon1_tube.rotation.x < 2.5)
+                {
+                    // cannon1_support.rotation.y += 0.05;
+                    cannon1_tube.rotation.x += 0.05;
+                }
+            }
+            if (keys['s'])
+            {
+                if (playerRole === 'player1' && cannon1_tube.rotation.x > -2.5)
+                {
+                    // cannon1_support.rotation.y += 0.05;
+                    cannon1_tube.rotation.x -= 0.05;
+                }
             }
         }
         if (activeCamera === cameraPlayer2)
@@ -533,7 +597,7 @@ window.onload = function() {
                 if (playerRole === 'player1' && bateau1.position.x < 20)
                     {
                         bateau1.position.x += 0.5;
-                        cannon1.position.x += 0.5;
+                        MoveCannons1X(0.5);
                         paddle1.position.x += 0.5;
                         Player1Zone.position.x += 0.5;
                         Player1ZoneHitbox.update();
@@ -544,7 +608,7 @@ window.onload = function() {
                 else if (playerRole === 'player2' && bateau2.position.x > -20)
                     {
                         bateau2.position.x -= 0.5;
-                        cannon2.position.x -= 0.5;
+                        MoveCannons2X(-0.5);
                         paddle2.position.x -= 0.5;
                         Player2Zone.position.x -= 0.5;
                         Player2ZoneHitbox.update();
@@ -559,7 +623,7 @@ window.onload = function() {
                 if (playerRole === 'player1' && bateau1.position.x > -20)
                     {
                         bateau1.position.x -= 0.5;
-                        cannon1.position.x -= 0.5;
+                        MoveCannons1X(-0.5);
                         paddle1.position.x -= 0.5; 
                         Player1Zone.position.x -= 0.5;
                         Player1ZoneHitbox.update();
@@ -570,7 +634,7 @@ window.onload = function() {
                 else if (playerRole === 'player2' && bateau2.position.x < 20)
                     {
                         bateau2.position.x += 0.5;
-                        cannon2.position.x += 0.5;
+                        MoveCannons2X(0.5);
                         paddle2.position.x += 0.5;
                         Player2Zone.position.x += 0.5;
                         Player2ZoneHitbox.update();
