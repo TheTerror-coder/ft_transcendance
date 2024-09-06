@@ -3,19 +3,14 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import CustomUser
 from django.contrib.auth import authenticate
 
+class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs): # print value in the form
+        super().__init__(*args, **kwargs)
+        print("icietla", self.data)
 
-class MyForm(forms.Form):
-    nom = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your message'}), max_length=100)
-    email = forms.EmailField(label='Email')
-    message = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your message'}),
-        max_length=500
-    )
-
-# class CustomUserCreationForm(UserCreationForm):
-#     class Meta:
-#         model = CustomUser
-#         fields = ('username', 'email', 'password1', 'password2', 'photo')
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'password1', 'password2')
 
 
 class CustomAuthenticationForm(AuthenticationForm):

@@ -1,10 +1,6 @@
 @font-face {
     font-family: onePieceFont;
-<<<<<<< HEAD
-    src: url(http://127.0.0.1:5500/onePieceFont.ttf);
-=======
     src: url(http://127.0.0.1:8000/../static/authentification/onePieceFont.ttf);
->>>>>>> dbaule
 }
 
 p
@@ -44,10 +40,6 @@ body
     align-items: center;
     justify-content: center;
     /* position: fixed */
-<<<<<<< HEAD
-}
-
-=======
     transition: margin-top 2s ease, box-shadow 3s ease-in-out, filter 1.2s ease;
 
 }
@@ -90,7 +82,6 @@ body
     margin-top: -10px;
     transition: transform 1.5s ease;
 }
->>>>>>> dbaule
 
 .fontConnexion
 {
@@ -103,10 +94,6 @@ body
     position:relative;
     font-size: 300%;
     display: absolute;
-<<<<<<< HEAD
-}
-
-=======
     transition: text-shadow 2s ease;
 }
 
@@ -151,7 +138,6 @@ body
      box-shadow: #FFF 0px 0px 1px, #FFF 0px 0px 2px, #FFF 0px 0px 3px, #000000 0px 0px 4px, #000000 0px 0px 5px, #000000 0px 0px 8px, #000000 0px 0px 10px, #000000 0px 0px 15px; 
 } */
 
->>>>>>> dbaule
 button
 {
     /* display: block; */
@@ -173,17 +159,10 @@ button
 
 .createAccount
 {
-<<<<<<< HEAD
-    margin-top: 15px;
-    display: flex; 
-    flex-direction: column;
-    gap: 14px;
-=======
     margin-top: 16px;
     display: none; 
     flex-direction: column;
     gap: 16px;
->>>>>>> dbaule
 }
 
 .woodPresentationContent

@@ -18,7 +18,6 @@ function createAnAccount()
 
 document.getElementById('formAccount').addEventListener('submit', function(event) {
     // Prevent the form from submitting immediately
-    console.log("TEST DANS CREATE");
     event.preventDefault();
 
 
@@ -29,31 +28,37 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 
         const email = document.getElementById('createEmail').value;
         const username = document.getElementById('createUser').value;
-        const password = document.getElementById('createPassword').value;
-        const confirmPassword = document.getElementById('createConfirmPassword').value;
+        const password1 = document.getElementById('createPassword').value;
+        const password2 = document.getElementById('createConfirmPassword').value;
         
 
 
 
 
-        if (password === confirmPassword) {
+        if (password1 === password2) {
             alert('Form is valid and passwords match! Submitting...');
             // Uncomment the line below to actually submit the form
             // this.submit();
+            // var tgben = hashStringSHA256(email);
+            // hashStringSHA256(email).then(hashed);
+
             console.log(registerURL);
-            // fetch(registerURL, {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/x-www-form-urlencoded',
-            //         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            //     },
-            //     body: new URLSearchParams({
-            //         'username': username,
-            //         'password': password,
-            //         'confirmPassword': confirmPassword,
-            //         'email': email,
-            //     }),
-            // })
+            fetch(registerURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: new URLSearchParams({
+                    'username': username,
+                    'password1': password1,
+                    'password2': password2,
+                    // 'email': hashStringSHA256(email),
+                    'email': email,
+                }),
+            })
+            .then(reponse => reponse.json()) //reponse du form si oui ou non il est valide
+            .then(reponse => console.log("caaaaacccca", reponse))
         } else {
             alert('Passwords do not match. Please try again.');
         }
@@ -62,3 +67,13 @@ document.getElementById('formAccount').addEventListener('submit', function(event
         alert('Some of the required information is not complete.');
     }
 });
+
+
+async function hashStringSHA256(input) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }
