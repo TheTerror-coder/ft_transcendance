@@ -14,8 +14,6 @@ window.onload = function() {
     let gameStarted = false;
     let elementsPlaced = false; 
     let playerCount = 0;
-    let cannon1;
-    let cannon2;
 
     const waitingMessage = document.createElement('div');
     waitingMessage.id = 'waitingMessage';
@@ -125,6 +123,11 @@ window.onload = function() {
     renderer.domElement.style.height = '100%';
 
     document.getElementById('gameCanvas').appendChild(renderer.domElement);
+
+    window.cannon1TubeGroup = new THREE.Group();
+    window.cannon2TubeGroup = new THREE.Group();
+    window.cannon1Group = new THREE.Group();
+    window.cannon2Group = new THREE.Group();
 
     // Créer un rectangle vert
     const rectangleGeometry = new THREE.PlaneGeometry(2, 1);
@@ -281,118 +284,102 @@ window.onload = function() {
         console.error('An error occurred while loading the GLTF file', error);
     });
 
-    const MTLloader = new THREE.MTLLoader();
-    MTLloader.setPath('../../static/pong/assets/textures/');
-    MTLloader.load('cannon.mtl', function(materials) {
-        materials.preload();
+    function InitCannon_Support(value) {
+        let cannon1_support = null;
+        let cannon2_support = null;
+        const MTLloader = new THREE.MTLLoader();
+        MTLloader.setPath('../../static/pong/assets/textures/');
+        MTLloader.load('Juste_Support.mtl', function(materials) {
+            materials.preload();
 
-        const OBJLoader = new THREE.OBJLoader();
-        OBJLoader.setMaterials(materials);
-        OBJLoader.setPath('../../static/pong/assets/models/');
-        OBJLoader.load('cannon.obj', function(object) {
-            // cannon1
-            cannon1 = object.clone();
-            cannon1.scale.set(0.01, 0.03, 0.03);
-            cannon1.rotation.set(0, 0, -(Math.PI / 2));
+            const OBJLoader = new THREE.OBJLoader();
+            OBJLoader.setMaterials(materials);
+            OBJLoader.setPath('../../static/pong/assets/models/');
+            OBJLoader.load('Juste_Support.obj', function(object) {
+                cannon1_support = object.clone();
+                // cannon1_support.scale.set(0.01, 0.03, 0.03);
+                // cannon1_support.rotation.set(0, 0, -(Math.PI / 2));
 
-            // cannon2
-            cannon2 = object.clone();
-            cannon2.scale.set(0.01, 0.03, 0.03);
-            cannon2.rotation.set(0, 0, Math.PI / 2);
+                cannon2_support = object.clone();
+                // cannon2_support.scale.set(0.01, 0.03, 0.03);
+                // cannon2_support.rotation.set(0, 0, Math.PI / 2);
 
-            scene.add(cannon1);
-            scene.add(cannon2);
+                // Vérifier si les objets sont bien chargés avant de les ajouter à la scène
+                if (cannon1_support)
+                    scene.add(cannon1_support);
+                if (cannon2_support)
+                    scene.add(cannon2_support);
+                if (value = 0)
+                    return (cannon1_support);
+                else if (value = 1)
+                    return (cannon2_support);
+            });
         });
-    });
-
-    let cannon1_support = null;
-    let cannon2_support = null;
-    MTLloader.load('Juste_Support.mtl', function(materials) {
-        materials.preload();
-
-        const OBJLoader = new THREE.OBJLoader();
-        OBJLoader.setMaterials(materials);
-        OBJLoader.setPath('../../static/pong/assets/models/');
-        OBJLoader.load('Juste_Support.obj', function(object) {
-            cannon1_support = object.clone();
-            cannon1_support.scale.set(0.01, 0.03, 0.03);
-            cannon1_support.rotation.set(0, 0, -(Math.PI / 2));
-
-            cannon2_support = object.clone();
-            cannon2_support.scale.set(0.01, 0.03, 0.03);
-            cannon2_support.rotation.set(0, 0, Math.PI / 2);
-
-            // scene.add(cannon1_support);
-            // scene.add(cannon2_support);
-        });
-    });
-
-    let cannon1_tube = null;
-    let cannon2_tube = null;
-    MTLloader.load('Juste_Cannon.mtl', function(materials) {
-        materials.preload();
-
-        const OBJLoader = new THREE.OBJLoader();
-        OBJLoader.setMaterials(materials);
-        OBJLoader.setPath('../../static/pong/assets/models/');
-        OBJLoader.load('Juste_Cannon.obj', function(object) {
-            cannon1_tube = object.clone();
-            cannon1_tube.scale.set(0.01, 0.03, 0.03);
-            cannon1_tube.rotation.set(0, 0, -(Math.PI / 2));
-            cannon1_tube.position.set(0, 0, 3);
-
-            cannon2_tube = object.clone();
-            cannon2_tube.scale.set(0.01, 0.03, 0.03);
-            cannon2_tube.rotation.set(0, 0, Math.PI / 2);
-
-            // scene.add(cannon1_tube);
-            // scene.add(cannon2_tube);
-        });
-    });
-
-    // Transformer en groupe pour pouvoir les déplacer en bloc
-    const cannon1TubeGroup = new THREE.Group();
-    cannon1TubeGroup.add(cannon1_tube);
-    cannon1TubeGroup.position.set(-0.5, 0, 0);
-    scene.add(cannon1TubeGroup);
-
-    const cannon2TubeGroup = new THREE.Group();
-    cannon2TubeGroup.add(cannon2_tube);
-    cannon2TubeGroup.position.set(-0.5, 0, 0);
-    scene.add(cannon2TubeGroup);
-
-    const cannon1Group = new THREE.Group();
-    cannon1Group.add(cannon1_support);
-    cannon1Group.add(cannon1TubeGroup);
-    scene.add(cannon1Group);
-
-    const cannon2Group = new THREE.Group();
-    cannon2Group.add(cannon2_support);
-    cannon2Group.add(cannon2TubeGroup);
-    scene.add(cannon2Group);
-
-    function PlaceCannons1(x, y, z)
-    {
-        cannon1_support.position.set(x, y + 1.02, z - 1.8);
-        cannon1_tube.position.set(x, y + 1.02, z - 1.8);
     }
 
-    function PlaceCannons2(x, y, z)
-    {
-        cannon2_support.position.set(x, y - 1.02, z - 1.8);
-        cannon2_tube.position.set(x, y - 1.02, z - 1.8);
+    function InitCannon_Tube(value) {
+        let cannon1_tube = null;
+        let cannon2_tube = null;
+        const MTLloader = new THREE.MTLLoader();
+        MTLloader.setPath('../../static/pong/assets/textures/');
+        MTLloader.load('Juste_Cannon.mtl', function(materials) {
+            materials.preload();
+
+            const OBJLoader = new THREE.OBJLoader();
+            OBJLoader.setMaterials(materials);
+            OBJLoader.setPath('../../static/pong/assets/models/');
+            OBJLoader.load('Juste_Cannon.obj', function(object) {
+                cannon1_tube = object.clone();
+                // cannon1_tube.scale.set(0.01, 0.03, 0.03);
+                // cannon1_tube.rotation.set(0, 0, -(Math.PI / 2));
+                // cannon1_tube.position.set(0, 0, 3);
+
+                cannon2_tube = object.clone();
+                // cannon2_tube.scale.set(0.01, 0.03, 0.03);
+                // cannon2_tube.rotation.set(0, 0, Math.PI / 2);
+
+                // Vérifier si les objets sont bien chargés avant de les ajouter à la scène
+                if (cannon1_tube)
+                    scene.add(cannon1_tube);
+                if (cannon2_tube)
+                    scene.add(cannon2_tube);
+                if (value = 0)
+                    return (cannon1_tube);
+                else if (value = 1)
+                    return (cannon2_tube);
+            });
+        });
     }
 
-    function MoveCannons1X(x)
-    {
-        cannon1_support.position.x += x;
-        cannon1_tube.position.x += x;
-    }
+    function InitCannon() {
+        let cannon1_support = InitCannon_Support(0);
+        let cannon2_support = InitCannon_Support(1);
+        let cannon1_tube = InitCannon_Tube(0);
+        let cannon2_tube = InitCannon_Tube(1);
+        
+        // Ajouter les tubes aux groupes de tubes
+        if (cannon1_tube)
+            cannon1TubeGroup.add(cannon1_tube);
+        if (cannon2_tube)
+            cannon2TubeGroup.add(cannon2_tube);
 
-    function MoveCannons2X(x)
-    {
-        cannon2_support.position.x += x;
-        cannon2_tube.position.x += x;
+        // Ajouter les supports et les groupes de tubes aux groupes principaux
+        if (cannon1_support)
+            cannon1Group.add(cannon1_support);
+        cannon1Group.add(cannon1TubeGroup);
+
+        if (cannon2_support)
+            cannon2Group.add(cannon2_support);
+        cannon2Group.add(cannon2TubeGroup);
+
+        
+        // Ajouter les groupes principaux à la scène
+        scene.add(cannon1Group);
+        scene.add(cannon2Group);
+        
+        cannon1Group.scale.set(0.01, 0.03, 0.03);
+        cannon2Group.scale.set(0.01, 0.03, 0.03);
+        return (cannon1Group, cannon2Group, cannon1TubeGroup, cannon2TubeGroup);
     }
 
     // Créer les objets du jeu Pong
@@ -466,18 +453,19 @@ window.onload = function() {
     });
 
     function PlaceElements() {
-        if (bateau1 && bateau2 && cannon1 && cannon2 && !elementsPlaced) {
+        if (bateau1 && bateau2 && !elementsPlaced) {
             if (playerRole === 'player1')
                 socket.emit('bateauPosition', { playerId, x: bateau1.position.x, y: bateau1.position.y, z: bateau1.position.z, width: bateau1.scale.x, height: bateau1.scale.y });
             else if (playerRole === 'player2')
                 socket.emit('bateauPosition', { playerId, x: bateau2.position.x, y: bateau2.position.y, z: bateau2.position.z, width: bateau2.scale.x, height: bateau2.scale.y });
+            InitCannon();
             // Positionner les paddles légèrement au-dessus des bateaux
             paddle1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, bateau1.position.y - 3.2, bateau1.position.z * bateau1.scale.z + 9.9);
             paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 5, bateau2.position.z * bateau2.scale.z + 9.9);
             socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
             socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-            PlaceCannons1(paddle1.position.x, paddle1.position.y, paddle1.position.z);
-            PlaceCannons2(paddle2.position.x, paddle2.position.y, paddle2.position.z);
+            window.cannon1Group.position.set(paddle1.position.x, paddle1.position.y + 1.02, paddle1.position.z - 1.8);
+            window.cannon2Group.position.set(paddle2.position.x, paddle2.position.y - 1.02, paddle2.position.z - 1.8);
             Player1Zone.position.set(paddle1.position.x, paddle1.position.y + 0.5, paddle1.position.z);
             Player2Zone.position.set(paddle2.position.x, paddle2.position.y - 0.5, paddle2.position.z);
             Player1Zone.rotation.set(90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
@@ -523,9 +511,6 @@ window.onload = function() {
         }
     }
 
-    // global.MaxPosPaddle = -0.30;
-    // global.MinPosPaddle = -5.65;
-
     function getXMinMax(mesh)
     {
         const box = new THREE.Box3().setFromObject(mesh);
@@ -544,14 +529,14 @@ window.onload = function() {
                 if (playerRole === 'player1' && paddle1.position.x < getXMinMax(Player1Zone).xMax)
                     {
                         paddle1.position.x += 0.05;
-                        MoveCannons1X(0.05);
+                        window.cannon1Group.position.x += 0.05;
                         console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                     }
                 else if (playerRole === 'player2' && paddle2.position.x > getXMinMax(Player2Zone).xMin)
                     {
                         paddle2.position.x -= 0.05;
-                        MoveCannons2X(-0.05);
+                        window.cannon2Group.position.x -= 0.05;
                         console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                     }
@@ -560,14 +545,14 @@ window.onload = function() {
                 if (playerRole === 'player1' && paddle1.position.x > getXMinMax(Player1Zone).xMin)
                     {
                         paddle1.position.x -= 0.05;
-                        MoveCannons1X(-0.05);
+                        window.cannon1Group.position.x -= 0.05;
                         console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
                     }
                 else if (playerRole === 'player2' && paddle2.position.x < getXMinMax(Player2Zone).xMax)
                     {
                         paddle2.position.x += 0.05;
-                        MoveCannons2X(0.05);
+                        window.cannon2Group.position.x += 0.05;
                         console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
                         socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
                     }
@@ -576,16 +561,14 @@ window.onload = function() {
             {
                 if (playerRole === 'player1' && cannon1_tube.rotation.x < 2.5)
                 {
-                    // cannon1_support.rotation.y += 0.05;
-                    cannon1_tube.rotation.x += 0.05;
+                    cannon1TubeGroup.rotation.x += 0.05;
                 }
             }
             if (keys['s'])
             {
                 if (playerRole === 'player1' && cannon1_tube.rotation.x > -2.5)
                 {
-                    // cannon1_support.rotation.y += 0.05;
-                    cannon1_tube.rotation.x -= 0.05;
+                    cannon1TubeGroup.rotation.x -= 0.05;
                 }
             }
         }
@@ -597,7 +580,7 @@ window.onload = function() {
                 if (playerRole === 'player1' && bateau1.position.x < 20)
                     {
                         bateau1.position.x += 0.5;
-                        MoveCannons1X(0.5);
+                        window.cannon1Group.position.x += 0.5;
                         paddle1.position.x += 0.5;
                         Player1Zone.position.x += 0.5;
                         Player1ZoneHitbox.update();
@@ -608,7 +591,7 @@ window.onload = function() {
                 else if (playerRole === 'player2' && bateau2.position.x > -20)
                     {
                         bateau2.position.x -= 0.5;
-                        MoveCannons2X(-0.5);
+                        window.cannon2Group.position.x -= 0.5;
                         paddle2.position.x -= 0.5;
                         Player2Zone.position.x -= 0.5;
                         Player2ZoneHitbox.update();
@@ -623,7 +606,7 @@ window.onload = function() {
                 if (playerRole === 'player1' && bateau1.position.x > -20)
                     {
                         bateau1.position.x -= 0.5;
-                        MoveCannons1X(-0.5);
+                        window.cannon1Group.position.x -= 0.5;
                         paddle1.position.x -= 0.5; 
                         Player1Zone.position.x -= 0.5;
                         Player1ZoneHitbox.update();
@@ -634,7 +617,7 @@ window.onload = function() {
                 else if (playerRole === 'player2' && bateau2.position.x < 20)
                     {
                         bateau2.position.x += 0.5;
-                        MoveCannons2X(0.5);
+                        window.cannon2Group.position.x += 0.5;
                         paddle2.position.x += 0.5;
                         Player2Zone.position.x += 0.5;
                         Player2ZoneHitbox.update();
@@ -646,35 +629,6 @@ window.onload = function() {
         }
     }, 16); // Envoyer la position toutes les 100ms
 
-    let directionLine; // Déclaration de la ligne de direction
-
-    function createDirectionLine() {
-        const material = new THREE.LineBasicMaterial({ color: 0xff0000 }); // Couleur de la ligne
-        const points = [];
-        points.push(new THREE.Vector3(ball.position.x, ball.position.y, ball.position.z)); // Position de la balle
-        points.push(new THREE.Vector3(ball.position.x + ball.direction.x * 10, ball.position.y + ball.direction.y * 10, ball.position.z)); // Point de direction
-
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        directionLine = new THREE.Line(geometry, material);
-        scene.add(directionLine); // Ajouter la ligne à la scène
-    }
-
-    function updateDirectionLine() {
-        if (directionLine) {
-            // Mettre à jour les points de la ligne
-            const points = directionLine.geometry.attributes.position.array;
-            points[0] = ball.position.x;
-            points[1] = ball.position.y;
-            points[2] = ball.position.z;
-
-            points[3] = ball.position.x + ball.direction.x * 10; // Point de direction
-            points[4] = ball.position.y + ball.direction.y * 10; // Point de direction
-            points[5] = ball.position.z;
-
-            directionLine.geometry.attributes.position.needsUpdate = true; // Indiquer que la géométrie a besoin d'être mise à jour
-        }
-    }
-
     // Fonction d'animation
     function animate() {
         requestAnimationFrame(animate);
@@ -685,8 +639,6 @@ window.onload = function() {
         }
 
         PlaceElements();
-        // Appeler createDirectionLine() une fois pour créer la ligne
-        // createDirectionLine();
     
         // Mettre à jour les hitboxes
         paddle1Hitbox.update();
