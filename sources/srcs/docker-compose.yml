@@ -1,113 +1,281 @@
-name: ${PROJECT_NAME}
 
 services:
-  db_postgres:
-    image: ${POSTGRES_IMAGE}
-    container_name: ${POSTGRES_CONTAINER}
-    pull_policy: never
-    build: ./requirements/db_postgres/
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
-    healthcheck: #&file_healthcheck
-      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 2s
-      timeout: 15s
-      retries: 3
-      start_period: 20s
-    expose:
-      - ${POSTGRES_PORT}
-    networks:
-      - ${NETWORK_NAME}
-    # restart: on-failure
-
-  web:
-    depends_on:
-      db_postgres:
-        condition: service_healthy
-        restart: true
-    image: ${WEB_IMAGE}
-    container_name: ${WEB_CONTAINER}
-    pull_policy: never
+  setup:
+    image: ${SETUP_IMAGE}
+    container_name: ${SETUP_CONTAINER}
     build:
-      context: ./requirements/web/
+      context: ./requirements/elk/setup/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
-    environment:
-      - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${STATICFILES_DIR}
-      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+        - STACK_VERSION=${STACK_VERSION}
     volumes:
-      - webapps:/usr/src/apps
-      - staticfiles:${STATICFILES_DIR}
-    healthcheck: #*file_healthcheck
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s  http://localhost:${WEB_PORT} | grep -q ''",
-        ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
-    expose:
-      - ${WEB_PORT}
-    networks:
-      - ${NETWORK_NAME}
-    ports:
-      - 8888:${WEB_PORT}
-    # restart: on-failure
+      - certs:/usr/share/elasticsearch/config/certs
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_LOCALFILE}
+      - ELASTICSEARCH_HOSTXPORT=${ELASTICSEARCH_HOSTXPORT}
+      - KIBANA_USER=${KIBANA_USER}
+      - KIBANA_PASSWORD_FILE=${KIBANA_PASSWORD_LOCALFILE}
+      - LOGSTASH_ES_USER=${LOGSTASH_ES_USER}
+      - LOGSTASH_ES_USERFULLNAME=${LOGSTASH_ES_USERFULLNAME}
+      - LOGSTASH_ES_USER_PASSWORD_FILE=${LOGSTASH_ES_USER_PASSWORD_LOCALFILE}
+      - LOGSTASH_ES_ROLE=${LOGSTASH_ES_ROLE}
+    secrets:
+      - es_passwd_file
+      - kibana_passwd_file
+      - logstash_es_user_passwd_file
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
 
-  nginx:
+  elasticsearch:
     # depends_on:
-    #   - web
+    #   - setup
     depends_on:
-      web:
+      setup:
         condition: service_healthy
-    image: ${NGINX_IMAGE}
-    container_name: ${NGINX_CONTAINER}
-    pull_policy: never
+    image: ${ES_IMAGE}
+    container_name: ${ES_CONTAINER}
     build:
-      context: ./requirements/nginx/
+      context: ./requirements/elk/elasticsearch/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - STACK_VERSION=${STACK_VERSION}
     volumes:
-      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-      - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
-      - staticfiles:${STATICFILES_DIR}
+      - certs:/usr/share/elasticsearch/config/certs
+      - ./requirements/elk/elasticsearch/conf/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+      - eslogs:${ES_LOGS_VOLUME_PATH}
+      # - esdata:/usr/share/elasticsearch/data
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
+    environment:
+      - discovery.type=single-node
+      - cluster.name=${CLUSTER_NAME}
+      - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_LOCALFILE}
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
+      - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.license.self_generated.type=${LICENSE}
+    secrets:
+      - es_passwd_file
+      - kibana_passwd_file
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:80 | grep -q ''",
+          "curl -s --cacert config/certs/ca/ca.crt ${ELASTICSEARCH_HOSTXPORT} | grep -q 'missing authentication credentials'",
         ]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 3
-    ports:
-      - ${NGINX_PORT}:80
-    networks:
-      - ${NETWORK_NAME}
-    # restart: on-failure
+      retries: 120
 
-networks:
-  transcendance:
-    driver: bridge
+  kibana:
+    # depends_on:
+    #   - elasticsearch
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    image: ${KIBANA_IMAGE}
+    container_name: ${KIBANA_CONTAINER}
+    build: 
+      context: ./requirements/elk/kibana/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+    volumes:
+      - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
+      - certs:/usr/share/kibana/config/certs
+      # - kibanadata:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:${KIBANA_PORT}
+    environment:
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTXPORT}
+      - ELASTICSEARCH_USERNAME=${KIBANA_USER}
+      - ELASTICSEARCH_PASSWORD_FILE=${KIBANA_PASSWORD_LOCALFILE}
+      - ELASTICSEARCH_SSL_VERIFICATIONMODE=certificate
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - TELEMETRY_ENABLED=false
+    secrets:
+      - kibana_passwd_file
+    mem_limit: ${MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+
+  logstash:
+    # depends_on:
+    #   - elasticsearch
+    depends_on:
+      kibana:
+        condition: service_healthy
+    image: ${LOGSTASH_IMAGE}
+    container_name: ${LOGSTASH_CONTAINER}
+    user: "0"
+    build: 
+      context: ./requirements/elk/logstash/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+    volumes:
+      - ./requirements/elk/logstash/conf/docker-entrypoint:/usr/local/bin/docker-entrypoint
+      - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./requirements/elk/logstash/conf/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - certs:/usr/share/logstash/config/certs
+      - eslogs:${ES_LOGS_VOLUME}
+      # - logstashdata:/usr/share/logstash/data
+    expose:
+      - ${LOGSTASH_PORT}
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_LOCALFILE}
+      - ELASTICSEARCH_HOSTXPORT=${ELASTICSEARCH_HOSTXPORT}
+      - LOGSTASH_KEYSTORE_PASS_FILE=${LOGSTASH_KEYSTORE_PASS_LOCALFILE}
+      - LOGSTASH_ES_USER=${LOGSTASH_ES_USER}
+      - LOGSTASH_ES_USER_PASSWORD_FILE=${LOGSTASH_ES_USER_PASSWORD_LOCALFILE}
+      - LOGSTASH_ES_CA=${LOGSTASH_ES_CA}
+      - LS_JAVA_OPTS=-Xmx512m -Xms512m -Dlog4j2.formatMsgNoLookups=true
+      - xpack.monitoring.elasticsearch.hosts=${ELASTICSEARCH_HOSTXPORT}
+    secrets:
+      - es_passwd_file
+      - logstash_keystore_pass_file
+      - logstash_es_user_passwd_file
+    mem_limit: ${MEM_LIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:${LOGSTASH_PORT} | grep -q 'HTTP/1.1'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+  elkready:
+    # depends_on:
+    #   - logstash
+    depends_on:
+      logstash:
+        condition: service_healthy
+    image: alpine
+    container_name: elkready_c
+    command: echo "elk stack is ready"
 
 volumes:
-  webapps:
+  certs:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${WEBAPPS_VOLUME}
-  staticfiles:
+  esdata:
     driver: local
+  eslogs:
+    driver: local
+  kibanadata:
+    driver: local
+
+secrets:
+  es_passwd_file:
+    file: ${ELASTIC_PASSWORD_HOSTFILE}
+  kibana_passwd_file:
+    file: ${KIBANA_PASSWORD_HOSTFILE}
+  logstash_keystore_pass_file:
+    file: ${LOGSTASH_KEYSTORE_PASS_HOSTFILE}
+  logstash_es_user_passwd_file:
+    file: ${LOGSTASH_ES_USER_PASSWORD_HOSTFILE}
+
+# name: ${PROJECT_NAME}
+
+# services:
+#   elasticsearch:
+#     image: ${ELASTICSEARCH_IMAGE}
+#     container_name: ${ELASTICSEARCH_CONTAINER}
+#     pull_policy: never
+#     build: ./requirements/elk/elasticsearch/
+#     env_file:
+#       - ./.env
+#     # volumes:
+#     #   - webapps:/usr/src/apps
+#     # healthcheck: &my_healthcheck
+#     #   test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+#     #   interval: 2s
+#     #   timeout: 15s
+#     #   retries: 3
+#     #   start_period: 20s
+#     expose:
+#       - ${ELASTICSEARCH_PORT}
+#     # ports:
+#     #   - 5432:5432
+#     networks:
+#       - ${NETWORK_NAME}
+#     # restart: on-failure
+
+#   db_postgres:
+#     image: ${POSTGRES_IMAGE}
+#     container_name: ${POSTGRES_CONTAINER}
+#     pull_policy: never
+#     build: ./requirements/db_postgres/
+#     env_file:
+#       - ./.env
+#     # volumes:
+#     #   - webapps:/usr/src/apps
+#     healthcheck: &my_healthcheck
+#       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+#       interval: 2s
+#       timeout: 15s
+#       retries: 3
+#       start_period: 20s
+#     expose:
+#       - ${POSTGRES_PORT}
+#     # ports:
+#     #   - 5432:5432
+#     networks:
+#       - ${NETWORK_NAME}
+#     # restart: on-failure
+
+#   web:
+#     depends_on:
+#       db_postgres:
+#         condition: service_healthy
+#         restart: true
+#     image: ${WEB_IMAGE}
+#     container_name: ${WEB_CONTAINER}
+#     pull_policy: never
+#     build: ./requirements/web/
+#     env_file:
+#       - ./.env
+#     volumes:
+#       - webapps:/usr/src/apps
+#     expose:
+#       - ${WEB_PORT}
+#     networks:
+#       - ${NETWORK_NAME}
+#     ports:
+#       - 8888:${WEB_PORT}
+#     # restart: on-failure
+
+# networks:
+#   transcendance:
+#     driver: bridge
+
+# volumes:
+#   webapps:
+#     driver: local
+#     driver_opts:
+#       type: none
+#       o: bind
+#       device: ./requirements/web/webapps/

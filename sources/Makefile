@@ -6,67 +6,93 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/07/23 13:27:17 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/18 20:06:40 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ENV :=./srcs/.env
-COMPOSE_FILE= ./srcs/docker-compose.yml 
+.PHONY: all
+
+ENV := ./srcs/.env
+COMPOSE_FILE := ./srcs/docker-compose.yml 
 
 include $(ENV)
 
+compose_v2_not_supported = $(shell command docker compose 2> /dev/null)
+ifeq (,$(compose_v2_not_supported))
+  DOCKER_COMPOSE_COMMAND = docker-compose
+else
+  DOCKER_COMPOSE_COMMAND = docker compose
+endif
+
+#vm.max_map_count
+REQUIRED_VM_MAX_MAP_COUNT= vm.max_map_count = 262144
+vm_max_map_count = $(shell command sudo sysctl vm.max_map_count 2> /dev/null)
+
+
 all : build up
 
+# ifneq '$(REQUIRED_VM_MAX_MAP_COUNT)' "$(strip $(vm_max_map_count))"
+# 	$(info updating vm.max_map_count...)
+# 	@sudo sysctl -w vm.max_map_count=262144 | grep -q ''
+# 	$(info vm.max_map_count updated)
+# else
+# 	$(info vm.max_map_count is well defined!)
+# endif
+
+
 build b : # Build or rebuild services
-	-mkdir -p $(PATHTO_WEBAPPS_DATA)
-	-sudo docker compose -f $(COMPOSE_FILE) build
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
-	-sudo docker compose -f $(COMPOSE_FILE) create --remove-orphans
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) create --remove-orphans
 start : # Start services
-	-sudo docker compose -f $(COMPOSE_FILE) start
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) start
 up : # Create and start containers
-	-sudo docker compose -f $(COMPOSE_FILE) up -d
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) up -d
 exec : # Execute a command in a running container.
-	-sudo docker compose -f $(COMPOSE_FILE) exec
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) exec
 
 
 images im : # List images used by the created containers
 	-sudo docker images
-	-sudo docker compose -f $(COMPOSE_FILE) images
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) images
 ls : # List running compose projects
-	sudo docker compose -f $(COMPOSE_FILE) ls
+	sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) ls
 ps : # List containers
 	sudo docker ps -a
-	sudo docker compose -f $(COMPOSE_FILE) ps -a
+	sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) ps -a
 logs l : # View output from containers
-	sudo docker compose -f $(COMPOSE_FILE) logs -f
+	sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) logs -f
 top : # Display the running processes
-	sudo docker compose -f $(COMPOSE_FILE) top
+	sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) top
 
 
 down : # Stop and remove containers, networks
-	-sudo docker compose -f $(COMPOSE_FILE) down --remove-orphans
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) down #--remove-orphans
 s stop : # Stop services
-	-sudo docker compose -f $(COMPOSE_FILE) stop
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) stop
 rm remove : # Removes stopped service containers
-	-sudo docker compose -f $(COMPOSE_FILE) rm -f
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
 	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
-rmv : # clean data
-	-yes | sudo docker volume prune
-	-sudo rm -rf $(PATHTO_WEBAPPS_DATA)*
+rmv : # clean volumes
+	- yes | sudo docker volume prune
+	# -sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
+	-sudo rm -rf ./srcs/requirements/web/webapps/*
+	# -sudo rm -rf /home/jm/data/website/*
 kill k : # Force stop service containers.
-	-sudo docker compose -f $(COMPOSE_FILE) kill --remove-orphans
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) kill --remove-orphans
 
 
-cleanv cv : # clean all volumes
-	-yes | sudo docker volume prune
-	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
 clean c : down rm rmi rmv
-fclean fc : clean cleanv
+fclean fc : clean
 	-yes | sudo docker system prune
 reset : clean all
 freset : fclean all
 
 restart res : # Restart service containers
-	-sudo docker compose -f $(COMPOSE_FILE) restart
+	-sudo $(DOCKER_COMPOSE_COMMAND) -f $(COMPOSE_FILE) restart
+
+
+
+### Use below command as last resort when encountering some complications with docker containers
+# sudo systemctl restart docker.socket docker.service

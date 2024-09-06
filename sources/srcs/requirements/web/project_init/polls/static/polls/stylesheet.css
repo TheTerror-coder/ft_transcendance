@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+html, body {
+	height: 100%;
+	margin: 0;
+	border: 0;
+	color: white;
+	font-family: 'Lato', sans-serif;
+	}
+	
+	body {
+		color: white;
+		font-family: 'Lato', sans-serif;
+		font-size: xx-large;
+		/* background-image: url("images/mountains.jpg");
+		background-color: white;
+		background-repeat: no-repeat;
+		background-size: cover;
+		background-position: center; */
+	}
+
+	li a {
+		color: aqua;
+	}
+	a:visited {
+		color: rgb(51, 146, 146);
+	}
+	a:hover {
+		color: rgb(132, 255, 255);
+	}
+		
+	.theView {
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		background-color: rgb(14, 13, 13, 0.7);
+		background-size: cover;
+		background-position: center;
+	}
+
+	.bg-video {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		z-index: -100;
+	}
+	@media (min-aspect-ratio: 16/9) {
+		.bg-video {
+			width: 100%;
+			height: auto;
+		}
+	}
+	@media (max-aspect-ratio: 16/9) {
+		.bg-video {
+			width: auto;
+			height: 100%;
+		}
+	}

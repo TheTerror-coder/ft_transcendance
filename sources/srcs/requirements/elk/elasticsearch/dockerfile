@@ -1,0 +1,19 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
+#    Updated: 2024/07/15 21:27:00 by jm               ###   ########lyon.fr    #
+#                                                                              #
+# **************************************************************************** #
+
+ARG STACK_VERSION
+
+FROM elasticsearch:${STACK_VERSION}
+
+
+ENTRYPOINT [ "docker-entrypoint.sh" ]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

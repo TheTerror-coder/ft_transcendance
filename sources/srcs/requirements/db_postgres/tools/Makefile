@@ -6,11 +6,11 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/07/19 19:58:38 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/07/18 20:19:45 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
-ENV :=../../../.env
+ENV := ../../../.env
 
 include $(ENV)
 
@@ -35,7 +35,5 @@ ps :
 ls :
 	sudo docker image ls
 	sudo docker container ls
-logs :
-	sudo docker logs $(POSTGRES_CONTAINER)
 
 re : fclean all

@@ -1,0 +1,24 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dockerfile                                         :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
+#    Updated: 2024/07/18 22:50:41 by jm               ###   ########lyon.fr    #
+#                                                                              #
+# **************************************************************************** #
+
+ARG STACK_VERSION
+
+FROM elasticsearch:${STACK_VERSION}
+
+USER "0"
+
+RUN mkdir -p /etc/container-init.d
+
+COPY --chown=root:root --chmod=500 ./tools/script.sh /etc/container-init.d/script.sh
+
+ENTRYPOINT [ "/etc/container-init.d/script.sh" ]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]
