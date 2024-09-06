@@ -1,0 +1,21 @@
+# # The "combined" log format is predefined
+# log_format main '$realip_remote_addr - $remote_user [$time_local] "$request" '
+#                 '$status $body_bytes_sent "$http_referer" '
+#                 '"$http_user_agent" "$http_x_forwarded_for"';
+
+# access_log ${ACCESSLOG} main;
+# access_log ${METRICSLOG} combined;
+
+# error_log ${ERRORLOG} ${LOGLEVEL};
+
+
+log_format main '$realip_remote_addr - $remote_user [$time_local] "$request" '
+                '$status $body_bytes_sent "$http_referer" '
+                '"$http_user_agent" "$http_x_forwarded_for"';
+
+access_log /var/log/nginx/access.log main; # this file is default, linked by docker to the /dev/stderr output
+
+# TODO: increment the log level to warn at production for both below paths
+# LEVELS: debug, info, notice, warn, error, crit, alert, or emerg
+error_log /var/log/nginx/error.log warn; # this file is default, linked by docker to the /dev/stderr output
+error_log /var/log/nginx/all.error.log warn;

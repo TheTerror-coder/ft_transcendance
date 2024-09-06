@@ -16,9 +16,10 @@ services:
       - transcendance
     healthcheck:
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 1s
+      start_period: 10s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 1
 
   vault:
     depends_on:
@@ -55,9 +56,10 @@ services:
           "CMD-SHELL",
           "curl -s --cacert $VAULT_CACERT https://localhost:8200 | grep -q ''",
         ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
 
   vault_init:
     depends_on:
@@ -95,9 +97,10 @@ services:
       - transcendance
     healthcheck:
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 1s
+      start_period: 10s
+      interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 1
 
   db_postgres:
     depends_on:
@@ -121,9 +124,10 @@ services:
       - secret_access_token
     healthcheck: #&file_healthcheck
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 1s
+      start_period: 10s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 1
       # start_period: 20s
     expose:
       - ${POSTGRES_PORT}
@@ -169,9 +173,10 @@ services:
           "curl -s http://localhost:${WEB_PORT} | grep -q ''",
           # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
         ]
-      interval: 1s
+      start_period: 10s
+      interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 1
     expose:
       - ${WEB_PORT}
     networks:
@@ -190,23 +195,26 @@ services:
     build:
       context: ./requirements/modsec/
       args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
         - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
         - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
     environment:
-      - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
-      - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
-      # - RESTRICTED_HEADERS_EXTENDED=
-    #   - METRICS_ALLOW_FROM="127.0.0.0/24"
-    #   - METRICS_DENY_FROM="all"
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
     volumes:
       - ./requirements/modsec/conf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template
       - ./requirements/modsec/conf/vault.conf.template:/etc/nginx/templates/conf.d/vault.conf.template
       - ./requirements/modsec/conf/location_common.conf.template:/etc/nginx/templates/includes/location_common.conf.template
-      # - ./requirements/modsec/conf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
+      - ./requirements/modsec/conf/logging.conf.template:/etc/nginx/templates/conf.d/logging.conf.template
+      # - ./requirements/modsec/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${STATICFILES_DIR}
       - modsec_data:${MODSEC_DATA_DIR}
-      - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
-      - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:/etc/nginx/ssl/
       - vault_certs:/volumes/vault/certs/
     healthcheck:
@@ -215,9 +223,10 @@ services:
           "CMD-SHELL",
           "curl -s --cacert /etc/nginx/ssl/ca/root_ca.crt https://localhost:8443 > /dev/null",
         ]
-      interval: 1s
+      start_period: 10s
+      interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 1
     ports:
       - ${MODSEC_HTTP_PORT}:8080
       - ${MODSEC_HTTPS_PORT}:8443
@@ -237,6 +246,8 @@ volumes:
   modsec_audit_logs:
     driver: local
   modsec_debug_logs:
+    driver: local
+  nginx_logs:
     driver: local
   webapps:
     driver: local

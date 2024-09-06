@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/08/31 23:30:13 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/09/05 20:21:22 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,6 +37,8 @@ ls :
 	sudo docker container ls
 logs :
 	sudo docker logs $(MODSEC_CONTAINER)
+logsf : # follow log output
+	sudo docker logs --follow $(MODSEC_CONTAINER)
 
 restart :
 	sudo docker restart $(MODSEC_CONTAINER)
