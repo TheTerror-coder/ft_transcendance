@@ -101,6 +101,23 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_DB'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': str(
+# 			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+# 				verify=os.environ.get('VAULT_CACERT'),
+# 				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+# 		),
+#         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+#         'PORT': os.environ.get('POSTGRES_PORT'),
+#     }
+# }
+
+
+#a effacer si make des docker
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -118,9 +135,17 @@ DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+<<<<<<< HEAD
+=======
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': os.environ.get('POSTGRES_DB'),
+        # 'USER': os.environ.get('POSTGRES_USER'),
+        # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        # 'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+        # 'PORT': os.environ.get('POSTGRES_PORT'),
+>>>>>>> dbaule
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
