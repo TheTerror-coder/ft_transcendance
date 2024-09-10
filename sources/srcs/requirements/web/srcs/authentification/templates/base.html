@@ -5,13 +5,52 @@
     <meta charset="UTF-8">
     <title>Transcendance</title>
     <link rel="stylesheet" href="{% static 'authentification/css/main.css' %}">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fonction pour charger le contenu d'une URL dans le conteneur principal
+            function loadContent(url) {
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('main-content').innerHTML = html;
+                    })
+                    .catch(error => console.error('Error loading content:', error));
+            }
+
+            // Attacher les gestionnaires d'événements aux liens de navigation
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const url = this.getAttribute('href');
+                    loadContent(url);
+                    history.pushState(null, '', url);
+                });
+            });
+
+            // Gérer les événements de navigation du navigateur
+            window.addEventListener('popstate', function() {
+                loadContent(location.pathname);
+            });
+
+            // Charger le contenu initial
+            {% comment %} loadContent(location.pathname); {% endcomment %}
+        });
+    </script>
 </head>
 <body>
-    {% block content %}
+    {% block navigation %}
+    <nav>
+        <ul>
+            <li><a href="{% url 'base' %}">Connexion API 42</a></li>
+            <li><a href="{% url 'login' %}">Connexion par mail</a></li>
+            <li><a href="{% url 'register' %}">Créer un compte</a></li>
+        </ul> 
+    </nav>
     {% endblock %}
-
-    {% block truc %}
-    {% endblock %}
-
-</body>
+    <div id="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body> 
 </html>
