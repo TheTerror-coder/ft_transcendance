@@ -160,21 +160,21 @@ services:
       - logstash_keystore_pass_file
       - logstash_es_user_passwd_file
     mem_limit: ${MEM_LIMIT}
-    # healthcheck:
-    #   test:
-    #     [
-    #       "CMD-SHELL",
-    #       "curl -s -I http://localhost:${LOGSTASH_PORT} | grep -q 'HTTP/1.1'",
-    #     ]
-    #   interval: 10s
-    #   timeout: 10s
-    #   retries: 120
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:${LOGSTASH_PORT} | grep -q 'HTTP/1.1'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
   elkready:
-    depends_on:
-      - logstash
     # depends_on:
-    #   logstash:
-    #     condition: service_healthy
+    #   - logstash
+    depends_on:
+      logstash:
+        condition: service_healthy
     image: alpine
     container_name: elkready_c
     command: echo "elk stack is ready"
@@ -198,85 +198,3 @@ secrets:
     file: ${LOGSTASH_KEYSTORE_PASS_HOSTFILE}
   logstash_es_user_passwd_file:
     file: ${LOGSTASH_ES_USER_PASSWORD_HOSTFILE}
-
-# name: ${PROJECT_NAME}
-
-# services:
-#   elasticsearch:
-#     image: ${ELASTICSEARCH_IMAGE}
-#     container_name: ${ELASTICSEARCH_CONTAINER}
-#     pull_policy: never
-#     build: ./requirements/elk/elasticsearch/
-#     env_file:
-#       - ./.env
-#     # volumes:
-#     #   - webapps:/usr/src/apps
-#     # healthcheck: &my_healthcheck
-#     #   test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-#     #   interval: 2s
-#     #   timeout: 15s
-#     #   retries: 3
-#     #   start_period: 20s
-#     expose:
-#       - ${ELASTICSEARCH_PORT}
-#     # ports:
-#     #   - 5432:5432
-#     networks:
-#       - ${NETWORK_NAME}
-#     # restart: on-failure
-
-#   db_postgres:
-#     image: ${POSTGRES_IMAGE}
-#     container_name: ${POSTGRES_CONTAINER}
-#     pull_policy: never
-#     build: ./requirements/db_postgres/
-#     env_file:
-#       - ./.env
-#     # volumes:
-#     #   - webapps:/usr/src/apps
-#     healthcheck: &my_healthcheck
-#       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-#       interval: 2s
-#       timeout: 15s
-#       retries: 3
-#       start_period: 20s
-#     expose:
-#       - ${POSTGRES_PORT}
-#     # ports:
-#     #   - 5432:5432
-#     networks:
-#       - ${NETWORK_NAME}
-#     # restart: on-failure
-
-#   web:
-#     depends_on:
-#       db_postgres:
-#         condition: service_healthy
-#         restart: true
-#     image: ${WEB_IMAGE}
-#     container_name: ${WEB_CONTAINER}
-#     pull_policy: never
-#     build: ./requirements/web/
-#     env_file:
-#       - ./.env
-#     volumes:
-#       - webapps:/usr/src/apps
-#     expose:
-#       - ${WEB_PORT}
-#     networks:
-#       - ${NETWORK_NAME}
-#     ports:
-#       - 8888:${WEB_PORT}
-#     # restart: on-failure
-
-# networks:
-#   transcendance:
-#     driver: bridge
-
-# volumes:
-#   webapps:
-#     driver: local
-#     driver_opts:
-#       type: none
-#       o: bind
-#       device: ./requirements/web/webapps/
