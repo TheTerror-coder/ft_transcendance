@@ -45,7 +45,7 @@ services:
       - certs:/usr/share/elasticsearch/config/certs
       - ./requirements/elk/elasticsearch/conf/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
       - eslogs:${ES_LOGS_VOLUME_PATH}
-      # - esdata:/usr/share/elasticsearch/data
+      - esdata:/usr/share/elasticsearch/data
     ports:
       - ${ELASTICSEARCH_PORT}:9200
     environment:
@@ -139,6 +139,7 @@ services:
       - ./requirements/elk/logstash/conf/docker-entrypoint:/usr/local/bin/docker-entrypoint
       - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - ./requirements/elk/logstash/conf/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./test.log:/tmp/test.log
       - certs:/usr/share/logstash/config/certs
       - eslogs:${ES_LOGS_VOLUME}
       # - logstashdata:/usr/share/logstash/data
@@ -159,21 +160,21 @@ services:
       - logstash_keystore_pass_file
       - logstash_es_user_passwd_file
     mem_limit: ${MEM_LIMIT}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s -I http://localhost:${LOGSTASH_PORT} | grep -q 'HTTP/1.1'",
-        ]
-      interval: 10s
-      timeout: 10s
-      retries: 120
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "curl -s -I http://localhost:${LOGSTASH_PORT} | grep -q 'HTTP/1.1'",
+    #     ]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 120
   elkready:
-    # depends_on:
-    #   - logstash
     depends_on:
-      logstash:
-        condition: service_healthy
+      - logstash
+    # depends_on:
+    #   logstash:
+    #     condition: service_healthy
     image: alpine
     container_name: elkready_c
     command: echo "elk stack is ready"

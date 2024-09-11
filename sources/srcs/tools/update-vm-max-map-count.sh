@@ -11,7 +11,8 @@ set -e
 ########################################################################
 
 required_vm_max_map_count=262144
-new_vm_max_map_count=$(($required_vm_max_map_count*2))
+factor=1
+new_vm_max_map_count=$(($required_vm_max_map_count*$factor))
 current_vm_max_map_count=$(sudo sysctl -n vm.max_map_count 2> /dev/null)
 
 if [ ! $current_vm_max_map_count == $new_vm_max_map_count ]; then

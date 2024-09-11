@@ -1,14 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/07/18 20:17:11 by jm               ###   ########lyon.fr    #
-#                                                                              #
-# **************************************************************************** #
 
 ENV := ../../../../.env
 
@@ -35,5 +24,12 @@ ps :
 ls :
 	sudo docker image ls
 	sudo docker container ls
+logs :
+	sudo docker logs $(LOGSTASH_CONTAINER)
+logsf : # follow log output
+	sudo docker logs --follow $(LOGSTASH_CONTAINER)
+
+restart :
+	sudo docker restart $(LOGSTASH_CONTAINER)
 
 re : fclean all

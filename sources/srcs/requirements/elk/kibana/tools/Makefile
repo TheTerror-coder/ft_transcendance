@@ -1,14 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:18:50 by jm                #+#    #+#              #
-#    Updated: 2024/07/18 20:15:38 by jm               ###   ########lyon.fr    #
-#                                                                              #
-# **************************************************************************** #
 
 ENV := ../../../../.env
 
@@ -35,5 +24,12 @@ ps :
 ls :
 	sudo docker image ls
 	sudo docker container ls
+logs :
+	sudo docker logs $(KIBANA_CONTAINER)
+logsf : # follow log output
+	sudo docker logs --follow $(KIBANA_CONTAINER)
+
+restart :
+	sudo docker restart $(KIBANA_CONTAINER)
 
 re : fclean all
