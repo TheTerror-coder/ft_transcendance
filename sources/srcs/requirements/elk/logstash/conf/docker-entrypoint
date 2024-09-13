@@ -4,9 +4,7 @@
 ### CUSTOM PART ###
 ###################
 export LOGSTASH_KEYSTORE_PASS=$(cat $LOGSTASH_KEYSTORE_PASS_FILE)
-yes | /usr/share/logstash/bin/logstash-keystore --path.settings /usr/share/logstash/config/ create
-cat $LOGSTASH_ES_USER_PASSWORD_FILE | /usr/share/logstash/bin/logstash-keystore add LOGSTASH_ES_USER_PASSWORD_KEYSTORE
-cat $ELASTIC_PASSWORD_FILE | /usr/share/logstash/bin/logstash-keystore add ELASTIC_PASSWORD_KEYSTORE
+bash /usr/share/logstash/config/script.sh
 ###################
 
 # Map environment variables to entries in logstash.yml.

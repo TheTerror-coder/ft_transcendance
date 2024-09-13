@@ -1,0 +1,9 @@
+http.host: 0.0.0.0
+xpack.monitoring.elasticsearch.password: ${ELASTIC_PASSWORD_KEYSTORE}
+xpack.monitoring.elasticsearch.ssl.certificate_authority: /usr/share/logstash/config/certs/ca/ca.crt
+xpack.monitoring.elasticsearch.username: ${ELASTIC_USER}
+xpack.monitoring.enabled: true
+pipeline.ordered: false
+api.ssl.enabled: true
+api.ssl.keystore.path: ${API_SSL_KEYSTORE_PATH}
+api.ssl.keystore.password: ${SSL_KEYSTORE_PASSWORD}

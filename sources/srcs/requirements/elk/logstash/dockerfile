@@ -6,7 +6,7 @@
 #    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/09/11 20:55:22 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/09/13 18:44:35 by jm               ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ ARG STACK_VERSION=8.14.1
 
 FROM logstash:${STACK_VERSION}
 
-
-ENTRYPOINT [ "docker-entrypoint" ]
+COPY ./conf/my-logstash.yml ./config/my-logstash.yml
+# ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+ENTRYPOINT [ "bash", "/usr/share/logstash/config/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

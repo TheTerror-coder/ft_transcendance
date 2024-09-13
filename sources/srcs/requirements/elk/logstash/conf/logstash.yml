@@ -1,6 +1,0 @@
-http.host: 0.0.0.0
-xpack.monitoring.elasticsearch.hosts: ${xpack.monitoring.elasticsearch.hosts}
-xpack.monitoring.elasticsearch.password: Ilove42school
-xpack.monitoring.elasticsearch.ssl.certificate_authority: /usr/share/logstash/config/certs/ca/ca.crt
-xpack.monitoring.elasticsearch.username: ${ELASTIC_USER}
-xpack.monitoring.enabled: true

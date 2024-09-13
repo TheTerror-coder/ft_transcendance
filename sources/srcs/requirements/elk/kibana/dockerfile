@@ -3,6 +3,7 @@ ARG STACK_VERSION=8.14.1
 
 FROM kibana:${STACK_VERSION}
 
-
-ENTRYPOINT [ "kibana-docker" ]
+ENTRYPOINT [ "/bin/tini", "--" ]
+CMD [ "/usr/local/bin/kibana-docker" ]
+# ENTRYPOINT [ "kibana-docker" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

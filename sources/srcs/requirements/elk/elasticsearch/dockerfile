@@ -3,6 +3,7 @@ ARG STACK_VERSION=8.14.1
 
 FROM elasticsearch:${STACK_VERSION}
 
-
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh" ]
+CMD [ "eswrapper" ]
+# ENTRYPOINT [ "docker-entrypoint.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]
