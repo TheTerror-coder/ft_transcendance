@@ -1,3 +1,4 @@
+name: ${PROJECT_NAME}
 
 services:
   setup:
@@ -7,8 +8,6 @@ services:
       context: ./requirements/elk/setup/
       args:
         - STACK_VERSION=${STACK_VERSION}
-    volumes:
-      - certs:/usr/share/elasticsearch/config/certs
     environment:
       - ELASTIC_USER=${ELASTIC_USER}
       - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_FILE}
@@ -19,10 +18,14 @@ services:
       - LOGSTASH_ES_USERFULLNAME=${LOGSTASH_ES_USERFULLNAME}
       - LOGSTASH_ES_USER_PASSWORD_FILE=${LOGSTASH_ES_USER_PASSWORD_FILE}
       - LOGSTASH_ES_ROLE=${LOGSTASH_ES_ROLE}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
     secrets:
       - es_passwd_file
       - kibana_passwd_file
       - logstash_es_user_passwd_file
+    networks:
+      - transcendance
     healthcheck:
       test: ["CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]"]
       start_period: 90s
@@ -47,7 +50,7 @@ services:
       - cluster.name=${CLUSTER_NAME}
       - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_FILE}
       - ELASTIC_KEYSTORE_PASSWORD_FILE=${ELASTIC_KEYSTORE_PASSWORD_FILE}
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
@@ -56,22 +59,24 @@ services:
       - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.license.self_generated.type=${LICENSE}
     volumes:
-      - certs:/usr/share/elasticsearch/config/certs
       - ./requirements/elk/elasticsearch/conf/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
-      - eslogs:${ES_LOGS_VOLUME_PATH}
+      - certs:/usr/share/elasticsearch/config/certs
+      - eslogs:/usr/share/elasticsearch/logs/
       - esdata:/usr/share/elasticsearch/data
     secrets:
       - es_passwd_file
       - es_keystore_passwd_file
       - kibana_passwd_file
-    mem_limit: 1496m
+    networks:
+      - transcendance
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
+    mem_limit: ${ES_MEMLIMIT}
     ulimits:
       nofile: 65535
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - ${ELASTICSEARCH_PORT}:9200
     healthcheck:
       test:
         [
@@ -95,12 +100,6 @@ services:
       context: ./requirements/elk/kibana/
       args:
         - STACK_VERSION=${STACK_VERSION}
-    volumes:
-      - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
-      - certs:/usr/share/kibana/config/certs
-      - kibanadata:/usr/share/kibana/data
-    ports:
-      - ${KIBANA_PORT}:${KIBANA_PORT}
     environment:
       - SERVER_NAME=kibana
       - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTXPORT}
@@ -113,9 +112,18 @@ services:
       - SERVER_SSL_KEY=config/certs/kibana/kibana.key
       - SERVER_SSL_CERTIFICATE_AUTHORITIES=${ELK_SSL_CERTIFICATE_AUTHORITIES}
       - TELEMETRY_ENABLED=false
+    volumes:
+      - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
+      - certs:/usr/share/kibana/config/certs/
+      - kibanadata:/usr/share/kibana/data/
+      - kibanalogs:/usr/share/kibana/logs/
     secrets:
       - kibana_passwd_file
-    mem_limit: 864m
+    networks:
+      - transcendance
+    ports:
+      - ${KIBANA_PORT}:${KIBANA_PORT}
+    mem_limit: ${KIBANA_MEMLIMIT}
     healthcheck:
       test:
         [
@@ -142,14 +150,16 @@ services:
         - STACK_VERSION=${STACK_VERSION}
     volumes:
       # - ./requirements/elk/logstash/conf/docker-entrypoint:/usr/local/bin/docker-entrypoint
+      - ./requirements/elk/logstash/conf/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
       - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./requirements/elk/logstash/conf/11-logstash.conf:/usr/share/logstash/pipeline1/11-logstash.conf:ro
+      - ./requirements/elk/logstash/conf/12-logstash.conf:/usr/share/logstash/pipeline2/12-logstash.conf:ro
       - ./requirements/elk/logstash/tools/script.sh:/usr/share/logstash/config/script.sh
       - ./test.log:/tmp/test.log
-      - certs:/usr/share/logstash/config/certs
-      - eslogs:${ES_LOGS_VOLUME}
-      - logstashdata:/usr/share/logstash/data
-    expose:
-      - ${LOGSTASH_PORT}
+      - certs:/usr/share/logstash/config/certs/
+      - eslogs:/usr/share/logstash/elasticsearch/logs/
+      - logstashdata:/usr/share/logstash/data/
+      - logstashlogs:/usr/share/logstash/logs/
     environment:
       - ELASTIC_USER=${ELASTIC_USER}
       - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_FILE}
@@ -167,7 +177,10 @@ services:
       - logstash_keystore_pass_file
       - ssl_keystore_pass_file
       - logstash_es_user_passwd_file
-    # mem_limit: ${MEM_LIMIT}
+    networks:
+      - transcendance
+    expose:
+      - ${LOGSTASH_PORT}
     healthcheck:
       test:
         [
@@ -188,6 +201,10 @@ services:
     container_name: elkready_c
     command: echo "elk stack is ready"
 
+networks:
+  transcendance:
+    driver: bridge
+
 volumes:
   certs:
     driver: local
@@ -197,7 +214,11 @@ volumes:
     driver: local
   kibanadata:
     driver: local
+  kibanalogs:
+    driver: local
   logstashdata:
+    driver: local
+  logstashlogs:
     driver: local
 
 secrets:
