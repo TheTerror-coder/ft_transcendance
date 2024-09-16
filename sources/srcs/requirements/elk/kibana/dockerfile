@@ -3,6 +3,16 @@ ARG STACK_VERSION=8.14.1
 
 FROM kibana:${STACK_VERSION}
 
+USER 0
+
+RUN <<EOF
+chown -R 1000:1000 /usr/share/kibana
+find /usr/share/kibana -maxdepth 1 -type d -exec chmod 00750 \{\} \;
+find /usr/share/kibana -maxdepth 2 -type f -exec chmod o-rwx \{\} \;
+EOF
+
+USER 1000
+
 ENTRYPOINT [ "/bin/tini", "--" ]
 CMD [ "/usr/local/bin/kibana-docker" ]
 # ENTRYPOINT [ "kibana-docker" ]

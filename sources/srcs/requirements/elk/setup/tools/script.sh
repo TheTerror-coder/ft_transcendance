@@ -13,7 +13,6 @@ essentials_checking() {
 create_certs() {
 	if [ ! -f config/certs/ca.zip ]; then
 		echo "Creating CA";
-		mkdir -p /usr/share/elasticsearch/config/certs
 		bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
 		unzip config/certs/ca.zip -d config/certs;
 	fi;
@@ -47,9 +46,9 @@ create_certs() {
 
 permissions() {
 	echo "Setting file/directory permissions"
-	chown -R root:root config/certs;
-	find . -type d -exec chmod 750 \{\} \;;
-	find . -type f -exec chmod 640 \{\} \;;
+	chown -R 1000:1000 config/certs;
+	find . -type d -exec chmod 700 \{\} \;;
+	find . -type f -exec chmod 600 \{\} \;;
 }
 
 wait_elastic() {
@@ -88,9 +87,16 @@ logstash_user() {
 		}"
 }
 
-essentials_checking
-create_certs
-permissions
-wait_elastic
-logstash_user
-echo "All done!";
+if	! test -e $HEALTHFLAG_FILE
+then
+	essentials_checking
+	create_certs
+	permissions
+	wait_elastic
+	logstash_user
+	echo -e "\nAll done!";
+	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
+else
+	echo -e "\nAll is up to date!";
+	sleep 15;
+fi

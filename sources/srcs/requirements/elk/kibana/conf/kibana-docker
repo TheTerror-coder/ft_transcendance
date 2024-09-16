@@ -426,6 +426,22 @@ kibana_vars=(
 )
 
 longopts=''
+
+###################
+### CUSTOM PART ###
+###################
+# This is a custom line i edited to overide somehow the setting 
+# of 'elasticsearch.password' to set the value from the secret file
+# which is not handled as in the init script of elasticsearch docker image
+
+longopt="--elasticsearch.password=$(cat $ELASTICSEARCH_PASSWORD_FILE)"
+longopts+=" ${longopt}"
+longopt="--xpack.encryptedSavedObjects.encryptionKey=$(cat $RANDOM_ENCRYPT_KEY_FILE)"
+longopts+=" ${longopt}"
+
+### END CUSTOM ####
+###################
+
 for kibana_var in ${kibana_vars[*]}; do
     # 'elasticsearch.hosts' -> 'ELASTICSEARCH_HOSTS'
     env_var=$(echo ${kibana_var^^} | tr . _)
@@ -443,17 +459,6 @@ done
 # Files created at run-time should be group-writable, for Openshift's sake.
 umask 0002
 
-###################
-### CUSTOM PART ###
-###################
-# This is a custom line i edited to overide somehow the setting 
-# of 'elasticsearch.password' to set the value from the secret file
-# which is not handled as in the init script of elasticsearch docker image
-
-longopt="--elasticsearch.password=$(cat $ELASTICSEARCH_PASSWORD_FILE)"
-longopts+=" ${longopt}"
-###################
-###################
 
 # The virtual file /proc/self/cgroup should list the current cgroup
 # membership. For each hierarchy, you can follow the cgroup path from

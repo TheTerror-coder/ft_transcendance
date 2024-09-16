@@ -18,6 +18,7 @@ services:
       - LOGSTASH_ES_USERFULLNAME=${LOGSTASH_ES_USERFULLNAME}
       - LOGSTASH_ES_USER_PASSWORD_FILE=${LOGSTASH_ES_USER_PASSWORD_FILE}
       - LOGSTASH_ES_ROLE=${LOGSTASH_ES_ROLE}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
     secrets:
@@ -34,8 +35,6 @@ services:
       retries: 1
 
   elasticsearch:
-    # depends_on:
-    #   - setup
     depends_on:
       setup:
         condition: service_healthy
@@ -89,8 +88,6 @@ services:
       retries: 1
 
   kibana:
-    # depends_on:
-    #   - elasticsearch
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -112,13 +109,16 @@ services:
       - SERVER_SSL_KEY=config/certs/kibana/kibana.key
       - SERVER_SSL_CERTIFICATE_AUTHORITIES=${ELK_SSL_CERTIFICATE_AUTHORITIES}
       - TELEMETRY_ENABLED=false
+      - RANDOM_ENCRYPT_KEY_FILE=${RANDOM_ENCRYPT_KEY_FILE}
     volumes:
       - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
+      - ./requirements/elk/kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
       - certs:/usr/share/kibana/config/certs/
       - kibanadata:/usr/share/kibana/data/
       - kibanalogs:/usr/share/kibana/logs/
     secrets:
       - kibana_passwd_file
+      - random_encrypt_key_file
     networks:
       - transcendance
     ports:
@@ -136,30 +136,31 @@ services:
       retries: 1
 
   logstash:
-    # depends_on:
-    #   - elasticsearch
     depends_on:
       kibana:
         condition: service_healthy
     image: ${LOGSTASH_IMAGE}
     container_name: ${LOGSTASH_CONTAINER}
-    user: "0"
     build: 
       context: ./requirements/elk/logstash/
       args:
         - STACK_VERSION=${STACK_VERSION}
+        - LOGSTASH_DIRS_TO_MAKE=${LOGSTASH_DIRS_TO_MAKE}
     volumes:
-      # - ./requirements/elk/logstash/conf/docker-entrypoint:/usr/local/bin/docker-entrypoint
       - ./requirements/elk/logstash/conf/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./requirements/elk/logstash/conf/log4j2.properties:/usr/share/logstash/config/log4j2.properties
+      - ./requirements/elk/logstash/conf/my-logstash.yml:/usr/share/logstash/config/my-logstash.yml:ro
       - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - ./requirements/elk/logstash/conf/11-logstash.conf:/usr/share/logstash/pipeline1/11-logstash.conf:ro
       - ./requirements/elk/logstash/conf/12-logstash.conf:/usr/share/logstash/pipeline2/12-logstash.conf:ro
-      - ./requirements/elk/logstash/tools/script.sh:/usr/share/logstash/config/script.sh
-      - ./test.log:/tmp/test.log
+      # - ./requirements/elk/logstash/conf/13-logstash.conf:/usr/share/logstash/pipeline3/13-logstash.conf:ro
+      - ./requirements/elk/logstash/conf/14-logstash.conf:/usr/share/logstash/pipeline4/14-logstash.conf:ro
+      - ./test.log:/tmp/test.log # TODO rm
       - certs:/usr/share/logstash/config/certs/
-      - eslogs:/usr/share/logstash/elasticsearch/logs/
       - logstashdata:/usr/share/logstash/data/
       - logstashlogs:/usr/share/logstash/logs/
+      - eslogs:/usr/share/logstash/elasticsearch/logs/
+      - kibanalogs:/usr/share/logstash/kibana/logs/
     environment:
       - ELASTIC_USER=${ELASTIC_USER}
       - ELASTIC_PASSWORD_FILE=${ELASTIC_PASSWORD_FILE}
@@ -192,8 +193,6 @@ services:
       timeout: 5s
       retries: 1
   elkready:
-    # depends_on:
-    #   - logstash
     depends_on:
       logstash:
         condition: service_healthy
@@ -234,3 +233,5 @@ secrets:
     file: ${SSL_KEYSTORE_PASS_SOURCE}
   logstash_es_user_passwd_file:
     file: ${LOGSTASH_ES_USER_PASSWORD_SOURCE}
+  random_encrypt_key_file:
+    file: ${RANDOM_ENCRYPT_KEY_SOURCE}
