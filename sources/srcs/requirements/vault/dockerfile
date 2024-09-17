@@ -1,10 +1,11 @@
+# ARG default values are overriden at build time
 
-ARG VAULT_VERSION
+ARG VAULT_VERSION=1.17.3
 
 FROM hashicorp/vault:${VAULT_VERSION}
 
-ARG VAULT_USER_UID
-ARG VAULT_USER_GID
+ARG VAULT_USER_UID=100
+ARG VAULT_USER_GID=1000
 
 RUN apk add --update --no-cache curl openssl vim
 RUN mkdir -p /etc/container-init.d # /vault/data

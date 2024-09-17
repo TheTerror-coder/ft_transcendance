@@ -1,5 +1,6 @@
+# ARG default values are overriden at build time
 
-ARG VAULT_VERSION
+ARG VAULT_VERSION=1.17.3
 
 FROM hashicorp/vault:${VAULT_VERSION}
 
