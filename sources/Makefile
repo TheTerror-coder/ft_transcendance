@@ -1,14 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/07/23 13:27:17 by jm               ###   ########lyon.fr    #
-#                                                                              #
-# **************************************************************************** #
 
 ENV :=./srcs/.env
 COMPOSE_FILE= ./srcs/docker-compose.yml 
@@ -54,7 +43,7 @@ rmi : # Removes images
 	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
 rmv : # clean data
 	-yes | sudo docker volume prune
-	-sudo rm -rf $(PATHTO_WEBAPPS_DATA)*
+	-sudo rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
 	-sudo docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
