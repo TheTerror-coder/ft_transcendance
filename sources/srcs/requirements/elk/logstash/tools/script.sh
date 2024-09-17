@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 if [ -e /usr/share/logstash/config/certs/logstash/logstash.p12 ]; then
 	echo "Logstash PKCS12 keystore already exists!"
