@@ -4,16 +4,21 @@ from .models import CustomUser
 from django.contrib.auth import authenticate
 
 class CustomUserCreationForm(UserCreationForm):
+<<<<<<< HEAD
     def __init__(self, *args, **kwargs): # print value in the form
         super().__init__(*args, **kwargs)
         print("icietla", self.data)
 
+=======
+    print("customcreat")
+>>>>>>> origin/dbaule
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'password1', 'password2')
 
 
 class CustomAuthenticationForm(AuthenticationForm):
+    print("custom")
     username = forms.CharField(max_length=254, widget=forms.TextInput(attrs={'autofocus': True}))
     password = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput)
 

@@ -1,11 +1,40 @@
 
 
+.playImg
+{
+
+    background: #B1E4FC;
+    background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
+    background-clip: text;
+    color: transparent;
+    font-size: 600%;
+    font-family: onePieceFont;
+    -webkit-text-stroke: 2px rgb(255, 255, 255);
+    /* cursor: pointer; */
+    font-weight: 700;
+    padding: 120px;
+    /* text-shadow: 
+    -2px -2px 0 #ffffff,  
+     2px -2px 0 #ffffff,
+    -2px  2px 0 #ffffff,
+     2px  2px 0 #ffffff; */
+    z-index: 3;
+}
+
 .playButton
 {
     display: none;
     align-items: center; /* Center vertically */
     justify-content: center; /* Center horizontally */
-    z-index: 6;
+    margin-top: 250px;
+    z-index: 2;
+    background-image: url('../../../media/photos/picturePng/homePage/Logo_One_Piece.png');
+    /* background-size: cover; */
+    background-position: center;
+    padding: 10px 20px;
+    background-repeat: no-repeat;
+
+
 }
 
 
