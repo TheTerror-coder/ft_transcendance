@@ -28,8 +28,8 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 
         const email = document.getElementById('createEmail').value;
         const username = document.getElementById('createUser').value;
-        const password1 = document.getElementById('createPassword').value;
-        const password2 = document.getElementById('createConfirmPassword').value;
+        const password = document.getElementById('createPassword').value;
+        const confirmPassword = document.getElementById('createConfirmPassword').value;
         
 
         parsingCreateAccount(username, email, password, confirmPassword);
@@ -52,8 +52,8 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                 },
                 body: new URLSearchParams({
                     'username': username,
-                    'password': password,
-                    'confirmPassword': confirmPassword,
+                    'password1': password,
+                    'password2': confirmPassword,
                     'email': email,
                 }),
             })
