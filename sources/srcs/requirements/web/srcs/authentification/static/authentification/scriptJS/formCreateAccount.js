@@ -18,7 +18,6 @@ function createAnAccount()
 
 document.getElementById('formAccount').addEventListener('submit', function(event) {
     // Prevent the form from submitting immediately
-    console.log("TEST DANS CREATE");
     event.preventDefault();
 
 
@@ -33,10 +32,11 @@ document.getElementById('formAccount').addEventListener('submit', function(event
         const confirmPassword = document.getElementById('createConfirmPassword').value;
         
 
+        parsingCreateAccount(username, email, password, confirmPassword);
 
-
-
-        if (password === confirmPassword) {
+        // faire un parsing
+        if (password === confirmPassword) // verif s'il n'existe pas deja dans la base de donnee
+        {
             alert('Form is valid and passwords match! Submitting...');
             // Uncomment the line below to actually submit the form
             // this.submit();
@@ -54,12 +54,15 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                     'username': username,
                     'password': password,
                     'confirmPassword': confirmPassword,
-                    'email': hashStringSHA256(email),
+                    'email': email,
                 }),
             })
-        } else {
+            refreshPage();
+        }
+        else {
             alert('Passwords do not match. Please try again.');
         }
+        // hashStringSHA256(
     } else {
         // If form is not valid, show an error popup
         alert('Some of the required information is not complete.');
@@ -67,11 +70,26 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 });
 
 
-async function hashStringSHA256(input) {
+async function hashStringSHA256(input) 
+{
     const encoder = new TextEncoder();
     const data = encoder.encode(input);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     return hashHex;
-  }
+}
+
+function parsingCreateAccount(username, email, password, confirmPassword)
+{
+    let checker = 0;
+
+    if (username.lengh > 15)
+        checker++;
+    if (password != confirmPassword)
+        checker += 10;
+    
+
+
+    // alert()
+}
