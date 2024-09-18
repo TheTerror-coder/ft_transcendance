@@ -22,6 +22,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        let status;
         
         fetch(loginURL, {
             method: 'POST',
@@ -34,7 +35,11 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                 'password': password,
             }),
         })
-        if (username && password) // ici tester avec la database
+        .then(response => response.json())
+        .then(data => 
+        {
+            status = data.status;
+        if (status == "success") // ici tester avec la database
         {
             alert('connecting...');
             // document.getElementById('backgroundDiv');
@@ -54,5 +59,8 @@ document.getElementById('formConnect').addEventListener('submit', function(event
         }
         else // ici qund rien ne correspond a la database
             alert('Some of the required information is not complete.');
+        })
     }
+        
+        
 });

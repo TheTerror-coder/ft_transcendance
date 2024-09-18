@@ -34,15 +34,9 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 
         parsingCreateAccount(username, email, password, confirmPassword);
 
-<<<<<<< HEAD
-
-
-        if (password1 === password2) {
-=======
         // faire un parsing
         if (password === confirmPassword) // verif s'il n'existe pas deja dans la base de donnee
         {
->>>>>>> origin/dbaule
             alert('Form is valid and passwords match! Submitting...');
             // Uncomment the line below to actually submit the form
             // this.submit();
@@ -58,17 +52,6 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                 },
                 body: new URLSearchParams({
                     'username': username,
-<<<<<<< HEAD
-                    'password1': password1,
-                    'password2': password2,
-                    // 'email': hashStringSHA256(email),
-                    'email': email,
-                }),
-            })
-            .then(reponse => reponse.json()) //reponse du form si oui ou non il est valide
-            .then(reponse => console.log("caaaaacccca", reponse))
-        } else {
-=======
                     'password': password,
                     'confirmPassword': confirmPassword,
                     'email': email,
@@ -77,7 +60,6 @@ document.getElementById('formAccount').addEventListener('submit', function(event
             refreshPage();
         }
         else {
->>>>>>> origin/dbaule
             alert('Passwords do not match. Please try again.');
         }
         // hashStringSHA256(
@@ -88,21 +70,14 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 });
 
 
-<<<<<<< HEAD
-async function hashStringSHA256(input) {
-=======
 async function hashStringSHA256(input) 
 {
->>>>>>> origin/dbaule
     const encoder = new TextEncoder();
     const data = encoder.encode(input);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     return hashHex;
-<<<<<<< HEAD
-  }
-=======
 }
 
 function parsingCreateAccount(username, email, password, confirmPassword)
@@ -118,4 +93,3 @@ function parsingCreateAccount(username, email, password, confirmPassword)
 
     // alert()
 }
->>>>>>> origin/dbaule
