@@ -40,17 +40,17 @@ s stop : # Stop services
 rm remove : # Removes stopped service containers
 	-sudo docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
-	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
+	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
-	-yes | sudo docker volume prune
+	-sudo docker volume prune -f
 	-sudo rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
 	-sudo docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
 
 cleanv cv : # clean all volumes
-	-yes | sudo docker volume prune
-	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
+	-sudo docker volume prune -f
+	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-yes | sudo docker system prune
