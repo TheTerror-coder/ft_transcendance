@@ -1,3 +1,10 @@
+@font-face {
+    font-family: wantedFont;
+    src: url(http://127.0.0.1:8000/../static/authentification/wantedFont.ttf);
+}
+
+
+
 
 
 
@@ -5,16 +12,68 @@
 {
     display: flex;
     justify-content: flex-end;
+    position: fixed;
+    right: 20px;
+    bottom: 0px;
+    opacity: 70%;
+    transition: all 0.5s;
 }
+
+.friendButton:hover
+{
+    opacity: 100%;
+}
+
+.profilePicture
+{
+    min-width: 243px;
+    min-height: 182px;
+    max-width: 243px;
+    max-height: 182px;
+    margin-bottom: 65px;
+    margin-right: -5px;
+}
+
 
 .wantedProfile
 {
+    background-image: url('../../../media/photos/picturePng/homePage/Wanted_connexion.png');
+    width: 302px;
+    height: 442px;
+}
 
+.wantedProfile p
+{
+    font-family: wantedFont;
+    font-size: 200%;
+    margin-top: 25px;
+    margin-bottom: -5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    color: #493B3A;
+    font-weight: 700;
+    opacity: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wantedProfile span
+{
+    font-family: wantedFont;
+    font-size: 165%;
+    opacity: 85%;
+    color: #493B3A;
 }
 
 
 .playImg
 {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
     justify-content: center;
     background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
     background-clip: text;
@@ -22,14 +81,8 @@
     font-size: 600%;
     font-family: onePieceFont;
     -webkit-text-stroke: 2px rgb(255, 255, 255);
-    /* cursor: pointer; */
     font-weight: 700;
     padding: 70px;
-    /* text-shadow: 
-    -2px -2px 0 #ffffff,  
-     2px -2px 0 #ffffff,
-    -2px  2px 0 #ffffff,
-     2px  2px 0 #ffffff; */
     z-index: 3;
 }
 
@@ -92,3 +145,4 @@
 {
     transform: scale(1.2);
 }
+
