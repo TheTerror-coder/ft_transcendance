@@ -42,6 +42,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
         if (status == "success") // ici tester avec la database
         {
             alert('connecting...');
+            var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");
             // document.getElementById('backgroundDiv');
             background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
             loginButton.style.display = 'none';

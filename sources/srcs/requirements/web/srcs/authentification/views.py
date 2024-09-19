@@ -14,7 +14,6 @@ from .models import FriendRequest
 
 def register(request):
     if request.method == 'POST':
-        print("ici", request.POST)
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -34,11 +33,8 @@ def home(request):
 
 def login_view(request):
     if request.method == 'POST':
-        print("je suis la??????!!!!!!!!", request.POST)
         form = CustomAuthenticationForm(request, data=request.POST)
-        print("je suis la??????!!!!!!!!", form)
         if form.is_valid():
-            print("OUI JE SUIS VALIDE")
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
@@ -49,7 +45,6 @@ def login_view(request):
             else:
                 return JsonResponse({'errors': form.errors}, status=400)
         else:
-            print("NON PAS VALIDE")
             return JsonResponse({'errors': form.errors}, status=400)
     else:
         form = CustomAuthenticationForm()
