@@ -20,8 +20,8 @@ server {
 	listen 8080;
 
 	server_name transcendance.fr www.transcendance.fr;
-	set $upstream http://webmediator;
-	# set $upstream https://webmediator; # TODO: uncomment at production
+	# set $upstream http://webmediator;
+	set $upstream https://webmediator; # TODO: uncomment at production
 	set $always_redirect on;
 
 	access_log /var/log/nginx/web.access.log weblog;
@@ -44,13 +44,13 @@ server {
 	listen [::]:8443 ssl;
 
 	server_name transcendance.fr www.transcendance.fr;
-	set $upstream http://webmediator;
-	# set $upstream https://webmediator; # TODO: uncomment at production
+	# set $upstream http://webmediator;
+	set $upstream https://webmediator; # TODO: uncomment at production
 
 	access_log /var/log/nginx/web.access.log weblog;
 
-	ssl_certificate /etc/nginx/ssl/nginx.crt;
-	ssl_certificate_key /etc/nginx/ssl/nginx.key;
+	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
+	ssl_certificate_key /usr/share/nginx/volumes/nginx/certs/nginx.key;
 	ssl_session_timeout 1d;
 	ssl_session_cache shared:MozSSL:10m;
 	ssl_session_tickets off;
@@ -70,12 +70,12 @@ server {
 	location ~* .(mp4|webm|jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf)$
 	{
 		add_header	X-InStaticREGex-uri "$uri" always;
-		root   /usr/share/www/static/;
+		root   /usr/share/nginx/volumes/www/static/;
 	}
 
 	location ^~ /static/ {
 		add_header	X-InStatic-uri "$uri" always;
-		root   /usr/share/www;
+		root   /usr/share/nginx/volumes/www;
 		try_files	$uri $uri/ =404;
 	}
 
@@ -88,9 +88,9 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		# proxy_ssl_trusted_certificate	/etc/nginx/ssl/ca/root_ca.crt;
-		# proxy_ssl_verify	on;
-		# proxy_ssl_verify_depth	2;
+		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/nginx/certs/ca/root_ca.crt;
+		proxy_ssl_verify	on;
+		proxy_ssl_verify_depth	2;
 		
 		include includes/proxy_backend.conf;
 	}

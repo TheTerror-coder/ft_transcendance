@@ -1,24 +1,40 @@
 # ARG default values are overriden at build time
 
-FROM python:3.10-alpine
+ARG WEB_TAG=3.10.15-alpine3.20
 
-ARG STATICFILES_DIR=/usr/share/www/static
+FROM python:${WEB_TAG}
 
-WORKDIR /usr/src/apps
+ARG WEB_UID=1111
+ARG WEB_GID=1111
+ARG SHARED_GID=1010
+ARG WEB_HOME=/usr/share/web
+ARG WEB_DIRS_TO_MAKE=.
+ARG STATICFILES_DIR=/usr/share/web/volumes/www/static
 
-RUN apk add --no-cache curl
-RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR}
+USER 0
 
-COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
+WORKDIR ${WEB_HOME}
 
-COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
+RUN --mount=type=bind,source=./tools/requirements.txt,target=./requirements.txt <<EOF
+apk add --update --no-cache dumb-init curl shadow
+useradd --uid ${WEB_UID} --user-group -m --no-log-init --home-dir ${WEB_HOME} --shell /bin/sh --comment "container's rootless user" web
+addgroup -g ${SHARED_GID} transcendance
+addgroup web transcendance
+mkdir -p ${WEB_DIRS_TO_MAKE}
+chmod 700 ${WEB_HOME} ${WEB_HOME}/container-init.d ${WEB_HOME}/volumes
+chmod 770 ${STATICFILES_DIR}
+chown -R ${WEB_UID}:${SHARED_GID} ${WEB_HOME}
+pip install -r ./requirements.txt
+EOF
 
-RUN pip install -r requirements.txt
+COPY --chown=${WEB_UID}:${WEB_GID} --chmod=700 ./tools/script.sh ${WEB_HOME}/container-init.d
+COPY --chown=${WEB_UID}:${WEB_GID} --chmod=770 ./srcs/ ${WEB_HOME}/apps
 
-COPY ./srcs/ .
-# COPY ./project_init/ .
+WORKDIR ${WEB_HOME}/apps
 
+USER ${WEB_UID}
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/usr/share/web/container-init.d/script.sh" ]
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-CMD [ "/etc/container-init.d/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

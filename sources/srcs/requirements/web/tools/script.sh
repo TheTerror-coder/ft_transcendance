@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# tail -f /dev/null
 if	! test -e $HEALTHFLAG_FILE
 then
 
@@ -12,4 +13,3 @@ fi
 # gunicorn web.wsgi
 # python manage.py runserver 0.0.0.0:8000
 $WEB_ENTRYPOINT
-# tail -f /dev/null

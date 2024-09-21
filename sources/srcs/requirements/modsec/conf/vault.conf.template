@@ -39,8 +39,8 @@ server {
 
 	access_log /var/log/nginx/vault.access.log vaultlog;
 
-	ssl_certificate /etc/nginx/ssl/nginx.crt;
-	ssl_certificate_key /etc/nginx/ssl/nginx.key;
+	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
+	ssl_certificate_key /usr/share/nginx/volumes/nginx/certs/nginx.key;
 	ssl_session_timeout 1d;
 	ssl_session_cache shared:MozSSL:10m;
 	ssl_session_tickets off;
@@ -66,7 +66,7 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		proxy_ssl_trusted_certificate	/volumes/vault/certs/ca/ca.crt;
+		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/vault/certs/ca/ca.crt;
 		proxy_ssl_verify	on;
 		proxy_ssl_verify_depth	1;
 

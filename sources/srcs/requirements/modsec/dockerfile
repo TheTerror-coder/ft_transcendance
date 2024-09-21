@@ -7,16 +7,37 @@ FROM owasp/modsecurity-crs:${MODSECURITY_TAG}
 ARG MODSEC_DEBUG_LOG_DIR=/var/log
 ARG MODSEC_AUDIT_LOG_DIR=/var/log
 ARG NGINX_LOG_FILES=/var/log/access.log
+ARG MODSEC_HOME=/usr/share/nginx
+ARG NGINX_STATICFILES_DIR=${MODSEC_HOME}/volumes/www/static
+ARG MODSEC_UID=101
+ARG MODSEC_GID=101
+ARG SHARED_GID=1010
+ARG MODSEC_DIRS_TO_MAKE=.
+ARG MODSEC_LOGS_ROOT=/var/log
 
-USER root
-RUN apk add --update --no-cache jq
-RUN mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR}
-RUN touch ${NGINX_LOG_FILES}
-RUN chown nginx ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${NGINX_LOG_FILES}
+USER 0
 
-USER nginx
-COPY ./templates/404.html /usr/share/nginx/html/
+WORKDIR ${MODSEC_HOME}
 
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
-CMD [ "nginx", "-g", "daemon off;" ]
+RUN <<EOF
+apk add --update --no-cache dumb-init jq
+addgroup -g ${SHARED_GID} transcendance
+addgroup nginx transcendance
+mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
+touch ${NGINX_LOG_FILES}
+chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes
+chmod 770 ${NGINX_STATICFILES_DIR}
+chown -R ${MODSEC_UID}:${SHARED_GID} ${MODSEC_HOME}
+find ${MODSEC_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
+find ${MODSEC_LOGS_ROOT} -type f -exec chown ${MODSEC_UID}:${SHARED_GID} \{\} \;
+find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
+find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chown ${MODSEC_UID}:${SHARED_GID} \{\} \;
+EOF
+
+COPY --chown=${MODSEC_UID}:${MODSEC_GID} ./templates/404.html ${MODSEC_HOME}/html/
+
+USER ${MODSEC_UID}
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

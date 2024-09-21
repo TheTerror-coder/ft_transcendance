@@ -1,6 +1,4 @@
-#!/bin/sh
-
-set -e
+#!/bin/sh -e
 
 if	! test -e $HEALTHFLAG_FILE
 then
