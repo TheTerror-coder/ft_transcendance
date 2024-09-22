@@ -32,7 +32,7 @@ DEBUG = True
 ALLOWED_HOSTS = [ '*' ]
 
 CSRF_TRUSTED_ORIGINS = [
-	'http://transcendance.fr:8080'
+	'http://transcendance.fr:1880'
 ]
 
 # Application definition

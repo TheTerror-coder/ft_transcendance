@@ -17,21 +17,21 @@ upstream webmediator {
 }
 
 server {
-	listen 8080;
+	listen 1880;
 
 	server_name transcendance.fr www.transcendance.fr;
 	# set $upstream http://webmediator;
-	set $upstream https://webmediator; # TODO: uncomment at production
+	set $upstream https://webmediator; # TODO: uncomment at production if commented
 	set $always_redirect on;
 
 	access_log /var/log/nginx/web.access.log weblog;
-	
+
 
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host$request_uri;
+			return 301 https://$host:1443$request_uri;
 		}
 	}
 
@@ -40,8 +40,8 @@ server {
 }
 
 server {
-	listen 8443 ssl;
-	listen [::]:8443 ssl;
+	listen 1443 ssl;
+	listen [::]:1443 ssl;
 
 	server_name transcendance.fr www.transcendance.fr;
 	# set $upstream http://webmediator;

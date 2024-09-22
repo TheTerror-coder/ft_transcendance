@@ -6,8 +6,6 @@ set -e
 hostnames=(\
 	transcendance.fr \
 	www.transcendance.fr \
-	vault.transcendance.fr \
-	www.vault.transcendance.fr \
 	vault_c \
 	vault \
 )
