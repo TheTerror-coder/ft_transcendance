@@ -189,7 +189,7 @@ services:
       - 8888:${WEB_PORT}
     restart: on-failure
 
-  modsec:
+  waf:
     depends_on:
       web:
         condition: service_healthy
@@ -198,7 +198,7 @@ services:
     container_name: ${MODSEC_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/modsec/
+      context: ./requirements/waf/
       args:
         - MODSECURITY_TAG=${MODSECURITY_TAG}
         - MODSEC_UID=${MODSEC_UID}
@@ -221,11 +221,11 @@ services:
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
     volumes:
-      - ./requirements/modsec/conf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template
-      - ./requirements/modsec/conf/vault.conf.template:/etc/nginx/templates/conf.d/vault.conf.template
-      - ./requirements/modsec/conf/location_common.conf.template:/etc/nginx/templates/includes/location_common.conf.template
-      - ./requirements/modsec/conf/logging.conf.template:/etc/nginx/templates/conf.d/logging.conf.template
-      # - ./requirements/modsec/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      - ./requirements/waf/conf/default.conf.template:/etc/nginx/templates/conf.d/default.conf.template
+      - ./requirements/waf/conf/vault.conf.template:/etc/nginx/templates/conf.d/vault.conf.template
+      - ./requirements/waf/conf/location_common.conf.template:/etc/nginx/templates/includes/location_common.conf.template
+      - ./requirements/waf/conf/logging.conf.template:/etc/nginx/templates/conf.d/logging.conf.template
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${NGINX_STATICFILES_DIR}
       - modsec_data:${MODSEC_DATA_DIR}
       # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
@@ -233,6 +233,11 @@ services:
       # - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+    ports:
+      - ${MODSEC_HTTP_PORT}:8080
+      - ${MODSEC_HTTPS_PORT}:8443
+    networks:
+      - ${NETWORK_NAME}
     healthcheck:
       test:
         [
@@ -243,16 +248,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 1
-    ports:
-      - ${MODSEC_HTTP_PORT}:8080
-      - ${MODSEC_HTTPS_PORT}:8443
-    networks:
-      - ${NETWORK_NAME}
     restart: on-failure
   
   ready:
     depends_on:
-      modsec:
+      waf:
         condition: service_healthy
         restart: true
     image: alpine:${ALPINE_VERSION}
