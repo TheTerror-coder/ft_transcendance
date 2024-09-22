@@ -10,6 +10,4 @@ then
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
 
-# gunicorn web.wsgi
-# python manage.py runserver 0.0.0.0:8000
 $WEB_ENTRYPOINT

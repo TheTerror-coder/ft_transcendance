@@ -44,8 +44,8 @@ server {
 	listen [::]:1443 ssl;
 
 	server_name transcendance.fr www.transcendance.fr;
-	# set $upstream http://webmediator;
-	set $upstream https://webmediator; # TODO: uncomment at production
+	set $upstream http://webmediator;
+	# set $upstream https://webmediator; # TODO: uncomment at production
 
 	access_log /var/log/nginx/web.access.log weblog;
 
@@ -88,9 +88,9 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/nginx/certs/ca/root_ca.crt;
-		proxy_ssl_verify	on;
-		proxy_ssl_verify_depth	2;
+		# proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/nginx/certs/ca/root_ca.crt;
+		# proxy_ssl_verify	on;
+		# proxy_ssl_verify_depth	2;
 		
 		include includes/proxy_backend.conf;
 	}

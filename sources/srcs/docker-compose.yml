@@ -174,8 +174,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          # "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-          "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
+          "curl -s http://localhost:${WEB_PORT} | grep -q ''",
+          # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
         ]
       start_period: 10s
       interval: 10s
