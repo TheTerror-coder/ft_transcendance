@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import requests
+from . import tools
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,12 +31,15 @@ DEBUG = True
 ALLOWED_HOSTS = [ '*' ]
 
 CSRF_TRUSTED_ORIGINS = [
-	'http://transcendance.fr:8080'
+	'http://www.transcendance.fr:8080',
+	'https://www.transcendance.fr:8443',
+	'https://www.transcendance.fr'
 ]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentification',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -59,7 +65,7 @@ ROOT_URLCONF = 'web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,12 +79,59 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'web.wsgi.application'
+ASGI_APPLICATION = 'web.asgi.application'
 
+#prod
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
+#     },
+# }
+
+#dev
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_DB'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': str(
+# 			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+# 				verify=os.environ.get('VAULT_CACERT'),
+# 				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+# 		),
+#         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+#         'PORT': os.environ.get('POSTGRES_PORT'),
+#     }
+# }
+
+
+#a effacer si make des docker
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('POSTGRES_DB'),
+    #     'USER': os.environ.get('POSTGRES_USER'),
+    #     'PASSWORD': str(
+	# 		requests.get("https://vault_c:8200/v1/secret/data/postgres",
+	# 			verify=os.environ.get('VAULT_CACERT'),
+	# 			headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+	# 	),
+    #     'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+    #     'PORT': os.environ.get('POSTGRES_PORT'),
+    # }
+    
     'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
@@ -90,7 +143,6 @@ DATABASES = {
         # 'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -127,7 +179,7 @@ AUTH_USER_MODEL = 'authentification.CustomUser'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 

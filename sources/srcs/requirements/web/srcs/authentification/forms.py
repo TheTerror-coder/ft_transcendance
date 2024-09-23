@@ -4,9 +4,13 @@ from .models import CustomUser
 from django.contrib.auth import authenticate
 
 class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs): # print value in the form
+        super().__init__(*args, **kwargs)
+        print("icietla", self.data)
+
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password1', 'password2', 'photo')
+        fields = ('username', 'email', 'password1', 'password2')
 
 
 class CustomAuthenticationForm(AuthenticationForm):
