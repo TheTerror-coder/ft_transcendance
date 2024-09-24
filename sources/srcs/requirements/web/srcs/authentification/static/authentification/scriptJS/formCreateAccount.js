@@ -57,7 +57,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                     'email': email,
                 }),
             })
-            refreshPage();
+            refreshHomePage();
         }
         else {
             alert('Passwords do not match. Please try again.');

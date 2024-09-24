@@ -38,8 +38,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
         .then(response => response.json())
         .then(data => 
         {
-            status = data.status;
-        if (status == "success") // ici tester avec la database
+        if (data.status == "success") // ici tester avec la database
         {
             alert('connecting...');
             var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");

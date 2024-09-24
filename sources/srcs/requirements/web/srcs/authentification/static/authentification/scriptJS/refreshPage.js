@@ -16,6 +16,22 @@ function refreshPage()
     buttonCreateAccount.style.display = 'block';
 }
 
+function refreshHomePage()
+{
+    background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
+    loginButton.style.display = 'none';
+    woodPresentation.style.display = 'none';
+    flag.className = "homepageFlag";
+    flag.id = 'homepageFlag';
+
+    let englandFlagImg = document.querySelector("#englandFlagImg");
+    englandFlagImg.className = "englandFlag";
+    englandFlag.style.marginRight = "-0.01px";
+    
+    homePage.style.display = 'block';
+    playButton.style.display = 'flex';
+}
+
 
 function deleteAllCookies() {
     let cookies = document.cookie.split(";");
