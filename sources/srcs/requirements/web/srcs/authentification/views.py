@@ -14,7 +14,6 @@ from .models import FriendRequest
 
 def register(request):
     if request.method == 'POST':
-        print("ici", request.POST)
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
