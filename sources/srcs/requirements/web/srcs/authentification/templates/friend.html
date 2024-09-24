@@ -25,7 +25,7 @@
                 <button type="submit">Ajouter l'ami</button>
             </form>
             <script>
-                var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
+                // var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
                 socket.onmessage = function(event) {
                     var data = JSON.parse(event.data);
                     console.log(data);

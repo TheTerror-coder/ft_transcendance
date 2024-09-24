@@ -14,15 +14,12 @@ from .models import FriendRequest
 
 def register(request):
     if request.method == 'POST':
-        print("ici", request.POST)
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('login')})
         else:
-            return (JsonResponse({"error": "found"}, status=302))
-    else:
-        form = CustomUserCreationForm()
+            return JsonResponse({'errors': form.errors}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
@@ -34,30 +31,23 @@ def home(request):
 
 def login_view(request):
     if request.method == 'POST':
-        print("je suis la??????!!!!!!!!", request.POST)
         form = CustomAuthenticationForm(request, data=request.POST)
-        print("je suis la??????!!!!!!!!", form)
         if form.is_valid():
-            print("OUI JE SUIS VALIDE")
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                home_url = reverse('home')
-                return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': home_url})
+                return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
             else:
                 return JsonResponse({'errors': form.errors}, status=400)
         else:
-            print("NON PAS VALIDE")
             return JsonResponse({'errors': form.errors}, status=400)
-    else:
-        form = CustomAuthenticationForm()
-        return render(request, 'login.html', {'form': form})
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def logout_view(request):
     logout(request)
-    return redirect('base')
+    return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
 
 @login_required
 def profile(request):
