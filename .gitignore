@@ -1,0 +1,5 @@
+source/srcs/requirements/web/srcs/authentification/__pycache__/*
+source/srcs/requirements/web/srcs/authentification/consumers/__pycache__/*
+source/srcs/requirements/web/srcs/db.sqlite3
+source/srcs/requirements/web/srcs/web/__pycache__/*
+source/srcs/requirements/web/srcs/authentification/migrations/*
