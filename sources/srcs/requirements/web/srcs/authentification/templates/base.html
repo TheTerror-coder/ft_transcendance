@@ -7,6 +7,7 @@
         rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <link href="../static/authentification/css/loginPage.css" rel="stylesheet">
         <link href="../static/authentification/css/homePage.css" rel="stylesheet">
+        <link href="../static/authentification/css/friendPage.css" rel="stylesheet">
 
         <title>ONE PONG</title>
 
@@ -57,9 +58,21 @@
             </div>
         </div>
         <div class="homePage" id="homePage">
-            <div class="centerHomepage" id="playButton">
-                <div class="playButton">
+            <div class="centerHomepage" id="centerHomepage">
+                <div class="playButton" id="playButton">
                     <button class="playImg">PLAY</button>
+                </div>
+                <div class="friendDisplay" id="friendDisplay">
+                    <p>SOCIAL</p>
+                    <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
+                    <p>Friend</p>
+                    <form>
+                        <div class="form-group">
+                          <label for="friendUsernameADD">ADD FRIEND</label>
+                          <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
+                        </div>
+                    </form>
+                    <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                 </div>
                 <button class="wantedProfile">
                     <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
@@ -68,12 +81,13 @@
                 </button>
             </div>
             <div class="friendButton">
-                <button><img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="add friend" > </button>
+                <button id="buttonFriend"><img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
             </div>
         </div>
         <script>
             var registerURL = '{% url 'register' %}';
             var loginURL = '{% url 'login' %}';
+            var addFriendURL = '{% url 'add_friend' %}'
         </script>
         <script src="../static/authentification/scriptJS/variablesLoginPage.js"></script>
         <script src="../static/authentification/scriptJS/variablesHomePage.js"></script>
@@ -81,6 +95,7 @@
         <script src="../static/authentification/scriptJS/formCreateAccount.js"></script>
         <script src="../static/authentification/scriptJS/refreshPage.js"></script>
         <script src="../static/authentification/scriptJS/connectNormal.js"></script>
+        <script src="../static/authentification/scriptJS/friendPage.js"></script>
 
     </body>
 </html>

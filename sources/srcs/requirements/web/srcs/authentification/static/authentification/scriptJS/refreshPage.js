@@ -29,7 +29,7 @@ function refreshHomePage()
     englandFlag.style.marginRight = "-0.01px";
     
     homePage.style.display = 'block';
-    playButton.style.display = 'flex';
+    centerHomepage.style.display = 'flex';
 }
 
 
