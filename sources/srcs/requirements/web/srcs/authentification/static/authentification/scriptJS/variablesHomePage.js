@@ -12,3 +12,6 @@ const friendDisplay = document.querySelector("#friendDisplay");
 
 const submitFriendButton = document.querySelector("#submitFriendButton");
 const usernameAddFriend = document.querySelector("#usernameAddFriend");
+
+
+const playDisplay = document.querySelector("#playDisplay");

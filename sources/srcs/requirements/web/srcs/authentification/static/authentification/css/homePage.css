@@ -76,7 +76,7 @@
     color: transparent;
     font-size: 600%;
     font-family: onePieceFont;
-    -webkit-text-stroke: 2px rgb(255, 255, 255);
+    -webkit-text-stroke: 1px rgb(255, 255, 255);
     font-weight: 700;
     padding: 70px;
     z-index: 3;
@@ -142,3 +142,26 @@
     transform: scale(1.2);
 }
 
+.playDisplay
+{
+    display: none;
+    background-color: rgb(255,255,255, 0.7);
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    flex-direction: column;
+}
+
+.playDisplay p
+{
+    font-size: 300%;
+}
+
+.rapidPlay
+{
+    background-image: url('../../../media/photos/picturePng/homePage/Kizaru.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 30%;
+}
