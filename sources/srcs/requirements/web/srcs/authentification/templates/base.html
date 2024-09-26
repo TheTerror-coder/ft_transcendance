@@ -8,10 +8,12 @@
         <link href="../static/authentification/css/loginPage.css" rel="stylesheet">
         <link href="../static/authentification/css/homePage.css" rel="stylesheet">
         <link href="../static/authentification/css/friendPage.css" rel="stylesheet">
+        <link href="../static/authentification/css/lobby.css" rel="stylesheet">
+
         <title>ONE PONG</title>
 
     </head>
-    <body class="background" id="background"> 
+    <body class="background" id="background">
         <div class="flag" id="flag">
             <button id="englandFlag"><img src="../media/photos/picturePng/loginPage/drapeau/angleterre.png" alt="England Flag" style="margin-right: -4px;" id="englandFlagImg"></button>
             <button id="spainFlag"><img src="../media/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
@@ -67,15 +69,29 @@
                     <p>Friend</p>
                     <form>
                         <div class="form-group">
-                          <label for="friendUsernameADD">ADD FRIEND</label>
-                          <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
+                        <label for="friendUsernameADD">ADD FRIEND</label>
+                        <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
                         </div>
                     </form>
                     <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                 </div>
                 <div class="playDisplay" id="playDisplay">
-                    <p class="rapidPlay">RAPID PLAY</p>
-                    <p>TOURNAMENT</p>
+                    <button class="rapidPlay" id="rapidPlayButton">RAPID PLAY</button>
+                    <button id="tournamentButton">TOURNAMENT</button>
+                    <!-- rapidPlayButton -->
+                    <button class="joinLobbyButton" id="joinLobbyButton">JOIN LOBBY</button>
+                    <button class="createLobbyButton" id="createLobbyButton">CREATE LOBBY</button>
+                    <button class="onePlayerButton" id="onePlayerButton">ONE PLAYER</button>
+                    <button class="twoPlayerButton" id="twoPlayerButton">TWO PLAYER</button>
+                    <button class="captainButton" id="captainButton">CAPTAIN</button>
+                    <button class="gunnerButton" id="gunnerButton">GUNNER</button>
+
+                    <!-- TournamentButton -->
+                    <button class="createTournamentButton" id="createTournamentButton">CREATE TOURNAMENT</button>
+                    <button class="joinTournamentButton" id="joinTournamentButton">JOIN TOURNAMENT</button>
+                </div>
+                <div class="lobbyDisplayRapidPlayOnePlayer" id="lobbyDisplayRapidPlayOnePlayer">
+
                 </div>
                 <button class="wantedProfile">
                     <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
@@ -87,6 +103,9 @@
                 <button id="buttonFriend"><img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
             </div>
         </div>
+        <video class="videoBackground" id="videoBackground" autoplay muted loop>
+            <source src="../media/photos/picturePng/lobbyPage/luffy-vs-usopp.mp4" type="video/mp4">
+        </video>
         <script>
             var registerURL = '{% url 'register' %}';
             var loginURL = '{% url 'login' %}';
@@ -94,12 +113,13 @@
         </script>
         <script src="../static/authentification/scriptJS/variablesLoginPage.js"></script>
         <script src="../static/authentification/scriptJS/variablesHomePage.js"></script>
+        <script src="../static/authentification/scriptJS/variablesLobbyAndTournament.js"></script>
         <script src="../static/authentification/scriptJS/flags.js"></script>
         <script src="../static/authentification/scriptJS/formCreateAccount.js"></script>
         <script src="../static/authentification/scriptJS/refreshPage.js"></script>
         <script src="../static/authentification/scriptJS/connectNormal.js"></script>
         <script src="../static/authentification/scriptJS/friendPage.js"></script>
-        <script src="../static/authentification/scriptJS/playPage.js"></script>
+        <script src="../static/authentification/scriptJS/playAndLobbyPage.js"></script>
 
     </body>
 </html>

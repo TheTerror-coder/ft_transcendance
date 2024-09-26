@@ -1,9 +1,7 @@
 //HOME PAGE INFORMATION
 
-const playButtonImg = document.querySelector("#playButtonImg");
 const centerHomepage = document.querySelector("#centerHomepage");
 const homePage = document.querySelector("#homePage");
-const playButton = document.querySelector("#playButton");
 
 
 
@@ -14,4 +12,3 @@ const submitFriendButton = document.querySelector("#submitFriendButton");
 const usernameAddFriend = document.querySelector("#usernameAddFriend");
 
 
-const playDisplay = document.querySelector("#playDisplay");
