@@ -13,7 +13,8 @@ from asgiref.sync import async_to_sync
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+
+# envoyer un msg si meme email et ne pas rediriger sur home une fois register
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -31,7 +32,6 @@ def connect(request):
 def home(request):
     return render(request, 'home.html')
 
-@csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -114,7 +114,6 @@ def send_friend_request(request):
                     'status': 'success',
                     'message': f"Demande d'ami envoyée à {to_user.username}.",
                     'friend_request_id': friend_request.id,
-                    # 'websocket_url': "ws://127.0.0.1:8000/ws/friend_invite/"
                 }
                 return JsonResponse(response)
         except User.DoesNotExist:

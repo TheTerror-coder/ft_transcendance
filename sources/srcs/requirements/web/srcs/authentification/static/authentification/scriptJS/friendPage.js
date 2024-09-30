@@ -69,45 +69,45 @@ document.addEventListener('DOMContentLoaded', function() {
             'type': 'invitation',
             'room_name': 'add_friend'
         }));
-    
-        socket.onmessage = function(event) {
-            console.log('Invitation sent to:', username);
-            var data = JSON.parse(event.data);
-            if (data.type === 'invitation') {
-                console.log("Received invitation:", data);
 
-                // Créez les boutons d'acceptation et de rejet
-                var acceptButton = document.createElement('button');
-                acceptButton.textContent = 'Accept';
-                acceptButton.onclick = function() {
-                    socket.send(JSON.stringify({
-                        type: 'response.invitation',
-                        response: 'accept',
-                        friend_request_id: data.friend_request_id
-                    }));
-                };
+    //     socket.onmessage = function(event) {
+    //         console.log('Invitation sent to:', username);
+    //         var data = JSON.parse(event.data);
+    //         if (data.type === 'invitation') {
+    //             console.log("Received invitation:", data);
 
-                var rejectButton = document.createElement('button');
-                rejectButton.textContent = 'Reject';
-                rejectButton.onclick = function() {
-                    socket.send(JSON.stringify({
-                        type: 'response.invitation',
-                        response: 'reject',
-                        friend_request_id: data.friend_request_id
-                    }));
-                };
+    //             // Créez les boutons d'acceptation et de rejet
+    //             var acceptButton = document.createElement('button');
+    //             acceptButton.textContent = 'Accept';
+    //             acceptButton.onclick = function() {
+    //                 socket.send(JSON.stringify({
+    //                     type: 'response.invitation',
+    //                     response: 'accept',
+    //                     friend_request_id: data.friend_request_id
+    //                 }));
+    //             };
 
-                document.body.appendChild(acceptButton);
-                document.body.appendChild(rejectButton);
-            }
-        };
+    //             var rejectButton = document.createElement('button');
+    //             rejectButton.textContent = 'Reject';
+    //             rejectButton.onclick = function() {
+    //                 socket.send(JSON.stringify({
+    //                     type: 'response.invitation',
+    //                     response: 'reject',
+    //                     friend_request_id: data.friend_request_id
+    //                 }));
+    //             };
 
-        socket.onerror = function(error) {
-            console.error("WebSocket error:", error);
-        };
+    //             document.body.appendChild(acceptButton);
+    //             document.body.appendChild(rejectButton);
+    //         }
+    //     };
 
-        socket.onclose = function(event) {
-            console.log("WebSocket connection closed:", event);
-        };
+    //     socket.onerror = function(error) {
+    //         console.error("WebSocket error:", error);
+    //     };
+
+    //     socket.onclose = function(event) {
+    //         console.log("WebSocket connection closed:", event);
+    //     };
     }
 });

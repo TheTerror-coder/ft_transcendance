@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from authentification.models import FriendRequest
 from asgiref.sync import sync_to_async
 
-user_channels = {}
 
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     
@@ -16,16 +15,17 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         if not self.user.is_authenticated:
             await self.close()
         else:
-            self.room_group_name = f"friend_invite_{self.user.username}"
+            self.room_group_name = f"friend_invite_{self.user.id}"
+            # self.room_group_name = "friend_invite"
             print("Room group name:", self.room_group_name)
+            print("hello/;", self.user.username, ".")
             print("nana:", self.channel_layer)
             print("nunu:", self.channel_name)
+            await self.accept()
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
             )
-            user_channels[self.user.username] = self.channel_name
-            await self.accept()
             # print(f"User {self.user.username} joined room: {self.room_group_name}")
 
     async def disconnect(self, close_code):
@@ -37,7 +37,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive(self, text_data=None):
         text_data_json = json.loads(text_data)
-        # print("Received message:", text_data_json)
+        print("Received message:", text_data_json)
         # print("cououcaca:", self.channel_layer)
 
         if text_data_json['type'] == 'invitation':
@@ -65,10 +65,11 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 'friend_request_id': friend_request.id
             }
 
-            user_room_group_name = f"friend_invite_{username}"
+            user_room_group_name = f"friend_invite_{user.id}"
+            # user_room_group_name = self.room_group_name
             # print(f"Invitation créée: {invitation}")
             print("user =", username)
-            print(f"Room group name:", user_room_group_name)
+            print(f"Room group name:", user_room_group_name, ".")
             print(f"Room group nameMe:", self.room_group_name)
             await self.channel_layer.group_send(
                 user_room_group_name,
