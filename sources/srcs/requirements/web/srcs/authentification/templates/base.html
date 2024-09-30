@@ -66,12 +66,13 @@
                     <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
                     <p>Friend</p>
                     <form>
+                        {% comment %} {% csrf_token %} {% endcomment %}
                         <div class="form-group">
-                          <label for="friendUsernameADD">ADD FRIEND</label>
-                          <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
+                            <label for="friendUsernameADD">ADD FRIEND</label>
+                            <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
                         </div>
+                        <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                     </form>
-                    <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                 </div>
                 <button class="wantedProfile">
                     <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
@@ -86,7 +87,7 @@
         <script>
             var registerURL = '{% url 'register' %}';
             var loginURL = '{% url 'login' %}';
-            var addFriendURL = '{% url 'add_friend' %}'
+            var addFriendURL = '{% url 'add_friend' %}';
         </script>
         <script src="../static/authentification/scriptJS/variablesLoginPage.js"></script>
         <script src="../static/authentification/scriptJS/variablesHomePage.js"></script>

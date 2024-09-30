@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% comment %} {% extends "base.html" %}
 
 {% block content %}
     {% if request.path != '/friend/' %}
@@ -14,18 +14,17 @@
                     <li>Vous n'avez pas encore d'amis.</li>
                 {% endfor %}
             </ul>
-        {% endblock %}
+        {% endblock %} {% endcomment %}
 
-        {% block add_friend %}
-            <h2>Ajouter un ami</h2>
+        {% comment %} {% block add_friend %} {% endcomment %}
+            {% comment %} <h2>Ajouter un ami</h2>
             <form id="add_friend_form" method="post" action="{% url 'add_friend' %}">
                 {% csrf_token %}
                 <label for="username">Nom d'utilisateur de l'ami :</label>
                 <input type="text" name="username" id="username">
                 <button type="submit">Ajouter l'ami</button>
-            </form>
-            <script>
-                // var socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");              
+            </form> {% endcomment %}
+            {% comment %} <script>
                 socket.onmessage = function(event) {
                     var data = JSON.parse(event.data);
                     console.log(data);
@@ -90,10 +89,9 @@
                     }));
                     usernameInput.value = '';
                 };
-            </script>
-        {% endblock %}
+            </script> {% endcomment %}
 
-        {% block remove_friend %}
+        {% comment %} {% block remove_friend %}
             <h2>Supprimer un ami</h2>
             <form id="remove_friend_form" method="post" action="{% url 'remove_friend' %}">
                 {% csrf_token %}
@@ -103,4 +101,4 @@
             </form>
         {% endblock %}
     {% endif %}
-{% endblock %}
+{% endblock %} {% endcomment %}

@@ -11,7 +11,9 @@ from django.urls import reverse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import FriendRequest
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -29,6 +31,7 @@ def connect(request):
 def home(request):
     return render(request, 'home.html')
 
+@csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -86,6 +89,7 @@ def friend(request):
 
 User = get_user_model()
 
+@csrf_exempt
 @login_required
 def send_friend_request(request):
     if request.method == 'POST':
@@ -93,25 +97,38 @@ def send_friend_request(request):
         try:
             to_user = User.objects.get(username=username)
             if to_user == request.user:
-                messages.error(request, "Vous ne pouvez pas vous ajouter vous-même comme ami.")
-                print("Vous ne pouvez pas vous ajouter vous-même comme ami.")
-            elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
-                messages.error(request, "Vous avez déjà envoyé une demande d'ami à cet utilisateur.")
-                print("Vous avez déjà envoyé une demande d'ami à cet utilisateur.")
+                response = {
+                    'status': 'error',
+                    'message': "Vous ne pouvez pas vous ajouter vous-même comme ami."
+                }
+                return JsonResponse(response)
+            # elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
+            #     response = {
+            #         'status': 'error',
+            #         'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
+            #     }
+            #     return JsonResponse(response)
             else:
-                print("loool", channel_layer)
                 friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user, status='PENDING')
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)('friend_invite', {
-                    'type': 'friend.request',
-                    'content': f'{request.user.username} vous a envoyé une demande d\'ami.',
-                })
-                messages.success(request, f"Demande d'ami envoyée à {to_user.username}.")
+                response = {
+                    'status': 'success',
+                    'message': f"Demande d'ami envoyée à {to_user.username}.",
+                    'friend_request_id': friend_request.id,
+                    # 'websocket_url': "ws://127.0.0.1:8000/ws/friend_invite/"
+                }
+                return JsonResponse(response)
         except User.DoesNotExist:
-            messages.error(request, "Cet utilisateur n'existe pas.")
-        return redirect('friend')
+            response = {
+                'status': 'error',
+                'message': "Cet utilisateur n'existe pas."
+            }
+            return JsonResponse(response)
     else:
-        return render(request, 'friend.html')
+        response = {
+            'status': 'error',
+            'message': "Invalid request method."
+        }
+        return JsonResponse(response)
 
 
 @login_required
