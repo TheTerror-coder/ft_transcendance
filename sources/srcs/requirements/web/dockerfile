@@ -1,35 +1,40 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    dockerfile                                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/09/04 16:00:47 by jm               ###   ########lyon.fr    #
-#                                                                              #
-# **************************************************************************** #
+# ARG default values are overriden at build time
 
-FROM python:3.10-alpine
+ARG WEB_TAG=3.10.15-alpine3.20
 
-ARG STATICFILES_DIR
+FROM python:${WEB_TAG}
 
-WORKDIR /usr/src/apps
+ARG WEB_UID=1111
+ARG WEB_GID=1111
+ARG SHARED_GID=1010
+ARG WEB_HOME=/usr/share/web
+ARG WEB_DIRS_TO_MAKE=.
+ARG STATICFILES_DIR=/usr/share/web/volumes/www/static
 
-RUN pip install --upgrade pip
+USER 0
 
-RUN apk add --no-cache curl
-RUN mkdir -p /etc/container-init.d ${STATICFILES_DIR}
+WORKDIR ${WEB_HOME}
 
-COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
+RUN --mount=type=bind,source=./tools/requirements.txt,target=./requirements.txt <<EOF
+apk add --update --no-cache dumb-init curl shadow
+useradd --uid ${WEB_UID} --user-group -m --no-log-init --home-dir ${WEB_HOME} --shell /bin/sh --comment "container's rootless user" web
+addgroup -g ${SHARED_GID} transcendance
+addgroup web transcendance
+mkdir -p ${WEB_DIRS_TO_MAKE}
+chmod 700 ${WEB_HOME} ${WEB_HOME}/container-init.d ${WEB_HOME}/volumes
+chmod 770 ${STATICFILES_DIR}
+chown -R ${WEB_UID}:${SHARED_GID} ${WEB_HOME}
+pip install -r ./requirements.txt
+EOF
 
-COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
+COPY --chown=${WEB_UID}:${WEB_GID} --chmod=700 ./tools/script.sh ${WEB_HOME}/container-init.d
+COPY --chown=${WEB_UID}:${WEB_GID} --chmod=770 ./srcs/ ${WEB_HOME}/apps
 
-RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
+WORKDIR ${WEB_HOME}/apps
 
-COPY ./srcs/ .
+USER ${WEB_UID}
 
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/usr/share/web/container-init.d/script.sh" ]
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-CMD [ "/etc/container-init.d/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

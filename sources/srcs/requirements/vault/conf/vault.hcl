@@ -1,7 +1,7 @@
 api_addr				= "https://localhost:8200"
 cluster_addr			= "https://localhost:8201"
 cluster_name			= "transcendance-vault-cluster"
-// disable_mlock			= true
+disable_mlock			= true #TODO: disable if possible as the container should lock memory to prevent sensitive values from being swapped to disk
 ui						= true
 default_lease_ttl		= "168h"
 max_lease_ttl			= "720h"

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# tail -f /dev/null
 if	! test -e $HEALTHFLAG_FILE
 then
 
@@ -9,7 +10,4 @@ then
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
 
-# gunicorn web.wsgi
-# python manage.py runserver 0.0.0.0:8000
 $WEB_ENTRYPOINT
-# tail -f /dev/null

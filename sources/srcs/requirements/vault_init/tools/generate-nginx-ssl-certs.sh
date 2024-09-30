@@ -62,23 +62,23 @@ enable_nginx_pki_engine () {
 #######################################
 
 request_nginx_certificate () {
-	mkdir -p /nginx/certs/ca
+	mkdir -p $VAULT_HOME/volumes/nginx/certs/ca
 
 	echo -e "\nNginx SSL Certificate - creating..."
-	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output /nginx/certs/ca/root_ca.crt
+	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output $VAULT_HOME/volumes/nginx/certs/ca/root_ca.crt
 	vault write -format=json nginx/issue/nginx_intermediate_ca_role \
 		common_name="transcendance.fr" \
 		alt_names="$MODSEC_ALT_NAMES" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \
-		>(jq -r .data.certificate > /nginx/certs/nginx.crt) \
-		>(jq -r .data.issuing_ca > /nginx/certs/ca/ca.crt) \
-		>(jq -r .data.private_key > /nginx/certs/nginx.key) \
+		>(jq -r .data.certificate > $VAULT_HOME/volumes/nginx/certs/nginx.crt) \
+		>(jq -r .data.issuing_ca > $VAULT_HOME/volumes/nginx/certs/ca/ca.crt) \
+		>(jq -r .data.private_key > $VAULT_HOME/volumes/nginx/certs/nginx.key) \
 		> /dev/null
-	cat /nginx/certs/ca/ca.crt >> /nginx/certs/nginx.crt
-	cat /nginx/certs/ca/root_ca.crt >> /nginx/certs/nginx.crt
-	if [ -s /nginx/certs/nginx.crt ] || [ -s /nginx/certs/nginx.key ]; then
+	cat $VAULT_HOME/volumes/nginx/certs/ca/ca.crt >> $VAULT_HOME/volumes/nginx/certs/nginx.crt
+	cat $VAULT_HOME/volumes/nginx/certs/ca/root_ca.crt >> $VAULT_HOME/volumes/nginx/certs/nginx.crt
+	if [ -s $VAULT_HOME/volumes/nginx/certs/nginx.crt ] || [ -s $VAULT_HOME/volumes/nginx/certs/nginx.key ]; then
 		echo -e "Nginx SSL Certificate - done!"
 	else
 		echo -e "Nginx SSL Certificate - creation went wrong!"

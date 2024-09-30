@@ -1,18 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: nibernar <nibernar@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-<<<<<<< HEAD
-#    Updated: 2024/09/04 17:16:03 by jm               ###   ########lyon.fr    #
-=======
-#    Updated: 2024/08/02 14:06:03 by nibernar         ###   ########.fr        #
->>>>>>> origin/dbaule
-#                                                                              #
-# **************************************************************************** #
 
 ENV :=./srcs/.env
 COMPOSE_FILE= ./srcs/docker-compose.yml 
@@ -55,17 +40,17 @@ s stop : # Stop services
 rm remove : # Removes stopped service containers
 	-docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
-	-docker rmi $$(docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
+	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
-	-yes | docker volume prune
-	-rm -rf $(PATHTO_WEBAPPS_DATA)*
+	-sudo docker volume prune -f
+	-sudo rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
 
 cleanv cv : # clean all volumes
-	-yes | docker volume prune
-	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
+	-sudo docker volume prune -f
+	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-yes | docker system prune
