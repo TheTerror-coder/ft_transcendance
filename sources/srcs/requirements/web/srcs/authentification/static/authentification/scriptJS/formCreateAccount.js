@@ -43,7 +43,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
             // var tgben = hashStringSHA256(email);
             // hashStringSHA256(email).then(hashed);
 
-            console.log(registerURL);
+            console.log("slt", registerURL);
             fetch(registerURL, {
                 method: 'POST',
                 headers: {
@@ -57,7 +57,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                     'email': email,
                 }),
             })
-            refreshPage();
+            refreshHomePage();
         }
         else {
             alert('Passwords do not match. Please try again.');

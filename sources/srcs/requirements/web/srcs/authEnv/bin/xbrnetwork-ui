@@ -1,4 +1,4 @@
-#!/home/nibernar/Documents/github/ft_transcendance/sources/srcs/requirements/web/srcs/authEnv/bin/python3
+#!/Users/nicolasbernard/Documents/GitHub/ft_transcendance/sources/srcs/requirements/web/srcs/authEnv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
