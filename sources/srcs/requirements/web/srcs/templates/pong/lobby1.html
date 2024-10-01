@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Lobby du jeu Pong</title>
+    <link rel="stylesheet" href="{% static 'pong/css/lobby1.css' %}">
+</head>
+<body>
+    <div id="lobby">
+        <label for="numPlayersPerTeam">Nombre de joueurs par équipe:</label>
+        <select id="numPlayersPerTeam">
+            <option value="1">1</option>
+            <option value="2">2</option>
+        </select>
+        <button id="createGame">Créer une partie</button>
+        <input type="text" id="gameCodeInput" placeholder="Entrer le code de la partie">
+        <button id="joinGame">Rejoindre une partie</button>
+
+        <div id="gameOptions" style="display:none;">
+            <h2>Choisissez votre équipe et rôle</h2>
+            <select id="teamsSelect">Team</select>
+            <select id="rolesSelect">Role</select>
+            <input type="text" id="userName" placeholder="Entrer votre nom">
+            <button id="confirmChoices">Confirmer</button>
+            <button id="startGame" style="display:none;">Lancer la partie</button>
+        </div>
+    </div>
+
+    <div id="team1List" class="teamList">Team 1</div>
+    <div id="team2List" class="teamList">Team 2</div>
+    <button id="launchGame" class="launchGame" style="display:none;">Lancer la partie</button>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="{% static 'pong/lobby.js' %}"></script>
+</body>
+</html>
