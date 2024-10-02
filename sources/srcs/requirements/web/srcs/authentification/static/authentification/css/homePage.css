@@ -76,7 +76,7 @@
     color: transparent;
     font-size: 600%;
     font-family: onePieceFont;
-    -webkit-text-stroke: 1px rgb(255, 255, 255);
+    -webkit-text-stroke: 0.5px rgb(255, 255, 255);
     font-weight: 700;
     padding: 70px;
     z-index: 3;

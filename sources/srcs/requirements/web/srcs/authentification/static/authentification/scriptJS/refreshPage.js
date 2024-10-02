@@ -14,6 +14,7 @@ function refreshPage()
     buttonConnectionAPI42.style.display = 'block';
     buttonConnec.style.display = 'block';
     buttonCreateAccount.style.display = 'block';
+    loginPage.style.display = 'block';
 }
 
 function refreshLoginPage()
@@ -54,47 +55,9 @@ function checkPoint()
 {
     window.location.hash = "#homepage";
     // Save this in localStorage as a checkpoint
-    localStorage.setItem('lastSection', '#homepage');
+    localStorage.setItem('activeSection', '#homepage');
+    console.log(window.location.pathname);
     // deleteAllCookies();
 
 }
 
-
-
-    // Scroll to the last saved section on page load
-window.addEventListener('load', function() {
-    const lastSection = localStorage.getItem('lastSection');
-    if (lastSection) {
-        window.location.hash = lastSection;
-    }
-});
-
-
-window.addEventListener('beforeunload', function (e) 
-{
-    const lastSection = localStorage.getItem('lastSection');
-    console.log(lastSection + "c'est cehlou");
-    if (lastSection) {
-        console.log("LOL");
-        window.location.hash = lastSection;
-    }
-
-    // Delete all cookies
-    deleteAllCookies();
-    
-    // Log to console (note: this might not be visible due to page unload)
-    console.log("All cookies deleted");
-
-    // Uncomment the next line if you want to show a confirmation dialog
-    e.returnValue = 'Are you sure you want to leave?';
-});
-
-function deleteAllCookies() {
-    let cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i];
-        let eqPos = cookie.indexOf("=");
-        let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-    }
-}

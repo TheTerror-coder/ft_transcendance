@@ -3,22 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nibernar <nibernar@student.42.fr>          +#+  +:+       +#+         #
+#    By: dbaule <dbaule@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-<<<<<<< HEAD
-<<<<<<< HEAD
-#    Updated: 2024/09/05 18:07:25 by nibernar         ###   ########.fr        #
-=======
-<<<<<<< HEAD
-#    Updated: 2024/09/04 17:16:03 by jm               ###   ########lyon.fr    #
-=======
-#    Updated: 2024/08/02 14:06:03 by nibernar         ###   ########.fr        #
->>>>>>> origin/dbaule
->>>>>>> dbaule
-=======
-#    Updated: 2024/08/02 14:06:03 by nibernar         ###   ########.fr        #
->>>>>>> origin/dbaule
+#    Updated: 2024/10/02 18:39:17 by dbaule           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
