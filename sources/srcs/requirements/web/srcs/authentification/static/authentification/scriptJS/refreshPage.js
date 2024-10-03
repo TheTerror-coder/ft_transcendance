@@ -31,18 +31,20 @@ function refreshLoginPage()
 
 function refreshHomePage()
 {
-    checkPoint();
+    // checkPoint();
     background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
     loginButton.style.display = 'none';
     woodPresentation.style.display = 'none';
     flag.className = "homepageFlag";
     flag.id = 'homepageFlag';
+    rebeccaImg.style.display = 'block';
+    friendButton.style.display = 'flex';
 
     let englandFlagImg = document.querySelector("#englandFlagImg");
     englandFlagImg.className = "englandFlag";
     englandFlag.style.marginRight = "-0.01px";
     
-    homePage.style.display = 'block';
+    homePage.style.display = 'flex';
     centerHomepage.style.display = 'flex';
 }
 

@@ -40,6 +40,16 @@
     display: none;
 }
 
+.captainButton
+{
+    display: none;
+}
+
+.gunnerButton
+{
+    display: none;
+}
+
 .lobbyRapidPlay
 {
     /* display: none; */
@@ -51,12 +61,8 @@
     padding: 200%;
 }
 
-.captainButton
+.lobbyDisplayRapidPlayOnePlayer
 {
-    display: none;
-}
-
-.gunnerButton
-{
-    display: none;
+    display: block;
+    z-index: 5;
 }

@@ -3,14 +3,12 @@
     src: url(http://127.0.0.1:8000/../static/authentification/wantedFont.ttf);
 }
 
-
 .friendButton
 {
-    display: flex;
+    display: none;
     justify-content: flex-end;
-    position: fixed;
-    right: 20px;
-    bottom: 0px;
+    margin-top: -120px;
+    margin-right: 23.78px;
     opacity: 70%;
     transition: all 0.5s;
 }
@@ -26,8 +24,8 @@
     min-height: 182px;
     max-width: 243px;
     max-height: 182px;
-    margin-bottom: 65px;
     margin-right: -5px;
+    margin-top: 50px;
 }
 
 
@@ -36,14 +34,20 @@
     background-image: url('../../../media/photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
+    opacity: 90%;
+}
+
+.wantedProfile:hover
+{
+    opacity: 100%;
 }
 
 .wantedProfile p
 {
     font-family: wantedFont;
     font-size: 200%;
-    margin-top: 25px;
-    margin-bottom: -5px;
+    margin-top: 32px;
+    margin-bottom: -2px;
     margin-left: 10px;
     margin-right: 10px;
     text-align: center;
@@ -86,7 +90,7 @@
 {
     flex-grow: 1;
     display: flex;
-    margin-right: -300px;
+    margin-left: -300.16px;
     justify-content: center;
     background-image: url('../../../media/photos/picturePng/homePage/Logo_One_Piece.png');
     align-items: center;
@@ -102,16 +106,15 @@
     width: 100%;
     display: none;
     align-items: center; /* Center vertically */
-    margin-top: 250px;
     z-index: 2;
     /* background-size: cover; */
-
 }
 
 
 .homePage
 {
     display: none;
+    /* justify-content: space-between; */
 }
 
 
@@ -164,4 +167,18 @@
     background-position: center;
     background-size: cover;
     padding: 30%;
+}
+
+.rebeccaImg
+{
+    display: none;
+    max-height: 1067px;
+}
+.rebecca
+{
+    /* width: 200px; */
+    /* background-color: #f0f0f0; */
+    /* padding: 20px; */
+    box-sizing: border-box;
+    margin-top: -60px;
 }

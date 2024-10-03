@@ -48,6 +48,4 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             alert('Some of the required information is not complete.');
         })
     }
-        
-        
 });

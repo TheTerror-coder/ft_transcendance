@@ -14,10 +14,12 @@
 
     </head>
     <body class="background" id="background">
-        <div class="flag" id="flag">
-            <button id="englandFlag"><img src="../media/photos/picturePng/loginPage/drapeau/angleterre.png" alt="England Flag" style="margin-right: -4px;" id="englandFlagImg"></button>
-            <button id="spainFlag"><img src="../media/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
-            <button id="franceFlag"><img src="../media/photos/picturePng/loginPage/drapeau/France.png" alt="France Flag"></button>
+        <div class="headPage">
+            <div class="flag" id="flag">
+                <button id="englandFlag"><img src="../media/photos/picturePng/loginPage/drapeau/angleterre.png" alt="England Flag" style="margin-right: -4px;" id="englandFlagImg"></button>
+                <button id="spainFlag"><img src="../media/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
+                <button id="franceFlag"><img src="../media/photos/picturePng/loginPage/drapeau/France.png" alt="France Flag"></button>
+            </div>
         </div>
         <div class="loginPage" id="loginPage">
 
@@ -60,8 +62,10 @@
                     </form>
                 </div>
         </div>
-        </div>
         <div class="homePage" id="homePage">
+            <div class="rebecca" id="rebecca">
+                <img src="../media/photos/picturePng/homePage/rebecca.png" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
+            </div>
             <div class="centerHomepage" id="centerHomepage">
                 <div class="playButton" id="playButton">
                     <button class="playImg" id="playButtonImg">PLAY</button>
@@ -99,7 +103,7 @@
                     <span>10.000</span>
                 </button>
             </div>
-            <div class="friendButton">
+            <div class="friendButton" id="friendButton">
                 <button id="buttonFriend"><img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
             </div>
         </div>
@@ -110,7 +114,7 @@
                     <p>WANTED</p>
                 </div>
                 <div class="lobbyDisplayRapidPlayTwoPlayer" id="lobbyDisplayRapidPlayTwoPlayer">
-
+                    <p> TEST </p>
                 </div>
             </div>
         </video>
@@ -118,21 +122,6 @@
             var registerURL = '{% url 'register' %}';
             var loginURL = '{% url 'login' %}';
             var addFriendURL = '{% url 'add_friend' %}'
-
-            
-            function showSection(sectionId) 
-            {
-                // Sauvegarder l'état dans le localStorage
-                localStorage.setItem('activeSection', sectionId);
-            }
-
-            function restoreSection() 
-            {
-                const activeSection = localStorage.getItem('activeSection') || 'homePage'; // Section par défaut
-                console.log(activeSection);
-                showSection(activeSection);
-            }
-            window.onload = restoreSection;
         </script>
         <script src="../static/authentification/scriptJS/variablesLoginPage.js"></script>
         <script src="../static/authentification/scriptJS/variablesHomePage.js"></script>

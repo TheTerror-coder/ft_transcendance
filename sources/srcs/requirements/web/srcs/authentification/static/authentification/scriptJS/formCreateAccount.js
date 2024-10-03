@@ -10,7 +10,6 @@ function createAnAccount()
         buttonConnectionAPI42.style.display = 'none';
         buttonConnec.style.display = 'none';
         buttonCreateAccount.style.display = 'none';
-
         createAccountChange.style.display = 'flex'; 
     }
 }

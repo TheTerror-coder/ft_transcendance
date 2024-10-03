@@ -1,0 +1,167 @@
+@font-face {
+    font-family: wantedFont;
+    src: url(http://127.0.0.1:8000/../static/authentification/wantedFont.ttf);
+}
+
+
+.friendButton
+{
+    display: flex;
+    justify-content: flex-end;
+    position: fixed;
+    right: 20px;
+    bottom: 0px;
+    opacity: 70%;
+    transition: all 0.5s;
+}
+
+.friendButton:hover
+{
+    opacity: 100%;
+}
+
+.profilePicture
+{
+    min-width: 243px;
+    min-height: 182px;
+    max-width: 243px;
+    max-height: 182px;
+    margin-bottom: 65px;
+    margin-right: -5px;
+}
+
+
+.wantedProfile
+{
+    background-image: url('../../../media/photos/picturePng/homePage/Wanted_connexion.png');
+    width: 302px;
+    height: 442px;
+}
+
+.wantedProfile p
+{
+    font-family: wantedFont;
+    font-size: 200%;
+    margin-top: 25px;
+    margin-bottom: -5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    color: #493B3A;
+    font-weight: 700;
+    opacity: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wantedProfile span
+{
+    font-family: wantedFont;
+    font-size: 165%;
+    opacity: 85%;
+    color: #493B3A;
+}
+
+
+.playImg
+{
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+    justify-content: center;
+    background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
+    background-clip: text;
+    color: transparent;
+    font-size: 600%;
+    font-family: onePieceFont;
+    -webkit-text-stroke: 0.5px rgb(255, 255, 255);
+    font-weight: 700;
+    padding: 70px;
+    z-index: 3;
+}
+
+.playButton
+{
+    flex-grow: 1;
+    display: flex;
+    margin-right: -300px;
+    justify-content: center;
+    background-image: url('../../../media/photos/picturePng/homePage/Logo_One_Piece.png');
+    align-items: center;
+    background-position: center;
+    padding: 10px 20px;
+    background-repeat: no-repeat;
+    margin-top: -50px;
+}
+
+.centerHomepage
+{
+    justify-content: space-between;
+    width: 100%;
+    display: none;
+    align-items: center; /* Center vertically */
+    margin-top: 250px;
+    z-index: 2;
+    /* background-size: cover; */
+
+}
+
+
+.homePage
+{
+    display: none;
+}
+
+
+
+.homepageFlag
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+#homepageFlag button
+{
+    /* float: right; */
+    /* margin-right: 0%; */
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+}
+
+#homepageFlag button img
+{
+    height: 100%;
+    width: auto;
+}
+
+.englandFlag
+{
+    transform: scale(1.2);
+}
+
+.playDisplay
+{
+    display: none;
+    background-color: rgb(255,255,255, 0.7);
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    flex-direction: column;
+}
+
+.playDisplay p
+{
+    font-size: 300%;
+}
+
+.rapidPlay
+{
+    background-image: url('../../../media/photos/picturePng/homePage/Kizaru.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 30%;
+}
