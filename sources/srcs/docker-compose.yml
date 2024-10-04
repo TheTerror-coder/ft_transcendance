@@ -36,12 +36,18 @@ services:
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - web_certs:${VAULT_HOME}/volumes/web/certs
     secrets:
-      - root_access_token
-      - secret_access_token
-      - password_policy_json
-      - secret_access_policy_json
-      - pki_access_policy_json
-      - pki_access_token
+      - source: root_access_token
+        target: ${VAULT_HOME}/secrets/root_access_token
+      - source: secret_access_token
+        target: ${VAULT_HOME}/secrets/secret_access_token
+      - source: password_policy_json
+        target: ${VAULT_HOME}/secrets/password_policy_json
+      - source: secret_access_policy_json
+        target: ${VAULT_HOME}/secrets/secret_access_policy_json
+      - source: pki_access_policy_json
+        target: ${VAULT_HOME}/secrets/pki_access_policy_json
+      - source: pki_access_token
+        target: ${VAULT_HOME}/secrets/pki_access_token
     networks:
       - transcendance
     healthcheck:
@@ -113,6 +119,7 @@ services:
         - SHARED_GID=${SHARED_GID}
         - POSTGRES_DIRS_TO_MAKE=${POSTGRES_DIRS_TO_MAKE}
     environment:
+      - POSTGRES_HOME=${POSTGRES_HOME}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
@@ -121,7 +128,8 @@ services:
     volumes:
       - vault_certs:${POSTGRES_HOME}/volumes/vault/certs
     secrets:
-      - secret_access_token
+      - source: secret_access_token
+        target: ${POSTGRES_HOME}/secrets/secret_access_token
     healthcheck: #&file_healthcheck
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
       start_period: 10s
@@ -153,6 +161,7 @@ services:
         - WEB_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
         - STATICFILES_DIR=${WEB_STATICFILES_DIR}
     environment:
+      - WEB_HOME=${WEB_HOME}
       - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -169,7 +178,8 @@ services:
       - vault_certs:${WEB_HOME}/volumes/vault/certs
       - web_certs:${WEB_SSL_DIR}
     secrets:
-      - secret_access_token
+      - source: secret_access_token
+        target: ${WEB_HOME}/secrets/secret_access_token
     healthcheck: #*file_healthcheck
       test:
         [

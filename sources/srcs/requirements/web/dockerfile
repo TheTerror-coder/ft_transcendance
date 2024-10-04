@@ -21,9 +21,11 @@ useradd --uid ${WEB_UID} --user-group -m --no-log-init --home-dir ${WEB_HOME} --
 addgroup -g ${SHARED_GID} transcendance
 addgroup web transcendance
 mkdir -p ${WEB_DIRS_TO_MAKE}
-chmod 700 ${WEB_HOME} ${WEB_HOME}/container-init.d ${WEB_HOME}/volumes
-chmod 770 ${STATICFILES_DIR}
+chmod 0700 ${WEB_HOME} ${WEB_HOME}/container-init.d ${WEB_HOME}/volumes
+chmod 0770 ${STATICFILES_DIR}
+chmod 1500 ${WEB_HOME}/secrets
 chown -R ${WEB_UID}:${SHARED_GID} ${WEB_HOME}
+chown ${WEB_UID}:${WEB_GID} ${WEB_HOME}/secrets
 pip install -r ./requirements.txt
 EOF
 

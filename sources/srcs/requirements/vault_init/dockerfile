@@ -19,8 +19,10 @@ addgroup -g ${SHARED_GID} transcendance
 addgroup vault transcendance
 apk add --update --no-cache curl jq openssl
 mkdir -p ${VAULT_INIT_DIRS_TO_MAKE}
-chmod 700 ${VAULT_HOME} ${VAULT_HOME}/container-init.d
+chmod 0700 ${VAULT_HOME} ${VAULT_HOME}/container-init.d
+chmod 1500 ${VAULT_HOME}/secrets
 chown -R ${VAULT_UID}:${SHARED_GID} ${VAULT_HOME}
+chown ${VAULT_UID}:${VAULT_GID} ${VAULT_HOME}/secrets
 EOF
 
 COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 ./tools/script.sh ./container-init.d/script.sh

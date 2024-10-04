@@ -19,8 +19,10 @@ addgroup -g ${SHARED_GID} transcendance
 addgroup postgres transcendance
 apk add --update --no-cache dumb-init curl jq
 mkdir -p ${POSTGRES_DIRS_TO_MAKE}
-chmod 700 ${POSTGRES_HOME} ${POSTGRES_HOME}/container-init.d ${POSTGRES_HOME}/volumes
+chmod 0700 ${POSTGRES_HOME} ${POSTGRES_HOME}/container-init.d ${POSTGRES_HOME}/volumes
+chmod 1500 ${POSTGRES_HOME}/secrets
 chown -R ${POSTGRES_UID}:${SHARED_GID} ${POSTGRES_HOME}
+chown ${POSTGRES_UID}:${POSTGRES_GID} ${POSTGRES_HOME}/secrets
 EOF
 
 COPY --chown=${POSTGRES_UID}:${POSTGRES_GID} --chmod=700 ./tools/script.sh ${POSTGRES_HOME}/container-init.d
