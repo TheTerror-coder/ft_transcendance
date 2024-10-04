@@ -38,9 +38,9 @@ enable_secret_kv_engine () {
 
 create_policies () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @/run/secrets/password_policy_json https://vault_c:8200/v1/sys/policies/password/password_policy >> /dev/null
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @/run/secrets/secret_access_policy_json https://vault_c:8200/v1/sys/policy/secret_access_policy >> /dev/null
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @/run/secrets/pki_access_policy_json https://vault_c:8200/v1/sys/policy/pki_access >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/password_policy_json https://vault_c:8200/v1/sys/policies/password/password_policy >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/secret_access_policy_json https://vault_c:8200/v1/sys/policy/secret_access_policy >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/pki_access_policy_json https://vault_c:8200/v1/sys/policy/pki_access >> /dev/null
 }
 
 #######################################
@@ -48,9 +48,9 @@ create_policies () {
 #######################################
 
 create_tokens () {
-	vault token create -id $(cat /run/secrets/root_access_token) >> /dev/null # TODO remove in production, better get rid of root tokens for security matter
-	vault token create -id $(cat /run/secrets/secret_access_token) -policy='secret_access_policy' >> /dev/null
-	vault token create -id $(cat /run/secrets/pki_access_token) -policy='pki_access' >> /dev/null
+	vault token create -id $(cat $VAULT_HOME/secrets/root_access_token) >> /dev/null # TODO remove in production, better get rid of root tokens for security matter
+	vault token create -id $(cat $VAULT_HOME/secrets/secret_access_token) -policy='secret_access_policy' >> /dev/null
+	vault token create -id $(cat $VAULT_HOME/secrets/pki_access_token) -policy='pki_access' >> /dev/null
 }
 
 #######################################
