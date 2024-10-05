@@ -53,7 +53,7 @@ cleanv cv : # clean all volumes
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
-	-yes | docker system prune
+	-docker system prune -f
 reset : clean all
 freset : fclean all
 
