@@ -22,7 +22,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
             },
             body: new URLSearchParams({
                 'username': username,
@@ -36,41 +36,43 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                 alert('connecting...');
                 socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");
                 socket.onmessage = function(event) {
-                    console.log('Message received:', event.data);  // Log pour vérifier la réception du message
                     var data = JSON.parse(event.data);
                     if (data.type === 'invitation') {
                         console.log("Received invitation:", data);
 
-                        // Créez les boutons d'acceptation et de rejet
-                        var acceptButton = document.createElement('button');
-                        acceptButton.textContent = 'Accept';
-                        acceptButton.onclick = function() {
-                            socket.send(JSON.stringify({
-                                type: 'response.invitation',
-                                response: 'accept',
-                                friend_request_id: data.friend_request_id
-                            }));
-                        };
-
-                        var rejectButton = document.createElement('button');
-                        rejectButton.textContent = 'Reject';
-                        rejectButton.onclick = function() {
-                            socket.send(JSON.stringify({
-                                type: 'response.invitation',
-                                response: 'reject',
-                                friend_request_id: data.friend_request_id
-                            }));
-                        };
-
-                        document.body.appendChild(acceptButton);
-                        document.body.appendChild(rejectButton);
+                        Swal.fire({
+                            title: 'Friend Invitation',
+                            text: `You have received a friend invitation from ${data.from}.`,
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'Accept',
+                            cancelButtonText: 'Reject',
+                            confirmButtonColor: 'green',
+                            cancelButtonColor: 'red',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                socket.send(JSON.stringify({
+                                    type: 'response.invitation',
+                                    response: 'accept',
+                                    friend_request_id: data.friend_request_id
+                                }));
+                            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                socket.send(JSON.stringify({
+                                    type: 'response.invitation',
+                                    response: 'reject',
+                                    friend_request_id: data.friend_request_id
+                                }));
+                            }
+                        });
                     }
                 };
-                refreshHomePage();
+                refreshHomePage(data);
             }
             else
-                alert('Some of the required information is not complete.');
-            })
+            {
+                if (data.status == "error")
+                    alert(data.msgError);
+            }})
     }    
 });
 
@@ -83,8 +85,8 @@ function sendInvitation(username) {
     }));
 }
 
-// Exemple d'utilisation de la fonction sendInvitation
-document.getElementById('sendInvitationButton').onclick = function() {
+
+document.getElementById('submitFriendButton').onclick = function() {
     var username = document.getElementById('usernameAddFriend').value;
     sendInvitation(username);
 };

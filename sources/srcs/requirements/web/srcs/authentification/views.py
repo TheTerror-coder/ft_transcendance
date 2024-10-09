@@ -1,37 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.urls import reverse
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_exempt
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from authentification.consumers.consumers import user_sockets
 
 # envoyer un msg si meme email et ne pas rediriger sur home une fois register
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('login')})
+            return JsonResponse({'status': 'success'})
         else:
-            return JsonResponse({'errors': form.errors}, status=400)
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
 def connect(request):
     return render(request, 'base.html')
 
-def home(request):
-    return render(request, 'home.html')
-
+@csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -40,21 +38,19 @@ def login_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
+                if user.username in user_sockets:
+                    return JsonResponse({'status': 'error', 'msgError': f'user: {request.user.username} is already connected!'}, status=400)
                 login(request, user)
-                return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
+                return JsonResponse({'status': 'success', 'username': user.username})
             else:
-                return JsonResponse({'errors': form.errors}, status=400)
+                return JsonResponse({'status': 'error', 'msgError': form.errors}, status=400)
         else:
-            return JsonResponse({'errors': form.errors}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+            return JsonResponse({'status': 'error', 'msgError': form.errors}, status=400)
+    return JsonResponse({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
 def logout_view(request):
     logout(request)
     return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
-
-@login_required
-def profile(request):
-    return render(request, 'profile.html', {'user': request.user})
 
 @login_required
 def update_profile(request):
@@ -102,12 +98,12 @@ def send_friend_request(request):
                     'message': "Vous ne pouvez pas vous ajouter vous-même comme ami."
                 }
                 return JsonResponse(response)
-            # elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
-            #     response = {
-            #         'status': 'error',
-            #         'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
-            #     }
-            #     return JsonResponse(response)
+            elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
+                response = {
+                    'status': 'error',
+                    'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
+                }
+                return JsonResponse(response)
             else:
                 friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user, status='PENDING')
                 response = {

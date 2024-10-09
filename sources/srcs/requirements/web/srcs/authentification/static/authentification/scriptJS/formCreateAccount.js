@@ -2,7 +2,6 @@
 // buttonConnectionAPI42.onclick = connectAPI42;
 buttonCreateAccount.onclick = createAnAccount;
 
-
 function createAnAccount()
 {
     if (flagSelected === "en")
@@ -37,18 +36,17 @@ document.getElementById('formAccount').addEventListener('submit', function(event
         // faire un parsing
         if (password === confirmPassword) // verif s'il n'existe pas deja dans la base de donnee
         {
-            alert('Form is valid and passwords match! Submitting...');
             // Uncomment the line below to actually submit the form
             // this.submit();
             // var tgben = hashStringSHA256(email);
             // hashStringSHA256(email).then(hashed);
-
+            
             console.log("slt", registerURL);
             fetch(registerURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                 },
                 body: new URLSearchParams({
                     'username': username,
@@ -57,7 +55,29 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                     'email': email,
                 }),
             })
-            refreshHomePage();
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    alert('Form is valid and passwords match! Submitting...');
+                    connecting(username, password);
+                } 
+                else if (data.status === 'error') {
+                    if (typeof data.errors === 'object') {
+                        let errorMessages = '';
+                        for (let key in data.errors) {
+                            if (data.errors.hasOwnProperty(key)) {
+                                errorMessages += `${key}: ${data.errors[key]}\n`;
+                            }
+                        }
+                        alert(errorMessages);
+                        console.log("Errors:", errorMessages);
+                    } else {
+                        alert(data.errors);
+                        console.log("Errors:", data.errors);
+                    }
+                }
+            });
         }
         else {
             alert('Passwords do not match. Please try again.');
@@ -88,8 +108,4 @@ function parsingCreateAccount(username, email, password, confirmPassword)
         checker++;
     if (password != confirmPassword)
         checker += 10;
-    
-
-
-    // alert()
 }

@@ -37,5 +37,6 @@ class FriendRequest(models.Model):
         self.to_user.friend_list.add(self.from_user)
 
     def decline(self):
+        print("decline")
         self.status = 'DECLINED'
         self.save()

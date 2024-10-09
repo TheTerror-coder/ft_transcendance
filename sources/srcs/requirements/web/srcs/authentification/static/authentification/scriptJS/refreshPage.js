@@ -16,7 +16,7 @@ function refreshPage()
     buttonCreateAccount.style.display = 'block';
 }
 
-function refreshHomePage()
+function refreshHomePage(data)
 {
     background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
     loginButton.style.display = 'none';
@@ -30,6 +30,10 @@ function refreshHomePage()
     
     homePage.style.display = 'block';
     centerHomepage.style.display = 'flex';
+    let usernameElement = document.querySelector("#usernameDisplay");
+    if (usernameElement) {
+        usernameElement.textContent = `${data.username}`;
+    }
 }
 
 
