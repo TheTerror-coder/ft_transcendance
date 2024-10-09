@@ -9,11 +9,12 @@ ARG MODSEC_AUDIT_LOG_DIR=/var/log
 ARG NGINX_LOG_FILES=/var/log/access.log
 ARG MODSEC_HOME=/usr/share/nginx
 ARG NGINX_STATICFILES_DIR=${MODSEC_HOME}/volumes/www/static
-ARG MODSEC_UID=101
-ARG MODSEC_GID=101
+ARG NGINX_UID=101
+ARG NGINX_GID=101
 ARG SHARED_GID=1010
 ARG MODSEC_DIRS_TO_MAKE=.
 ARG MODSEC_LOGS_ROOT=/var/log
+ARG REVERSEPROXY_CONF_FILE=./conf/web.conf.template
 
 USER 0
 
@@ -27,16 +28,19 @@ mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
 touch ${NGINX_LOG_FILES}
 chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes
 chmod 770 ${NGINX_STATICFILES_DIR}
-chown -R ${MODSEC_UID}:${SHARED_GID} ${MODSEC_HOME}
+chown -R ${NGINX_UID}:${SHARED_GID} ${MODSEC_HOME}
 find ${MODSEC_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
-find ${MODSEC_LOGS_ROOT} -type f -exec chown ${MODSEC_UID}:${SHARED_GID} \{\} \;
+find ${MODSEC_LOGS_ROOT} -type f -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;
 find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
-find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chown ${MODSEC_UID}:${SHARED_GID} \{\} \;
+find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;
 EOF
 
-COPY --chown=${MODSEC_UID}:${MODSEC_GID} ./templates/404.html ${MODSEC_HOME}/html/
+COPY --chown=${NGINX_UID}:${NGINX_GID}  ./templates/404.html ${MODSEC_HOME}/html/
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ${REVERSEPROXY_CONF_FILE} /etc/nginx/templates/conf.d/default.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/location_common.conf.template /etc/nginx/templates/includes/location_common.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/logging.conf.template /etc/nginx/templates/conf.d/logging.conf.template
 
-USER ${MODSEC_UID}
+USER ${NGINX_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]

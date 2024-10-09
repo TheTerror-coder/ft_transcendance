@@ -48,9 +48,9 @@ create_policies () {
 #######################################
 
 create_tokens () {
-	vault token create -id $(cat $VAULT_HOME/secrets/root_access_token) >> /dev/null # TODO remove in production, better get rid of root tokens for security matter
-	vault token create -id $(cat $VAULT_HOME/secrets/secret_access_token) -policy='secret_access_policy' >> /dev/null
-	vault token create -id $(cat $VAULT_HOME/secrets/pki_access_token) -policy='pki_access' >> /dev/null
+	vault token create -id $ROOT_ACCESS_TOKEN >> /dev/null # TODO remove in production, better get rid of root tokens for security matter
+	vault token create -id $SECRET_ACCESS_TOKEN -policy='secret_access_policy' >> /dev/null
+	vault token create -id $PKI_ACCESS_TOKEN -policy='pki_access' >> /dev/null
 }
 
 #######################################

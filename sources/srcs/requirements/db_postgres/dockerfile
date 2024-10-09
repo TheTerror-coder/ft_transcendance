@@ -25,7 +25,7 @@ chown -R ${POSTGRES_UID}:${SHARED_GID} ${POSTGRES_HOME}
 chown ${POSTGRES_UID}:${POSTGRES_GID} ${POSTGRES_HOME}/secrets
 EOF
 
-COPY --chown=${POSTGRES_UID}:${POSTGRES_GID} --chmod=700 ./tools/script.sh ${POSTGRES_HOME}/container-init.d
+COPY --chown=${POSTGRES_UID}:${POSTGRES_GID} --chmod=700 ./tools/script.sh ${POSTGRES_HOME}/container-init.d/
 COPY --chown=${POSTGRES_UID}:${POSTGRES_GID} --chmod=644 ./conf/pg_hba.conf /usr/local/share/postgresql/pg_hba.conf.sample
 COPY --chown=${POSTGRES_UID}:${POSTGRES_GID} --chmod=644 ./conf/postgresql.conf /usr/local/share/postgresql/postgresql.conf.sample
 
