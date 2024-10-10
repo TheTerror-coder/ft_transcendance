@@ -27,6 +27,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 
         const email = document.getElementById('createEmail').value;
         const username = document.getElementById('createUser').value;
+        const picture = document.getElementById('createPicture').value;
         const password = document.getElementById('createPassword').value;
         const confirmPassword = document.getElementById('createConfirmPassword').value;
         
@@ -50,6 +51,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                 },
                 body: new URLSearchParams({
                     'username': username,
+                    'photo': picture,
                     'password1': password,
                     'password2': confirmPassword,
                     'email': email,

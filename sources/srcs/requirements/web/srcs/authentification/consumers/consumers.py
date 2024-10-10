@@ -37,7 +37,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive(self, text_data=None):
         text_data_json = json.loads(text_data)
-        print("Received message:", text_data_json)
 
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])
@@ -64,7 +63,10 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 'friend_request_id': friend_request.id
             }
 
-            user_room_group_name = f"friend_invite_{user.id}"
+            user_room_group_name = f"friend_invite_{username}"
+            print("user =", username)
+            print(f"Room group name:", user_room_group_name)
+            print(f"Room group nameMe:", self.room_group_name)
             await self.channel_layer.group_send(
                 user_room_group_name,
                 {

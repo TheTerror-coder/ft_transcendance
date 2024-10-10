@@ -9,8 +9,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.urls import reverse
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_exempt
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+# from channels.layers import get_channel_layer
+# from asgiref.sync import async_to_sync
 from authentification.consumers.consumers import user_sockets
 
 # envoyer un msg si meme email et ne pas rediriger sur home une fois register
