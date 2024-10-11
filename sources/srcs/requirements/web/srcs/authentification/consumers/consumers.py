@@ -63,7 +63,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 'friend_request_id': friend_request.id
             }
 
-            user_room_group_name = f"friend_invite_{username}"
+            user_room_group_name = f"friend_invite_{user.id}"
             print("user =", username)
             print(f"Room group name:", user_room_group_name)
             print(f"Room group nameMe:", self.room_group_name)

@@ -1,3 +1,4 @@
+
 var socket
 
 buttonConnec.onclick = putFormConnect;
@@ -9,6 +10,7 @@ function putFormConnect()
     buttonCreateAccount.style.display = 'none';
     formConnect.style.display = 'flex';
 }
+
 
 document.getElementById('formConnect').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -35,11 +37,22 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             {
                 alert('connecting...');
                 socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");
+                socket.onopen = function() {
+                    console.log("WebSocket connection established.");
+                };
+        
+                socket.onerror = function(error) {
+                    console.error("WebSocket error observed:", error);
+                };
+        
+                socket.onclose = function(event) {
+                    console.log("WebSocket connection closed:", event);
+                };
                 socket.onmessage = function(event) {
+                    console.log("Received invitation:");
                     var data = JSON.parse(event.data);
                     if (data.type === 'invitation') {
                         console.log("Received invitation:", data);
-
                         Swal.fire({
                             title: 'Friend Invitation',
                             text: `You have received a friend invitation from ${data.from}.`,
@@ -84,9 +97,8 @@ function sendInvitation(username) {
         'room_name': 'add_friend'
     }));
 }
-
-
-document.getElementById('submitFriendButton').onclick = function() {
+// Exemple d'utilisation de la fonction sendInvitation
+document.getElementById('sendInvitationButton').onclick = function() {
     var username = document.getElementById('usernameAddFriend').value;
     sendInvitation(username);
 };

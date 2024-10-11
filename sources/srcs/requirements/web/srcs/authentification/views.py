@@ -149,5 +149,3 @@ def remove_friend(request):
 def users(request, username):
     user = get_object_or_404(User, username=username)
     return render(request, 'user.html', {'user': user})
-
-
