@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from authentification.consumers.consumers import user_sockets
 
 # envoyer un msg si meme email et ne pas rediriger sur home une fois register
-@csrf_exempt
+# @csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -29,7 +29,7 @@ def register(request):
 def connect(request):
     return render(request, 'base.html')
 
-@csrf_exempt
+# @csrf_exempt
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -77,11 +77,21 @@ def update_photo(request):
 @login_required
 def friend(request):
     friends = request.user.friend_list.all()
-    
-    values = {
-        'friend_list': friends
+    friend_list = [{'username': friend.username} for friend in friends]
+
+    pending_requests = FriendRequest.objects.filter(
+        to_user=request.user,
+        status='PENDING'
+    )
+    pending_request_list = [{'from_user': request.from_user.username} for request in pending_requests]
+
+    response_data = {
+        'friends': friend_list,
+        'pending_requests': pending_request_list
     }
-    return render(request, 'friend.html', values)
+    return JsonResponse(response_data)
+
+
 
 User = get_user_model()
 

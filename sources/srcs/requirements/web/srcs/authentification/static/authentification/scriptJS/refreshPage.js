@@ -30,10 +30,6 @@ function refreshHomePage()
     
     homePage.style.display = 'block';
     centerHomepage.style.display = 'flex';
-    // let usernameElement = document.querySelector("#usernameDisplay");
-    // if (usernameElement) {
-    //     usernameElement.textContent = `${data.username}`;
-    // }
 }
 
 

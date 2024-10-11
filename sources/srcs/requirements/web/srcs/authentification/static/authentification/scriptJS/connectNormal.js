@@ -24,7 +24,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
             },
             body: new URLSearchParams({
                 'username': username,
@@ -36,6 +36,8 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             if (data.status == "success")
             {
                 alert('connecting...');
+                let usernameElement = document.querySelector("#usernameDisplay");
+                usernameElement.textContent = `${data.username}`;
                 socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");
                 socket.onopen = function() {
                     console.log("WebSocket connection established.");
@@ -79,7 +81,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                         });
                     }
                 };
-                refreshHomePage(data);
+                refreshHomePage();
             }
             else
             {

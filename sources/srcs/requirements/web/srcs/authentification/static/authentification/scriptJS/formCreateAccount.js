@@ -42,12 +42,11 @@ document.getElementById('formAccount').addEventListener('submit', function(event
             // var tgben = hashStringSHA256(email);
             // hashStringSHA256(email).then(hashed);
             
-            console.log("slt", registerURL);
             fetch(registerURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
                 },
                 body: new URLSearchParams({
                     'username': username,

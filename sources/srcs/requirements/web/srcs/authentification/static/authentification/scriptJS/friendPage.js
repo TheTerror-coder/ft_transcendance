@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const playButton = document.getElementById('playButton');
     const friendDisplay = document.getElementById('friendDisplay');
     const usernameAddFriend = document.getElementById('usernameAddFriend');
-    const addFriendForm = document.getElementById('add_friend_form');
+    // const addFriendForm = document.getElementById('add_friend_form');
 
     buttonFriend.onclick = friendPage;
     submitFriendButton.onclick = submitFriendInvite;
@@ -70,4 +70,5 @@ document.addEventListener('DOMContentLoaded', function() {
             'room_name': 'add_friend'
         }));
     }
+    
 });
