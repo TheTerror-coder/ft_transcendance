@@ -90,17 +90,3 @@ document.getElementById('formConnect').addEventListener('submit', function(event
             }})
     }    
 });
-
-function sendInvitation(username) {
-    console.log("Sending invitation to:", username);
-    socket.send(JSON.stringify({
-        'username': username,
-        'type': 'invitation',
-        'room_name': 'add_friend'
-    }));
-}
-// Exemple d'utilisation de la fonction sendInvitation
-document.getElementById('sendInvitationButton').onclick = function() {
-    var username = document.getElementById('usernameAddFriend').value;
-    sendInvitation(username);
-};

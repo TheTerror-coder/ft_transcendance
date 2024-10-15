@@ -95,7 +95,7 @@ def friend(request):
 
 User = get_user_model()
 
-@csrf_exempt
+# @csrf_exempt
 @login_required
 def send_friend_request(request):
     if request.method == 'POST':

@@ -68,11 +68,12 @@
                     <p>SOCIAL</p>
                     <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
                     <p>Friend</p>
-                    <form>
-                        {% csrf_token %}
+                    <form method="post">
+                        <!-- {% csrf_token %} -->
                         <div class="form-group">
                             <label for="friendUsernameADD">ADD FRIEND</label>
-                            <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required>
+                            <!-- <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required> -->
+                            <input type="text" class="form-control" placeholder="Enter Username" id="usernameAddFriend" name="username" required>
                         </div>
                         <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                     </form>
