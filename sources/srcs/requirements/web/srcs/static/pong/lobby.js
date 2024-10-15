@@ -123,6 +123,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log('teamsArray : ', teamsArray);
         // window.location.href = '../pong';
         const module = await import('./pong.js');
+        const bodyElements = document.body.children;
+        for (let i = 0; i < bodyElements.length; i++) {
+            bodyElements[i].style.display = 'none';
+        }
+        const launchGameButton = document.getElementById('launchGame');
+        if (launchGameButton) {
+            launchGameButton.style.display = 'none';
+            console.log("launchGameButton : ", launchGameButton);
+        }
         await module.main(savedGameCode);
     });
 

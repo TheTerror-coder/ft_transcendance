@@ -110,6 +110,7 @@ io.on('connection', (socket) => {
         ChannelList.set(gameCode, channel);
         let game = channel.getGame();
         game.setNbPlayerPerTeam(numPlayersPerTeam);
+        console.log("numPlayersPerTeam: " + numPlayersPerTeam);
         console.log(game.gameStarted);
         game.setTeam(new Team("L'equipage du chapeau de paille", numPlayersPerTeam, 1));
         game.setTeam(new Team("L'equipage de Barbe-Noire", numPlayersPerTeam, 2));
@@ -166,6 +167,12 @@ io.on('connection', (socket) => {
                 return;
             }
             socket.join(gameCode);
+            const allRooms = io.sockets.adapter.rooms;
+            const allSockets = [];
+            for (const [room, sockets] of Object.entries(allRooms)) {
+                allSockets.push(sockets);
+            }
+            console.log("allSockets: " + allSockets);
             socket.emit('gameJoined', { gameCode: gameCode });
             // sendPlayerLists(game, io, socket);
         } else {
@@ -191,11 +198,11 @@ io.on('connection', (socket) => {
         }, 1000);
     });
 
-    socket.on('GameStarted', (data) => {
+    socket.on('GameStarted', (gameCode) => {
         console.log("GameStarted");
-        console.log("data: ", data);
-        console.log("data.gameCode : ", data.gameCode);
-        let game = ChannelList.get(data.gameCode).getGame();
+        console.log("data: ", gameCode);
+        console.log("data.gameCode : ", gameCode);
+        let game = ChannelList.get(gameCode).getGame();
         if (game)
         {
             game.addNbPlayerConnected();
@@ -208,6 +215,12 @@ io.on('connection', (socket) => {
         if (game.nbPlayerConnected === game.nbPlayerPerTeam * 2)
         {
             game.sendGameData(io, gameCode);
+        }
+        else
+        {
+            console.log("game.nbPlayerConnected: " + game.nbPlayerConnected);
+            console.log("game.nbPlayerPerTeam: " + game.nbPlayerPerTeam);
+            console.log("Game is not full");
         }
     });
 });

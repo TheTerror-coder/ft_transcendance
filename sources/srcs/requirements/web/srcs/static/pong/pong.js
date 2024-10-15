@@ -11,15 +11,12 @@ console.log("pong.js loaded");
 export async function main(gameCode) {
     // const socket = io('http://localhost:3000');
     console.log('socket : ', socket);
-
-
-    socket.emit('GameStarted', (gameCode) => {
-        console.log('GameStarted with gameCode : ', gameCode);
-    });
+    
+    socket.emit('GameStarted', gameCode);
 
     console.log("gameCode : ", gameCode);
 
-    socket.on('sendGameData', (gameData) => {
+    socket.on('gameData', (gameData) => {
         console.log('Données de la partie:', gameData);
         if (gameData) {
             initGame(gameData);
@@ -32,7 +29,7 @@ export async function main(gameCode) {
 
     // const gameData = JSON.parse(localStorage.getItem('gameData'));
     // console.log('Données de la partie:', gameData);
-    // if (gameData) {
+    // if (gameData) {9017
     //     initGame(gameData);
     // } else {
     //     console.error('Aucune donnée de partie trouvée.');
@@ -94,19 +91,19 @@ document.addEventListener('DOMContentLoaded', function() {
 function initGame(gameData)
 {
     console.log('Initialisation du jeu avec les donnee : ', gameData);
-    let teams = gameData.teams;
-    console.log('Donnee initialise dans teams : ', teams);
-    console.log('teams.team1 : ', teams.team1);
-    console.log('teams.team2 : ', teams.team2);
+    // let teams = gameData.teams;
+    // console.log('Donnee initialise dans teams : ', teams);
+    console.log('gameData.team1 : ', gameData.team1);
+    console.log('gameData.team2 : ', gameData.team2);
 
     // Accéder aux joueurs
-    Object.keys(teams.team1.Player).forEach(key => {
-        const player = teams.team1.Player[key];
+    Object.keys(gameData.team1.Player).forEach(key => {
+        const player = gameData.team1.Player[key];
         console.log(`Joueur ${key} de l'équipe 1 :`, player);
     });
 
-    Object.keys(teams.team2.Player).forEach(key => {
-        const player = teams.team2.Player[key];
+    Object.keys(gameData.team2.Player).forEach(key => {
+        const player = gameData.team2.Player[key];
         console.log(`Joueur ${key} de l'équipe 2 :`, player);
     });
 }
@@ -155,9 +152,11 @@ function setupEventListeners(socket, keys, cameraPlayer) {
     });
 
     window.addEventListener('resize', function () {
-        cameraPlayer.aspect = window.innerWidth / window.innerHeight;
-        cameraPlayer.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (cameraPlayer) {
+            cameraPlayer.aspect = window.innerWidth / window.innerHeight;
+            cameraPlayer.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
     });
 
     window.addEventListener('beforeunload', function (event) {
