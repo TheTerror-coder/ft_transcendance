@@ -27,7 +27,26 @@ COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
 RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
 
+# COPY --chown=root:root --chmod=700 ./tools/package*.json .
+
+# RUN npm install
+# RUN mkdir -p ./static/pong/js-import
+
+# RUN npm install
+
+# RUN npm install three
+
 COPY ./srcs/ .
+
+# RUN mkdir -p ./static/pong/js-import && cp node_modules/* ./static/pong/js-import/
+# RUN mkdir -p ./static/pong/js-import
+# RUN cp ./node_modules/socket.io-client/dist/socket.io.esm.min.js ./static/pong/js-import/
+# RUN cp ./node_modules/three/build/three.module.min.js ./static/pong/js-import/
+# RUN cp ./node_modules/three/examples/jsm/loaders/OBJLoader.js ./static/pong/js-import/
+# RUN cp ./node_modules/three/examples/jsm/loaders/MTLLoader.js ./static/pong/js-import/
+# RUN sed -i "s#} from 'three';#} from './three.module.min.js';#" ./static/pong/js-import/MTLLoader.js
+# RUN cp ./node_modules/three/examples/jsm/loaders/TextureLoader.js ./static/pong/js-import/
+# RUN cp ./node_modules/three/examples/jsm/loaders/GLTFLoader.js ./static/pong/js-import/
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 

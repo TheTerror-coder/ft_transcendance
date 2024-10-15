@@ -31,6 +31,11 @@ class Channel
             player.socket.emit(event, data);
         });
     }
+
+    getCreator()
+    {
+        return (this.creator);
+    }
 }
 
 module.exports = Channel;

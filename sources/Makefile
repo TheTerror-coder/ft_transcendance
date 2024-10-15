@@ -66,7 +66,7 @@ clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-yes | docker system prune
 reset : clean all
-freset : fclean all
+freset re : fclean all
 
 restart res : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart

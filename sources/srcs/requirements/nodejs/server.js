@@ -46,7 +46,7 @@ function generateGameCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-function updateGameOptions(game, io, socket) {
+function updateGameOptions(game, io, gameCode) {
     console.log("updateGameOptions");
     if (!game.gameStarted) {
         console.log("updateGameOptions: game.gameStarted is false");
@@ -85,7 +85,17 @@ function updateGameOptions(game, io, socket) {
             }))
         };
         console.log("data: ", data);
-        socket.emit('AvailableOptions', data);
+        io.to(gameCode).emit('AvailableOptions', data);
+    }
+}
+
+function checkIfGameIsFull(game, io, gameCode)
+{
+    const team1 = game.teams.get(1);
+    const team2 = game.teams.get(2);
+
+    if (team1.getIsFull() && team2.getIsFull()) {
+        io.to(gameCode).emit('TeamsFull');
     }
 }
 
@@ -99,24 +109,20 @@ io.on('connection', (socket) => {
         let channel = new Channel(gameCode, socket.id);
         ChannelList.set(gameCode, channel);
         let game = channel.getGame();
-        game.numPlayersPerTeam = numPlayersPerTeam; // Stocker le nombre de joueurs par équipe
+        game.setNbPlayerPerTeam(numPlayersPerTeam);
         console.log(game.gameStarted);
         game.setTeam(new Team("L'equipage du chapeau de paille", numPlayersPerTeam, 1));
         game.setTeam(new Team("L'equipage de Barbe-Noire", numPlayersPerTeam, 2));
         socket.join(gameCode);
         socket.emit('gameCreated', { gameCode: gameCode });
-        updateGameOptions(game, io, socket);
+        updateGameOptions(game, io, gameCode);
 
         socket.on('confirmChoices', (choices) => {
             console.log(`Player ${socket.id}, ${choices.userName} has chosen ${choices.teamID} as their team and ${choices.role} as their role.`);
             let team = game.getTeam(parseInt(choices.teamID));
             if (team) {
                 team.setPlayer(new Player(socket.id, choices.role, choices.userName, parseInt(choices.teamID)));
-                sendPlayerLists(game, io, socket);
-                // Vérifier si toutes les équipes sont pleines
-                if (game.teams.get(1).getIsFull() && game.teams.get(2).getIsFull()) {
-                    socket.emit('TeamsFull');
-                }
+                sendPlayerLists(game, io, gameCode);
             } else {
                 console.log("Équipe non trouvée");
                 socket.emit('error', { message: 'Équipe non trouvée' });
@@ -124,14 +130,24 @@ io.on('connection', (socket) => {
         });
     });
 
-
     socket.on('launchGame', (gameCode) => {
         const channel = ChannelList.get(gameCode);
         const game = channel.getGame();
-        if (game.teams.get(1).getIsFull() && game.teams.get(2).getIsFull()) {
-            game.startGame();
-            socket.emit('startGame');
-        } else {
+        if (game.teams.get(1).getIsFull() && game.teams.get(2).getIsFull())
+        {
+            if (channel.getCreator() === socket.id)
+            {
+                // game.startGame(io, gameCode);
+                io.to(gameCode).emit('startGame');
+
+            }
+            else
+            {
+                socket.emit('error', { message: 'Vous n\'êtes pas le créateur de la partie' });
+            }
+        }
+        else
+        {
             socket.emit('error', { message: 'Toutes les équipes ne sont pas pleines' });
         }
     });
@@ -140,42 +156,65 @@ io.on('connection', (socket) => {
         const gameCode = data.gameCode;
         const channel = ChannelList.get(gameCode);
         let game = channel.getGame();
+        const team1 = game.getTeam(1);
+        const team2 = game.getTeam(2);
         if (channel) {
+            if (team1.getIsFull() && team2.getIsFull())
+            {
+                socket.emit('error', { message: 'Partie pleine' });
+                socket.leave(gameCode);
+                return;
+            }
             socket.join(gameCode);
             socket.emit('gameJoined', { gameCode: gameCode });
             // sendPlayerLists(game, io, socket);
         } else {
-            socket.emit('error', { message: 'Game not found' });
+            socket.emit('error', { message: 'Partie non trouvée' });
             return;
         }
-        const team1 = game.getTeam(1);
-        const team2 = game.getTeam(2);
-        if (team1.getIsFull() && team2.getIsFull()) {
-            socket.emit('error', { message: 'Game is full' });
-            socket.leave(gameCode);
-            return;
-        }
-        updateGameOptions(game, io, socket);
+        updateGameOptions(game, io, gameCode);
     
         socket.on('confirmChoices', (choices) => {
             console.log(`Player ${socket.id}, ${choices.userName} has chosen ${choices.teamID} as their team and ${choices.role} as their role.`);
             let team = game.getTeam(parseInt(choices.teamID));
             if (team) {
                 team.setPlayer(new Player(socket.id, choices.role, choices.userName, parseInt(choices.teamID)));
-                sendPlayerLists(game, io, socket);
+                sendPlayerLists(game, io, gameCode);
             } else {
                 console.log("Équipe non trouvée");
                 socket.emit('error', { message: 'Équipe non trouvée' });
             }
         });
+
+        setInterval(() => {
+            checkIfGameIsFull(game, io, gameCode);
+        }, 1000);
+    });
+
+    socket.on('GameStarted', (data) => {
+        console.log("GameStarted");
+        console.log("data: ", data);
+        console.log("data.gameCode : ", data.gameCode);
+        let game = ChannelList.get(data.gameCode).getGame();
+        if (game)
+        {
+            game.addNbPlayerConnected();
+            console.log("game.nbPlayerConnected: " + game.nbPlayerConnected);
+        }
+        else
+        {
+            console.log("Game not found");
+        }
+        if (game.nbPlayerConnected === game.nbPlayerPerTeam * 2)
+        {
+            game.sendGameData(io, gameCode);
+        }
     });
 });
 
-function sendPlayerLists(game, io, socket) {
+function sendPlayerLists(game, io, gameCode) {
     const teamsInfo = {};
     console.log("game.teams: " + game.teams);
-    // console.log("game.teams.player: " + game.getTeam(1).getPlayerById(socket.id).getRole());
-    // console.log("game.teams.player: " + game.getTeam(2).getPlayerById(socket.id).getRole());
     game.teams.forEach((team, key) => {
         console.log("key: " + key);
         if (team.player) {
@@ -193,7 +232,7 @@ function sendPlayerLists(game, io, socket) {
     });
     console.log("teamsInfo[1][0].name: " + teamsInfo[1][0].name);
     // console.log("teamsInfo[2][0].name: " + teamsInfo[2][0].name);
-    io.emit('updatePlayerLists', teamsInfo);
+    io.to(gameCode).emit('updatePlayerLists', teamsInfo);
 }
 
 server.listen(3000, () => {

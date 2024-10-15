@@ -1,7 +1,16 @@
+import socket from './socket.js';
+// import {main as startPongGame} from './pong.js';
+
 let savedGameCode = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    const socket = io('http://localhost:3000');
+    // const socket = socket;
+
+    console.log('socket : ', socket);
+
+    socket.on('connect', () => {
+        console.log('Connecté au serveur');
+    });
 
     const createGameButton = document.getElementById('createGame');
     if (createGameButton) {
@@ -44,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('gameOptions').style.display = 'block';
         afficherCodePartie(data.gameCode);
         savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        console.log("savedGameCode: ", savedGameCode);
     });
 
     socket.on('gameJoined', (data) => {
@@ -106,16 +116,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    socket.on('startGame', () => {
-        document.getElementById('startGame').style.display = 'block';
+    socket.on('startGame', async () => {
+        // console.log('gameData : ', gameData);
+        // localStorage.setItem('gameData', JSON.stringify(gameData));
+        // const teamsArray = JSON.parse(localStorage.getItem('gameData'));
+        // console.log('teamsArray : ', teamsArray);
+        // window.location.href = '../pong';
+        const module = await import('./pong.js');
+        await module.main(savedGameCode);
     });
-
-    const startGameButton = document.getElementById('startGame');
-    if (startGameButton) {
-        startGameButton.addEventListener('click', () => {
-            socket.emit('startGame');
-        });
-    }
 
     // Fonction pour afficher le code de la partie dans le HUD
     function afficherCodePartie(codePartie) {
