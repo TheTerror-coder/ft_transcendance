@@ -17,10 +17,13 @@ export async function main(gameCode) {
 
     console.log("gameCode : ", gameCode);
 
+    let Team1 = null;
+    let Team2 = null;
+
     socket.on('gameData', (gameData) => {
         console.log('Données de la partie:', gameData);
         if (gameData) {
-            initGame(gameData);
+            ({ Team1, Team2 } = initGame(gameData));
         } else {
             console.error('Aucune donnée de partie trouvée.');
         }
@@ -28,24 +31,21 @@ export async function main(gameCode) {
 
     const { scene, cameraPlayer1, renderer } = initScene();
 
-    // const gameData = JSON.parse(localStorage.getItem('gameData'));
-    // console.log('Données de la partie:', gameData);
-    // if (gameData) {
-    //     initGame(gameData);
-    // } else {
-    //     console.error('Aucune donnée de partie trouvée.');
-    // }
-
-    const keys = {}; // Initialiser l'objet keys
+    const GLTFloader = new GLTFLoader();
+    const keys = {};
     let playerId = null;
-    let paddle1 = initPaddle();
-    let paddle2 = initPaddle();
-    let cannonGroup = await initCannons(scene); // Utiliser await ici
-    let bateau = await initBateaux(scene, new GLTFLoader());
-    let ocean = await initOceans(scene, new GLTFLoader(), new THREE.TextureLoader());
+    // let paddle1 = initPaddle();
+    // let paddle2 = initPaddle();
+    let cannonGroup = await initCannons(scene);
+    Team1.setCannon(cannonGroup.get('cannonTeam1'));
+    Team2.setCannon(cannonGroup.get('cannonTeam2'));
+    let bateau = await initBateaux(scene, GLTFloader);
+    Team1.setBoat(bateau.bateauTeam1);
+    Team2.setBoat(bateau.bateauTeam2);
+    let ocean = await initOceans(scene, GLTFloader, new THREE.TextureLoader());
     let ball = initBall(scene);
-    let Team1 = initTeam1(scene, paddle1, cannonGroup, bateau);
-    let Team2 = initTeam2(scene, paddle2, cannonGroup, bateau);
+    // let Team1 = initTeam1(scene, paddle1, cannonGroup, bateau);
+    // let Team2 = initTeam2(scene, paddle2, cannonGroup, bateau);
     let PlayerRole = initRole();
 
     console.log('CannonGroup:', cannonGroup);
@@ -89,26 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 
-// function initGame(gameData)
-// {
-//     console.log('Initialisation du jeu avec les donnee : ', gameData);
-//     // let teams = gameData.teams;
-//     // console.log('Donnee initialise dans teams : ', teams);
-//     console.log('gameData.team1 : ', gameData.team1);
-//     console.log('gameData.team2 : ', gameData.team2);
-
-//     // Accéder aux joueurs
-//     Object.keys(gameData.team1.Player).forEach(key => {
-//         const player = gameData.team1.Player[key];
-//         console.log(`Joueur ${key} de l'équipe 1 :`, player);
-//     });
-
-//     Object.keys(gameData.team2.Player).forEach(key => {
-//         const player = gameData.team2.Player[key];
-//         console.log(`Joueur ${key} de l'équipe 2 :`, player);
-//     });
-// }
-
 function initGame(gameData)
 {
     console.log('Initialisation du jeu avec les données : ', gameData);
@@ -136,6 +116,8 @@ function initGame(gameData)
     // Afficher les équipes et leurs joueurs
     console.log('Équipe 1 :', team1);
     console.log('Équipe 2 :', team2);
+
+    return { team1, team2 };
 }
 
 function initRole()
@@ -151,17 +133,17 @@ function initRole()
     }
 }
 
-function initTeam1(scene, paddle1, cannonGroup, bateau)
-{
-    let Team1 = {paddle1, cannonGroup : cannonGroup.get('cannonTeam1'), bateau : bateau.bateauTeam1};
-    return Team1;
-}
+// function initTeam1(scene, paddle1, cannonGroup, bateau)
+// {
+//     let Team1 = {paddle1, cannonGroup : cannonGroup.get('cannonTeam1'), bateau : bateau.bateauTeam1};
+//     return Team1;
+// }
 
-function initTeam2(scene, paddle2, cannonGroup, bateau)
-{
-    let Team2 = {paddle2, cannonGroup : cannonGroup.get('cannonTeam2'), bateau : bateau.bateauTeam2};
-    return Team2;
-}
+// function initTeam2(scene, paddle2, cannonGroup, bateau)
+// {
+//     let Team2 = {paddle2, cannonGroup : cannonGroup.get('cannonTeam2'), bateau : bateau.bateauTeam2};
+//     return Team2;
+// }
 
 function initScene() {
     const scene = new THREE.Scene();
@@ -195,12 +177,12 @@ function setupEventListeners(socket, keys, cameraPlayer) {
     });
 }
 
-function initPaddle() {
-    const paddleGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const paddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
-    return paddle;
-}
+// function initPaddle() {
+//     const paddleGeometry = new THREE.BoxGeometry(1, 1, 1);
+//     const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+//     const paddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
+//     return paddle;
+// }
 
 function initBall() {
     const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
