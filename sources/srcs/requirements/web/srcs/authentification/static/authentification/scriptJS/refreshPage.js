@@ -1,5 +1,6 @@
 
 buttonRefreshPage.onclick = refreshPage;
+wantedProfile.onclick = profileDisplay;
 
 function refreshPage()
 {
@@ -53,6 +54,21 @@ function lobbyDisplay()
     videoBackground.style.display = "block";
     homePage.style.display = "none";
 }
+
+function profileDisplay()
+{
+    rebecca.style.display = 'none';
+    wantedProfile.style.display = 'none';
+    // friendButton.style.display = 'flex';
+    friendDisplay.style.display = 'block';
+    playButton.style.display = 'none';
+    flag.style.display = 'none';
+    wantedInProfilePage.style.opacity = '1';
+    profilePage.style.display = 'flex';
+    profilePage.style.flexDirection = 'flex-end';
+    wantedInProfilePage.style.display = 'block';
+}
+
 function checkPoint()
 {
     window.location.hash = "#homepage";
