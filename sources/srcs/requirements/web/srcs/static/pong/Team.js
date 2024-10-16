@@ -12,6 +12,14 @@ class Team
         this.isFull = false;
     }
 
+    setCameraPosForAllPlayers(x, y, z)
+    {
+        for (const player of this.player.values())
+        {
+            player.setCameraPos(x, y, z);
+        }
+    }
+
     setIsFull()
     {
         this.isFull = this.nbPlayer >= this.maxNbPlayer;
@@ -60,14 +68,14 @@ class Team
         return (this.TeamId);
     }
 
-    getBoat(boat)
+    getBoat()
     {
         return (this.boat);
     }
 
-    getCannon(cannon)
+    getCannon()
     {
-        return (cannon);
+        return (this.cannon);
     }
 
     getNbPlayer()
@@ -93,6 +101,11 @@ class Team
                 return (player);
         }
         return (null);
+    }
+
+    getPlayerMap()
+    {
+        return (this.player);
     }
 
     getName()

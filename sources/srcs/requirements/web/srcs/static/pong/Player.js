@@ -40,7 +40,7 @@ class Player
         this.TeamID = TeamID;
     }
 
-    setCameraPos()
+    setCameraPos(x, y, z)
     {
         var p = 0;
         if (this.TeamID == 0)
@@ -49,11 +49,11 @@ class Player
             p = -1;
         if (this.role == 'Captain')
         {
-            this.cameraPos = { x: 0, y: 0, z: 20 * p }
+            this.cameraPos = { x: x, y: y + (2.9 * p), z: z + 2.5 }
         }
         else if (this.role == 'Cannoneer')
         {
-            this.cameraPos = { x: 0, y: 0, z: 20 * p }
+            this.cameraPos = { x: x, y: y + (2.9 * p), z: z + 2.5 }
         }
     }
 
