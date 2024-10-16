@@ -13,12 +13,13 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
+let ip = "10.13.2.6";
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'http://127.0.0.1:8888',
+        origin: 'http://' + ip + ':8888',
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
@@ -26,7 +27,7 @@ const io = socketIo(server, {
 });
 
 app.use(cors({
-    origin: 'http://127.0.0.1:8888',
+    origin: 'http://' + ip + ':8888',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true

@@ -2,6 +2,7 @@ import socket from './socket.js';
 // import {main as startPongGame} from './pong.js';
 
 let savedGameCode = null;
+let gameStarted = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     // const socket = socket;
@@ -29,8 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     socket.on('TeamsFull', () => {
+        if (gameStarted) return ;
         const launchGameButton = document.getElementById('launchGame');
         if (launchGameButton) {
+            console.log("launchGameButton : apparition", launchGameButton);
             launchGameButton.style.display = 'block';
             launchGameButton.style.backgroundColor = 'green';
         }
@@ -117,20 +120,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     socket.on('startGame', async () => {
+        gameStarted = true;
+        // Cacher le bouton de lancement de la partie dès le début
+        const launchGameButton = document.getElementById('launchGame');
+        if (launchGameButton) {
+            launchGameButton.style.display = 'none'; // Cacher le bouton
+        }
+
         // console.log('gameData : ', gameData);
         // localStorage.setItem('gameData', JSON.stringify(gameData));
         // const teamsArray = JSON.parse(localStorage.getItem('gameData'));
         // console.log('teamsArray : ', teamsArray);
         // window.location.href = '../pong';
         const module = await import('./pong.js');
+        // document.getElementById('gameOptions').style.display = 'none';
+        // document.getElementById('hub').style.display = 'none';
+        // document.getElementById('confirmChoices').style.display = 'none';
         const bodyElements = document.body.children;
         for (let i = 0; i < bodyElements.length; i++) {
             bodyElements[i].style.display = 'none';
-        }
-        const launchGameButton = document.getElementById('launchGame');
-        if (launchGameButton) {
-            launchGameButton.style.display = 'none';
-            console.log("launchGameButton : ", launchGameButton);
         }
         await module.main(savedGameCode);
     });

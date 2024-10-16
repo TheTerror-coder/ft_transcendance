@@ -1,5 +1,3 @@
-// import { Player } from "./Player.js";
-
 class Team
 {
     constructor(name, nbPlayer, TeamId)
@@ -16,10 +14,7 @@ class Team
 
     setIsFull()
     {
-        if (this.nbPlayer == this.maxNbPlayer)
-            this.isFull = true;
-        else
-            this.isFull = false;
+        this.isFull = this.nbPlayer >= this.maxNbPlayer;
     }
 
     getIsFull()
@@ -29,14 +24,19 @@ class Team
 
     setPlayer(player)
     {
-        if (this.getIsFull() == true)
+        if (this.getIsFull())
         {
-            window.alert("This Team is already full...");
+            console.log("This Team is already full...");
             return;
         }
         this.player.set(player.id, player);
-        player.setTeamName(this.name);
         this.nbPlayer++;
+        this.setIsFull();
+    }
+
+    setTeamName(name)
+    {
+        this.name = name;
     }
 
     setBoat(boat)
@@ -53,6 +53,11 @@ class Team
     {
         this.player.delete(id);
         this.nbPlayer--;
+    }
+
+    getTeamId()
+    {
+        return (this.TeamId);
     }
 
     getBoat(boat)
@@ -96,4 +101,4 @@ class Team
     }
 }
 
-module.exports = Team;
+export default Team;

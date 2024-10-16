@@ -34,7 +34,23 @@ ALLOWED_HOSTS = [ '*' ]
 CSRF_TRUSTED_ORIGINS = [
 	'http://www.transcendance.fr:8080',
 	'https://www.transcendance.fr:8443',
-	'https://www.transcendance.fr'
+	'https://www.transcendance.fr',
+    'http://host.docker.internal:8888',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://10.13.2.6:8888',
+    'http://127.0.0.1:8888',
+    'http://host.docker.internal:8888',
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+]
+
+CORS_ALLOW_HEADERS = [
+    "Content-Type",
 ]
 
 # Application definition
@@ -49,9 +65,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentification',
     'channels',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

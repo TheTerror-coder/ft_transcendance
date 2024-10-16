@@ -1,4 +1,5 @@
-// import Game from './Game.js'
+import Team from './Team.js';
+import Player from './Player.js';
 import socket from './socket.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -29,7 +30,7 @@ export async function main(gameCode) {
 
     // const gameData = JSON.parse(localStorage.getItem('gameData'));
     // console.log('Données de la partie:', gameData);
-    // if (gameData) {9017
+    // if (gameData) {
     //     initGame(gameData);
     // } else {
     //     console.error('Aucune donnée de partie trouvée.');
@@ -88,24 +89,53 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 
+// function initGame(gameData)
+// {
+//     console.log('Initialisation du jeu avec les donnee : ', gameData);
+//     // let teams = gameData.teams;
+//     // console.log('Donnee initialise dans teams : ', teams);
+//     console.log('gameData.team1 : ', gameData.team1);
+//     console.log('gameData.team2 : ', gameData.team2);
+
+//     // Accéder aux joueurs
+//     Object.keys(gameData.team1.Player).forEach(key => {
+//         const player = gameData.team1.Player[key];
+//         console.log(`Joueur ${key} de l'équipe 1 :`, player);
+//     });
+
+//     Object.keys(gameData.team2.Player).forEach(key => {
+//         const player = gameData.team2.Player[key];
+//         console.log(`Joueur ${key} de l'équipe 2 :`, player);
+//     });
+// }
+
 function initGame(gameData)
 {
-    console.log('Initialisation du jeu avec les donnee : ', gameData);
-    // let teams = gameData.teams;
-    // console.log('Donnee initialise dans teams : ', teams);
-    console.log('gameData.team1 : ', gameData.team1);
-    console.log('gameData.team2 : ', gameData.team2);
+    console.log('Initialisation du jeu avec les données : ', gameData);
 
-    // Accéder aux joueurs
+    // Créer les équipes
+    const team1 = new Team(gameData.team1.name, gameData.team1.maxNbPlayer, gameData.team1.TeamId);
+    const team2 = new Team(gameData.team2.name, gameData.team2.maxNbPlayer, gameData.team2.TeamId);
+
+    // Accéder aux joueurs de l'équipe 1 et les ajouter à l'équipe
     Object.keys(gameData.team1.Player).forEach(key => {
-        const player = gameData.team1.Player[key];
+        const playerData = gameData.team1.Player[key];
+        const player = new Player(playerData.id, playerData.role, playerData.name, team1.getTeamId());
+        team1.setPlayer(player);
         console.log(`Joueur ${key} de l'équipe 1 :`, player);
     });
 
+    // Accéder aux joueurs de l'équipe 2 et les ajouter à l'équipe
     Object.keys(gameData.team2.Player).forEach(key => {
-        const player = gameData.team2.Player[key];
+        const playerData = gameData.team2.Player[key];
+        const player = new Player(playerData.id, playerData.role, playerData.name, team2.getTeamId());
+        team2.setPlayer(player);
         console.log(`Joueur ${key} de l'équipe 2 :`, player);
     });
+
+    // Afficher les équipes et leurs joueurs
+    console.log('Équipe 1 :', team1);
+    console.log('Équipe 2 :', team2);
 }
 
 function initRole()

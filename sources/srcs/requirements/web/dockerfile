@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/09/04 16:00:47 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/10/16 09:35:07 by bfaure           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,8 @@ COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
 COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
 RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
+
+RUN pip install django-cors-headers --timeout=100 --index-url=https://pypi.org/simple
 
 # COPY --chown=root:root --chmod=700 ./tools/package*.json .
 
