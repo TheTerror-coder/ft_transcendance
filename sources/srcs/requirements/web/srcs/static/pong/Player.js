@@ -42,18 +42,23 @@ class Player
 
     setCameraPos(x, y, z)
     {
+        console.log('setCameraPos : ', x, y, z);
+        console.log('this.TeamID : ', this.TeamID);
+        console.log('this.role : ', this.role);
         var p = 0;
-        if (this.TeamID == 0)
-            p = 1;
-        else if (this.TeamID == 1)
-            p = -1;
-        if (this.role == 'Captain')
+
+        if (this.TeamID == 1)
+            p = -2.9;
+        else if (this.TeamID == 2)
+            p = 2.9;
+        console.log(p + ' + ' + y + ' = ' + (y + p));
+        if (this.role == 'captain')
         {
-            this.cameraPos = { x: x, y: y + (2.9 * p), z: z + 2.5 }
+            this.cameraPos = { x: x, y: y + p, z: z + 2.5 };
         }
-        else if (this.role == 'Cannoneer')
+        else if (this.role == 'cannoneer')
         {
-            this.cameraPos = { x: x, y: y + (2.9 * p), z: z + 2.5 }
+            this.cameraPos = { x: x, y: y, z: z };
         }
     }
 

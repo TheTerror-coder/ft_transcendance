@@ -16,7 +16,9 @@ class Team
     {
         for (const player of this.player.values())
         {
+            console.log('Player : ', player);
             player.setCameraPos(x, y, z);
+            console.log('Player camera pos : ', player.getCameraPos());
         }
     }
 

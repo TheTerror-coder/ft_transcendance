@@ -31,7 +31,7 @@ export async function main(gameCode) {
         }
     });
 
-    const { scene, cameraPlayer, renderer } = initScene();
+    const { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 } = initScene();
 
     const GLTFloader = new GLTFLoader();
     const keys = {};
@@ -49,8 +49,8 @@ export async function main(gameCode) {
     Team2.setBoat(bateau.bateauTeam2);
     console.log('Team1 boat:', Team1.getBoat());
     console.log('Team2 boat:', Team2.getBoat());
-    let ocean = await initOceans(scene, GLTFloader, new THREE.TextureLoader());
-    let ball = initBall(scene);
+    let ocean = await initOceans(scene, new THREE.TextureLoader());
+    let ball = await initBall();
     // let Team1 = initTeam1(scene, paddle1, cannonGroup, bateau);
     // let Team2 = initTeam2(scene, paddle2, cannonGroup, bateau);
 
@@ -59,10 +59,12 @@ export async function main(gameCode) {
 
     for (const player of Team1.getPlayerMap().values())
     {
+        console.log('Player Team1 : ', player);
         console.log('Player Team1 camera pos : ', player.getCameraPos());
     }
     for (const player of Team2.getPlayerMap().values())
     {
+        console.log('Player Team2 : ', player);
         console.log('Player Team2 camera pos : ', player.getCameraPos());
     }
 
@@ -72,7 +74,10 @@ export async function main(gameCode) {
 
     setupEventListeners(socket, keys);
 
-    updateAndEmitBoatPositions(socket, Team1.getBoat(), Team2.getBoat(), keys);
+    setInterval(() => {
+        updateAndEmitBoatPositions(socket, Team1, Team2, keys);
+        updateAndEmitCannonPositions(socket, Team1, Team2, keys);
+    }, 16);
     periodicGameStateUpdate(socket);
 
     setupEventListeners(socket, keys);
@@ -80,6 +85,7 @@ export async function main(gameCode) {
         setupSocketListeners(socket, Team1, Team2);
     }, 16);
 
+    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, Team1.getBoat(), Team2.getBoat(), Team1.getCannon(), Team2.getCannon());
     function animate() {
         // if (!gameStarted) {
         //     return;
@@ -102,6 +108,19 @@ document.addEventListener('DOMContentLoaded', function() {
         await main();
     };
 });
+
+function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2, cannonTeam1, cannonTeam2)
+{
+    scene.add(ball);
+    scene.add(ocean);
+    scene.add(ambientLight);
+    scene.add(directionalLight1);
+    scene.add(directionalLight2);
+    scene.add(bateau1);
+    scene.add(bateau2);
+    scene.add(cannonTeam1);
+    scene.add(cannonTeam2);
+}
 
 function initGame(gameData)
 {
@@ -140,7 +159,18 @@ function initScene() {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    return { scene, cameraPlayer, renderer };
+    // Ajouter des lumières
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Lumière ambiante
+
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau1
+    directionalLight1.position.set(0, 20, 10);
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau2
+    directionalLight2.position.set(0, -20, 10);
+    // Ajouter un fond bleu plus océan
+    const oceanColor = 0x1E90FF; // Couleur bleu océan
+    scene.background = new THREE.Color(oceanColor);
+    return { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 };
 }
 
 function setupEventListeners(socket, keys, cameraPlayer) {
@@ -167,10 +197,18 @@ function setupEventListeners(socket, keys, cameraPlayer) {
 }
 
 function initBall() {
-    const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-    return { ball };
+    return new Promise((resolve, reject) => {
+        try {
+            const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+            const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+            console.log('Ball initialized successfully');
+            resolve(ball);
+        } catch (error) {
+            console.error('Error initializing ball:', error);
+            reject(error);
+        }
+    });
 }
 
 function initBateaux(scene, gltfLoader) {
@@ -196,29 +234,41 @@ function initBateaux(scene, gltfLoader) {
     });
 }
 
-function initOceans(scene, gltfLoader, textureLoader) {
+function initOceans(scene, textureLoader) {
     return new Promise((resolve, reject) => {
         // Charger la texture de l'océan
-        const oceanTexture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg');
+        const oceanTexture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg', 
+            // Fonction de succès
+            function(texture) {
+                // Créer un plan rectangulaire pour représenter l'océan
+                const oceanGeometry = new THREE.PlaneGeometry(10000, 10000);
+                const oceanMaterial = new THREE.MeshBasicMaterial({ 
+                    map: texture,
+                    side: THREE.DoubleSide // Rendre le plan visible des deux côtés
+                });
+                
+                const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+                
+                // Positionner et orienter l'océan
+                ocean.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
+                ocean.position.y = -1; // Légèrement en dessous du niveau 0 pour éviter les conflits avec d'autres objets
 
-        // Charger le modèle GLB de l'océan
-        gltfLoader.load('../../static/pong/assets/models/mar.glb', function (gltf) {
-            const ocean = gltf.scene.clone();
-            ocean.scale.set(5000, 5, 5000);
-            ocean.position.set(0, 0, 1);
-            ocean.rotation.set(Math.PI / 2, 0, 0);
-            ocean.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.map = oceanTexture;
-                    child.material.needsUpdate = true;
-                }
-            });
-            console.log('Ocean model loaded successfully');
-            resolve(ocean);
-        }, undefined, function (error) {
-            console.error('Error loading the ocean model:', error);
-            reject(error);
-        });
+                // Répéter la texture pour couvrir toute la surface
+                oceanTexture.wrapS = THREE.RepeatWrapping;
+                oceanTexture.wrapT = THREE.RepeatWrapping;
+                oceanTexture.repeat.set(100, 100); // Ajustez ces valeurs selon vos besoins
+
+                console.log('Ocean plane created successfully');
+                resolve(ocean);
+            },
+            // Fonction de progression (optionnelle)
+            undefined,
+            // Fonction d'erreur
+            function(error) {
+                console.error('Error loading the ocean texture:', error);
+                reject(error);
+            }
+        );
     });
 }
 
@@ -305,10 +355,9 @@ async function initCannons(scene) {
 
 function findPlayer(Team1, Team2, socket)
 {
-    console.log('findPlayer : ', socket.id);
     let playerTeamID = null;
     let playerRole = null;
-    const player = Team1.getPlayerById(socket.id);
+    let player = Team1.getPlayerById(socket.id);
     if (player) 
     {
         playerTeamID = player.getTeamID();
@@ -323,46 +372,46 @@ function findPlayer(Team1, Team2, socket)
     return ({ playerTeamID, playerRole });
 }
 
-function updateAndEmitCannonPositions(socket, Team1, Team2, keys, playerId)
+function updateAndEmitCannonPositions(socket, Team1, Team2, keys)
 {
     const {playerTeamID, playerRole} = findPlayer(Team1, Team2, socket);
     if (playerTeamID === Team1.getTeamId())
     {
-        if (playerRole === 'Cannoneer')
+        if (playerRole === 'cannoneer')
         {
             if (keys && keys['d'])
             {
                 console.log('key : Team1 Cannoneer d');
                 // Team1.getBoat().position.x += 0.1;
                 Team1.getCannon().position.x += 0.1;
-                socket.emit('cannonPosition', { playerId, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
+                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
             }
             if (keys && keys['a'])
             {
                 console.log('key : Team1 Cannoneer a');
                 // Team1.getBoat().position.x -= 0.1;
                 Team1.getCannon().position.x -= 0.1;
-                socket.emit('cannonPosition', { playerId, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
+                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
             }
         }
     }
     else if (playerTeamID === Team2.getTeamId())
     {
-        if (playerRole === 'Cannoneer')
+        if (playerRole === 'cannoneer')
         {
             if (keys && keys['d'])
             {
                 console.log('key : Team2 Cannoneer d');
                 // Team2.getBoat().position.x += 0.1;
                 Team2.getCannon().position.x += 0.1;
-                socket.emit('cannonPosition', { playerId, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
+                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
             }
             if (keys && keys['a'])
             {
                 console.log('key : Team2 Cannoneer a');
                 // Team2.getBoat().position.x -= 0.1;
                 Team2.getCannon().position.x -= 0.1;
-                socket.emit('cannonPosition', { playerId, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
+                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
             }
         }
     }
@@ -373,7 +422,7 @@ function updateAndEmitBoatPositions(socket, Team1, Team2, keys)
     const {playerTeamID, playerRole} = findPlayer(Team1, Team2, socket);
     if (playerTeamID === Team1.getTeamId())
     {
-        if (playerRole === 'Captain')
+        if (playerRole === 'captain')
         {
             if (keys && keys['d'])
             {
@@ -393,21 +442,21 @@ function updateAndEmitBoatPositions(socket, Team1, Team2, keys)
     }
     else if (playerTeamID === Team2.getTeamId())
     {
-        if (playerRole === 'Captain')
+        if (playerRole === 'captain')
         {
             if (keys && keys['d'])
             {
                 console.log('key : Team2 Captain d');
                 Team2.getBoat().position.x += 0.1;
                 Team2.getCannon().position.x += 0.1;
-                socket.emit('boatPosition', { playerId, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
+                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
             }
             if (keys && keys['a'])
             {
                 console.log('key : Team2 Captain a');
                 Team2.getBoat().position.x -= 0.1;
                 Team2.getCannon().position.x -= 0.1;
-                socket.emit('boatPosition', { playerId, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
+                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
             }
         }
     }
