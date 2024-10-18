@@ -15,43 +15,52 @@ function refreshPage()
     buttonConnectionAPI42.style.display = 'block';
     buttonConnec.style.display = 'block';
     buttonCreateAccount.style.display = 'block';
+    loginPage.style.display = 'block';
+}
+
+function refreshLoginPage()
+{
+    background.style.backgroundImage = "url('media/photos/picturePng/loginPage/landscapeOnePiece.png')";
+    loginButton.style.display = 'block';
+    woodPresentation.style.display = 'block';
+    flag.className = "flag";
+    flag.id = 'flag';
+
+    homePage.style.display = 'none';
+    centerHomepage.style.display = 'none';
 }
 
 function refreshHomePage()
 {
+    // checkPoint();
     background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
     loginButton.style.display = 'none';
     woodPresentation.style.display = 'none';
     flag.className = "homepageFlag";
     flag.id = 'homepageFlag';
+    rebeccaImg.style.display = 'block';
+    friendButton.style.display = 'flex';
 
     let englandFlagImg = document.querySelector("#englandFlagImg");
     englandFlagImg.className = "englandFlag";
     englandFlag.style.marginRight = "-0.01px";
     
-    homePage.style.display = 'block';
+    homePage.style.display = 'flex';
     centerHomepage.style.display = 'flex';
 }
 
+function lobbyDisplay()
+{
+    videoBackground.style.display = "block";
+    homePage.style.display = "none";
+}
+function checkPoint()
+{
+    window.location.hash = "#homepage";
+    // Save this in localStorage as a checkpoint
+    localStorage.setItem('activeSection', '#homepage');
+    console.log(window.location.pathname);
+    // deleteAllCookies();
 
-function deleteAllCookies() {
-    let cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i];
-        let eqPos = cookie.indexOf("=");
-        let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-    }
 }
 
-// function that catch when you click on the refresh button
-window.addEventListener('beforeunload', function (e) {
-    // Delete all cookies
-    deleteAllCookies();
-    
-    // Log to console (note: this might not be visible due to page unload)
-    console.log("All cookies deleted");
-
-    // Uncomment the next line if you want to show a confirmation dialog
-    // e.returnValue = 'Are you sure you want to leave?';
-})

@@ -9,7 +9,6 @@ function createAnAccount()
         buttonConnectionAPI42.style.display = 'none';
         buttonConnec.style.display = 'none';
         buttonCreateAccount.style.display = 'none';
-
         createAccountChange.style.display = 'flex'; 
     }
 }
@@ -60,7 +59,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
                 console.log(data);
                 if (data.status === 'success') {
                     alert('Form is valid and passwords match! Submitting...');
-                    connecting(username, password);
+                    // connecting(username, password);
                 } 
                 else if (data.status === 'error') {
                     if (typeof data.errors === 'object') {

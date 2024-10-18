@@ -18,7 +18,7 @@ function getCookie(cname) {
 document.addEventListener('DOMContentLoaded', function() {
     const buttonFriend = document.getElementById('buttonFriend');
     const submitFriendButton = document.getElementById('submitFriendButton');
-    const playButton = document.getElementById('playButton');
+    // const playButton = document.getElementById('playButton');
     // const friendDisplay = document.getElementById('friendDisplay');
     const usernameAddFriend = document.getElementById('usernameAddFriend');
     const addFriend = document.querySelector("#addFriend");

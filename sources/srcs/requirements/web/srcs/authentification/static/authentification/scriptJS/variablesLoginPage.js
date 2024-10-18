@@ -1,6 +1,6 @@
 
 
-
+const loginPage = document.querySelector("#loginPage");
 
 // FLAG
 const englandFlag = document.querySelector("#englandFlag");
