@@ -13,7 +13,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-let ip = "10.13.2.2";
+const ip = process.env.HOST_IP || "127.0.0.1";
 
 const app = express();
 const server = http.createServer(app);

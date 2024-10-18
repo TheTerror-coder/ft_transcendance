@@ -6,13 +6,16 @@
 #    By: bfaure <bfaure@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/10/16 09:35:07 by bfaure           ###   ########.fr        #
+#    Updated: 2024/10/18 17:15:06 by bfaure           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM python:3.10-alpine
 
 ARG STATICFILES_DIR
+ARG HOST_IP
+
+ENV HOST_IP=${HOST_IP}
 
 WORKDIR /usr/src/apps
 
@@ -29,26 +32,7 @@ RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/s
 
 RUN pip install django-cors-headers --timeout=100 --index-url=https://pypi.org/simple
 
-# COPY --chown=root:root --chmod=700 ./tools/package*.json .
-
-# RUN npm install
-# RUN mkdir -p ./static/pong/js-import
-
-# RUN npm install
-
-# RUN npm install three
-
 COPY ./srcs/ .
-
-# RUN mkdir -p ./static/pong/js-import && cp node_modules/* ./static/pong/js-import/
-# RUN mkdir -p ./static/pong/js-import
-# RUN cp ./node_modules/socket.io-client/dist/socket.io.esm.min.js ./static/pong/js-import/
-# RUN cp ./node_modules/three/build/three.module.min.js ./static/pong/js-import/
-# RUN cp ./node_modules/three/examples/jsm/loaders/OBJLoader.js ./static/pong/js-import/
-# RUN cp ./node_modules/three/examples/jsm/loaders/MTLLoader.js ./static/pong/js-import/
-# RUN sed -i "s#} from 'three';#} from './three.module.min.js';#" ./static/pong/js-import/MTLLoader.js
-# RUN cp ./node_modules/three/examples/jsm/loaders/TextureLoader.js ./static/pong/js-import/
-# RUN cp ./node_modules/three/examples/jsm/loaders/GLTFLoader.js ./static/pong/js-import/
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 

@@ -1,5 +1,6 @@
 ENV :=./srcs/.env
-COMPOSE_FILE= ./srcs/docker-compose.yml 
+COMPOSE_FILE= ./srcs/docker-compose.yml
+export HOST_IP=$(shell hostname -I | awk '{print $$1}')
 
 include $(ENV)
 
@@ -7,13 +8,13 @@ all : build up
 
 build b : # Build or rebuild services
 	-mkdir -p $(PATHTO_WEBAPPS_DATA)
-	-docker compose -f $(COMPOSE_FILE) build
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
-	-docker compose -f $(COMPOSE_FILE) create --remove-orphans
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) create --remove-orphans
 start : # Start services
-	-docker compose -f $(COMPOSE_FILE) start
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) start
 up : # Create and start containers
-	-docker compose -f $(COMPOSE_FILE) up -d
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) up -d
 exec : # Execute a command in a running container.
 	-docker compose -f $(COMPOSE_FILE) exec
 
