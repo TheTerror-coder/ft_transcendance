@@ -2,6 +2,7 @@
 buttonRefreshPage.onclick = refreshPage;
 wantedProfile.onclick = profileDisplay;
 
+
 function refreshPage()
 {
     document.getElementById('createEmail').value = "";
