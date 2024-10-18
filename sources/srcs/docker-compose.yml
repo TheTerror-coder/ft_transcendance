@@ -185,24 +185,42 @@ services:
       - 8888:${WEB_PORT}
     restart: on-failure
   
-  nodejs:
+  node:
     depends_on:
       db_postgres:
         condition: service_healthy
         restart: true
-    image: ${NODEJS_IMAGE}
-    container_name: ${NODEJS_CONTAINER}
-    # pull_policy: never
-    build: ./requirements/nodejs/
-    env_file:
-      - ./.env
+    image: ${NODE_IMAGE}
+    container_name: ${NODE_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/node/
+      args:
+        - NODE_TAG=${NODE_TAG}
+        - NODE_UID=${NODE_UID}
+        - NODE_GID=${NODE_GID}
+        - SHARED_GID=${SHARED_GID}
+        - NODE_HOME=${NODE_HOME}
+        - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
+    # environment:
     expose:
-      - ${NODEJS_PORT}
+      - ${NODE_PORT}
     networks:
       - ${NETWORK_NAME}
     ports:
-      - 3000:${NODEJS_PORT}
-    restart: on-failure
+      - ${NODE_PORT}:${NODE_PORT}
+    # healthcheck: #*file_healthcheck
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "curl -s http://localhost:${WEB_PORT} | grep -q ''",
+    #       # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
+    #     ]
+    #   start_period: 10s
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 1
+    # restart: on-failure
 
   web_waf:
     depends_on:
