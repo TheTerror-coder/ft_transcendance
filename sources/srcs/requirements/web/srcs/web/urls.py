@@ -25,6 +25,8 @@ urlpatterns = [
     path('', include('authentification.urls')),
     path('lobby/pong/', TemplateView.as_view(template_name='pong/index.html')),
     path('lobby/', TemplateView.as_view(template_name='pong/lobby.html')),
+    path('lobby/lobby1/', TemplateView.as_view(template_name='pong/lobby1.html')),
+    path('lobby/lobby2/', TemplateView.as_view(template_name='pong/lobby2.html')),
 ]
 
 if settings.DEBUG:

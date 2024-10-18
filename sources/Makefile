@@ -46,6 +46,10 @@ rmv : # clean data
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
+web : # Rebuild and restart only the web container
+	-docker compose -f $(COMPOSE_FILE) down web
+	-docker volume rm $$(docker volume ls --filter name=webapps --format "{{.Name}}")
+	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
 cleanv cv : # clean all volumes
 	-yes | docker volume prune
@@ -54,7 +58,7 @@ clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-yes | docker system prune
 reset : clean all
-freset : fclean all
+freset re : fclean all
 
 restart res : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart

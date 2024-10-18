@@ -1,6 +1,6 @@
 @font-face {
     font-family: onePieceFont;
-    src: url(http://127.0.0.1:8000/../static/authentification/onePieceFont.ttf);
+    src: url(../onePieceFont.ttf);
 }
 
 p
