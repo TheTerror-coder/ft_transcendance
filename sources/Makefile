@@ -1,5 +1,6 @@
 ENV :=./srcs/.env
-COMPOSE_FILE= ./srcs/docker-compose.yml 
+COMPOSE_FILE= ./srcs/docker-compose.yml
+export HOST_IP=$(shell hostname -I | awk '{print $$1}')
 
 include $(ENV)
 
@@ -7,13 +8,13 @@ all : build up
 
 build b : # Build or rebuild services
 	-mkdir -p $(PATHTO_WEBAPPS_DATA)
-	-docker compose -f $(COMPOSE_FILE) build
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
-	-docker compose -f $(COMPOSE_FILE) create --remove-orphans
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) create --remove-orphans
 start : # Start services
-	-docker compose -f $(COMPOSE_FILE) start
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) start
 up : # Create and start containers
-	-docker compose -f $(COMPOSE_FILE) up -d
+	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) up -d
 exec : # Execute a command in a running container.
 	-docker compose -f $(COMPOSE_FILE) exec
 
@@ -46,6 +47,10 @@ rmv : # clean data
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
+web : # Rebuild and restart only the web container
+	-docker compose -f $(COMPOSE_FILE) down web
+	-docker volume rm $$(docker volume ls --filter name=webapps --format "{{.Name}}")
+	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
 cleanv cv : # clean all volumes
 	-yes | docker volume prune
@@ -54,7 +59,7 @@ clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-yes | docker system prune
 reset : clean all
-freset : fclean all
+freset re : fclean all
 
 restart res : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart

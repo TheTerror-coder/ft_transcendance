@@ -3,16 +3,19 @@
 #                                                         :::      ::::::::    #
 #    dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/09/04 16:00:47 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/10/18 17:15:06 by bfaure           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FROM python:3.10-alpine
 
 ARG STATICFILES_DIR
+ARG HOST_IP
+
+ENV HOST_IP=${HOST_IP}
 
 WORKDIR /usr/src/apps
 
@@ -26,6 +29,8 @@ COPY --chown=root:root --chmod=700 ./tools/requirements.txt .
 COPY --chown=root:root --chmod=700 ./tools/script.sh /etc/container-init.d
 
 RUN pip install -r requirements.txt --timeout=100 --index-url=https://pypi.org/simple
+
+RUN pip install django-cors-headers --timeout=100 --index-url=https://pypi.org/simple
 
 COPY ./srcs/ .
 

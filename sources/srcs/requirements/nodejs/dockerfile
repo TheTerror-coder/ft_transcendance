@@ -1,6 +1,10 @@
 # Utiliser une image de base officielle de Node.js
 FROM node:14
 
+ARG HOST_IP
+
+ENV HOST_IP=${HOST_IP}
+
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 

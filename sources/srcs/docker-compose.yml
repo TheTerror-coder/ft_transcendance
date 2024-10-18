@@ -143,6 +143,7 @@ services:
       context: ./requirements/web/
       args:
         - STATICFILES_DIR=${STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
     environment:
       - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -155,6 +156,7 @@ services:
       - WEB_ROOT_CA=${WEB_ROOT_CA}
       - VAULT_CACERT=${VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
     volumes:
       - webapps:/usr/src/apps
       - staticfiles:${STATICFILES_DIR}
@@ -188,9 +190,12 @@ services:
     image: ${NODEJS_IMAGE}
     container_name: ${NODEJS_CONTAINER}
     # pull_policy: never
-    build: ./requirements/nodejs/
-    env_file:
-      - ./.env
+    build:
+      context: ./requirements/nodejs/
+      args:
+        - HOST_IP=${HOST_IP}
+    environment:
+      - HOST_IP=${HOST_IP}
     expose:
       - ${NODEJS_PORT}
     networks:

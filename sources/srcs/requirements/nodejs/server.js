@@ -1,29 +1,38 @@
+// import { Game } from "./Game.js";
+// import { Player } from "./Player.js";
+// import { Team } from "./Team.js";
+// import { Channel } from "./channel.js";
+
+const Player = require('./Player.js');
+const Team = require('./Team.js');
+const Channel = require('./channel.js');
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
+const ip = process.env.HOST_IP || "127.0.0.1";
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'http://127.0.0.1:8888', // Remplacez par l'URL de votre application Django
+        origin: 'http://' + ip + ':8888',
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
     }
 });
 
-// Utilisez le middleware CORS
 app.use(cors({
-    origin: 'http://127.0.0.1:8888', // Remplacez par l'URL de votre application Django
+    origin: 'http://' + ip + ':8888',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true
 }));
 
-// Définir les en-têtes de sécurité
 app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
@@ -32,260 +41,213 @@ app.use((req, res, next) => {
 
 app.use(express.static('public'));
 
-function nombreAleatoire(min, max) {
-    return Math.random() * (max - min) + min;
+let ChannelList = new Map();
+
+function generateGameCode() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
 }
 
-let ballPosition = { x: -2, y: 0, z: 5.5, width: 0.1, height: 0.1 }; // Position initiale de la balle plus haute
-const players = {}; // Stocker les joueurs connectés
-let ballDirection = { x: 0, y: 0, z: 0 };
-// players[socket.id].ballDirection = { x: nombreAleatoire(-0.05, 0.05), y: nombreAleatoire(-0.05, 0.05), z: 0 };
-global.playerCount = 0; // Compter le nombre de joueurs connectés
-let gameInterval = null; // Référence à l'intervalle de mise à jour du jeu
+function updateGameOptions(game, io, gameCode) {
+    console.log("updateGameOptions");
+    if (!game.gameStarted) {
+        console.log("updateGameOptions: game.gameStarted is false");
+        let teamsData = [];
+        let teamsRolesData = new Map();
 
-function initializeBallDirection() {
-    // Choisissez un paddle cible au hasard
-    const playerIds = Object.keys(players);
-    // console.log(`Players: ${players[playerIds[0]].playerRole}`);
-    const randomPlayersId = playerIds[Math.floor(Math.random() * playerIds.length)];
-    console.log(`Random player id: ${players[randomPlayersId].playerRole}`);
-    const targetPaddle = players[randomPlayersId].paddle;
-
-    // Calculer le vecteur directionnel
-    console.log(`Target paddle initialize: ${targetPaddle.x}, ${targetPaddle.y}`);
-    console.log(`Ball position initialize: ${ballPosition.x}, ${ballPosition.y}`);
-    let directionX = targetPaddle.x - ballPosition.x;
-    let directionY = targetPaddle.y - ballPosition.y;
-
-    // Normaliser le vecteur directionnel
-    const length = Math.sqrt(directionX * directionX + directionY * directionY);
-    console.log(`Direction X: ${directionX}, Direction Y: ${directionY}`);
-    console.log(`Length: ${length}`);
-    ballDirection = {
-        x: directionX / length,
-        y: directionY / length
-    };
-    return ballDirection;
-}
-
-
-io.on('bateauPosition', (data) => {
-    console.log(`Bateau position updated for player ${data.playerId}: ${data.x}, ${data.y}, ${data.z}`);
-    players[socket.id].bateau.x = data.x;
-    players[socket.id].bateau.y = data.y;
-    players[socket.id].bateau.z = data.z;
-    players[socket.id].bateau.width = data.width;
-    players[socket.id].bateau.height = data.height;
-});
-
-function getRandomDirection(currentPosition, xMin, xMax) {
-
-    // Générer une position cible aléatoire sur l'axe x
-    const targetX = Math.random() * (xMax - xMin) + xMin;
-
-    // Calculer le y cible (inverse du y actuel)
-    const targetY = -currentPosition.y;
-
-    // Calculer le vecteur directionnel
-    const directionX = targetX - currentPosition.x;
-    const directionY = targetY - currentPosition.y;
-    console.log(`Direction X: ${directionX}, Direction Y: ${directionY}`);
-
-    // Normaliser le vecteur
-    const length = Math.sqrt(directionX * directionX + directionY * directionY);
-    const normalizedDirection = {
-        x: directionX / length,
-        y: directionY / length
-    };
-
-    return normalizedDirection; // Retourner le vecteur directionnel normalisé
-}
-
-function detectCollision(paddle, ball) {
-    // console.log(`=================================================================`);
-    // console.log(`Paddle position: ${paddle.x}, ${paddle.y}`);
-    // console.log(`Ball position: ${ball.x}, ${ball.y}`);
-    // console.log(`=================================================================`);
-    
-    // Vérifier si la balle est à l'intérieur des limites du paddle
-    if (ball.x >= paddle.x - paddle.width / 2 && ball.x <= paddle.x + paddle.width / 2 &&
-        ball.y >= paddle.y - paddle.height / 2 && ball.y <= paddle.y + paddle.height / 2) {
-        console.log(`Collision detected`);
-        return true;
-    }
-    return false;
-}
-
-const speed = 10;
-
-const FPS = 60;
-const TICK_RATE = 1000 / FPS;
-let lastUpdateTime = Date.now();
-
-function updateGameState() {
-    const now = Date.now();
-    const deltaTime = (now - lastUpdateTime) / 1000;
-    lastUpdateTime = now;
-
-    // Mettre à jour la position de la balle
-    updateBallPosition(deltaTime);
-
-    io.emit('gameState', { ballPosition, ballDirection });
-    // console.log(`Game state updated: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
-}
-
-function updateBallPosition(deltaTime) {
-    // ballDirection.x += ballPosition.x * speed * deltaTime;
-    // ballDirection.y += ballPosition.y * speed * deltaTime;
-
-    ballPosition.x += ballDirection.x * speed * deltaTime;
-    ballPosition.y += ballDirection.y * speed * deltaTime;
-
-    if ((ballPosition.x >= -15 && ballPosition.x <= 15) && (ballPosition.y >= -15 && ballPosition.y <= 15))
-    {
-        // console.log(`Ball position check: ${ballPosition.x}, ${ballPosition.y}`);
-        // console.log(`Ball direction check: ${ballDirection.x}, ${ballDirection.y}`);
-        if (!(ballPosition.x >= -5.65 && ballPosition.x <= -0.30) && (ballPosition.y == 15 || ballPosition.y == -15)) 
-        {
-            // console.log(`Ball position before direction change: ${ballPosition.x}, ${ballPosition.y}`);
-            ballDirection = getRandomDirection(ballPosition, -5.65, -0.30);
-            // console.log(`Ball direction updated after direction change: ${ballDirection.x}, ${ballDirection.y}`);
-        }
-        // else
-        // {
-        //     console.log(`No change in direction : ${ballDirection.x}, ${ballDirection.y}`);
-        //     ballDirection.x = -ballDirection.x;
-        //     ballDirection.y = -ballDirection.y;
-        // }
-    }
-    else
-    {
-        // console.log(`No change in direction : ${ballDirection.x}, ${ballDirection.y}`);
-        // console.log(`Ball direction before change: ${ballDirection.x}, ${ballDirection.y}`);
-        ballDirection.x = -ballDirection.x;
-        ballDirection.y = -ballDirection.y;
-        // console.log(`Ball direction after change: ${ballDirection.x}, ${ballDirection.y}`);
-    }
-
-    // Vérifier les collisions avec les paddles
-    for (let id in players) {
-        const player = players[id];
-        if (detectCollision(player.paddle, ballPosition)) {
-            // console.log('Collision detected');
-            ballDirection.y = -ballDirection.y;
-        }
-    }
-}
-
-// setInterval(() => {
-//     ballDirection.x *= 1.01;
-//     ballDirection.y *= 1.01;
-// }, 10000);
-
-function resetGame() {
-    ballPosition = { x: 0, y: 0, z: 5.5 };
-    ballDirection = { x: 0.02, y: 0.02, z: 0 };
-    // global.playerCount = 0;
-    for (let id in players) {
-        delete players[id];
-    }
-    if (gameInterval) {
-        clearInterval(gameInterval);
-        gameInterval = null;
-    }
-    io.emit('stopGame');
-}
-
-let lock = false;
-function acquireLock() {
-    return new Promise(resolve => {
-        const interval = setInterval(() => {
-            if (!lock) {
-                lock = true;
-                clearInterval(interval);
-                resolve();
+        game.teams.forEach((team, key) => {
+            console.log("key: " + key);
+            if (!team.getIsFull()) {
+                teamsData = [...teamsData, { name: team.name, value: key }];
             }
-        }, 10); // Vérifie toutes les 10ms
-    });
-}
 
-io.on('connection', async (socket) => {
-    await acquireLock();
-    const playerId = uuidv4(); // Générer un identifiant unique pour le joueur
-    console.log(`Player count Connection before: ${global.playerCount}`);
-    global.playerCount++;
-    console.log(`Player count Connection after: ${global.playerCount}`);
-    const playerRole = 'player' + global.playerCount;
-    // const playerRole = global.playerCount === 1 ? 'player1' : 'player2'; // Attribuer un rôle au joueur
-    players[socket.id] = { 
-        playerId, 
-        playerRole, 
-        paddle: { x: 0, y: 0, width: 1, height: 0.2 },
-        // ballDirection: {x: 0, y:0},
-    };
-    lock = false;
-    // ballDirection = {x: 0, y:0};
-    console.log(`Player connected: ${playerId} as ${playerRole}`);
+            let rolesData = [];
+            let rolesDataPossible = [
+                { name: "Capitaine", value: "captain" },
+                { name: "Cannonier", value: "Cannoneer" }
+            ];
 
-    // Envoyer l'identifiant unique et le rôle au client
-    socket.emit('playerInfo', { playerId, playerRole, ballDirection: ballDirection });
+            team.player.forEach((player, key) => {
+                console.log("key: " + key);
+                rolesData = [...rolesData, { name: player.getRole(), value: player.getRole() }];
+            });
 
-    // Envoyer la position initiale de la balle au nouveau client
-    console.log(`Ball position: ${ballPosition.x}, ${ballPosition.y}, ${ballPosition.z}`);
-    socket.emit('ballPosition', ballPosition);
-    // socket.emit('ballDirection', ballDirection);
+            let rolesDataAvailable = rolesDataPossible.filter(possibleRole => 
+                !rolesData.some(takenRole => takenRole.value === possibleRole.value)
+            );
 
-    // Démarrer le jeu lorsque deux joueurs sont connectés
-    if (global.playerCount === 2) {
-        ballPosition = { x: -2, y: 0, z: 5.5 };
-        io.emit('startGame');
-        io.on('playerInfo unknown', (data) => {
-            socket.emit('playerInfo', { playerId, playerRole });
+            teamsRolesData.set(key, rolesDataAvailable);
         });
-        gameInterval = setInterval(updateGameState, TICK_RATE); // Mettre à jour la position de la balle toutes les 16ms (~60fps)
-    }
 
-    // Gérer les événements de position des paddles
-    socket.on('paddlePosition', (data) => {
-        players[socket.id].paddle.x = data.x;
-        players[socket.id].paddle.y = data.y;
-        if (!global.ballDirectionInitialized && global.playerCount === 2) {
-            console.log(`Ball direction initialized`);
-            console.log(`Player count: ${global.playerCount}`);
-            for (let id in players) {
-                console.log(`Player paddle: ${players[id].playerRole}`);
+        const data = {
+            teams: teamsData,
+            teamsRoles: Array.from(teamsRolesData.entries()).map(([key, roles]) => ({
+                teamId: key,
+                roles: roles
+            }))
+        };
+        console.log("data: ", data);
+        io.to(gameCode).emit('AvailableOptions', data);
+    }
+}
+
+function checkIfGameIsFull(game, io, gameCode)
+{
+    const team1 = game.teams.get(1);
+    const team2 = game.teams.get(2);
+
+    if (team1.getIsFull() && team2.getIsFull()) {
+        io.to(gameCode).emit('TeamsFull');
+    }
+}
+
+io.on('connection', (socket) => {
+    socket.on('createGame', ({ numPlayersPerTeam }) => {
+        let gameCode;
+        do {
+            gameCode = generateGameCode();
+        } while (ChannelList.has(gameCode)); // Vérifier si le code existe déjà dans la Map
+
+        let channel = new Channel(gameCode, socket.id);
+        ChannelList.set(gameCode, channel);
+        let game = channel.getGame();
+        game.setNbPlayerPerTeam(numPlayersPerTeam);
+        console.log("numPlayersPerTeam: " + numPlayersPerTeam);
+        console.log(game.gameStarted);
+        game.setTeam(new Team("L'equipage du chapeau de paille", numPlayersPerTeam, 1));
+        game.setTeam(new Team("L'equipage de Barbe-Noire", numPlayersPerTeam, 2));
+        socket.join(gameCode);
+        socket.emit('gameCreated', { gameCode: gameCode });
+        updateGameOptions(game, io, gameCode);
+
+        socket.on('confirmChoices', (choices) => {
+            console.log(`Player ${socket.id}, ${choices.userName} has chosen ${choices.teamID} as their team and ${choices.role} as their role.`);
+            let team = game.getTeam(parseInt(choices.teamID));
+            if (team) {
+                team.setPlayer(new Player(socket.id, choices.role, choices.userName, parseInt(choices.teamID)));
+                sendPlayerLists(game, io, gameCode);
+            } else {
+                console.log("Équipe non trouvée");
+                socket.emit('error', { message: 'Équipe non trouvée' });
             }
-            ballDirection = initializeBallDirection();
-            // console.log(`Ball base direction updated: ${ballDirection.x}, ${ballDirection.y}`);
-            global.ballDirectionInitialized = true; 
-        }
-        // console.log(`Data Paddle position updated for player ${players[socket.id].playerId}: ${data.x}, ${data.y}`);
-        // console.log(`Player Paddle position updated for player ${players[socket.id].playerId}: ${players[socket.id].paddle.x}, ${players[socket.id].paddle.y}`);
-        // Envoyer la position du paddle à tous les clients
-        io.emit('paddlePosition', data);
+        });
     });
 
-    socket.on('disconnect', async () => {
-        await acquireLock();
-        delete players[socket.id];
-        console.log(`Player count disconnect before: ${global.playerCount}`);
-        global.playerCount--;
-        console.log(`Player count disconnect after: ${global.playerCount}`);
-        if (global.playerCount === 0)
-            resetGame();
-        if (global.playerCount === 1)
+    socket.on('launchGame', (gameCode) => {
+        const channel = ChannelList.get(gameCode);
+        const game = channel.getGame();
+        if (game.teams.get(1).getIsFull() && game.teams.get(2).getIsFull())
         {
-            io.emit('stopGame');
-            io.emit('winner', players[Object.keys(players)[0]].playerRole);
-            // window.location.href = '/lobby';
-            io.emit('stopGame');
-            global.ballDirectionInitialized = false;
+            if (channel.getCreator() === socket.id)
+            {
+                // game.startGame(io, gameCode);
+                io.to(gameCode).emit('startGame');
+
+            }
+            else
+            {
+                socket.emit('error', { message: 'Vous n\'êtes pas le créateur de la partie' });
+            }
         }
-        // Réinitialiser le jeu si un joueur se déconnecte
-        lock = false;
-        // resetGame();
+        else
+        {
+            socket.emit('error', { message: 'Toutes les équipes ne sont pas pleines' });
+        }
+    });
+
+    socket.on('joinGame', (data) => {
+        const gameCode = data.gameCode;
+        const channel = ChannelList.get(gameCode);
+        let game = channel.getGame();
+        const team1 = game.getTeam(1);
+        const team2 = game.getTeam(2);
+        if (channel) {
+            if (team1.getIsFull() && team2.getIsFull())
+            {
+                socket.emit('error', { message: 'Partie pleine' });
+                socket.leave(gameCode);
+                return;
+            }
+            socket.join(gameCode);
+            const allRooms = io.sockets.adapter.rooms;
+            const allSockets = [];
+            for (const [room, sockets] of Object.entries(allRooms)) {
+                allSockets.push(sockets);
+            }
+            console.log("allSockets: " + allSockets);
+            socket.emit('gameJoined', { gameCode: gameCode });
+            // sendPlayerLists(game, io, socket);
+        } else {
+            socket.emit('error', { message: 'Partie non trouvée' });
+            return;
+        }
+        updateGameOptions(game, io, gameCode);
+    
+        socket.on('confirmChoices', (choices) => {
+            console.log(`Player ${socket.id}, ${choices.userName} has chosen ${choices.teamID} as their team and ${choices.role} as their role.`);
+            let team = game.getTeam(parseInt(choices.teamID));
+            if (team) {
+                team.setPlayer(new Player(socket.id, choices.role, choices.userName, parseInt(choices.teamID)));
+                sendPlayerLists(game, io, gameCode);
+            } else {
+                console.log("Équipe non trouvée");
+                socket.emit('error', { message: 'Équipe non trouvée' });
+            }
+        });
+
+        setInterval(() => {
+            checkIfGameIsFull(game, io, gameCode);
+        }, 1000);
+    });
+
+    socket.on('GameStarted', (gameCode) => {
+        console.log("GameStarted");
+        console.log("data: ", gameCode);
+        console.log("data.gameCode : ", gameCode);
+        let game = ChannelList.get(gameCode).getGame();
+        if (game)
+        {
+            game.addNbPlayerConnected();
+            console.log("game.nbPlayerConnected: " + game.nbPlayerConnected);
+        }
+        else
+        {
+            console.log("Game not found");
+        }
+        if (game.nbPlayerConnected === game.nbPlayerPerTeam * 2)
+        {
+            game.sendGameData(io, gameCode);
+        }
+        else
+        {
+            console.log("game.nbPlayerConnected: " + game.nbPlayerConnected);
+            console.log("game.nbPlayerPerTeam: " + game.nbPlayerPerTeam);
+            console.log("Game is not full");
+        }
     });
 });
+
+function sendPlayerLists(game, io, gameCode) {
+    const teamsInfo = {};
+    console.log("game.teams: " + game.teams);
+    game.teams.forEach((team, key) => {
+        console.log("key: " + key);
+        if (team.player) {
+            teamsInfo[key] = Array.from(team.player.values()).map(player => ({
+                id: player.id,
+                name: player.name,
+                role: player.role
+            }));
+        }
+        else
+        {
+            console.log("team.player is empty");
+            teamsInfo[key] = [];
+        }
+    });
+    console.log("teamsInfo[1][0].name: " + teamsInfo[1][0].name);
+    // console.log("teamsInfo[2][0].name: " + teamsInfo[2][0].name);
+    io.to(gameCode).emit('updatePlayerLists', teamsInfo);
+}
 
 server.listen(3000, () => {
     console.log('Server is running on port 3000');
