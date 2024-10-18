@@ -31,7 +31,7 @@ export async function main(gameCode) {
         }
     });
 
-    const { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 } = initScene();
+    let { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 } = initScene();
 
     const GLTFloader = new GLTFLoader();
     const keys = {};
@@ -54,8 +54,25 @@ export async function main(gameCode) {
     // let Team1 = initTeam1(scene, paddle1, cannonGroup, bateau);
     // let Team2 = initTeam2(scene, paddle2, cannonGroup, bateau);
 
-    Team1.setCameraPosForAllPlayers(Team2.getBoat().position.x, Team2.getBoat().position.y, Team2.getBoat().position.z);
-    Team2.setCameraPosForAllPlayers(Team1.getBoat().position.x, Team1.getBoat().position.y, Team1.getBoat().position.z);
+    // Team1.setCameraPosForAllPlayers(Team2.getBoat().position.x, Team2.getBoat().position.y, Team2.getBoat().position.z);
+    // Team2.setCameraPosForAllPlayers(Team1.getBoat().position.x, Team1.getBoat().position.y, Team1.getBoat().position.z);
+    let player = null;
+    let playerTeam = null;
+    if (Team1.getPlayerById(socket.id))
+    {
+        player = Team1.getPlayerById(socket.id);
+        playerTeam = Team1;
+    }
+    else if (Team2.getPlayerById(socket.id))
+    {
+        player = Team2.getPlayerById(socket.id);
+        playerTeam = Team2;
+    }
+    console.log('player : ', player);
+    console.log('playerTeam : ', playerTeam);
+    player.setCameraPos(playerTeam.getBoat().position.x, playerTeam.getBoat().position.y, playerTeam.getBoat().position.z);
+    cameraPlayer = initCamera(player, cameraPlayer);
+    console.log('cameraPlayer : ', cameraPlayer);
 
     for (const player of Team1.getPlayerMap().values())
     {
@@ -153,12 +170,20 @@ function initGame(gameData)
     return { Team1: team1, Team2: team2 }; // Assurez-vous de retourner les équipes correctement
 }
 
+function initCamera(player, cameraPlayer)
+{
+    cameraPlayer.position.copy(player.getCameraPos());
+    cameraPlayer.rotation.copy(player.getCameraRotation());
+    return (cameraPlayer);
+}
+
 function initScene() {
     const scene = new THREE.Scene();
     const cameraPlayer = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+
     // Ajouter des lumières
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Lumière ambiante
 
@@ -215,6 +240,13 @@ function initBateaux(scene, gltfLoader) {
     return new Promise((resolve, reject) => {
         // Charger les modèles GLTF des bateaux
         gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
+            const texture = new THREE.TextureLoader().load('../../static/pong/assets/textures/bateau_texture.png');
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.map = texture;
+                    child.material.needsUpdate = true;
+                }
+            });
             const bateauTeam1 = gltf.scene.clone();
             bateauTeam1.position.set(0, 20, -1);
             bateauTeam1.scale.set(10, 5, 5);

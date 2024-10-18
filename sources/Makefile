@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nibernar <nibernar@student.42.fr>          +#+  +:+       +#+         #
+#    By: bfaure <bfaure@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/06/17 20:14:21 by jm                #+#    #+#              #
-#    Updated: 2024/09/04 17:16:03 by jm               ###   ########lyon.fr    #
+#    Updated: 2024/10/18 13:50:29 by bfaure           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -58,6 +58,10 @@ rmv : # clean data
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
+web : # Rebuild and restart only the web container
+	-docker compose -f $(COMPOSE_FILE) down web
+	-docker volume rm $$(docker volume ls --filter name=webapps --format "{{.Name}}")
+	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
 cleanv cv : # clean all volumes
 	-yes | docker volume prune
