@@ -8,6 +8,7 @@
         <link href="../static/authentification/css/loginPage.css" rel="stylesheet">
         <link href="../static/authentification/css/homePage.css" rel="stylesheet">
         <link href="../static/authentification/css/friendPage.css" rel="stylesheet">
+        <link href="../static/authentification/css/profilePage.css" rel="stylesheet">
         <title>ONE PONG</title>
 
     </head>
@@ -46,9 +47,9 @@
                     <p class="fontConnexion">
                         <input id="createUser" name="username" class="form-control" placeholder="User" aria-label="Username" style="font-family: arial" required>
                     </p>
-                    <p class="fontConnexion">
+                    <!-- <p class="fontConnexion">
                         <input id="createPicture" name="profile_picture" type="file" class="form-control" aria-label="Profile Picture">
-                    </p>
+                    </p> -->
                     <p class="fontConnexion" style="margin-top: -2px;">
                         <input id="createPassword" type="password" name="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
                     </p>
@@ -64,21 +65,20 @@
                 <div class="playButton" id="playButton">
                     <button class="playImg">PLAY</button>
                 </div>
-                <div class="friendDisplay" id="friendDisplay">
+                <div class="addFriend" id="addFriend">
                     <p>SOCIAL</p>
                     <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
                     <p>Friend</p>
                     <form method="post">
-                        <!-- {% csrf_token %} -->
+                        {% csrf_token %}
                         <div class="form-group">
                             <label for="friendUsernameADD">ADD FRIEND</label>
-                            <!-- <input type="username" class="form-control" aria-describedby="emailHelp" placeholder="Enter Username" id="usernameAddFriend" required> -->
                             <input type="text" class="form-control" placeholder="Enter Username" id="usernameAddFriend" name="username" required>
                         </div>
                         <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                     </form>
                 </div>
-                <button class="wantedProfile">
+                <button class="wantedProfile" id="wantedProfile">
                     <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
                     <h1 id="usernameDisplay"></h1>
                     <span>10.000</span>
@@ -88,14 +88,46 @@
                 <button id="buttonFriend"><img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
             </div>
         </div>
+        <div class="profilePage" id="profilePage">
+            <div style="display: block; flex-direction: column;">
+                <div class="friendDisplay" id="friendDisplay">
+                    <p>SOCIAL</p>
+                    <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
+                    <h1>Friends</h1>
+                    <div id="listFriend"></div>
+                
+                    <h1>Pending Friend Requests</h1>
+                    <div id="pendingRequests"></div>
+
+
+                    <form method="post" id="removeFriendForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="friendUsernameREMOVE">REMOVE FRIEND</label>
+                            <input type="text" class="form-control" placeholder="Enter Username" id="usernameRemoveFriend" name="username" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger" id="submitRemoveFriendButton">Remove</button>
+                    </form>
+                    
+                </div>
+                <button class="wantedProfile" id="wantedInProfilePage">
+                    <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
+                    <h1 id="usernameDisplay2"></h1> 
+                    <span>10.0</span>
+                </button>
+            </div>
+        </div>
         <script>
             var registerURL = '{% url 'register' %}';
             var loginURL = '{% url 'login' %}';
             var addFriendURL = '{% url 'add_friend' %}';
+            var profileURL = '{% url 'profile' %}';
+            var removeFriendURL = '{% url 'remove_friend' %}';
         </script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 pour le popup de l'invit, voir avec bootstrap-->
         <script src="../static/authentification/scriptJS/variablesLoginPage.js"></script>
         <script src="../static/authentification/scriptJS/variablesHomePage.js"></script>
+        <script src="../static/authentification/scriptJS/profilePage.js"></script>
         <script src="../static/authentification/scriptJS/flags.js"></script>
         <script src="../static/authentification/scriptJS/formCreateAccount.js"></script>
         <script src="../static/authentification/scriptJS/refreshPage.js"></script>

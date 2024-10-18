@@ -5,16 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect
 from django.urls import reverse
 from .models import FriendRequest
-from django.views.decorators.csrf import csrf_exempt
-# from channels.layers import get_channel_layer
-# from asgiref.sync import async_to_sync
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.utils.decorators import method_decorator
 from authentification.consumers.consumers import user_sockets
+from django.views.decorators.http import require_POST
 
 # envoyer un msg si meme email et ne pas rediriger sur home une fois register
-# @csrf_exempt
+@require_POST
+@csrf_protect
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -29,7 +29,8 @@ def register(request):
 def connect(request):
     return render(request, 'base.html')
 
-# @csrf_exempt
+@require_POST
+@csrf_protect
 def login_view(request):
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
@@ -53,6 +54,7 @@ def logout_view(request):
     return JsonResponse({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
 
 @login_required
+@method_decorator(csrf_protect, name='dispatch')
 def update_profile(request):
     if request.method == 'POST':
         form = UpdateUsernameForm(request.POST, instance=request.user)
@@ -64,6 +66,7 @@ def update_profile(request):
     return render(request, 'update_profile.html', {'form': form})
 
 @login_required
+@method_decorator(csrf_protect, name='dispatch')
 def update_photo(request):
     if request.method == 'POST':
         form = UpdatePhotoForm(request.POST, request.FILES, instance=request.user)
@@ -75,7 +78,7 @@ def update_photo(request):
     return render(request, 'update_photo.html', {'form': form})
 
 @login_required
-def friend(request):
+def profile(request):
     friends = request.user.friend_list.all()
     friend_list = [{'username': friend.username} for friend in friends]
 
@@ -87,7 +90,8 @@ def friend(request):
 
     response_data = {
         'friends': friend_list,
-        'pending_requests': pending_request_list
+        'pending_requests': pending_request_list,
+        'username': request.user.username,
     }
     return JsonResponse(response_data)
 
@@ -95,8 +99,10 @@ def friend(request):
 
 User = get_user_model()
 
-# @csrf_exempt
+
+@require_POST
 @login_required
+@csrf_protect
 def send_friend_request(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -135,25 +141,51 @@ def send_friend_request(request):
         }
         return JsonResponse(response)
 
-
+@require_POST
 @login_required
+@csrf_protect
 def remove_friend(request):
     if request.method == 'POST':
+        print("caaaaaacaaaaa", request.POST)
         username = request.POST.get('username')
+        if not username:
+            return JsonResponse({
+                'status': 'error',
+                'message': "Le nom d'utilisateur est requis."
+            })
+
         try:
             friend = User.objects.get(username=username)
-            if friend == request.user:
-                messages.error(request, "Vous ne pouvez pas vous retirer vous-même comme ami.")
-            elif not request.user.friend_list.filter(id=friend.id).exists():
-                messages.error(request, "Cet utilisateur n'est pas votre amis.")
-            else:
-                request.user.friend_list.remove(friend)
-                messages.success(request, f"{friend.username} a été retiré avec succées")
         except User.DoesNotExist:
-            messages.error(request, "Cet utilisateur n'existe pas.")
-        return redirect('friend')
+            return JsonResponse({
+                'status': 'error',
+                'message': "Cet utilisateur n'existe pas."
+            })
+
+        if friend == request.user:
+            return JsonResponse({
+                'status': 'error',
+                'message': "Vous ne pouvez pas vous retirer vous-même comme ami."
+            })
+
+        if not request.user.friend_list.filter(id=friend.id).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': "Cet utilisateur n'est pas votre ami."
+            })
+
+        request.user.friend_list.remove(friend)
+        return JsonResponse({
+            'status': 'success',
+            'message': f"{friend.username} a été retiré avec succès."
+        })
     else:
-        return render(request, 'friend.html')
+        response = {
+            'status': 'error',
+            'message': "Invalid request method."
+        }
+        return JsonResponse(response)
+
 
 @login_required
 def users(request, username):

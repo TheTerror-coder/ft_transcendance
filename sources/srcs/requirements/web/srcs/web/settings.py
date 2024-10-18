@@ -34,6 +34,14 @@ CSRF_TRUSTED_ORIGINS = [
 	'http://www.transcendance.fr:8080',
 	'https://www.transcendance.fr:8443',
 	'https://www.transcendance.fr'
+    'http://localhost:8080',
+    'http://localhost:8000',
+	'https://localhost:8443',
+	'https://localhost'
+    'http://127.0.0.1:8080',
+    'http://127.0.0.1:8000',
+	'https://127.0.0.1:8443',
+	'https://127.0.0.1'
 ]
 
 # Application definition
@@ -167,6 +175,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# CSRF_COOKIE_SECURE = False  # Devrait être False si tu es en local (HTTP)
+# CSRF_USE_SESSIONS = True # Cela peut affecter la gestion du CSRF
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

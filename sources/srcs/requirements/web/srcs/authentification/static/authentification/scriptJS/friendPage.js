@@ -1,31 +1,50 @@
 
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const buttonFriend = document.getElementById('buttonFriend');
     const submitFriendButton = document.getElementById('submitFriendButton');
     const playButton = document.getElementById('playButton');
-    const friendDisplay = document.getElementById('friendDisplay');
+    // const friendDisplay = document.getElementById('friendDisplay');
     const usernameAddFriend = document.getElementById('usernameAddFriend');
+    const addFriend = document.querySelector("#addFriend");
+
     // const addFriendForm = document.getElementById('add_friend_form');
 
     buttonFriend.onclick = friendPage;
     submitFriendButton.onclick = submitFriendInvite;
-
     function friendPage() {
         buttonFriend.style.display = 'none';
         playButton.style.display = 'none';
-        friendDisplay.style.display = 'block';
+        addFriend.style.display = 'block';
+        // friendDisplay.style.display = 'block';
     }
 
     function submitFriendInvite(event) {
         event.preventDefault();
         let username = usernameAddFriend.value;
-
+        const csrfToken = getCookie('csrftoken');
         fetch(addFriendURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-CSRFToken': csrfToken,
             },
+            credentials: "include",
             body: new URLSearchParams({
                 'username': username,
             }),

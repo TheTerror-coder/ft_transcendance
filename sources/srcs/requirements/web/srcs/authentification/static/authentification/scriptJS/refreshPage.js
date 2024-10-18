@@ -1,6 +1,7 @@
 
 buttonRefreshPage.onclick = refreshPage;
 
+
 function refreshPage()
 {
     document.getElementById('createEmail').value = "";
@@ -44,7 +45,6 @@ function deleteAllCookies() {
 }
 
 // function that catch when you click on the refresh button
-
 window.addEventListener('beforeunload', function (e) {
     // Delete all cookies
     deleteAllCookies();
@@ -54,4 +54,4 @@ window.addEventListener('beforeunload', function (e) {
 
     // Uncomment the next line if you want to show a confirmation dialog
     // e.returnValue = 'Are you sure you want to leave?';
-});
+})

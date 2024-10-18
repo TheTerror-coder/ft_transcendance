@@ -11,7 +11,6 @@ function putFormConnect()
     formConnect.style.display = 'flex';
 }
 
-
 document.getElementById('formConnect').addEventListener('submit', function(event) {
     event.preventDefault();
 
