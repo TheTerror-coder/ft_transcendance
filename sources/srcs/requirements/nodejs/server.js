@@ -15,11 +15,13 @@ const { v4: uuidv4 } = require('uuid');
 
 const ip = process.env.HOST_IP || "127.0.0.1";
 
+const allowedOrigins = ['http://' + ip + ':8888', 'http://' + ip + ':3000'];
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'http://' + ip + ':8888',
+        origin: allowedOrigins,
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
@@ -27,7 +29,7 @@ const io = socketIo(server, {
 });
 
 app.use(cors({
-    origin: 'http://' + ip + ':8888',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true
@@ -249,6 +251,6 @@ function sendPlayerLists(game, io, gameCode) {
     io.to(gameCode).emit('updatePlayerLists', teamsInfo);
 }
 
-server.listen(8888, () => {
-    console.log('Server is running on port 8888');
+server.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });

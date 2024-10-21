@@ -1,6 +1,6 @@
 import Team from './Team.js';
 import Player from './Player.js';
-import socket from './socket.js';
+// import socket from './socket.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // import { TextureLoader } from 'three/addons/loaders/TextureLoader.js';
@@ -9,7 +9,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 console.log("pong.js loaded");
 
-export async function main(gameCode) {
+export async function main(gameCode, socket) {
     // const socket = io('http://localhost:3000');
     console.log('socket : ', socket);
     
@@ -33,20 +33,30 @@ export async function main(gameCode) {
 
     let { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 } = initScene();
 
+    
+    // Créer un élément pour afficher la rotation
+    const rotationDisplay = document.createElement('div');
+    rotationDisplay.style.position = 'absolute';
+    rotationDisplay.style.top = '10px';
+    rotationDisplay.style.left = '10px';
+    rotationDisplay.style.color = 'white';
+    document.body.appendChild(rotationDisplay);
+    setupCameraControls(cameraPlayer, rotationDisplay); // Ajout de la ligne pour créer la caméra contrôlable
+
     const GLTFloader = new GLTFLoader();
     const keys = {};
     // let paddle1 = initPaddle();
     // let paddle2 = initPaddle();
     let cannonGroup = await initCannons(scene);
     console.log('CannonGroup:', cannonGroup);
-    Team1.setCannon(cannonGroup.get('cannonTeam1'));
-    Team2.setCannon(cannonGroup.get('cannonTeam2'));
     console.log('Team1 cannon:', Team1.getCannon());
     console.log('Team2 cannon:', Team2.getCannon());
     let bateau = await initBateaux(scene, GLTFloader);
     console.log('bateau:', bateau);
     Team1.setBoat(bateau.bateauTeam1);
     Team2.setBoat(bateau.bateauTeam2);
+    Team1.setCannon(cannonGroup.get('cannonTeam1'));
+    Team2.setCannon(cannonGroup.get('cannonTeam2'));
     console.log('Team1 boat:', Team1.getBoat());
     console.log('Team2 boat:', Team2.getBoat());
     let ocean = await initOceans(scene, new THREE.TextureLoader());
@@ -70,8 +80,10 @@ export async function main(gameCode) {
     }
     console.log('player : ', player);
     console.log('playerTeam : ', playerTeam);
-    player.setCameraPos(playerTeam.getBoat().position.x, playerTeam.getBoat().position.y, playerTeam.getBoat().position.z);
+    player.setCameraPos(playerTeam.getBoat(), playerTeam.getCannon());
     cameraPlayer = initCamera(player, cameraPlayer);
+    // cameraPlayer.position.set(0, 20, 70);
+    // cameraPlayer.rotation.set(0, 0, 0);
     console.log('cameraPlayer : ', cameraPlayer);
 
     for (const player of Team1.getPlayerMap().values())
@@ -173,13 +185,14 @@ function initGame(gameData)
 function initCamera(player, cameraPlayer)
 {
     cameraPlayer.position.copy(player.getCameraPos());
-    cameraPlayer.rotation.copy(player.getCameraRotation());
+    console.log('player.getCameraRotation() : ', player.getCameraRotation());
+    cameraPlayer.rotation.set(player.getCameraRotation().x, player.getCameraRotation().y, player.getCameraRotation().z);
     return (cameraPlayer);
 }
 
 function initScene() {
     const scene = new THREE.Scene();
-    const cameraPlayer = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const cameraPlayer = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -276,21 +289,21 @@ function initOceans(scene, textureLoader) {
                 const oceanGeometry = new THREE.PlaneGeometry(10000, 10000);
                 const oceanMaterial = new THREE.MeshBasicMaterial({ 
                     map: texture,
-                    side: THREE.DoubleSide // Rendre le plan visible des deux côtés
+                    side: THREE.FrontSide // Rendre le plan visible d'un seul côté
                 });
                 
                 const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
                 
                 // Positionner et orienter l'océan
-                ocean.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
+                // ocean.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
                 ocean.position.y = -1; // Légèrement en dessous du niveau 0 pour éviter les conflits avec d'autres objets
 
-                // Répéter la texture pour couvrir toute la surface
-                oceanTexture.wrapS = THREE.RepeatWrapping;
-                oceanTexture.wrapT = THREE.RepeatWrapping;
-                oceanTexture.repeat.set(100, 100); // Ajustez ces valeurs selon vos besoins
+                // Étirer la texture pour couvrir toute la surface sans répétition
+                texture.wrapS = THREE.ClampToEdgeWrapping;
+                texture.wrapT = THREE.ClampToEdgeWrapping;
+                texture.repeat.set(1, 1);
 
-                console.log('Ocean plane created successfully');
+                console.log('Plan océanique créé avec succès');
                 resolve(ocean);
             },
             // Fonction de progression (optionnelle)
@@ -375,6 +388,11 @@ async function initCannons(scene) {
         cannonTeam1.add(cannonSupport1);
         cannonTeam2.add(cannonSupport2);
 
+        // cannonTeam1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, 20, 60);
+        // cannonTeam2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, -20, 60);
+        cannonTeam1.scale.set(0.01, 0.03, 0.03);
+        cannonTeam2.scale.set(0.01, 0.03, 0.03);
+
         // Ajouter les groupes de canons à la Map
         cannonGroup.set('cannonTeam1', cannonTeam1);
         cannonGroup.set('cannonTeam2', cannonTeam2);
@@ -415,14 +433,14 @@ function updateAndEmitCannonPositions(socket, Team1, Team2, keys)
             {
                 console.log('key : Team1 Cannoneer d');
                 // Team1.getBoat().position.x += 0.1;
-                Team1.getCannon().position.x += 0.1;
+                Team1.getCannon().position.x -= 0.1;
                 socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
             }
             if (keys && keys['a'])
             {
                 console.log('key : Team1 Cannoneer a');
                 // Team1.getBoat().position.x -= 0.1;
-                Team1.getCannon().position.x -= 0.1;
+                Team1.getCannon().position.x += 0.1;
                 socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
             }
         }
@@ -459,15 +477,15 @@ function updateAndEmitBoatPositions(socket, Team1, Team2, keys)
             if (keys && keys['d'])
             {
                 console.log('key : Team1 Captain d');
-                Team1.getBoat().position.x += 0.1;
-                Team1.getCannon().position.x += 0.1;
+                Team1.getBoat().position.x -= 0.1;
+                Team1.getCannon().position.x -= 0.1;
                 socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam1', x: Team1.getBoat().position.x, y: Team1.getBoat().position.y });
             }
             if (keys && keys['a'])
             {
                 console.log('key : Team1 Captain a');
-                Team1.getBoat().position.x -= 0.1;
-                Team1.getCannon().position.x -= 0.1;
+                Team1.getBoat().position.x += 0.1;
+                Team1.getCannon().position.x += 0.1;
                 socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam1', x: Team1.getBoat().position.x, y: Team1.getBoat().position.y });
             }
         } 
@@ -580,4 +598,60 @@ function setupSocketListeners(socket, Team1, Team2)
     });
 
     // Autres écouteurs...
+}
+
+function setupCameraControls(cameraPlayer, rotationDisplay) {
+    const keys = {};
+    let isCameraControlActive = false;
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'c') {
+            isCameraControlActive = !isCameraControlActive; // Activer ou désactiver le contrôle de la caméra
+        }
+        keys[event.key] = true;
+    });
+
+    window.addEventListener('keyup', (event) => {
+        keys[event.key] = false;
+    });
+
+    function updateCameraPosition() {
+        if (isCameraControlActive) {
+            if (keys['ArrowUp']) {
+                cameraPlayer.position.z -= 0.1; // Avancer
+            }
+            if (keys['ArrowDown']) {
+                cameraPlayer.position.z += 0.1; // Reculer
+            }
+            if (keys['ArrowLeft']) {
+                cameraPlayer.position.x -= 0.1; // Déplacer à gauche
+            }
+            if (keys['ArrowRight']) {
+                cameraPlayer.position.x += 0.1; // Déplacer à droite
+            }
+            if (keys['q']) { // Rotation à gauche
+                cameraPlayer.rotation.y -= 0.01;
+            }
+            if (keys['e']) { // Rotation à droite
+                cameraPlayer.rotation.y += 0.01;
+            }
+            if (keys['r']) { // Rotation vers le haut
+                cameraPlayer.rotation.x -= 0.01;
+            }
+            if (keys['f']) { // Rotation vers le bas
+                cameraPlayer.rotation.x += 0.01;
+            }
+            if (keys['t']) { // Rotation vers le haut
+                cameraPlayer.rotation.z += 0.01;
+            }
+            if (keys['g']) { // Rotation vers le bas
+                cameraPlayer.rotation.z -= 0.01;
+            }
+        }
+
+        // Afficher les valeurs de rotation en temps réel
+        rotationDisplay.innerText = `Rotation - X: ${cameraPlayer.rotation.x.toFixed(2)}, Y: ${cameraPlayer.rotation.y.toFixed(2)}, Z: ${cameraPlayer.rotation.z.toFixed(2)}`;
+    }
+
+    setInterval(updateCameraPosition, 16); // Mettre à jour la position de la caméra à chaque intervalle
 }
