@@ -1,6 +1,13 @@
 import socketIOClient from 'socket.io-client';
 
-const ip = process.env.HOST_IP || "127.0.0.1";
+let ip;
+
+fetch('./config.json')
+    .then(response => response.json())
+    .then(data => {
+        console.log("data: " + data.HOST_IP);
+        ip = data.HOST_IP;
+    });
 
 const socket = socketIOClient('http://' + ip + ':8888');
 
