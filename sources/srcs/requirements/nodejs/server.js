@@ -249,6 +249,6 @@ function sendPlayerLists(game, io, gameCode) {
     io.to(gameCode).emit('updatePlayerLists', teamsInfo);
 }
 
-server.listen(3000, () => {
-    console.log('Server is running on port 3000');
+server.listen(8888, () => {
+    console.log('Server is running on port 8888');
 });
