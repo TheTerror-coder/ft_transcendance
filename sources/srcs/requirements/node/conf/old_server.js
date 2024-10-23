@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'http://127.0.0.1:8888', // Remplacez par l'URL de votre application Django
+        origin: 'http://localhost:8888', // Remplacez par l'URL de votre application Django
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
@@ -17,7 +17,7 @@ const io = socketIo(server, {
 
 // Utilisez le middleware CORS
 app.use(cors({
-    origin: 'http://127.0.0.1:8888', // Remplacez par l'URL de votre application Django
+    origin: 'http://localhost:8888', // Remplacez par l'URL de votre application Django
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true

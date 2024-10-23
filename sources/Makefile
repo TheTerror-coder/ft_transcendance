@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> bfaure
 ENV :=./srcs/.env
 COMPOSE_FILE= ./srcs/docker-compose.yml
 export HOST_IP=$(shell hostname -I | awk '{print $$1}')

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='photo',
-            field=models.ImageField(blank=True, default='../static/media/photos/default.png', null=True, upload_to='../static/media/photos/', validators=[authentification.models.validate_image_extension]),
+            field=models.ImageField(blank=True, default='../static/photos/default.png', null=True, upload_to='../static/photos/', validators=[authentification.models.validate_image_extension]),
         ),
     ]

@@ -30,23 +30,17 @@ chmod 1500 ${WEB_HOME}/secrets
 chown -R ${WEB_UID}:${SHARED_GID} ${WEB_HOME}
 chown ${WEB_UID}:${WEB_GID} ${WEB_HOME}/secrets
 pip install -r ./requirements.txt
+pip install django-cors-headers
 EOF
 
-RUN pip install django-cors-headers --timeout=100 --index-url=https://pypi.org/simple
+COPY ./srcs/ .
 COPY --chown=${WEB_UID}:${WEB_GID} --chmod=700 ./tools/script.sh ${WEB_HOME}/container-init.d
 COPY --chown=${WEB_UID}:${WEB_GID} --chmod=770 ./srcs/ ${WEB_HOME}/apps
+COPY --chown=${WEB_UID}:${WEB_GID} --chmod=770 ./tools/HOST_IP.sh ${WEB_HOME}/container-init.d
 
 WORKDIR ${WEB_HOME}/apps
 
 USER ${WEB_UID}
-
-COPY ./tools/HOST_IP.sh .
-
-COPY ./srcs/ .
-
-RUN chmod +x ./HOST_IP.sh
-
-RUN ./HOST_IP.sh
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/usr/share/web/container-init.d/script.sh" ]

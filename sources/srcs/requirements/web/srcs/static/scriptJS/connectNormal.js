@@ -1,4 +1,4 @@
-// const ip = process.env.HOST_IP || "127.0.0.1";
+// const ip = process.env.HOST_IP || "localhost";
 
 var socket
 
@@ -55,7 +55,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                 alert('connecting...');
                 let usernameElement = document.querySelector("#usernameDisplay");
                 usernameElement.textContent = `${data.username}`;
-                socket = new WebSocket("ws://127.0.0.1:8000/ws/friend_invite/");
+                socket = new WebSocket("ws://localhost:8000/ws/friend_invite/");
                 socket.onopen = function() {
                     console.log("WebSocket connection established.");
                 };

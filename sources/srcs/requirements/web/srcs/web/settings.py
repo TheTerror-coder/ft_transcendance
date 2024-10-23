@@ -47,14 +47,6 @@ CORS_ALLOW_METHODS = [
 
 CORS_ALLOW_HEADERS = [
     "Content-Type",
-    'http://localhost:8080',
-    'http://localhost:8000',
-	'https://localhost:8443',
-	'https://localhost'
-    'http://127.0.0.1:8080',
-    'http://127.0.0.1:8000',
-	'https://127.0.0.1:8443',
-	'https://127.0.0.1'
 ]
 
 # Application definition
@@ -121,7 +113,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('localhost', 6379)],
         },
     },
 }

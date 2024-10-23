@@ -1,5 +1,7 @@
 #!/bin/sh
 
+sh -c $WEB_HOME/container-init.d/HOST_IP.sh
+
 # tail -f /dev/null
 if	! test -e $HEALTHFLAG_FILE
 then

@@ -13,7 +13,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-const ip = process.env.HOST_IP || "127.0.0.1";
+const ip = process.env.HOST_IP || "localhost";
 
 const allowedOrigins = ['http://' + ip + ':8888', 'http://' + ip + ':3000'];
 
