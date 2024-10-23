@@ -53,25 +53,33 @@ class Player
         console.log('this.TeamID : ', this.TeamID);
         console.log('this.role : ', this.role);
         var p = 0;
-        var r = 0;
+        var rx = 0;
+        var ry = 0;
+        var rz = 0;
         var s = 0;
         var a = 0;
 
         if (this.TeamID == 1)
         {
-            p = -2.9;
-            r = 60 * (Math.PI / 180);
+            p = -(cannon.scale.y * 2.5)
+            rx = 60 * (Math.PI / 180);
+            ry = -Math.PI;
+            rz = 0;
             s = Math.PI;
             a = 5;
         }
         else if (this.TeamID == 2)
         {
-            p = 2.9;
-            r = -60 * (Math.PI / 180);
+            p = cannon.scale.y * 2.5;
+            rx = 60 * (Math.PI / 180);
+            ry = 0;
+            rz = 0;
             s = 0;
             a = -5;
         }
-        console.log('r : ', r);
+        console.log('rx : ', rx);
+        console.log('ry : ', ry);
+        console.log('rz : ', rz);
         if (this.role == 'captain')
         {
             this.cameraPos = { x: boat.position.x, y: a, z: 40 };
@@ -79,10 +87,10 @@ class Player
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);
         }
-        else if (this.role == 'cannoneer')
+        else if (this.role == 'Cannoneer')
         {
-            this.cameraPos = { x: boat.position.x, y: boat.position.y + p, z: boat.position.z + 2.5 };
-            this.cameraRotation = { x: r, y: 0, z: 0 };
+            this.cameraPos = { x: cannon.position.x, y: cannon.position.y + p, z: cannon.position.z + 2.5 };
+            this.cameraRotation = { x: rx, y: ry, z: rz };
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);
         }

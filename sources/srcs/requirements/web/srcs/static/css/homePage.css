@@ -1,6 +1,6 @@
 @font-face {
     font-family: wantedFont;
-    src: url(../static/authentification/wantedFont.ttf);
+    src: url(wantedFont.ttf);
 }
 
 .friendButton
@@ -31,7 +31,7 @@
 
 .wantedProfile
 {
-    background-image: url('../../media/photos/picturePng/homePage/Wanted_connexion.png');
+    background-image: url('../photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
     opacity: 90%;
@@ -91,7 +91,7 @@
     display: flex;
     margin-right: -300px;
     justify-content: center;
-    background-image: url('../../media/photos/picturePng/homePage/Logo_One_Piece.png');
+    background-image: url('../photos/picturePng/homePage/Logo_One_Piece.png');
     align-items: center;
     background-position: center;
     padding: 10px 20px;
@@ -161,7 +161,7 @@
 
 .rapidPlay
 {
-    background-image: url('../../media/photos/picturePng/homePage/Kizaru.png');
+    background-image: url('../photos/picturePng/homePage/Kizaru.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;

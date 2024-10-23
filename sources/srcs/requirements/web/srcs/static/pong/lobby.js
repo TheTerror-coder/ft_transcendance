@@ -13,7 +13,7 @@ const initializeSocket = async () => {
         const response = await fetch('../../static/config.json');
         if (!response.ok) {
             console.error('Erreur réseau : ' + response.statusText);
-            ip = '127.0.0.1';
+            ip = 'localhost';
             socket = socketIOClient('http://' + ip + ':3000');
             console.log("Socket initialized: ", socket);
             return socket; // Retourner la socket

@@ -31,15 +31,12 @@ DEBUG = True
 ALLOWED_HOSTS = [ '*' ]
 
 CSRF_TRUSTED_ORIGINS = [
-	'http://www.transcendance.fr:8080',
-	'https://www.transcendance.fr:8443',
-	'https://www.transcendance.fr',
+    'http://*',
     'http://host.docker.internal:8888',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://10.13.2.6:8888',
-    'http://127.0.0.1:8888',
+    'http://localhost:8888',
     'http://host.docker.internal:8888',
 ]
 
@@ -50,14 +47,6 @@ CORS_ALLOW_METHODS = [
 
 CORS_ALLOW_HEADERS = [
     "Content-Type",
-    'http://localhost:8080',
-    'http://localhost:8000',
-	'https://localhost:8443',
-	'https://localhost'
-    'http://127.0.0.1:8080',
-    'http://127.0.0.1:8000',
-	'https://127.0.0.1:8443',
-	'https://127.0.0.1'
 ]
 
 # Application definition
@@ -124,7 +113,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('host.docker.internal', 6379)],
+            "hosts": [('localhost', 6379)],
         },
     },
 }

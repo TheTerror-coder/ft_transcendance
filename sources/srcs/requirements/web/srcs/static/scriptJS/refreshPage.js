@@ -22,7 +22,7 @@ function refreshPage()
 
 function refreshLoginPage()
 {
-    background.style.backgroundImage = "url('media/photos/picturePng/loginPage/landscapeOnePiece.png')";
+    background.style.backgroundImage = "url('photos/picturePng/loginPage/landscapeOnePiece.png')";
     loginButton.style.display = 'block';
     woodPresentation.style.display = 'block';
     flag.className = "flag";
@@ -36,7 +36,7 @@ function refreshLoginPage()
 function refreshHomePage()
 {
     // checkPoint();
-    background.style.backgroundImage = "url('media/photos/picturePng/homePage/landscape_menu.png')";
+    background.style.backgroundImage = "url('photos/picturePng/homePage/landscape_menu.png')";
     loginButton.style.display = 'none';
     woodPresentation.style.display = 'none';
     flag.className = "homepageFlag";

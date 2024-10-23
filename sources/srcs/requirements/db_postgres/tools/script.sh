@@ -1,13 +1,11 @@
-#!/bin/sh
-
-set -e
+#!/bin/sh -e
 
 if	! test -e $HEALTHFLAG_FILE
 then
 	echo -e "\n--- Setting POSTGRES_PASSWORD ---"
 	export POSTGRES_PASSWORD=$( \
 		curl -s --cacert $VAULT_CACERT \
-			-H "Authorization: Bearer $(cat /run/secrets/secret_access_token)" \
+			-H "Authorization: Bearer $SECRET_ACCESS_TOKEN" \
 			https://vault_c:8200/v1/secret/data/postgres | \
 			jq -r .data.data.password \
 	)

@@ -1,32 +1,35 @@
 # Nginx configuration for both HTTP and SSL
-# Nginx configuration for reverse-proxying django's web application server
+# Nginx configuration for reverse-proxying vault server
 
 server_tokens off;
+
+log_format vaultlog '$realip_remote_addr - $remote_user [$time_local] "$request" '
+			'$status $body_bytes_sent "$http_referer" '
+			'"$http_user_agent" "$http_x_forwarded_for"';
 
 map $http_upgrade $connection_upgrade {
 	default upgrade;
 	'' close;
 }
 
-upstream webmediator {
-	server		web:8000;
+upstream vaultmediator {
+	server		vault:8200;
 }
 
 server {
-	listen 8080;
+	listen 2880;
 
 	server_name transcendance.fr www.transcendance.fr;
-	set $upstream http://webmediator;
-	# set $upstream https://webmediator; # TODO: uncomment at production
+	set $upstream https://vaultmediator;
 	set $always_redirect on;
 
+	access_log /var/log/nginx/vault.access.log vaultlog;
 	
-
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host$request_uri;
+			return 301 https://$host:2443$request_uri;
 		}
 	}
 
@@ -35,15 +38,16 @@ server {
 }
 
 server {
-	listen 8443 ssl;
-	listen [::]:8443 ssl;
+	listen 2443 ssl;
+	listen [::]:2443 ssl;
 
-	server_name transcendance.fr www.transcendance.fr;
-	set $upstream http://webmediator;
-	# set $upstream https://webmediator; # TODO: uncomment at production
+	server_name vault.transcendance.fr www.vault.transcendance.fr;
+	set $upstream https://vaultmediator;
 
-	ssl_certificate /etc/nginx/ssl/nginx.crt;
-	ssl_certificate_key /etc/nginx/ssl/nginx.key;
+	access_log /var/log/nginx/vault.access.log vaultlog;
+
+	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
+	ssl_certificate_key /usr/share/nginx/volumes/nginx/certs/nginx.key;
 	ssl_session_timeout 1d;
 	ssl_session_cache shared:MozSSL:10m;
 	ssl_session_tickets off;
@@ -60,18 +64,6 @@ server {
 	ssl_verify_client off;
 	ssl_verify_depth 1;
 
-	location ~* .(mp4|webm|jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf)$
-	{
-		add_header	X-InStaticREGex-uri "$uri" always;
-		root   /usr/share/www/static/;
-	}
-
-	location ^~ /static/ {
-		add_header	X-InStatic-uri "$uri" always;
-		root   /usr/share/www;
-		try_files	$uri $uri/ =404;
-	}
-
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
@@ -81,10 +73,10 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		# proxy_ssl_trusted_certificate	/etc/nginx/ssl/ca/root_ca.crt;
-		# proxy_ssl_verify	on;
-		# proxy_ssl_verify_depth	2;
-		
+		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/vault/certs/ca/ca.crt;
+		proxy_ssl_verify	on;
+		proxy_ssl_verify_depth	1;
+
 		include includes/proxy_backend.conf;
 	}
 
