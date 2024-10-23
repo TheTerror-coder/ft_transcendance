@@ -17,6 +17,7 @@ function refreshPage()
     buttonConnec.style.display = 'block';
     buttonCreateAccount.style.display = 'block';
     loginPage.style.display = 'block';
+    history.pushState(null, null, "/login");
 }
 
 function refreshLoginPage()
@@ -29,6 +30,7 @@ function refreshLoginPage()
 
     homePage.style.display = 'none';
     centerHomepage.style.display = 'none';
+    history.pushState(null, null, "/login");
 }
 
 function refreshHomePage()
@@ -48,12 +50,15 @@ function refreshHomePage()
     
     homePage.style.display = 'flex';
     centerHomepage.style.display = 'flex';
+    history.pushState(null, null, "/homepage");
+
 }
 
 function lobbyDisplay()
 {
     videoBackground.style.display = "block";
     homePage.style.display = "none";
+    history.pushState(null, null, "/lobby");
 }
 
 function profileDisplay()
@@ -74,9 +79,23 @@ function checkPoint()
 {
     window.location.hash = "#homepage";
     // Save this in localStorage as a checkpoint
-    localStorage.setItem('activeSection', '#homepage');
     console.log(window.location.pathname);
     // deleteAllCookies();
 
 }
+
+window.addEventListener('beforeunload', function (event) {
+    // Optionally display a confirmation dialog (in some browsers)
+    event.preventDefault(); // Prevents the default action
+    path = window.location.pathname;
+    const routes = {
+        '/': refreshLoginPage,
+        '/login': refreshLoginPage,
+        '/homepage': refreshHomePage,
+        '/lobby': lobbyDisplay,
+    }
+    console.log("test gang " + routes[path]);
+    alert('test');
+    routes[path]
+});
 

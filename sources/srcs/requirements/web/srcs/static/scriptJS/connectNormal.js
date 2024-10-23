@@ -1,5 +1,25 @@
 // const ip = process.env.HOST_IP || "127.0.0.1";
 
+let IP_g;
+
+const initIP = async () => {
+
+    const response = await fetch('../static/config.json');
+    if (!response.ok)
+    {
+        console.error('Erreur réseau : ' + response.statusText);
+        IP_g = '127.0.0.1:8888';
+        console.log('ip: ', IP_g);
+    }
+    else 
+    {
+        const data = await response.json();
+        IP_g = data.HOST_IP + ':8888';
+        console.log('ip: ', IP_g);
+    }
+    return IP_g;
+}
+
 var socket
 
 buttonConnec.onclick = putFormConnect;
@@ -28,15 +48,16 @@ function putFormConnect()
     formConnect.style.display = 'flex';
 }
 
-document.getElementById('formConnect').addEventListener('submit', function(event) {
+document.getElementById('formConnect').addEventListener('submit', async function(event) {
     event.preventDefault();
+    await initIP();
 
     if (this.checkValidity()) {
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const csrfToken = getCookie('csrftoken');
-        fetch(loginURL, {
+        await fetch(loginURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -55,9 +76,9 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                 alert('connecting...');
                 let usernameElement = document.querySelector("#usernameDisplay");
                 usernameElement.textContent = `${data.username}`;
-                socket = new WebSocket("ws://" + ip + "/ws/friend_invite/");
+                socket = new WebSocket("ws://" + IP_g + "/ws/friend_invite/");
                 socket.onopen = function() {
-                    console.log("WebSocket connection established.");
+                    console.log("WebSocket connection established.", socket);
                 };
         
                 socket.onerror = function(error) {

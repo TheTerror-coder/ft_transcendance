@@ -10,7 +10,7 @@ let socket;
 // Fonction pour initialiser la socket
 const initializeSocket = async () => {
     try {
-        const response = await fetch('../../static/pong/config.json');
+        const response = await fetch('../../static/config.json');
         if (!response.ok) {
             console.error('Erreur réseau : ' + response.statusText);
             ip = '127.0.0.1';

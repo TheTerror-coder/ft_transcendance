@@ -79,7 +79,7 @@
     color: transparent;
     font-size: 600%;
     font-family: onePieceFont;
-    -webkit-text-stroke: 0.5px rgb(255, 255, 255);
+    -webkit-text-stroke: 2px rgb(255, 255, 255);
     font-weight: 700;
     padding: 70px;
     z-index: 3;
@@ -89,7 +89,7 @@
 {
     flex-grow: 1;
     display: flex;
-    margin-left: -300.16px;
+    margin-right: -300px;
     justify-content: center;
     background-image: url('../../media/photos/picturePng/homePage/Logo_One_Piece.png');
     align-items: center;
