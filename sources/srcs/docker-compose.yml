@@ -373,10 +373,10 @@ volumes:
     driver: local
   webapps:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${WEBAPPS_VOLUME}
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: ${WEBAPPS_VOLUME}
   staticfiles:
     driver: local
   certs:

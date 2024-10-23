@@ -43,7 +43,9 @@ rmi : # Removes images
 	-docker rmi $$(docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
 	-docker volume prune -f
-	-sudo rm -rf ./srcs/requirements/web/webapps/*
+	-rm -rf ./srcs/requirements/web/webapps/*
+#TODO: enable below line and disable the above one on personal space monitorable by sudo
+#	-sudo rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
