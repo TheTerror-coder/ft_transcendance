@@ -1,6 +1,5 @@
 import Team from './Team.js';
 import Player from './Player.js';
-// import socket from './socket.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // import { TextureLoader } from 'three/addons/loaders/TextureLoader.js';
@@ -10,7 +9,6 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 console.log("pong.js loaded");
 
 export async function main(gameCode, socket) {
-    // const socket = io('http://localhost:3000');
     console.log('socket : ', socket);
     
     socket.emit('GameStarted', gameCode);
@@ -34,19 +32,19 @@ export async function main(gameCode, socket) {
     let { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 } = initScene();
 
     
-    // Créer un élément pour afficher la rotation
-    const rotationDisplay = document.createElement('div');
-    rotationDisplay.style.position = 'absolute';
-    rotationDisplay.style.top = '10px';
-    rotationDisplay.style.left = '10px';
-    rotationDisplay.style.color = 'white';
-    document.body.appendChild(rotationDisplay);
-    setupCameraControls(cameraPlayer, rotationDisplay); // Ajout de la ligne pour créer la caméra contrôlable
-
+    // Créer un élément pour afficher la rotation et la position
+    const displayInfo = document.createElement('div');
+    displayInfo.style.position = 'absolute';
+    displayInfo.style.top = '10px';
+    displayInfo.style.left = '10px';
+    displayInfo.style.color = 'white';
+    document.body.appendChild(displayInfo);
+    
+    // Créer une caméra contrôlable
+    setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
+    
     const GLTFloader = new GLTFLoader();
     const keys = {};
-    // let paddle1 = initPaddle();
-    // let paddle2 = initPaddle();
     let cannonGroup = await initCannons(scene);
     console.log('CannonGroup:', cannonGroup);
     console.log('Team1 cannon:', Team1.getCannon());
@@ -61,11 +59,7 @@ export async function main(gameCode, socket) {
     console.log('Team2 boat:', Team2.getBoat());
     let ocean = await initOceans(scene, new THREE.TextureLoader());
     let ball = await initBall();
-    // let Team1 = initTeam1(scene, paddle1, cannonGroup, bateau);
-    // let Team2 = initTeam2(scene, paddle2, cannonGroup, bateau);
 
-    // Team1.setCameraPosForAllPlayers(Team2.getBoat().position.x, Team2.getBoat().position.y, Team2.getBoat().position.z);
-    // Team2.setCameraPosForAllPlayers(Team1.getBoat().position.x, Team1.getBoat().position.y, Team1.getBoat().position.z);
     let player = null;
     let playerTeam = null;
     if (Team1.getPlayerById(socket.id))
@@ -237,7 +231,7 @@ function setupEventListeners(socket, keys, cameraPlayer) {
 function initBall() {
     return new Promise((resolve, reject) => {
         try {
-            const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+            const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
             const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             console.log('Ball initialized successfully');
@@ -600,7 +594,7 @@ function setupSocketListeners(socket, Team1, Team2)
     // Autres écouteurs...
 }
 
-function setupCameraControls(cameraPlayer, rotationDisplay) {
+function setupCameraControls(cameraPlayer, displayInfo) {
     const keys = {};
     let isCameraControlActive = false;
 
@@ -617,6 +611,21 @@ function setupCameraControls(cameraPlayer, rotationDisplay) {
 
     function updateCameraPosition() {
         if (isCameraControlActive) {
+            // Créer un vecteur de direction pour le mouvement
+            const direction = new THREE.Vector3(); // Déclaration de la variable direction ici
+            cameraPlayer.getWorldDirection(direction); // Obtenir la direction dans laquelle la caméra regarde
+
+            // Normaliser le vecteur de direction pour éviter un mouvement plus rapide
+            direction.y = 0; // Ignorer la direction verticale
+            direction.normalize();
+
+            // Déplacement de la caméra
+            if (keys['w']) { // Avancer
+                cameraPlayer.position.add(direction.clone().multiplyScalar(0.1)); // Avancer dans la direction de la caméra
+            }
+            if (keys['s']) { // Reculer
+                cameraPlayer.position.add(direction.clone().multiplyScalar(-0.1)); // Reculer dans la direction opposée
+            }
             if (keys['ArrowUp']) {
                 cameraPlayer.position.z -= 0.1; // Avancer
             }
@@ -649,8 +658,9 @@ function setupCameraControls(cameraPlayer, rotationDisplay) {
             }
         }
 
-        // Afficher les valeurs de rotation en temps réel
-        rotationDisplay.innerText = `Rotation - X: ${cameraPlayer.rotation.x.toFixed(2)}, Y: ${cameraPlayer.rotation.y.toFixed(2)}, Z: ${cameraPlayer.rotation.z.toFixed(2)}`;
+        // Afficher les valeurs de position et de rotation en temps réel
+        displayInfo.innerText = `Position - X: ${cameraPlayer.position.x.toFixed(2)}, Y: ${cameraPlayer.position.y.toFixed(2)}, Z: ${cameraPlayer.position.z.toFixed(2)}\n` +
+                                 `Rotation - X: ${cameraPlayer.rotation.x.toFixed(2)}, Y: ${cameraPlayer.rotation.y.toFixed(2)}, Z: ${cameraPlayer.rotation.z.toFixed(2)}`;
     }
 
     setInterval(updateCameraPosition, 16); // Mettre à jour la position de la caméra à chaque intervalle
