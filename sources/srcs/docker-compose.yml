@@ -148,6 +148,8 @@ services:
         - WEB_HOME=${WEB_HOME}
         - WEB_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
         - STATICFILES_DIR=${WEB_STATICFILES_DIR}
+        - STATICFILES_DIR=${STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
       - WEB_HOME=${WEB_HOME}
@@ -161,6 +163,7 @@ services:
       - WEB_ROOT_CA=${WEB_ROOT_CA}
       - VAULT_CACERT=${WEB_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
     volumes:
       - webapps:${WEB_HOME}/apps
       - staticfiles:${WEB_STATICFILES_DIR}
@@ -202,7 +205,8 @@ services:
         - SHARED_GID=${SHARED_GID}
         - NODE_HOME=${NODE_HOME}
         - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
-    # environment:
+    environment:
+      - HOST_IP=${HOST_IP}
     expose:
       - ${NODE_PORT}
     networks:

@@ -3,6 +3,9 @@
 ARG WEB_TAG=3.10.15-alpine3.20
 
 FROM python:${WEB_TAG}
+# ARG HOST_IP
+
+# ENV HOST_IP=${HOST_IP}
 
 ARG WEB_UID=1111
 ARG WEB_GID=1111
@@ -29,6 +32,7 @@ chown ${WEB_UID}:${WEB_GID} ${WEB_HOME}/secrets
 pip install -r ./requirements.txt
 EOF
 
+RUN pip install django-cors-headers --timeout=100 --index-url=https://pypi.org/simple
 COPY --chown=${WEB_UID}:${WEB_GID} --chmod=700 ./tools/script.sh ${WEB_HOME}/container-init.d
 COPY --chown=${WEB_UID}:${WEB_GID} --chmod=770 ./srcs/ ${WEB_HOME}/apps
 
@@ -36,7 +40,17 @@ WORKDIR ${WEB_HOME}/apps
 
 USER ${WEB_UID}
 
+COPY ./tools/HOST_IP.sh .
+
+COPY ./srcs/ .
+
+RUN chmod +x ./HOST_IP.sh
+
+RUN ./HOST_IP.sh
+
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/usr/share/web/container-init.d/script.sh" ]
+
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

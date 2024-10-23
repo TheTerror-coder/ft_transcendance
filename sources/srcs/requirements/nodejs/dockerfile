@@ -1,0 +1,28 @@
+# Utiliser une image de base officielle de Node.js
+FROM node:14
+
+ARG HOST_IP
+
+ENV HOST_IP=${HOST_IP}
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /app
+
+# Copier le package.json et le package-lock.json (si disponible)
+COPY package*.json ./
+
+RUN npm install cors
+
+RUN npm install uuid
+
+# Installer les dépendances du projet
+RUN npm install
+
+# Copier le reste des fichiers de l'application
+COPY . .
+
+# Exposer le port sur lequel le serveur va s'exécuter
+EXPOSE 3000
+
+# Démarrer le serveur Socket.io
+CMD ["node", "server.js"]
