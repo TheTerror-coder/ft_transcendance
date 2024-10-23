@@ -57,6 +57,10 @@ class Team
     setCannon(cannon)
     {
         this.cannon = cannon;
+        if (this.TeamId == 1)
+            this.cannon.position.set(this.boat.position.x - (this.boat.scale.x / 2) + 2, this.boat.position.y - 2.18, this.boat.position.z * this.boat.scale.z + 8.1);
+        else if (this.TeamId == 2)
+            this.cannon.position.set(this.boat.position.x - (this.boat.scale.x / 2) + 2, this.boat.position.y - 3.98, this.boat.position.z * this.boat.scale.z + 8.1);
     }
 
     removePlayer(id)

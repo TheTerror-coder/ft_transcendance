@@ -1,16 +1,47 @@
-import socket from './socket.js';
+import socketIOClient from 'socket.io-client';
+// import socket from './socket.js';
 // import {main as startPongGame} from './pong.js';
 
 let savedGameCode = null;
 let gameStarted = false;
+let ip;
+let socket;
 
-document.addEventListener('DOMContentLoaded', function() {
+// Fonction pour initialiser la socket
+const initializeSocket = async () => {
+    try {
+        const response = await fetch('../../static/pong/config.json');
+        if (!response.ok) {
+            console.error('Erreur réseau : ' + response.statusText);
+            ip = '127.0.0.1';
+            socket = socketIOClient('http://' + ip + ':3000');
+            console.log("Socket initialized: ", socket);
+            return socket; // Retourner la socket
+        }
+        const data = await response.json(); // Attendre que les données soient disponibles
+        ip = data.HOST_IP;
+        socket = socketIOClient('http://' + ip + ':3000');
+        console.log("Socket initialized: ", socket);
+        return socket; // Retourner la socket
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation de la socket:', error);
+        return null; // Retourner null en cas d'erreur
+    }
+};
+
+
+document.addEventListener('DOMContentLoaded', async function() {
     // const socket = socket;
 
-    console.log('socket : ', socket);
+    const socket = await initializeSocket();
+    if (!socket) {
+        return;
+    }
+
+    console.log('socket in lobby.js: ', socket);
 
     socket.on('connect', () => {
-        console.log('Connecté au serveur');
+        console.log('Connecté au serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
     });
 
     const createGameButton = document.getElementById('createGame');
@@ -140,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 0; i < bodyElements.length; i++) {
             bodyElements[i].style.display = 'none';
         }
-        await module.main(savedGameCode);
+        await module.main(savedGameCode, socket);
     });
 
     // Fonction pour afficher le code de la partie dans le HUD
