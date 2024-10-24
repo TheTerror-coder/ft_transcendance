@@ -55,12 +55,16 @@ web : # Rebuild and restart only the web container
 	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
 cleanv cv : # clean all volumes
+	-make down
 	-docker volume prune -f
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-docker system prune -f
-reset : clean all
+reset : cleanv clean all
+
+valerie : cv all
+
 freset re : fclean all
 
 restart res : # Restart service containers
