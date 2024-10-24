@@ -1,14 +1,11 @@
-// import { Game } from "./Game.js";
-// import { Player } from "./Player.js";
-// import { Team } from "./Team.js";
-// import { Channel } from "./channel.js";
-
 const Player = require('./Player.js');
 const Team = require('./Team.js');
 const Channel = require('./channel.js');
 
 const express = require('express');
+// const https = require('https');
 const http = require('http');
+// const fs = require('fs');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -17,16 +14,14 @@ const ip = process.env.HOST_IP || "localhost";
 
 const allowedOrigins = ['http://' + ip + ':8888', 'http://' + ip + ':3000'];
 
+// const httpsOptions = {
+//     key: fs.readFileSync('./volumes/web/certs/web.key'),
+//     cert: fs.readFileSync('./volumes/web/certs/web.crt')
+// };
+
+// let httpsOptions;
+
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: allowedOrigins,
-        methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type'],
-        credentials: true
-    }
-});
 
 app.use(cors({
     origin: allowedOrigins,
@@ -41,7 +36,24 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.static('public'));
+app.use(express.static('node'));
+
+// app.enable('trust proxy');
+
+// // Exemple de route
+// app.get('/', (req, res) => {
+//     res.send('Hello from Node.js!');
+// });
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type'],
+        credentials: true
+    }
+});
 
 let ChannelList = new Map();
 
@@ -224,6 +236,35 @@ io.on('connection', (socket) => {
             console.log("game.nbPlayerConnected: " + game.nbPlayerConnected);
             console.log("game.nbPlayerPerTeam: " + game.nbPlayerPerTeam);
             console.log("Game is not full");
+        }
+    });
+
+    socket.on('ClientData', (data) => {
+        console.log("ClientData: " + data);
+        let game = ChannelList.get(data.gameCode).getGame();
+        if (game)
+        {
+            game.updateClientData(data);
+        }
+    });
+
+    socket.on('cannonPosition', (data) => {
+        console.log("cannonPosition: " + data);
+        let game = ChannelList.get(data.gameCode).getGame();
+        if (game)
+        {
+            game.updateCannonPosition(data.team, data.x, data.y);
+            io.to(data.gameCode).emit('cannonPosition', data);
+        }
+    });
+
+    socket.on('boatPosition', (data) => {
+        console.log("boatPosition: " + data);
+        let game = ChannelList.get(data.gameCode).getGame();
+        if (game)
+        {
+            game.updateBoatPosition(data.team, data.x, data.y);
+            io.to(data.gameCode).emit('boatPosition', data);
         }
     });
 });

@@ -56,10 +56,40 @@ class Game
         this.teams.delete(Team.TeamId)
     }
 
-    updateBoatPosition(TeamID, x, y)
+    updateBoatPosition(TeamID, x, y, z)
     {
+        console.log("updateBoatPosition");
+        console.log("TeamID: " + TeamID);
+        console.log("x: " + x);
+        console.log("y: " + y);
+        console.log("z: " + z);
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
         this.getTeam(TeamID).getBoat().position.x = x;
         this.getTeam(TeamID).getBoat().position.y = y;
+        this.getTeam(TeamID).getBoat().position.z = z;
+    }
+
+    updateCannonPosition(TeamID, x, y, z)
+    {
+        console.log("updateCannonPosition");
+        console.log("TeamID: " + TeamID);
+        console.log("x: " + x);
+        console.log("y: " + y);
+        console.log("z: " + z);
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
+        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
+        this.getTeam(TeamID).getCannon().position.x = x;
+        this.getTeam(TeamID).getCannon().position.y = y;
+        this.getTeam(TeamID).getCannon().position.z = z;
+    }
+
+    updateClientData(team)
+    {
+        this.updateBoatPosition(team.TeamId, team.boat.x, team.boat.y, team.boat.z);
+        this.updateCannonPosition(team.TeamId, team.cannon.x, team.cannon.y, team.cannon.z);
     }
 
     sendGameData(io, gameCode)

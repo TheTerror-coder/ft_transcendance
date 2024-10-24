@@ -38,6 +38,7 @@ services:
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - web_certs:${VAULT_HOME}/volumes/web/certs
+      - node_certs:${VAULT_HOME}/volumes/node/certs
     networks:
       - transcendance
     healthcheck:
@@ -207,6 +208,9 @@ services:
         - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
     environment:
       - HOST_IP=${HOST_IP}
+    volumes:
+      - node_certs:${NODE_SSL_DIR}
+      - web_certs:${NODE_HOME}/volumes/web/certs
     expose:
       - ${NODE_PORT}
     networks:
@@ -390,4 +394,6 @@ volumes:
   nginx_certs:
     driver: local
   web_certs:
+    driver: local
+  node_certs:
     driver: local

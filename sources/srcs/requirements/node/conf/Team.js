@@ -7,8 +7,8 @@ class Team
         this.nbPlayer = 0;
         this.maxNbPlayer = nbPlayer;
         this.player = new Map();
-        this.boat = null;
-        this.cannon = null;
+        this.boat = { x: 0, y: 0, z: 0 };
+        this.cannon = { x: 0, y: 0, z: 0 };
         this.isFull = false;
     }
 

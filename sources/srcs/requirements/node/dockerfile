@@ -21,7 +21,7 @@ mkdir -p ${NODE_DIRS_TO_MAKE} && \
 chmod 0700 ${NODE_HOME} ${NODE_HOME}/container-init.d ${NODE_HOME}/volumes && \
 chown -R ${NODE_UID}:${SHARED_GID} ${NODE_HOME}
 
-COPY --chown=${NODE_UID}:${NODE_GID} --chmod=700 ./conf/package.json ./conf/index.js ./
+COPY --chown=${NODE_UID}:${NODE_GID} --chmod=700 ./conf/* ./
 
 USER ${NODE_UID}
 

@@ -4,7 +4,7 @@ export HOST_IP=$(shell hostname -I | awk '{print $$1}')
 
 include $(ENV)
 
-all : build up
+all dit_moi : build up
 
 build b : # Build or rebuild services
 	-mkdir -p $(PATHTO_WEBAPPS_DATA)
@@ -61,11 +61,11 @@ cleanv cv : # clean all volumes
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-docker system prune -f
-reset : cleanv clean all
+reset : clean cleanv all
 
-valerie : cv all
+valerie : cleanv dit_moi
 
-freset re : fclean all
+freset re ta_pas_compris : fclean all
 
 restart res : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart
