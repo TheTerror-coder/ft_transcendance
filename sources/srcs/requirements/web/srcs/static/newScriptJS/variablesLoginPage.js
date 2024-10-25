@@ -34,3 +34,19 @@ let createAccountForm;
 // "refresh" page variable
 const buttonRefreshPage = document.querySelector('#refreshPage');
 
+class loginPageClass {
+    constructor() {
+        this.flagSelected = "en";
+        this.loginButton = document.querySelector("#loginButton");
+        this.woodPresentation = document.querySelector("#woodPresentation");
+        this.background = document.querySelector("#background");
+        this.flag = document.querySelector("#flag");
+        this.buttonConnectionAPI42 = document.querySelector("#connectionApi");
+        this.buttonConnec = document.querySelector("#connectionEmail");
+        this.buttonCreateAccount = document.querySelector("#createAnAccount");
+        this.createAccountChange = document.querySelector("#formAccount");
+        this.formConnect = document.querySelector("#formConnect");
+        this.createAccountForm;
+        this.buttonRefreshPage = document.querySelector('#refreshPage');
+    }
+}
