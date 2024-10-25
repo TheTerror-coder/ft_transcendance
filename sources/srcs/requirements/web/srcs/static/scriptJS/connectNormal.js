@@ -28,9 +28,10 @@ function putFormConnect()
     formConnect.style.display = 'flex';
 }
 
-document.getElementById('formConnect').addEventListener('submit', async function(event) {
+document.getElementById('formConnect').addEventListener('submit', async function(event) 
+{
     event.preventDefault();
-    await initIP();
+    // await initIP();
 
     if (this.checkValidity()) {
 
@@ -99,7 +100,8 @@ document.getElementById('formConnect').addEventListener('submit', async function
                         });
                     }
                 };
-                refreshHomePage();
+                // refreshHomePage();
+                handleLocation
             }
             else
             {

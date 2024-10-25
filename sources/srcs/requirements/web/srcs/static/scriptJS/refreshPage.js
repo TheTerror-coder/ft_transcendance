@@ -22,7 +22,7 @@ function refreshPage()
 
 function refreshLoginPage()
 {
-    background.style.backgroundImage = "url('photos/picturePng/loginPage/landscapeOnePiece.png')";
+    background.style.backgroundImage = "url('../photos/picturePng/loginPage/landscapeOnePiece.png')";
     loginButton.style.display = 'block';
     woodPresentation.style.display = 'block';
     flag.className = "flag";
@@ -36,13 +36,14 @@ function refreshLoginPage()
 function refreshHomePage()
 {
     // checkPoint();
-    background.style.backgroundImage = "url('photos/picturePng/homePage/landscape_menu.png')";
+    background.style.backgroundImage = "url('../static/photos/picturePng/homePage/landscapeMenu.png')";
     loginButton.style.display = 'none';
     woodPresentation.style.display = 'none';
     flag.className = "homepageFlag";
     flag.id = 'homepageFlag';
     rebeccaImg.style.display = 'block';
     friendButton.style.display = 'flex';
+    wantedFriendHomePageDisplay.style.display = 'flex';
 
     let englandFlagImg = document.querySelector("#englandFlagImg");
     englandFlagImg.className = "englandFlag";

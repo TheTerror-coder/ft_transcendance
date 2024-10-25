@@ -17,16 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('authentification.urls')),
-    path('lobby/pong/', TemplateView.as_view(template_name='pong/index.html')),
-    path('lobby/', TemplateView.as_view(template_name='pong/lobby.html')),
-    path('lobby/lobby1/', TemplateView.as_view(template_name='pong/lobby1.html')),
-    path('lobby/lobby2/', TemplateView.as_view(template_name='pong/lobby2.html')),
+    # path('', include('authentification.urls')),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
+    # path('lobby/pong/', TemplateView.as_view(template_name='pong/index.html')),
+    # path('lobby/', TemplateView.as_view(template_name='pong/lobby.html')),
+    # path('lobby/lobby1/', TemplateView.as_view(template_name='pong/lobby1.html')),
+    # path('lobby/lobby2/', TemplateView.as_view(template_name='pong/lobby2.html')),
 ]
 
 if settings.DEBUG:

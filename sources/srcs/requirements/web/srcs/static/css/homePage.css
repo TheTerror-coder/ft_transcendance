@@ -1,14 +1,23 @@
 @font-face {
     font-family: wantedFont;
-    src: url(wantedFont.ttf);
+    src: url(../wantedFont.ttf);
+}
+
+.wantedFriendHomePageDisplay
+{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: -webkit-fill-available;
+    margin-top: 12%;
 }
 
 .friendButton
 {
     display: none;
     justify-content: flex-end;
-    margin-top: -120px;
-    margin-right: 23.78px;
+    align-items: flex-end;
     opacity: 70%;
     transition: all 0.5s;
 }
@@ -35,6 +44,7 @@
     width: 302px;
     height: 442px;
     opacity: 90%;
+    align-self: end;
 }
 
 .wantedProfile:hover
@@ -87,16 +97,15 @@
 
 .playButton
 {
-    flex-grow: 1;
     display: flex;
-    margin-right: -300px;
     justify-content: center;
     background-image: url('../photos/picturePng/homePage/Logo_One_Piece.png');
     align-items: center;
     background-position: center;
-    padding: 10px 20px;
     background-repeat: no-repeat;
     margin-top: -50px;
+    width: -webkit-fill-available;
+    margin-left: -228px;
 }
 
 .centerHomepage

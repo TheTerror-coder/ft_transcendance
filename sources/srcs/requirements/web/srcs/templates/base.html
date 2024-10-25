@@ -67,7 +67,7 @@
         </div>
         <div class="homePage" id="homePage">
             <div class="rebecca" id="rebecca">
-                <img src="{% static 'photos/picturePng/homePage/rebecca.png' %}" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
+                <img src="{% static 'photos/picturePng/homePage/rebecca_newspapers.png' %}" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
             </div>
             <div class="centerHomepage" id="centerHomepage">
                 <div class="playButton" id="playButton">
@@ -101,14 +101,16 @@
                     <button class="createTournamentButton" id="createTournamentButton">CREATE TOURNAMENT</button>
                     <button class="joinTournamentButton" id="joinTournamentButton">JOIN TOURNAMENT</button>
                 </div>
-                <button class="wantedProfile" id="wantedProfile">
-                    <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
-                    <h1 id="usernameDisplay"></h1>
-                    <span>10.000</span>
-                </button>
-            </div>
-            <div class="friendButton" id="friendButton">
-                <button id="buttonFriend"><img src="{% static 'photos/picturePng/homePage/add_friend_button.png' %}" alt="add friend"></button>
+                <div class="wantedFriendHomePageDisplay" id="wantedFriendHomePageDisplay">
+                    <button class="wantedProfile" id="wantedProfile">
+                        <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
+                        <h1 id="usernameDisplay"></h1>
+                        <span>10.000</span>
+                    </button>
+                    <div class="friendButton" id="friendButton">
+                        <button id="buttonFriend"><img src="{% static 'photos/picturePng/homePage/add_friend_button.png' %}" alt="add friend"></button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="profilePage" id="profilePage">
