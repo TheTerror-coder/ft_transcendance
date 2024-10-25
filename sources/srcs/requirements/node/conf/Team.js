@@ -44,9 +44,23 @@ class Team
         this.boat = boat;
     }
 
+    setBoatPosition(x, y, z)
+    {
+        this.boat.x = x;
+        this.boat.y = y;
+        this.boat.z = z;
+    }
+
     setCannon(cannon)
     {
         this.cannon = cannon;
+    }
+
+    setCannonPosition(x, y, z)
+    {
+        this.cannon.x = x;
+        this.cannon.y = y;
+        this.cannon.z = z;
     }
 
     removePlayer(id)
@@ -60,14 +74,14 @@ class Team
         return (this.TeamId);
     }
 
-    getBoat(boat)
+    getBoat()
     {
         return (this.boat);
     }
 
-    getCannon(cannon)
+    getCannon()
     {
-        return (cannon);
+        return (this.cannon);
     }
 
     getNbPlayer()

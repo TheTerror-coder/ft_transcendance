@@ -215,8 +215,6 @@ io.on('connection', (socket) => {
 
     socket.on('GameStarted', (gameCode) => {
         console.log("GameStarted");
-        console.log("data: ", gameCode);
-        console.log("data.gameCode : ", gameCode);
         let game = ChannelList.get(gameCode).getGame();
         if (game)
         {
@@ -240,31 +238,51 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ClientData', (data) => {
-        console.log("ClientData: " + data);
-        let game = ChannelList.get(data.gameCode).getGame();
+        // for (const [key, value] of Object.entries(data)) {
+        //     console.log(`${key}: ${value}`);
+        // }
+        // console.log("ClientData: " + data);
+        // console.log("data.TeamID: " + data.TeamID);
+        // console.log("data.gameCode: " + data.gameCode);
+        // for (const [key, value] of Object.entries(ChannelList)) {
+        //     console.log(`${key}: ${value}`);
+        // }
+        let game = ChannelList.get(data.gameCode)?.getGame();
         if (game)
         {
+            // console.log("game: " + game);
+            // console.log("game.getTeam(data.TeamID): " + game.getTeam(data.TeamID));
             game.updateClientData(data);
         }
     });
 
-    socket.on('cannonPosition', (data) => {
-        console.log("cannonPosition: " + data);
-        let game = ChannelList.get(data.gameCode).getGame();
-        if (game)
-        {
-            game.updateCannonPosition(data.team, data.x, data.y);
+    socket.on('cannonPosition', async (data) => {
+        let game = ChannelList.get(data.gameCode)?.getGame();
+        if (game) {
+            await game.updateCannonPosition(data.team, data.x, data.y, data.z);
             io.to(data.gameCode).emit('cannonPosition', data);
+        } else {
+            console.error(`Game not found for gameCode: ${data.gameCode}`);
         }
     });
 
-    socket.on('boatPosition', (data) => {
-        console.log("boatPosition: " + data);
-        let game = ChannelList.get(data.gameCode).getGame();
-        if (game)
-        {
-            game.updateBoatPosition(data.team, data.x, data.y);
+    socket.on('boatPosition', async (data) => {
+        let game = ChannelList.get(data.gameCode)?.getGame();
+        if (game) {
+            await game.updateBoatPosition(data.team, data.x, data.y, data.z);
             io.to(data.gameCode).emit('boatPosition', data);
+        } else {
+            console.error(`Game not found for gameCode: ${data.gameCode}`);
+        }
+    });
+
+    socket.on('boatAndCannonPosition', async (data) => {
+        let game = ChannelList.get(data.gameCode)?.getGame();
+        if (game) {
+            await game.updateBoatAndCannonPosition(data.team, data.boatX, data.boatY, data.boatZ, data.cannonX, data.cannonY, data.cannonZ);
+            io.to(data.gameCode).emit('boatAndCannonPosition', data);
+        } else {
+            console.error(`Game not found for gameCode: ${data.gameCode}`);
         }
     });
 });

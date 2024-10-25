@@ -31,8 +31,8 @@ class Game
 
     setTeam(Team)
     {
-        console.log("size: " + this.teams.size);
-        console.log("TeamId: " + Team.TeamId);
+        // console.log("size: " + this.teams.size);
+        // console.log("TeamId: " + Team.TeamId);
         if (this.teams.size < 2)
             this.teams.set(Team.TeamId, Team)
         else
@@ -42,7 +42,7 @@ class Game
 
     getTeam(TeamID)
     {
-        console.log("this.teams.get(TeamID): " + this.teams.get(TeamID));
+        // console.log("this.teams.get(TeamID): " + this.teams.get(TeamID));
         return (this.teams.get(TeamID));
     }
 
@@ -56,40 +56,43 @@ class Game
         this.teams.delete(Team.TeamId)
     }
 
-    updateBoatPosition(TeamID, x, y, z)
-    {
-        console.log("updateBoatPosition");
-        console.log("TeamID: " + TeamID);
-        console.log("x: " + x);
-        console.log("y: " + y);
-        console.log("z: " + z);
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        this.getTeam(TeamID).getBoat().position.x = x;
-        this.getTeam(TeamID).getBoat().position.y = y;
-        this.getTeam(TeamID).getBoat().position.z = z;
+    async updateBoatPosition(teamId, x, y, z) {
+        const team = this.getTeam(teamId);
+        if (team) {
+            const boat = team.getBoat();
+            const cannon = team.getCannon();
+            if (boat && cannon) {
+                boat.x = x;
+                boat.y = y;
+                boat.z = z;
+            } else {
+                console.error(`Boat or cannon not found for team ${teamId}`);
+            }
+        } else {
+            console.error(`Team ${teamId} not found`);
+        }
     }
 
-    updateCannonPosition(TeamID, x, y, z)
-    {
-        console.log("updateCannonPosition");
-        console.log("TeamID: " + TeamID);
-        console.log("x: " + x);
-        console.log("y: " + y);
-        console.log("z: " + z);
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        console.log("this.getTeam(TeamID) : " + this.getTeam(TeamID));
-        this.getTeam(TeamID).getCannon().position.x = x;
-        this.getTeam(TeamID).getCannon().position.y = y;
-        this.getTeam(TeamID).getCannon().position.z = z;
+    async updateCannonPosition(teamId, x, y, z) {
+        const team = this.getTeam(teamId);
+        if (team) {
+            const cannon = team.getCannon();
+            if (cannon) {
+                cannon.x = x;
+                cannon.y = y;
+                cannon.z = z;
+            } else {
+                console.error(`Cannon not found for team ${teamId}`);
+            }
+        } else {
+            console.error(`Team ${teamId} not found`);
+        }
     }
 
     updateClientData(team)
     {
-        this.updateBoatPosition(team.TeamId, team.boat.x, team.boat.y, team.boat.z);
-        this.updateCannonPosition(team.TeamId, team.cannon.x, team.cannon.y, team.cannon.z);
+        this.updateBoatPosition(team.TeamID, team.boat.x, team.boat.y, team.boat.z);
+        this.updateCannonPosition(team.TeamID, team.cannon.x, team.cannon.y, team.cannon.z);
     }
 
     sendGameData(io, gameCode)
@@ -125,6 +128,14 @@ class Game
         }
         console.log('teamsArray : ', teamsArray);
         io.to(gameCode).emit('gameData', teamsArray);
+    }
+
+    async updateBoatAndCannonPosition(team, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
+        let teamObj = this.getTeam(team);
+        if (teamObj) {
+            teamObj.getBoat().position.set(boatX, boatY, boatZ);
+            teamObj.getCannon().position.set(cannonX, cannonY, cannonZ);
+        }
     }
 }
 

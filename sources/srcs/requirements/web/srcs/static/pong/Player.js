@@ -48,6 +48,10 @@ class Player
 
     setCameraPos(boat, cannon)
     {
+        if (!boat || !cannon) {
+            console.error('Boat or cannon is undefined in setCameraPos');
+            return;
+        }
         console.log('setCameraPos : ', boat.position.x, boat.position.y, boat.position.z);
         console.log('cannon : ', cannon.position.x, cannon.position.y, cannon.position.z);
         console.log('this.TeamID : ', this.TeamID);
