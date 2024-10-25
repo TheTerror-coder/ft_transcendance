@@ -1,6 +1,6 @@
 @font-face {
     font-family: wantedFont;
-    src: url(../static/authentification/wantedFont.ttf);
+    src: url(../wantedFont.ttf);
 }
 
 .friendButton

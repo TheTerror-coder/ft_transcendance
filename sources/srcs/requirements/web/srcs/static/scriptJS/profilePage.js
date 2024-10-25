@@ -1,4 +1,15 @@
 
+const buttonChangeUsername = document.getElementById('buttonChangeUsername');
+
+const newUsername = document.getElementById('newUsername');
+
+const newPicture = document.getElementById('newPicture');
+const buttonChangePicture = document.getElementById('buttonChangePicture');
+
+
+
+
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -18,8 +29,12 @@ function getCookie(cname) {
 document.addEventListener('DOMContentLoaded', function() {
     const removeFriendButton = document.getElementById('submitRemoveFriendButton');
     const usernameRemoveFriendInput = document.getElementById('usernameRemoveFriend');
+    buttonChangeUsername.onclick = changeUsername; 
+    
+    buttonChangePicture.onclick = changePicture;
     removeFriendButton.onclick = removeFriend;
     wantedProfile.onclick = profileDisplay;
+
     function profileDisplay()
     {
         // rebecca.style.display = 'none';
@@ -59,14 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             pendingRequests.forEach(request => {
                 const requestItem = document.createElement('div');
-                requestItem.classList.add('pending-request');
-    
+                requestItem.classList.add('pendingRequest');
+                
                 requestItem.innerHTML = `
-                    <p>${request.from_user}</p>
-                    <button class="accept-button" id="accept-${request.friend_request_id}" style="background-color: green; color: white;">Accept</button>
-                    <button class="reject-button" id="reject-${request.friend_request_id}" style="background-color: red; color: white;">✖</button>
+                <p>${request.from_user}</p>
+                <button class="accept-button" id="accept-${request.friend_request_id}" style="background-color: green; color: white;">Accept</button>
+                <button class="reject-button" id="reject-${request.friend_request_id}" style="background-color: red; color: white;">✖</button>
                 `;
-    
+                
                 pendingRequestContainer.appendChild(requestItem);
                 
                 document.getElementById(`accept-${request.friend_request_id}`).onclick = function() {
@@ -77,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }));
                     friendDisplayProfileok();
                 };
-    
+                
                 document.getElementById(`reject-${request.friend_request_id}`).onclick = function() {
                     socket.send(JSON.stringify({
                         type: 'response.invitation',
@@ -93,17 +108,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    
 
-
-
+    
 
     removeFriendButton.onclick = function(event) {
         event.preventDefault();
-
+        
         const username = usernameRemoveFriendInput.value;
         removeFriend(username);
     };
-
+    
     function removeFriend(username) {
         const csrfToken = getCookie('csrftoken');
         fetch(removeFriendURL, {
@@ -130,4 +145,56 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erreur lors de la suppression de l\'ami :', error);
         })
     }
+
+    function changePicture()
+    {
+        console.log("je suis al frerrroooo PICTURE");
+        let picture = newPicture.value;
+        const csrfToken = getCookie('csrftoken');
+        fetch(updatePictureURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: "include",
+            body: new URLSearchParams({
+                'picture': picture,
+            }),
+        })
+        then(response => response.json())
+        then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        })
+    };
+    
+    function changeUsername()
+    {
+        console.log("USERNAME CHANGE");
+        let username = newUsername.value;
+        const csrfToken = getCookie('csrftoken');
+        fetch(updateNameURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: "include",
+            body: new URLSearchParams({
+                'username': username,
+            }),
+        })
+        then(response => response.json())
+        then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        })
+    };
 });

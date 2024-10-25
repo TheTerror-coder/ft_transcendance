@@ -7,6 +7,7 @@ from authentification.models import FriendRequest
 from asgiref.sync import sync_to_async
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 user_sockets = {}
 
@@ -26,6 +27,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             )
             print(f"User {self.user.username} joined room: {self.room_group_name}")
 
+
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -35,20 +37,20 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             del user_sockets[self.user.username]
         print(f"User {self.user.username} left room: {self.room_group_name}")
 
+
     async def receive(self, text_data=None):
         text_data_json = json.loads(text_data)
-
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])
-
         elif text_data_json['type'] == 'response.invitation':
             friend_request_id = text_data_json['friend_request_id']
             friend_request = await self.get_friend_request_by_id(friend_request_id)
             if friend_request:
                 if text_data_json['response'] == 'accept':
-                    await self.accept_friend_request(friend_request)
+                    friend_request = await self.accept_friend_request(friend_request)
                 elif text_data_json['response'] == 'reject':
-                    await self.reject_friend_request(friend_request)
+                    friend_request = await self.decline_friend_request(friend_request)
+
 
     async def send_invitation(self, username):
         user = await self.get_user_by_username(username)
@@ -64,9 +66,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             }
 
             user_room_group_name = f"friend_invite_{user.id}"
-            print("user =", username)
-            print(f"Room group name:", user_room_group_name)
-            print(f"Room group nameMe:", self.room_group_name)
             await self.channel_layer.group_send(
                 user_room_group_name,
                 {
@@ -77,9 +76,11 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         else:
             print(f"No user with username {username}")
 
+
     async def send_message(self, event):
         message = event['text']
         await self.send(text_data=message)
+
 
     @database_sync_to_async
     def get_user_by_username(self, username):
@@ -89,6 +90,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         except User.DoesNotExist:
             return None
 
+
     @database_sync_to_async
     def get_friend_request_by_id(self, friend_request_id):
         try:
@@ -96,14 +98,16 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         except FriendRequest.DoesNotExist:
             return None
 
+
     @database_sync_to_async
     def accept_friend_request(request, friend_request):
-        friend_request = get_object_or_404(FriendRequest, id=friend_request.id)
         friend_request.accept()
-        return JsonResponse({'status': 'accepted'})
+        friend_request.delete()
+        return None
+
 
     @database_sync_to_async
     def decline_friend_request(request, friend_request):
-        friend_request = get_object_or_404(FriendRequest, id=friend_request.id)
         friend_request.decline()
-        return JsonResponse({'status': 'declined'})
+        friend_request.delete()
+        return None

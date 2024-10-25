@@ -73,6 +73,7 @@
                 <div class="playButton" id="playButton">
                     <button class="playImg" id="playButtonImg">PLAY</button>
                 </div>
+
                 <div class="addFriend" id="addFriend">
                     <p>SOCIAL</p>
                     <img src="../media/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
@@ -86,6 +87,7 @@
                         <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                     </form>
                 </div>
+
                 <div class="playDisplay" id="playDisplay">
                     <button class="rapidPlay" id="rapidPlayButton">RAPID PLAY</button>
                     <button id="tournamentButton">TOURNAMENT</button>
@@ -135,9 +137,19 @@
                 </div>
                 <button class="wantedProfile" id="wantedInProfilePage">
                     <img src="../media/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
-                    <h1 id="usernameDisplay2"></h1> 
+                    <h1 id="usernameDisplay2"></h1>
                     <span>10.0</span>
                 </button>
+                <form>
+                    {% csrf_token %}
+                    <input id="newUsername" type="text" class="form-control" placeholder="Enter Username" required></input>
+                    <button id="buttonChangeUsername" type="submit" class="btn btn-danger" >Submit username</button>
+                </form>
+                <form>
+                    {% csrf_token %}
+                    <input id="newPicture" type="file" id="updatedPhoto" accept=".png" required>
+                    <button id="buttonChangePicture" type="submit" class="btn btn-danger">Submit picture</button>
+                </form>
             </div>
         </div>
         <video class="videoBackground" id="videoBackground" autoplay muted loop>
@@ -157,6 +169,9 @@
             var addFriendURL = '{% url 'add_friend' %}';
             var profileURL = '{% url 'profile' %}';
             var removeFriendURL = '{% url 'remove_friend' %}';
+            var updateNameURL = '{% url 'update_profile' %}';
+            var updatePictureURL = '{% url 'update_photo' %}';
+
         </script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 pour le popup de l'invit, voir avec bootstrap-->
         <script src="../static/scriptJS/variablesLoginPage.js"></script>

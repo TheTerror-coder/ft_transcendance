@@ -46,7 +46,7 @@ def login_view(request):
             else:
                 return JsonResponse({'status': 'error', 'msgError': form.errors}, status=400)
         else:
-            return JsonResponse({'status': 'error', 'msgError': form.errors}, status=400)
+            return JsonResponse({'status': 'error', 'msgError': 'incorrect passwords'}, status=400)
     return JsonResponse({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
 def logout_view(request):
@@ -60,24 +60,45 @@ def update_profile(request):
         form = UpdateUsernameForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            reponse = {
+                'status': 'success',
+                'message': 'Nom d\'utilisateur mis à jour avec succès.'
+            }
+            return repostJson(reponse)
     else:
         form = UpdateUsernameForm(instance=request.user)
-    return render(request, 'update_profile.html', {'form': form})
+    reponse = {
+        'status': 'error',
+        'message': 'Erreur lors de la mise à jour du nom d\'utilisateur.'
+    }
+    return reponseJson(reponse)
 
+
+@require_POST
 @login_required
-@method_decorator(csrf_protect, name='dispatch')
+@csrf_protect
 def update_photo(request):
     if request.method == 'POST':
         form = UpdatePhotoForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            reponse = {
+                'status': 'success',
+                'message': 'Photo de profil mise à jour avec succès.'
+            }
+            return reponseJson(reponse)
     else:
         form = UpdatePhotoForm(instance=request.user)
-    return render(request, 'update_photo.html', {'form': form})
+    reponse = {
+        'status': 'error',
+        'message': 'Erreur lors de la mise à jour de la photo de profil.'
+    }
+    return reponseJson(reponse)
 
+
+@require_POST
 @login_required
+@csrf_protect
 def profile(request):
     friends = request.user.friend_list.all()
     friend_list = [{'username': friend.username} for friend in friends]
@@ -86,7 +107,7 @@ def profile(request):
         to_user=request.user,
         status='PENDING'
     )
-    pending_request_list = [{'from_user': request.from_user.username} for request in pending_requests]
+    pending_request_list = [{'from_user': request.from_user.username, 'friend_request_id': request.id} for request in pending_requests]
 
     response_data = {
         'friends': friend_list,
@@ -120,12 +141,16 @@ def send_friend_request(request):
                     'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
                 }
                 return JsonResponse(response)
+            elif to_user in request.user.friend_list.all():
+                response = {
+                    'status': 'error',
+                    'message': "Cet utilisateur est déjà votre ami."
+                }
+                return JsonResponse(response)
             else:
-                friend_request = FriendRequest.objects.create(from_user=request.user, to_user=to_user, status='PENDING')
                 response = {
                     'status': 'success',
                     'message': f"Demande d'ami envoyée à {to_user.username}.",
-                    'friend_request_id': friend_request.id,
                 }
                 return JsonResponse(response)
         except User.DoesNotExist:
@@ -141,12 +166,12 @@ def send_friend_request(request):
         }
         return JsonResponse(response)
 
+
 @require_POST
 @login_required
 @csrf_protect
 def remove_friend(request):
     if request.method == 'POST':
-        print("caaaaaacaaaaa", request.POST)
         username = request.POST.get('username')
         if not username:
             return JsonResponse({
