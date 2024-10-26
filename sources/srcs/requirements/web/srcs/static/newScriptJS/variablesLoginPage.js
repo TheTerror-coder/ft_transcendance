@@ -1,5 +1,4 @@
 
-
 const loginPage = document.querySelector("#loginPage");
 
 // FLAG
@@ -36,17 +35,46 @@ const buttonRefreshPage = document.querySelector('#refreshPage');
 
 class loginPageClass {
     constructor() {
-        this.flagSelected = "en";
-        this.loginButton = document.querySelector("#loginButton");
-        this.woodPresentation = document.querySelector("#woodPresentation");
-        this.background = document.querySelector("#background");
-        this.flag = document.querySelector("#flag");
-        this.buttonConnectionAPI42 = document.querySelector("#connectionApi");
-        this.buttonConnec = document.querySelector("#connectionEmail");
-        this.buttonCreateAccount = document.querySelector("#createAnAccount");
-        this.createAccountChange = document.querySelector("#formAccount");
-        this.formConnect = document.querySelector("#formConnect");
-        this.createAccountForm;
-        this.buttonRefreshPage = document.querySelector('#refreshPage');
+        this.loginPageDisplayVAR = `<div class="loginPage" id="loginPage">
+
+            <div class="loginButton" id="loginButton">
+                <button id="refreshPage"><img src="../photos/picturePng/loginPage/onePong.png" alt="ONE PONG" style="min-width: 450px; min-height: 160px;"></button>
+            </div>
+            <div class="woodPresentation" id="woodPresentation">
+                <img src="../photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">
+                <div class="woodPresentationContent" id="connect">
+                    <button class="fontConnexionWith42" id="connectionApi">CONNECTION API <img src="../photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
+                    <button class="fontConnexion" id="connectionEmail"  style="margin-top: -8px;">CONNECTION</button>
+                    <button class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
+                    
+                    
+                    <form class="createAccount" id="formConnect">
+                        {% csrf_token %}
+                        <p class="fontConnexion">
+                            <input id="username" type="username" class="form-control" placeholder="Username" aria-label="Username" style="font-family: arial" required>
+                        </p>
+                        <p class="fontConnexion">
+                            <input id="password" type="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
+                        </p>
+                        <button class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">CONFIRM</button>
+                    </form>
+                    <form class="createAccount" id="formAccount">
+                        {% csrf_token %}
+                        <p class="fontConnexion">
+                            <input id="createEmail" type="email" name="email" class="form-control" placeholder="E-mail" aria-label="Username" style="font-family: arial" required>
+                        </p>
+                        <p class="fontConnexion">
+                            <input id="createUser" name="username" class="form-control" placeholder="User" aria-label="Username" style="font-family: arial" required>
+                        </p>
+                        <p class="fontConnexion" style="margin-top: -2px;">
+                            <input id="createPassword" type="password" name="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
+                        </p>
+                        <p class="fontConnexion" style="margin-top: -3px;">
+                            <input id="createConfirmPassword" type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" style="font-family: arial" aria-label="Username" required>
+                        </p>
+                        <button class="fontConfirmCreateAccount" type="submit">CONFIRM</button>
+                    </form>
+                </div>
+        </div>`; 
     }
 }

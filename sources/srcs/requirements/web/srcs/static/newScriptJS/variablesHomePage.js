@@ -1,6 +1,33 @@
-<div class="homePage" id="homePage">
+//HOME PAGE INFORMATION
+
+const centerHomepage = document.querySelector("#centerHomepage");
+const homePage = document.querySelector("#homePage");
+
+const buttonFriend = document.querySelector("#buttonFriend");
+const friendDisplay = document.querySelector("#friendDisplay");
+
+const submitFriendButton = document.querySelector("#submitFriendButton");
+const usernameAddFriend = document.querySelector("#usernameAddFriend");
+
+
+const rebecca = document.querySelector("#rebecca");
+const rebeccaImg = document.querySelector("#rebeccaImg");
+
+const friendButton = document.querySelector("#friendButton");
+
+
+const wantedProfile = document.querySelector("#wantedProfile");
+const profilePage = document.querySelector("#profilePage");
+
+const wantedInProfilePage = document.querySelector("#wantedInProfilePage");
+
+
+
+class homePageClass {
+    constructor() {
+        this.homePageDisplayVAR = `<div class="homePage" id="homePage">
     <div class="rebecca" id="rebecca">
-        <img src="../static/photos/picturePng/homePage/rebecca_newspapers.png" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
+        <img src="../photos/picturePng/homePage/rebecca_newspapers.png" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
     </div>
     <div class="centerHomepage" id="centerHomepage">
         <div class="playButton" id="playButton">
@@ -8,7 +35,7 @@
         </div>
         <div class="addFriend" id="addFriend">
             <p>SOCIAL</p>
-            <img src="../static/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
+            <img src="../photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
             <p>Friend</p>
             <form method="post">
                 {% csrf_token %}
@@ -36,13 +63,15 @@
         </div>
         <div class="wantedFriendHomePageDisplay" id="wantedFriendHomePageDisplay">
             <button class="wantedProfile" id="wantedProfile">
-                <img src="../static/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
+                <img src="../photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
                 <h1 id="usernameDisplay"></h1>
                 <span>10.000</span>
             </button>
             <div class="friendButton" id="friendButton">
-                <button id="buttonFriend"><img src="../static/photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
+                <button id="buttonFriend"><img src="../photos/picturePng/homePage/add_friend_button.png" alt="add friend"></button>
             </div>
         </div>
     </div>
-</div>
+</div>`;
+    }
+}
