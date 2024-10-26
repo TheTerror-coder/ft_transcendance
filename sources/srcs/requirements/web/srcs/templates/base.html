@@ -9,8 +9,8 @@
         <link href="{% static 'css/homePage.css' %}" rel="stylesheet">
         <link href="{% static 'css/lobby.css' %}" rel="stylesheet">
         <link href="{% static 'css/friendPage.css' %}" rel="stylesheet">
-        <link href="{% static 'css/lobby.css' %}" rel="stylesheet">
         <link href="{% static 'css/profilePage.css' %}" rel="stylesheet">
+        <link href="{% static 'css/playMenu.css' %}" rel="stylesheet">
 
         <title>ONE PONG</title>
         <link rel="icon" type="image/png" href="{% static 'photos/picturePng/Luffy_flag_icon.png' %}">
@@ -35,8 +35,6 @@
                     <button class="fontConnexionWith42" id="connectionApi">CONNECTION API <img src="{% static 'photos/picturePng/logo42.png' %}" alt="42-logo"  class="logo42"></button>
                     <button class="fontConnexion" id="connectionEmail"  style="margin-top: -8px;">CONNECTION</button>
                     <button class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
-                    
-                    
                     <form class="createAccount" id="formConnect">
                         {% csrf_token %}
                         <p class="fontConnexion">
@@ -71,7 +69,7 @@
             </div>
             <div class="centerHomepage" id="centerHomepage">
                 <div class="playButton" id="playButton">
-                    <button class="playImg" id="playButtonImg">PLAY</button>
+                    <button class="playImg fontTextPlay" id="playButtonImg">PLAY</button>
                 </div>
                 <div class="addFriend" id="addFriend">
                     <p>SOCIAL</p>
@@ -86,20 +84,24 @@
                         <button type="submit" class="btn btn-primary" id="submitFriendButton">Submit</button>
                     </form>
                 </div>
-                <div class="playDisplay" id="playDisplay">
-                    <button class="rapidPlay" id="rapidPlayButton">RAPID PLAY</button>
-                    <button id="tournamentButton">TOURNAMENT</button>
-                    <!-- rapidPlayButton -->
-                    <button class="joinLobbyButton" id="joinLobbyButton">JOIN LOBBY</button>
-                    <button class="createLobbyButton" id="createLobbyButton">CREATE LOBBY</button>
-                    <button class="onePlayerButton" id="onePlayerButton">ONE PLAYER</button>
-                    <button class="twoPlayerButton" id="twoPlayerButton">TWO PLAYER</button>
-                    <button class="captainButton" id="captainButton">CAPTAIN</button>
-                    <button class="gunnerButton" id="gunnerButton">GUNNER</button>
+                <div class="centerPlayDisplay" id="centerPlayDisplay">
+                    <div class="playDisplay" id="playDisplay">
+                        <!-- rapidPlayButton -->
+                         {% comment %} <div class="imgPlayMenu">
+                            <button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>
+                         </div>
+                         <div class="imgPlayMenu">
+                            <button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>
+                         </div> {% endcomment %}
+                        <button class="onePlayerButton fontTextPlay" id="onePlayerButton">ONE PLAYER</button>
+                        <button class="twoPlayerButton fontTextPlay" id="twoPlayerButton">TWO PLAYER</button>
+                        <button class="captainButton fontTextPlay" id="captainButton">CAPTAIN</button>
+                        <button class="gunnerButton fontTextPlay" id="gunnerButton">GUNNER</button>
 
-                    <!-- TournamentButton -->
-                    <button class="createTournamentButton" id="createTournamentButton">CREATE TOURNAMENT</button>
-                    <button class="joinTournamentButton" id="joinTournamentButton">JOIN TOURNAMENT</button>
+                        <!-- TournamentButton -->
+                        <button class="createTournamentButton fontTextPlay" id="createTournamentButton">CREATE TOURNAMENT</button>
+                        <button class="joinTournamentButton fontTextPlay" id="joinTournamentButton">JOIN TOURNAMENT</button>
+                    </div>
                 </div>
                 <div class="wantedFriendHomePageDisplay" id="wantedFriendHomePageDisplay">
                     <button class="wantedProfile" id="wantedProfile">
@@ -170,7 +172,8 @@
         <script src="{% static 'scriptJS/refreshPage.js' %}"></script>
         <script src="{% static 'scriptJS/connectNormal.js' %}"></script>
         <script src="{% static 'scriptJS/friendPage.js' %}"></script>
-        <script src="{% static 'scriptJS/playAndLobbyPage.js' %}"></script>
+        <script src="{% static 'scriptJS/lobbyPage.js' %}"></script>
+        <script src="{% static 'scriptJS/playMenu.js' %}"></script>
 
     </body>
 </html>

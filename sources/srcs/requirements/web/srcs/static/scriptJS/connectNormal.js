@@ -100,8 +100,7 @@ document.getElementById('formConnect').addEventListener('submit', async function
                         });
                     }
                 };
-                // refreshHomePage();
-                handleLocation
+                refreshHomePage();
             }
             else
             {

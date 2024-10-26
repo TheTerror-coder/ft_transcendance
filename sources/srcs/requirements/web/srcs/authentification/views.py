@@ -27,7 +27,7 @@ def register(request):
 
 
 def connect(request):
-    return render(request, 'index.html')
+    return render(request, 'base.html')
 
 @require_POST
 @csrf_protect
