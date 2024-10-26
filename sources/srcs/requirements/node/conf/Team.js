@@ -76,7 +76,11 @@ class Team
 
     getBoat()
     {
-        return (this.boat);
+        if (!this.boat) {
+            console.error(`Boat not initialized for team ${this.TeamId}`);
+            return null;
+        }
+        return this.boat;
     }
 
     getCannon()

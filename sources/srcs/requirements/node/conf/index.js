@@ -7,12 +7,18 @@ const express = require('express');
 const http = require('http');
 // const fs = require('fs');
 const socketIo = require('socket.io');
+const { instrument } = require("@socket.io/admin-ui");
+const { InMemoryStore } = require("@socket.io/admin-ui");
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const Debug = require('debug');
 
 const ip = process.env.HOST_IP || "localhost";
 
-const allowedOrigins = ['http://' + ip + ':8888', 'http://' + ip + ':3000'];
+const allowedOrigins = ['http://' + ip + ':8888',
+                        'http://' + ip + ':3000',
+                        "https://admin.socket.io",
+                        'http://localhost:3000'];
 
 // const httpsOptions = {
 //     key: fs.readFileSync('./volumes/web/certs/web.key'),
@@ -52,8 +58,30 @@ const io = socketIo(server, {
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type'],
         credentials: true
-    }
+    },
+    transports: ['websocket', 'polling'],
+    allowEIO3: true, // Permet la compatibilité avec les anciennes versions de Socket.IO
+    pingTimeout: 60000, // Augmente le délai d'attente du ping
 });
+
+instrument(io, {
+    auth: false,
+    mode: "development",
+    namespaceName: "/admin",
+    readonly: false,
+    serverId: "server-01",
+    store: new InMemoryStore(),
+    logger: console
+});
+
+// Créez une instance de debug pour Socket.IO
+const socketDebug = Debug('socket.io:*');
+
+// Activez les logs si nécessaire (vous pouvez le faire conditionnellement)
+Debug.enable('socket.io:*');
+
+// Utilisez socketDebug pour les logs
+socketDebug('Un message de debug');
 
 let ChannelList = new Map();
 
@@ -111,7 +139,9 @@ function checkIfGameIsFull(game, io, gameCode)
 
     if (team1.getIsFull() && team2.getIsFull()) {
         io.to(gameCode).emit('TeamsFull');
+        return (true);
     }
+    return (false);
 }
 
 io.on('connection', (socket) => {
@@ -169,6 +199,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('joinGame', (data) => {
+        let gameIsFullMsgSend = false;
         const gameCode = data.gameCode;
         const channel = ChannelList.get(gameCode);
         let game = channel.getGame();
@@ -209,7 +240,8 @@ io.on('connection', (socket) => {
         });
 
         setInterval(() => {
-            checkIfGameIsFull(game, io, gameCode);
+            if (!gameIsFullMsgSend)
+                gameIsFullMsgSend = checkIfGameIsFull(game, io, gameCode);
         }, 1000);
     });
 
@@ -253,6 +285,7 @@ io.on('connection', (socket) => {
             // console.log("game: " + game);
             // console.log("game.getTeam(data.TeamID): " + game.getTeam(data.TeamID));
             game.updateClientData(data);
+            game.gameStarted = true;
         }
     });
 
@@ -279,8 +312,13 @@ io.on('connection', (socket) => {
     socket.on('boatAndCannonPosition', async (data) => {
         let game = ChannelList.get(data.gameCode)?.getGame();
         if (game) {
-            await game.updateBoatAndCannonPosition(data.team, data.boatX, data.boatY, data.boatZ, data.cannonX, data.cannonY, data.cannonZ);
-            io.to(data.gameCode).emit('boatAndCannonPosition', data);
+            const team = game.teams.get(parseInt(data.team));
+            if (team && team.getBoat() && team.getCannon()) {
+                await game.updateBoatAndCannonPosition(data.team, data.boatX, data.boatY, data.boatZ, data.cannonX, data.cannonY, data.cannonZ);
+                io.to(data.gameCode).emit('boatAndCannonPosition', data);
+            } else {
+                console.error(`Team, boat or cannon not found for team ${data.team}`);
+            }
         } else {
             console.error(`Game not found for gameCode: ${data.gameCode}`);
         }

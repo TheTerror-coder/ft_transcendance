@@ -130,12 +130,17 @@ class Game
         io.to(gameCode).emit('gameData', teamsArray);
     }
 
-    async updateBoatAndCannonPosition(team, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
-        let teamObj = this.getTeam(team);
-        if (teamObj) {
-            teamObj.getBoat().position.set(boatX, boatY, boatZ);
-            teamObj.getCannon().position.set(cannonX, cannonY, cannonZ);
-        }
+    // async updateBoatAndCannonPosition(team, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
+    //     let teamObj = this.getTeam(team);
+    //     if (teamObj) {
+    //         teamObj.getBoat().position.set(boatX, boatY, boatZ);
+    //         teamObj.getCannon().position.set(cannonX, cannonY, cannonZ);
+    //     }
+    // }
+
+    async updateBoatAndCannonPosition(teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
+        this.updateBoatPosition(teamId, boatX, boatY, boatZ);
+        this.updateCannonPosition(teamId, cannonX, cannonY, cannonZ);
     }
 }
 
