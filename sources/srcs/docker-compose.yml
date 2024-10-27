@@ -28,6 +28,7 @@ services:
       - ALT_NAMES=${ALT_NAMES}
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
       - WEB_ALT_NAMES=${WEB_ALT_NAMES}
+      - NODE_ALT_NAMES=${NODE_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
@@ -38,6 +39,7 @@ services:
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - web_certs:${VAULT_HOME}/volumes/web/certs
+      - node_certs:${VAULT_HOME}/volumes/node/certs
     networks:
       - transcendance
     healthcheck:
@@ -207,6 +209,8 @@ services:
         - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
     environment:
       - HOST_IP=${HOST_IP}
+    volumes:
+      - node_certs:${NODE_SSL_DIR}
     expose:
       - ${NODE_PORT}
     networks:
@@ -226,9 +230,69 @@ services:
     #   retries: 1
     # restart: on-failure
 
-  web_waf:
+  frontend_waf:
     depends_on:
       web:
+        condition: service_healthy
+        restart: true
+    image: ${FRONTENDWAF_IMAGE}
+    container_name: ${FRONTENDWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./frontend_waf/conf/frontend.conf.template
+    environment:
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - FRONTENDWAF_HTTP_PORT=${FRONTENDWAF_HTTP_PORT}
+      - FRONTENDWAF_HTTPS_PORT=${FRONTENDWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      # - staticfiles:${NGINX_STATICFILES_DIR}
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+    ports:
+      - ${FRONTENDWAF_HTTP_PORT}:${FRONTENDWAF_HTTP_PORT}
+      - ${FRONTENDWAF_HTTPS_PORT}:${FRONTENDWAF_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${FRONTENDWAF_HTTPS_PORT} > /dev/null",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    # restart: on-failure
+
+  web_waf:
+    depends_on:
+      frontend_waf:
         condition: service_healthy
         restart: true
     image: ${WEBWAF_IMAGE}
@@ -248,7 +312,7 @@ services:
         - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
         - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
         - NGINX_LOG_FILES=${NGINX_LOG_FILES}
-        - REVERSEPROXY_CONF_FILE=./conf/web.conf.template
+        - REVERSEPROXY_CONF_FILE=./web_waf/conf/web.conf.template
     environment:
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_HOME=${MODSEC_HOME}
@@ -284,7 +348,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 1
-    restart: on-failure
+    # restart: on-failure
 
   vault_waf:
     depends_on:
@@ -308,7 +372,7 @@ services:
         - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
         - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
         - NGINX_LOG_FILES=${NGINX_LOG_FILES}
-        - REVERSEPROXY_CONF_FILE=./conf/vault.conf.template
+        - REVERSEPROXY_CONF_FILE=./vault_waf/conf/vault.conf.template
     environment:
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_HOME=${MODSEC_HOME}
@@ -390,4 +454,6 @@ volumes:
   nginx_certs:
     driver: local
   web_certs:
+    driver: local
+  node_certs:
     driver: local
