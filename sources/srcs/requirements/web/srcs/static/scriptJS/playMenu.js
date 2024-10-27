@@ -2,29 +2,31 @@ const centerPlayDisplay = document.getElementById("centerPlayDisplay");
 const playButton = document.getElementById("playButton");
 const playButtonImg = document.getElementById("playButtonImg");
 const playDisplay = document.getElementById("playDisplay");
+const allOfPlayDisplay = document.getElementById("allOfPlayDisplay");
+const allOfPlayDisplay2 = document.getElementById("allOfPlayDisplay2");
 // const playMenu = document.getElementById("playMenu");
 
-const rapidPlayTournament = `<div class="rapidPlay imgPlayMenu">
-<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>
-</div>
-
-<div class="imgPlayMenu tournamentButtonImg">
-<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>
-</div>`;
-
 const joinCreateLobby = `<div class="imgPlayMenu">
-                            <button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>
-                         </div>
-                        <div class="imgPlayMenu">
-                            <button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>
-                        </div>`
+<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>
+</div>
+<div class="imgPlayMenu">
+<button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>
+</div>`
 
+
+let firstElement = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
+
+const secondElement =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
 
 function playDisplayHomepage()
 {
     playButton.style.display = 'none';
     centerPlayDisplay.style.display = 'flex';
-    playDisplay.innerHTML = rapidPlayTournament;
+    allOfPlayDisplay.innerHTML = firstElement;
+    allOfPlayDisplay.style.display = "flex";
+    allOfPlayDisplay.style.backgroundImage = "url('static/photos/picturePng/homePage/Kizaru.png')";
+    allOfPlayDisplay2.innerHTML = secondElement;
+    allOfPlayDisplay2.style.backgroundImage = "url('static/photos/picturePng/homePage/TournamentLuffy.png')";
     const rapidPlayButton = document.getElementById("rapidPlayButton");
     rapidPlayButton.onclick = rapidPlayLobbyDisplay;
 }
@@ -32,7 +34,7 @@ function playDisplayHomepage()
 
 function rapidPlayLobbyDisplay()
 {
-    playDisplay.innerHTML = joinCreateLobby;
+    // allOfPlayDisplay.innerHTML = joinCreateLobby;
 }
 
 
