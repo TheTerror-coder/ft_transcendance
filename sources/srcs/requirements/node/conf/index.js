@@ -18,6 +18,15 @@ const ip = process.env.HOST_IP || "localhost";
 const allowedOrigins = ['http://' + ip + ':8888', 'http://' + ip + ':3000'];
 
 const app = express();
+
+//// Beginning jm custom ////
+app.get('/healthcheck', (req, res) => {
+	const currentDate = new Date();
+	console.log(currentDate.toISOString() + ' - node is healthy!');
+	res.send('node is healthy!')
+})
+//// End jm custom ////
+
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {

@@ -217,18 +217,18 @@ services:
       - ${NETWORK_NAME}
     ports:
       - ${NODE_PORT}:${NODE_PORT}
-    # healthcheck: #*file_healthcheck
-    #   test:
-    #     [
-    #       "CMD-SHELL",
-    #       "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-    #       # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
-    #     ]
-    #   start_period: 10s
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 1
-    # restart: on-failure
+    healthcheck: #*file_healthcheck
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:3000/healthcheck | grep -q 'healthy'",
+          # "curl -s --cacert $NODE_ROOT_CA https://localhost:${NODE_PORT} | grep -q ''", # In production
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    restart: on-failure
 
   frontend_waf:
     depends_on:
@@ -292,7 +292,7 @@ services:
 
   web_waf:
     depends_on:
-      frontend_waf:
+      web:
         condition: service_healthy
         restart: true
     image: ${WEBWAF_IMAGE}
@@ -409,6 +409,66 @@ services:
       retries: 1
     restart: on-failure
   
+  node_waf:
+    depends_on:
+      node:
+        condition: service_healthy
+        restart: true
+    image: ${NODEWAF_IMAGE}
+    container_name: ${NODEWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./node_waf/conf/node.conf.template
+    environment:
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - NODEWAF_HTTP_PORT=${NODEWAF_HTTP_PORT}
+      - NODEWAF_HTTPS_PORT=${NODEWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      # - staticfiles:${NGINX_STATICFILES_DIR}
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+    ports:
+      - ${NODEWAF_HTTP_PORT}:${NODEWAF_HTTP_PORT}
+      - ${NODEWAF_HTTPS_PORT}:${NODEWAF_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${NODEWAF_HTTPS_PORT} > /dev/null",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    # restart: on-failure
+
   ready:
     depends_on:
       web_waf:
