@@ -62,6 +62,7 @@
                         <button class="fontConfirmCreateAccount" type="submit">CONFIRM</button>
                     </form>
                 </div>
+            </div>
         </div>
         <div class="homePage" id="homePage">
             <div class="rebecca" id="rebecca">
@@ -87,9 +88,9 @@
                 <div class="centerPlayDisplay" id="centerPlayDisplay">
                     <div class="playDisplay" id="playDisplay">
                         <!-- rapidPlayButton -->
-                         <div class="imgPlayMenu" id="allOfPlayDisplay">
+                         <div class="imgPlayMenu" id="firstElement">
                          </div>
-                         <div class="imgPlayMenu" id="allOfPlayDisplay2">
+                         <div class="imgPlayMenu" id="secondElement">
                         </div>
                          {% comment %} <div class="imgPlayMenu">
                             <button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>
@@ -139,7 +140,6 @@
                         </div>
                         <button type="submit" class="btn btn-danger" id="submitRemoveFriendButton">Remove</button>
                     </form>
-                    
                 </div>
                 <button class="wantedProfile" id="wantedInProfilePage">
                     <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
@@ -148,17 +148,40 @@
                 </button>
             </div>
         </div>
-        <video class="videoBackground" id="videoBackground" autoplay muted loop>
-            <source src="{% static 'photos/picturePng/lobbyPage/luffy-vs-usopp.mp4' %}" type="video/mp4">
-            <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-                <div class="lobbyDisplayRapidPlayOnePlayer" id="lobbyDisplayRapidPlayOnePlayer">
-                    <p>WANTED</p>
-                </div>
-                <div class="lobbyDisplayRapidPlayTwoPlayer" id="lobbyDisplayRapidPlayTwoPlayer">
-                    <p> TEST </p>
+        <div class="lobby" id="lobby">
+            <video class="videoBackground" id="videoBackground" autoplay muted loop>
+                <source src="{% static 'photos/picturePng/lobbyPage/luffy-vs-usopp.mp4' %}" type="video/mp4" style="z-index: -1;">
+            </video>
+            <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
+                <div class="lobbyRapidPlay" id="lobbyRapidPlay">
+                    <div class="cross" id="cross">
+                        <button id="crossButton"><img src="{% static 'photos/picturePng/lobbyPage/cross.png' %}" alt="quitButton"></button>
+                    </div>
+                    <div class="centerLobbyDisplay">
+                        <div class="lobbyDisplayRapidPlayPlayerOne" id="lobbyDisplayRapidPlayPlayerOne">
+                            <button class="wantedProfile">
+                                <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
+                                <h1 id="usernameDisplay"></h1>
+                                <span>10.000</span>
+                            </button>
+                        </div>
+                        <div class="versus" id="versus">
+                            <img src="{% static 'photos/picturePng/lobbyPage/versusLogo.png' %}" alt="versus">
+                        </div>
+                        <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerTwo">
+                            <button class="wantedProfile" id="wantedProfile">
+                                <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
+                                <h1 id="usernameDisplay"></h1>
+                                <span>10.000</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="fireBackground" id="fireBackground">
+                            <button id="PlayButtonInLobby" class="PlayButtonInLobby">PLAY</button>
+                    </div>
                 </div>
             </div>
-        </video>
+        </div>
         <script>
             var registerURL = "{% url 'register' %}";  // Changement de ' à " pour éviter l'erreur
             var loginURL = "{% url 'login' %}";        // Changement de ' à " pour éviter l'erreur

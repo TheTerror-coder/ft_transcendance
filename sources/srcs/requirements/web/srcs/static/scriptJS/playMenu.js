@@ -2,43 +2,52 @@ const centerPlayDisplay = document.getElementById("centerPlayDisplay");
 const playButton = document.getElementById("playButton");
 const playButtonImg = document.getElementById("playButtonImg");
 const playDisplay = document.getElementById("playDisplay");
-const allOfPlayDisplay = document.getElementById("allOfPlayDisplay");
-const allOfPlayDisplay2 = document.getElementById("allOfPlayDisplay2");
+const firstElement = document.getElementById("firstElement");
+const secondElement = document.getElementById("secondElement");
 // const playMenu = document.getElementById("playMenu");
 
-const joinCreateLobby = `<div class="imgPlayMenu">
-<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>
-</div>
-<div class="imgPlayMenu">
-<button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>
-</div>`
+const lobby = document.getElementById("lobby");
+
+const joinCreateLobbyHTML = `<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>`;
+
+const  createLobbyButtonHTML =  `<button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>`;
 
 
-let firstElement = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
 
-const secondElement =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
+const rapidPlayHTML = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
+
+const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
 
 function playDisplayHomepage()
 {
     playButton.style.display = 'none';
     centerPlayDisplay.style.display = 'flex';
-    allOfPlayDisplay.innerHTML = firstElement;
-    allOfPlayDisplay.style.display = "flex";
-    allOfPlayDisplay.style.backgroundImage = "url('static/photos/picturePng/homePage/Kizaru.png')";
-    allOfPlayDisplay2.innerHTML = secondElement;
-    allOfPlayDisplay2.style.backgroundImage = "url('static/photos/picturePng/homePage/TournamentLuffy.png')";
+    firstElement.innerHTML = rapidPlayHTML;
+    firstElement.style.display = "flex";
+    firstElement.style.backgroundImage = "url('static/photos/picturePng/homePage/Kizaru.png')";
+    secondElement.innerHTML = TournamentButtonHTML;
+    secondElement.style.backgroundImage = "url('static/photos/picturePng/homePage/TournamentLuffy.png')";
     const rapidPlayButton = document.getElementById("rapidPlayButton");
     rapidPlayButton.onclick = rapidPlayLobbyDisplay;
 }
 
-
 function rapidPlayLobbyDisplay()
 {
-    // allOfPlayDisplay.innerHTML = joinCreateLobby;
+    firstElement.innerHTML = joinCreateLobbyHTML;
+    firstElement.style.backgroundImage = "none";
+    secondElement.innerHTML = createLobbyButtonHTML;
+    secondElement.style.backgroundImage = "none";
+    const joinLobbyButton = document.getElementById("joinLobbyButton");
+    joinLobbyButton.onclick = joinRapidPlay;
 }
 
-
 playButtonImg.onclick = playDisplayHomepage;
+
+function joinRapidPlay()
+{
+    lobby.style.display = "flex";
+    lobbyDisplay();
+}
 
 class PlayMenu
 {
@@ -149,7 +158,3 @@ class PlayMenu
 //     twoPlayerButton.style.display = "block";
 // }
 
-// function joinRapidPlay()
-// {
-//     lobbyDisplay();
-// }
