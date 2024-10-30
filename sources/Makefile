@@ -69,3 +69,16 @@ freset re ta_pas_compris : fclean all
 
 restart res : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart
+
+###JM Customs###
+jmcleanv jmcv : # clean all volumes
+	-docker volume prune -f
+	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
+jmclean jmc : down rm rmi rmv
+jmfclean jmfc : jmclean jmcleanv
+	-docker system prune -f
+jmreset : jmclean all
+jmfreset : jmfclean all
+
+jmrestart jmres : # Restart service containers
+	-docker compose -f $(COMPOSE_FILE) restart

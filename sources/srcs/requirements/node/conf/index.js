@@ -29,6 +29,24 @@ const allowedOrigins = ['http://' + ip + ':8888',
 
 const app = express();
 
+//// Beginning jm custom ////
+app.get('/healthcheck', (req, res) => {
+	const currentDate = new Date();
+	console.log(currentDate.toISOString() + ' - node is healthy!');
+	res.send('node is healthy!')
+})
+//// End jm custom ////
+
+// const server = http.createServer(app);
+// const io = socketIo(server, {
+//     cors: {
+//         origin: allowedOrigins,
+//         methods: ['GET', 'POST'],
+//         allowedHeaders: ['Content-Type'],
+//         credentials: true
+//     }
+// });
+
 app.use(cors({
     origin: allowedOrigins,
     methods: ['GET', 'POST'],

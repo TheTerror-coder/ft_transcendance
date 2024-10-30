@@ -14,7 +14,7 @@ USER 0
 
 WORKDIR ${NODE_HOME}
 
-RUN apk add --update --no-cache dumb-init && \
+RUN apk add --update --no-cache dumb-init curl && \
 addgroup -g ${SHARED_GID} transcendance && \
 addgroup node transcendance && \
 mkdir -p ${NODE_DIRS_TO_MAKE} && \
