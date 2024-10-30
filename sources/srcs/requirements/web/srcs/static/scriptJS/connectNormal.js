@@ -1,4 +1,5 @@
-// const ip = process.env.HOST_IP || "localhost";
+// const ip = process.env.HOST_IP || "127.0.0.1";
+const ip = "127.0.0.1:8000";
 
 var socket
 

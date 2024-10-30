@@ -1,4 +1,5 @@
 
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -16,10 +17,18 @@ function getCookie(cname) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const buttonChangeUsername = document.getElementById('buttonChangeUsername');
+    buttonChangeUsername.onclick = changeUsername;
+    const newUsername = document.getElementById('newUsername');
+    const newPicture = document.getElementById('newPicture');
+    const buttonChangePicture = document.getElementById('buttonChangePicture');
+    buttonChangePicture.onclick = changePicture;
+
     const removeFriendButton = document.getElementById('submitRemoveFriendButton');
     const usernameRemoveFriendInput = document.getElementById('usernameRemoveFriend');
     removeFriendButton.onclick = removeFriend;
     wantedProfile.onclick = profileDisplay;
+
     function profileDisplay()
     {
         // rebecca.style.display = 'none';
@@ -129,5 +138,86 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Erreur lors de la suppression de l\'ami :', error);
         })
+    }
+
+    buttonChangePicture.onclick = function(event) {
+        event.preventDefault();
+    
+        const fileInput = document.getElementById("newPicture");
+        const picture = fileInput.files[0];
+    
+        if (!picture) {
+            alert("Veuillez sélectionner un fichier.");
+            return;
+        }
+    
+        console.log("Fichier sélectionné :", picture);
+        changePicture(picture);
+    };
+
+    function changePicture(picture) {
+        console.log("iccccci et laaaaa : ", picture);
+        const formData = new FormData();
+        formData.append('photo', picture);
+        for (const [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        const csrfToken = getCookie('csrftoken');
+    
+        fetch(updatePictureURL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: "include",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Erreur:', error));
+    };
+
+    
+    buttonChangeUsername.onclick = function(event) {
+        event.preventDefault();
+
+        const userNameUpdate = newUsername.value;
+        changeUsername(userNameUpdate);
+    };
+
+    function changeUsername(username) {
+        const csrfToken = getCookie('csrftoken');
+        fetch(updateNameURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ 'username': username })
+        })
+        .then(response => {
+            if (!response.ok) { 
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                friendDisplayProfileok();
+            } else {
+                alert("Erreur : " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la mise à jour du nom d\'utilisateur :', error);
+        });
     }
 });

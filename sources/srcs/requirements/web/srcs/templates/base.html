@@ -72,6 +72,7 @@
                 <div class="playButton" id="playButton">
                     <button class="playImg fontTextPlay" id="playButtonImg">PLAY</button>
                 </div>
+
                 <div class="addFriend" id="addFriend">
                     <p>SOCIAL</p>
                     <img src="{% static 'photos/picturePng/homePage/add_friend_button.png' %}" alt="one piece crew !">
@@ -108,16 +109,18 @@
                         <button class="joinTournamentButton fontTextPlay" id="joinTournamentButton">JOIN TOURNAMENT</button> {% endcomment %}
                     </div>
                 </div>
-                <div class="wantedFriendHomePageDisplay" id="wantedFriendHomePageDisplay">
-                    <button class="wantedProfile" id="wantedProfile">
+                <button class="wantedProfile" id="wantedProfile">
+                    {% if user.photo %}
+                        <img src="{{ user.photo.url }}" alt="profile picture" class="profilePicture">
+                    {% else %}
                         <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
-                        <h1 id="usernameDisplay"></h1>
-                        <span>10.000</span>
-                    </button>
-                    <div class="friendButton" id="friendButton">
-                        <button id="buttonFriend"><img src="{% static 'photos/picturePng/homePage/add_friend_button.png' %}" alt="add friend"></button>
-                    </div>
-                </div>
+                    {% endif %}
+                    <h1 id="usernameDisplay"></h1>
+                    <span>10.000</span>
+                </button>
+            </div>
+            <div class="friendButton" id="friendButton">
+                <button id="buttonFriend"><img src="{% static 'photos/picturePng/homePage/add_friend_button.png' %}" alt="add friend"></button>
             </div>
         </div>
         <div class="profilePage" id="profilePage">
@@ -142,10 +145,26 @@
                     </form>
                 </div>
                 <button class="wantedProfile" id="wantedInProfilePage">
-                    <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
-                    <h1 id="usernameDisplay2"></h1> 
+                    {% if user.photo %}
+                        <img src="{{ user.photo.url }}" alt="profile picture" class="profilePicture">
+                    {% else %}
+                        <img src="{% static 'photos/picturePng/homePage/luffy_avatar.png' %}" alt="profile picture" class="profilePicture">
+                    {% endif %}
+                    <h1 id="usernameDisplay2"></h1>
                     <span>10.0</span>
                 </button>
+
+                <form id="updateProfileForm">
+                    {% csrf_token %}
+                    <input type="text" class="form-control" placeholder="Enter new Username" id="newUsername" name="newUsername" required>
+                    <button type="submit" class="btn btn-danger" id="buttonChangeUsername">Submit username</button>
+                </form>
+
+                <form>
+                    {% csrf_token %}
+                    <input id="newPicture" type="file" id="updatedPhoto" required>
+                    <button id="buttonChangePicture" type="submit" class="btn btn-danger">Submit picture</button>
+                </form>
             </div>
         </div>
         <div class="lobby" id="lobby">
@@ -183,11 +202,14 @@
             </div>
         </div>
         <script>
-            var registerURL = "{% url 'register' %}";  // Changement de ' à " pour éviter l'erreur
-            var loginURL = "{% url 'login' %}";        // Changement de ' à " pour éviter l'erreur
-            var addFriendURL = "{% url 'add_friend' %}"; // Changement de ' à " pour éviter l'erreur
-            var profileURL = "{% url 'profile' %}";
-            var removeFriendURL = "{% url 'remove_friend' %}";
+            var registerURL = '{% url 'register' %}';
+            var loginURL = '{% url 'login' %}';
+            var addFriendURL = '{% url 'add_friend' %}';
+            var profileURL = '{% url 'profile' %}';
+            var removeFriendURL = '{% url 'remove_friend' %}';
+            var updateNameURL = '{% url 'update_profile' %}';
+            var updatePictureURL = '{% url 'update_photo' %}';
+
         </script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 pour le popup de l'invit, voir avec bootstrap-->
         <script src="{% static 'scriptJS/variablesLoginPage.js' %}"></script>

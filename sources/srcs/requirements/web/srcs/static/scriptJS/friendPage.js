@@ -60,12 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (socket.readyState === WebSocket.OPEN) {
                         console.log("WebSocket already open");
                         sendInvitation(username);
-                    } 
-                    else if (socket.readyState === WebSocket.CONNECTING) {
-                        console.log("WebSocket already open2");
-                        socket.addEventListener('open', function() {
-                            sendInvitation(username);
-                        });
                     }
                     else {
                         console.error('WebSocket connection is not open. readyState:', socket.readyState);

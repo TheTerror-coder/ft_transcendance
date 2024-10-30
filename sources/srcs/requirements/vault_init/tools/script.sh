@@ -7,6 +7,7 @@ echo "************beginning of the program**********"
 source $VAULT_HOME/container-init.d/create-root-ca.sh
 source $VAULT_HOME/container-init.d/generate-nginx-ssl-certs.sh
 source $VAULT_HOME/container-init.d/generate-web-ssl-certs.sh
+source $VAULT_HOME/container-init.d/generate-node-ssl-certs.sh
 source $VAULT_HOME/container-init.d/vault-ssl.sh
 
 init () {
@@ -133,6 +134,10 @@ create_tls_certs () {
 	enable_web_pki_engine
 	generate_web_intermediate_ca
 	request_web_certificate
+	
+	enable_node_pki_engine
+	generate_node_intermediate_ca
+	request_node_certificate
 
 	set_tls_volumes_permissions
 }
