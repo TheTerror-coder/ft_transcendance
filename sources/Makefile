@@ -40,10 +40,12 @@ s stop : # Stop services
 rm remove : # Removes stopped service containers
 	-docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
-	-docker rmi $$(docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
+	-docker rmi $$(docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
-	-yes | docker volume prune
-	-rm -rf $(PATHTO_WEBAPPS_DATA)*
+	-docker volume prune -f
+	-rm -rf ./srcs/requirements/web/webapps/*
+#TODO: enable below line and disable the above one on personal space monitorable by sudo
+#	-sudo rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
@@ -53,13 +55,30 @@ web : # Rebuild and restart only the web container
 	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
 cleanv cv : # clean all volumes
-	-yes | docker volume prune
-	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
+	-make down
+	-docker volume prune -f
+	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
-	-yes | docker system prune
-reset : clean all
+	-docker system prune -f
+reset : cleanv clean all
+
+valerie : cv all
+
 freset re : fclean all
 
 restart res : # Restart service containers
+	-docker compose -f $(COMPOSE_FILE) restart
+
+###JM Customs###
+jmcleanv jmcv : # clean all volumes
+	-docker volume prune -f
+	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
+jmclean jmc : down rm rmi rmv
+jmfclean jmfc : jmclean jmcleanv
+	-docker system prune -f
+jmreset : jmclean all
+jmfreset : jmfclean all
+
+jmrestart jmres : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart

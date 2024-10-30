@@ -62,23 +62,23 @@ enable_web_pki_engine () {
 #######################################
 
 request_web_certificate () {
-	mkdir -p /web/certs/ca
+	mkdir -p $VAULT_HOME/volumes/web/certs/ca
 
 	echo -e "\nWeb SSL Certificate - creating..."
-	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output /web/certs/ca/root_ca.crt
+	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output $VAULT_HOME/volumes/web/certs/ca/root_ca.crt
 	vault write -format=json web/issue/web_intermediate_ca_role \
 		common_name="web" \
 		alt_names="$WEB_ALT_NAMES" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \
-		>(jq -r .data.certificate > /web/certs/web.crt) \
-		>(jq -r .data.issuing_ca > /web/certs/ca/ca.crt) \
-		>(jq -r .data.private_key > /web/certs/web.key) \
+		>(jq -r .data.certificate > $VAULT_HOME/volumes/web/certs/web.crt) \
+		>(jq -r .data.issuing_ca > $VAULT_HOME/volumes/web/certs/ca/ca.crt) \
+		>(jq -r .data.private_key > $VAULT_HOME/volumes/web/certs/web.key) \
 		> /dev/null
-	cat /web/certs/ca/ca.crt >> /web/certs/web.crt
-	cat /web/certs/ca/root_ca.crt >> /web/certs/web.crt
-	if [ -s /web/certs/web.crt ] || [ -s /web/certs/web.key ]; then
+	cat $VAULT_HOME/volumes/web/certs/ca/ca.crt >> $VAULT_HOME/volumes/web/certs/web.crt
+	cat $VAULT_HOME/volumes/web/certs/ca/root_ca.crt >> $VAULT_HOME/volumes/web/certs/web.crt
+	if [ -s $VAULT_HOME/volumes/web/certs/web.crt ] || [ -s $VAULT_HOME/volumes/web/certs/web.key ]; then
 		echo -e "Web SSL Certificate - done!"
 	else
 		echo -e "Web SSL Certificate - creation went wrong!"

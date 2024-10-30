@@ -1,0 +1,32 @@
+# ARG default values are overriden at build time
+
+ARG NODE_TAG=20.18.0-alpine3.20
+
+FROM node:${NODE_TAG}
+
+ARG NODE_UID=1000
+ARG NODE_GID=1000
+ARG SHARED_GID=1010
+ARG NODE_HOME=/usr/share/node
+ARG NODE_DIRS_TO_MAKE=.
+
+USER 0
+
+WORKDIR ${NODE_HOME}
+
+RUN apk add --update --no-cache dumb-init curl && \
+addgroup -g ${SHARED_GID} transcendance && \
+addgroup node transcendance && \
+mkdir -p ${NODE_DIRS_TO_MAKE} && \
+chmod 0700 ${NODE_HOME} ${NODE_HOME}/container-init.d ${NODE_HOME}/volumes && \
+chown -R ${NODE_UID}:${SHARED_GID} ${NODE_HOME}
+
+COPY --chown=${NODE_UID}:${NODE_GID} --chmod=700 ./conf/* ./
+
+USER ${NODE_UID}
+
+RUN yarn install
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/usr/local/bin/docker-entrypoint.sh", "node", "index.js"]
+# CMD ["tail", "-f", "/dev/null"]

@@ -1,4 +1,3 @@
-
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -25,17 +24,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // const addFriendForm = document.getElementById('add_friend_form');
 
+    // Assurez-vous que le gestionnaire d'événements n'est ajouté qu'une seule fois
     buttonFriend.onclick = friendPage;
     submitFriendButton.onclick = submitFriendInvite;
+
     function friendPage() {
         buttonFriend.style.display = 'none';
-        playButton.style.display = 'none';
         addFriend.style.display = 'block';
-        // friendDisplay.style.display = 'block';
     }
 
     function submitFriendInvite(event) {
         event.preventDefault();
+        // Vérifiez si le bouton est déjà en cours de traitement
+        if (submitFriendButton.dataset.processing === "true") return;
+        submitFriendButton.dataset.processing = "true"; // Marquer comme en cours de traitement
+
         let username = usernameAddFriend.value;
         const csrfToken = getCookie('csrftoken');
         fetch(addFriendURL, {
@@ -53,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 alert(data.message);
-
                 if (socket) {
                     if (socket.readyState === WebSocket.OPEN) {
                         console.log("WebSocket already open");
@@ -71,6 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch((error) => {
             console.error('Error:', error);
+        })
+        .finally(() => {
+            submitFriendButton.dataset.processing = "false"; // Réinitialiser le traitement
         });
 
         usernameAddFriend.value = '';
@@ -84,5 +89,4 @@ document.addEventListener('DOMContentLoaded', function() {
             'room_name': 'add_friend'
         }));
     }
-    
 });
