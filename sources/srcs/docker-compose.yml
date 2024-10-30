@@ -90,7 +90,7 @@ services:
       start_period: 10s
       interval: 10s
       timeout: 5s
-      retries: 2
+      retries: 3
     restart: on-failure
 
   db_postgres:
@@ -475,6 +475,12 @@ services:
         condition: service_healthy
         restart: true
       vault_waf:
+        condition: service_healthy
+        restart: true
+      frontend_waf:
+        condition: service_healthy
+        restart: true
+      node_waf:
         condition: service_healthy
         restart: true
     image: alpine:${ALPINE_VERSION}
