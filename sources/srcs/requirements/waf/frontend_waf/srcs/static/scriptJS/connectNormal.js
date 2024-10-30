@@ -1,4 +1,5 @@
-// const ip = process.env.HOST_IP || "localhost";
+// const ip = process.env.HOST_IP || "127.0.0.1";
+const ip = "127.0.0.1:8000";
 
 var socket
 
@@ -28,15 +29,17 @@ function putFormConnect()
     formConnect.style.display = 'flex';
 }
 
-document.getElementById('formConnect').addEventListener('submit', function(event) {
+document.getElementById('formConnect').addEventListener('submit', async function(event) 
+{
     event.preventDefault();
+    // await initIP();
 
     if (this.checkValidity()) {
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const csrfToken = getCookie('csrftoken');
-        fetch(loginURL, {
+        await fetch(loginURL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -57,7 +60,7 @@ document.getElementById('formConnect').addEventListener('submit', function(event
                 usernameElement.textContent = `${data.username}`;
                 socket = new WebSocket("ws://localhost:8000/ws/friend_invite/");
                 socket.onopen = function() {
-                    console.log("WebSocket connection established.");
+                    console.log("WebSocket connection established.", socket);
                 };
         
                 socket.onerror = function(error) {

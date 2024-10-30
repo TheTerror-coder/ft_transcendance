@@ -1,14 +1,6 @@
-.videoBackground
+.lobby
 {
     display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    min-width: 100%;
-    min-height: 100%;
-    z-index: -1;
-    object-fit: cover;
-
 }
 
 .joinLobbyButton
@@ -52,17 +44,72 @@
 
 .lobbyRapidPlay
 {
-    /* display: none; */
-    background-color: rgb(255,255,255, 0.7);
+    background-color: rgb(255,255,255, 0.3);
     justify-content: center;
     align-items: center;
-    margin: auto;
+    margin-top: 20px;
     flex-direction: column;
-    padding: 200%;
+    width: 1600px;
+    height: 800px;
+
 }
 
 .lobbyDisplayRapidPlayOnePlayer
 {
     display: block;
     z-index: 5;
+}
+
+.centerLobbyDisplay
+{
+    display: flex;
+    justify-content: space-between;
+    margin-left: 232px;
+    margin-right: 232px;
+    margin-top: 50px;
+    margin-bottom: -50px;
+}
+
+.cross
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.fireBackground
+{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: -webkit-fill-available;
+    height: 228px;
+}
+
+.PlayButtonInLobby
+{
+    background-image: url("../photos/picturePng/lobbyPage/fire.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    font-family: onePieceFont;
+    font-size: 500%;
+    width: -webkit-fill-available;
+    height: 228px;
+}
+
+.versus
+{
+    align-self: center;
+}
+
+.videoBackground
+{
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    z-index: -1;
 }
