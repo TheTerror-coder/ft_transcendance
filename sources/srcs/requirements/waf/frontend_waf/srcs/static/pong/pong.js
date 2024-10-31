@@ -17,13 +17,17 @@ export async function main(gameCode, socket) {
 
     let Team1 = null;
     let Team2 = null;
-
-    socket.on('gameData', (gameData) => {
+    let currentPlayer = null;
+    let currentPlayerTeam = null;
+    socket.on('gameData', async (gameData) => {
         console.log('Données de la partie:', gameData);
         if (gameData) {
-            ({ Team1, Team2 } = initGame(gameData));
+            ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
+            console.log('initGame done');
             console.log('Team1:', Team1);
             console.log('Team2:', Team2);
+            console.log('currentPlayer:', currentPlayer);
+            console.log('currentPlayerTeam:', currentPlayerTeam);
         } else {
             console.error('Aucune donnée de partie trouvée.');
         }
@@ -45,37 +49,36 @@ export async function main(gameCode, socket) {
     
     const GLTFloader = new GLTFLoader();
     const keys = {};
-    let cannonGroup = await initCannons(scene);
-    console.log('CannonGroup:', cannonGroup);
-    console.log('Team1 cannon:', Team1.getCannon());
-    console.log('Team2 cannon:', Team2.getCannon());
     let bateau = await initBateaux(scene, GLTFloader);
     console.log('bateau:', bateau);
-    Team1.setBoat(bateau.bateauTeam1);
-    Team2.setBoat(bateau.bateauTeam2);
+    let cannonGroup = await initCannons(scene);
+    console.log('CannonGroup:', cannonGroup);
+    let boatGroup1 = await CreateBoatGroup(scene, bateau.bateauTeam1, cannonGroup.get('cannonTeam1'), 1);
+    let boatGroup2 = await CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2);
+    Team1.setBoat(boatGroup1);
+    Team2.setBoat(boatGroup2);
     Team1.setCannon(cannonGroup.get('cannonTeam1'));
     Team2.setCannon(cannonGroup.get('cannonTeam2'));
     console.log('Team1 boat:', Team1.getBoat());
     console.log('Team2 boat:', Team2.getBoat());
+    console.log('Team1 cannon:', Team1.getCannon());
+    console.log('Team2 cannon:', Team2.getCannon());
     let ocean = await initOceans(scene, new THREE.TextureLoader());
     let ball = await initBall();
 
-    let player = null;
-    let playerTeam = null;
-    if (Team1.getPlayerById(socket.id))
-    {
-        player = Team1.getPlayerById(socket.id);
-        playerTeam = Team1;
+    if (currentPlayerTeam && currentPlayer) {
+        let boat = currentPlayerTeam.getBoat();
+        let cannon = currentPlayerTeam.getCannon();
+
+        if (boat && cannon) {
+            currentPlayer.setCameraPos(boat, cannon);
+            cameraPlayer = initCamera(currentPlayer, cameraPlayer, cannon, boat);
+        } else {
+            console.error('Boat or cannon is undefined');
+        }
+    } else {
+        console.error('currentPlayerTeam or currentPlayer is undefined');
     }
-    else if (Team2.getPlayerById(socket.id))
-    {
-        player = Team2.getPlayerById(socket.id);
-        playerTeam = Team2;
-    }
-    console.log('player : ', player);
-    console.log('playerTeam : ', playerTeam);
-    player.setCameraPos(playerTeam.getBoat(), playerTeam.getCannon());
-    cameraPlayer = initCamera(player, cameraPlayer);
     // cameraPlayer.position.set(0, 20, 70);
     // cameraPlayer.rotation.set(0, 0, 0);
     console.log('cameraPlayer : ', cameraPlayer);
@@ -95,20 +98,22 @@ export async function main(gameCode, socket) {
         console.log('test OK : ', data);
     });
 
+    updateServerData(gameCode, socket, currentPlayerTeam);
+
     setupEventListeners(socket, keys);
 
     setInterval(() => {
-        updateAndEmitBoatPositions(socket, Team1, Team2, keys);
-        updateAndEmitCannonPositions(socket, Team1, Team2, keys);
+        updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
+        updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
     }, 16);
-    periodicGameStateUpdate(socket);
+    // periodicGameStateUpdate(socket);
 
     setupEventListeners(socket, keys);
     setInterval(() => {
-        setupSocketListeners(socket, Team1, Team2);
+        setupSocketListeners(socket, Team1, Team2, currentPlayer);
     }, 16);
 
-    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, Team1.getBoat(), Team2.getBoat(), Team1.getCannon(), Team2.getCannon());
+    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, Team1.getBoat(), Team2.getBoat());
     function animate() {
         // if (!gameStarted) {
         //     return;
@@ -132,7 +137,74 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 
-function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2, cannonTeam1, cannonTeam2)
+function findTeam(Team1, Team2, teamID)
+{
+    if (teamID === Team1.getTeamId())
+        return (Team1);
+    else
+        return (Team2);
+}
+
+async function CreateBoatGroup(scene, bateau, cannon, teamId)
+{
+    let boatGroup = new THREE.Group();
+    bateau.name = `bateauTeam${teamId}`;
+    bateau.rotation.set(Math.PI / 2, 0, 0);
+    
+    // Positionner et orienter le canon
+    if (teamId === 1) {
+        bateau.position.set(0, 20, -1);
+        cannon.position.set(
+            bateau.position.x - (bateau.scale.x / 2) + 2,
+            bateau.position.y - 2.18,
+            bateau.position.z * bateau.scale.z + 8.1
+        );
+        cannon.rotation.set(0, 0, -Math.PI / 2);
+    } else if (teamId === 2) {
+        bateau.position.set(0, -20, -1);
+        cannon.position.set(
+            bateau.position.x - (bateau.scale.x / 2) + 2,
+            bateau.position.y + 3.98,
+            bateau.position.z * bateau.scale.z + 8.1
+        );
+        cannon.rotation.set(0, 0, Math.PI / 2);
+    }
+    boatGroup.add(bateau);
+    
+    return boatGroup;
+}
+
+function updateServerData(gameCode, socket, currentPlayerTeam)
+{
+    if (!currentPlayerTeam) {
+        console.error('currentPlayerTeam is undefined');
+        return;
+    }
+
+    const boat = currentPlayerTeam.getBoat();
+    const cannon = currentPlayerTeam.getCannon();
+
+    if (!boat || !cannon) {
+        console.error('Boat or cannon is undefined for team', currentPlayerTeam.getTeamId());
+        return;
+    }
+
+    console.log('updateServerData : ', { 
+        gameCode: gameCode, 
+        TeamID: currentPlayerTeam.getTeamId(), 
+        boat: boat.position, 
+        cannon: cannon.position 
+    });
+    
+    socket.emit('ClientData', { 
+        gameCode: gameCode, 
+        TeamID: currentPlayerTeam.getTeamId(), 
+        boat: boat.position, 
+        cannon: cannon.position 
+    });
+}
+
+function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2)
 {
     scene.add(ball);
     scene.add(ocean);
@@ -141,47 +213,81 @@ function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directio
     scene.add(directionalLight2);
     scene.add(bateau1);
     scene.add(bateau2);
-    scene.add(cannonTeam1);
-    scene.add(cannonTeam2);
+    // scene.add(cannonTeam1);
+    // scene.add(cannonTeam2);
 }
 
-function initGame(gameData)
-{
+async function initGame(gameData, socketID) {
     console.log('Initialisation du jeu avec les données : ', gameData);
 
     // Créer les équipes
     const team1 = new Team(gameData.team1.name, gameData.team1.maxNbPlayer, gameData.team1.TeamId);
     const team2 = new Team(gameData.team2.name, gameData.team2.maxNbPlayer, gameData.team2.TeamId);
 
+    let currentPlayer = null;
+    let currentPlayerTeam = null;
+
     // Accéder aux joueurs de l'équipe 1 et les ajouter à l'équipe
-    Object.keys(gameData.team1.Player).forEach(key => {
-        const playerData = gameData.team1.Player[key];
-        const player = new Player(playerData.id, playerData.role, playerData.name, team1.getTeamId());
-        team1.setPlayer(player);
-        console.log(`Joueur ${key} de l'équipe 1 :`, player);
+    const team1Promises = Object.keys(gameData.team1.Player).map(key => {
+        return new Promise((resolve) => {
+            const playerData = gameData.team1.Player[key];
+            const player = new Player(playerData.id, playerData.role, playerData.name, team1.getTeamId());
+            team1.setPlayer(player);
+            console.log(`Joueur ${key} de l'équipe 1 :`, player);
+            if (playerData.id === socketID) {
+                currentPlayer = player;
+                currentPlayerTeam = team1;
+            }
+            resolve();
+        });
     });
 
     // Accéder aux joueurs de l'équipe 2 et les ajouter à l'équipe
-    Object.keys(gameData.team2.Player).forEach(key => {
-        const playerData = gameData.team2.Player[key];
-        const player = new Player(playerData.id, playerData.role, playerData.name, team2.getTeamId());
-        team2.setPlayer(player);
-        console.log(`Joueur ${key} de l'équipe 2 :`, player);
+    const team2Promises = Object.keys(gameData.team2.Player).map(key => {
+        return new Promise((resolve) => {
+            const playerData = gameData.team2.Player[key];
+            const player = new Player(playerData.id, playerData.role, playerData.name, team2.getTeamId());
+            team2.setPlayer(player);
+            console.log(`Joueur ${key} de l'équipe 2 :`, player);
+            if (playerData.id === socketID) {
+                currentPlayer = player;
+                currentPlayerTeam = team2;
+            }
+            resolve();
+        });
     });
+
+    // Attendre que tous les joueurs soient ajoutés aux équipes
+    await Promise.all([...team1Promises, ...team2Promises]);
 
     // Afficher les équipes et leurs joueurs
     console.log('Équipe 1 :', team1);
     console.log('Équipe 2 :', team2);
 
-    return { Team1: team1, Team2: team2 }; // Assurez-vous de retourner les équipes correctement
+    if (currentPlayer) {
+        console.log('Joueur actuel :', currentPlayer);
+        console.log('Équipe du joueur actuel :', currentPlayerTeam);
+    } else {
+        console.log('Joueur actuel non trouvé');
+    }
+
+    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam }; // Retourner les équipes, le joueur actuel et son équipe
 }
 
-function initCamera(player, cameraPlayer)
+function initCamera(player, cameraPlayer, cannon, bateau)
 {
     cameraPlayer.position.copy(player.getCameraPos());
     console.log('player.getCameraRotation() : ', player.getCameraRotation());
     cameraPlayer.rotation.set(player.getCameraRotation().x, player.getCameraRotation().y, player.getCameraRotation().z);
-    return (cameraPlayer);
+    // if (player.getRole() === 'captain') {
+    //     // Vue d'ensemble pour le capitaine
+    //     // cameraPlayer.lookAt(bateau);
+    // } else if (player.getRole() === 'Cannoneer') {
+    //     // Vue depuis le canon pour le canonnier
+    //     // cameraPlayer.lookAt(cannon);
+    // }
+    // player.setCamera(cameraPlayer);
+    return cameraPlayer;
 }
 
 function initScene() {
@@ -255,14 +361,14 @@ function initBateaux(scene, gltfLoader) {
                 }
             });
             const bateauTeam1 = gltf.scene.clone();
-            bateauTeam1.position.set(0, 20, -1);
+            // bateauTeam1.position.set(0, 20, -1);
             bateauTeam1.scale.set(10, 5, 5);
-            bateauTeam1.rotation.set(Math.PI / 2, 0, 0);
+            // bateauTeam1.rotation.set(Math.PI / 2, 0, 0);
 
             const bateauTeam2 = gltf.scene.clone();
             bateauTeam2.position.set(0, -20, -1);
             bateauTeam2.scale.set(10, 5, 5);
-            bateauTeam2.rotation.set(Math.PI / 2, 0, 0);
+            // bateauTeam2.rotation.set(Math.PI / 2, 0, 0);
 
             console.log('Boat models loaded successfully');
             resolve({ bateauTeam1, bateauTeam2 });
@@ -280,7 +386,7 @@ function initOceans(scene, textureLoader) {
             // Fonction de succès
             function(texture) {
                 // Créer un plan rectangulaire pour représenter l'océan
-                const oceanGeometry = new THREE.PlaneGeometry(10000, 10000);
+                const oceanGeometry = new THREE.PlaneGeometry(5000, 5000);
                 const oceanMaterial = new THREE.MeshBasicMaterial({ 
                     map: texture,
                     side: THREE.FrontSide // Rendre le plan visible d'un seul côté
@@ -364,11 +470,21 @@ async function initCannons(scene) {
         const { cannonSupport1, cannonSupport2 } = await loadCannons_Support(MTLloader, objLoader);
         const { cannonTube1, cannonTube2 } = await loadCannons_Tube(MTLloader, objLoader);
 
+        cannonSupport1.name = `cannonSupportTeam1`;
+        cannonSupport2.name = `cannonSupportTeam2`;
+        cannonTube1.name = `cannonTubeTeam1`;
+        cannonTube2.name = `cannonTubeTeam2`;
+
         // Créer les groupes de canons pour chaque équipe
         let cannonTeam1 = new THREE.Group();
         let cannonTeam2 = new THREE.Group();
         let cannon1_tube_group = new THREE.Group();
         let cannon2_tube_group = new THREE.Group();
+
+        cannonTeam1.name = `cannonTeam1`;
+        cannonTeam2.name = `cannonTeam2`;
+        cannon1_tube_group.name = `cannon1_tube_group`;
+        cannon2_tube_group.name = `cannon2_tube_group`;
 
         // Ajouter les tubes de canon dans leurs groupes respectifs
         cannon1_tube_group.add(cannonTube1);
@@ -397,113 +513,73 @@ async function initCannons(scene) {
     }
 }
 
-function findPlayer(Team1, Team2, socket)
+function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer)
 {
-    let playerTeamID = null;
-    let playerRole = null;
-    let player = Team1.getPlayerById(socket.id);
-    if (player) 
-    {
-        playerTeamID = player.getTeamID();
-        playerRole = player.getRole();
-    }
-    else
-    {
-        player = Team2.getPlayerById(socket.id);
-        playerTeamID = player.getTeamID();
-        playerRole = player.getRole();
-    }
-    return ({ playerTeamID, playerRole });
-}
+    if (currentPlayer.getRole() === 'Cannoneer') {
+        let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
+        let TeamID = currentPlayerTeam.getTeamId();
+        let cannon = currentPlayerTeam.getCannon();
 
-function updateAndEmitCannonPositions(socket, Team1, Team2, keys)
-{
-    const {playerTeamID, playerRole} = findPlayer(Team1, Team2, socket);
-    if (playerTeamID === Team1.getTeamId())
-    {
-        if (playerRole === 'cannoneer')
-        {
-            if (keys && keys['d'])
-            {
-                console.log('key : Team1 Cannoneer d');
-                // Team1.getBoat().position.x += 0.1;
-                Team1.getCannon().position.x -= 0.1;
-                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
+        if (cannon) {
+            if (keys && keys['d'] && cannon.position.x < 6) {
+                cannon.position.x += 0.1 * directionMove;
+                emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
-            if (keys && keys['a'])
-            {
-                console.log('key : Team1 Cannoneer a');
-                // Team1.getBoat().position.x -= 0.1;
-                Team1.getCannon().position.x += 0.1;
-                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam1', x: Team1.getCannon().position.x, y: Team1.getCannon().position.y });
-            }
-        }
-    }
-    else if (playerTeamID === Team2.getTeamId())
-    {
-        if (playerRole === 'cannoneer')
-        {
-            if (keys && keys['d'])
-            {
-                console.log('key : Team2 Cannoneer d');
-                // Team2.getBoat().position.x += 0.1;
-                Team2.getCannon().position.x += 0.1;
-                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
-            }
-            if (keys && keys['a'])
-            {
-                console.log('key : Team2 Cannoneer a');
-                // Team2.getBoat().position.x -= 0.1;
-                Team2.getCannon().position.x -= 0.1;
-                socket.emit('cannonPosition', { playerId: socket.id, cannon: 'cannonTeam2', x: Team2.getCannon().position.x, y: Team2.getCannon().position.y });
+            if (keys && keys['a'] && cannon.position.x > -6) {
+                cannon.position.x -= 0.1 * directionMove;
+                emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
         }
     }
 }
 
-function updateAndEmitBoatPositions(socket, Team1, Team2, keys)
-{
-    const {playerTeamID, playerRole} = findPlayer(Team1, Team2, socket);
-    if (playerTeamID === Team1.getTeamId())
-    {
-        if (playerRole === 'captain')
-        {
-            if (keys && keys['d'])
-            {
-                console.log('key : Team1 Captain d');
-                Team1.getBoat().position.x -= 0.1;
-                Team1.getCannon().position.x -= 0.1;
-                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam1', x: Team1.getBoat().position.x, y: Team1.getBoat().position.y });
-            }
-            if (keys && keys['a'])
-            {
-                console.log('key : Team1 Captain a');
-                Team1.getBoat().position.x += 0.1;
-                Team1.getCannon().position.x += 0.1;
-                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam1', x: Team1.getBoat().position.x, y: Team1.getBoat().position.y });
-            }
-        } 
-    }
-    else if (playerTeamID === Team2.getTeamId())
-    {
-        if (playerRole === 'captain')
-        {
-            if (keys && keys['d'])
-            {
-                console.log('key : Team2 Captain d');
-                Team2.getBoat().position.x += 0.1;
-                Team2.getCannon().position.x += 0.1;
-                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
-            }
-            if (keys && keys['a'])
-            {
-                console.log('key : Team2 Captain a');
-                Team2.getBoat().position.x -= 0.1;
-                Team2.getCannon().position.x -= 0.1;
-                socket.emit('boatPosition', { playerId: socket.id, boat: 'boatTeam2', x: Team2.getBoat().position.x, y: Team2.getBoat().position.y });
-            }
+function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer) {
+    if (currentPlayer.getRole() === 'captain') {
+        let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
+        let TeamID = currentPlayerTeam.getTeamId();
+        let boatGroup = currentPlayerTeam.getBoat();
+        let cannon = currentPlayerTeam.getCannon();
+
+        let boatMoved = false;
+
+        if (keys && keys['d'] && boatGroup.position.x < 40) {
+            boatGroup.position.x += 0.1 * directionMove;
+            // cannon.position.x += 0.1;
+            boatMoved = true;
+        }
+        if (keys && keys['a'] && boatGroup.position.x > -40) {
+            boatGroup.position.x -= 0.1 * directionMove;
+            // cannon.position.x -= 0.1;
+            boatMoved = true;
+        }
+
+        if (boatMoved) {
+            emitBoatAndCannonPosition(socket, gameCode, TeamID, boatGroup, cannon);
         }
     }
+}
+
+function emitCannonPosition(socket, gameCode, TeamID, position) {
+    socket.emit('cannonPosition', { 
+        gameCode: gameCode, 
+        team: TeamID, 
+        x: position.x,
+        y: position.y,
+        z: position.z
+    });
+}
+
+function emitBoatAndCannonPosition(socket, gameCode, TeamID, boatGroup, cannon) {
+    socket.emit('boatAndCannonPosition', { 
+        gameCode: gameCode, 
+        team: TeamID, 
+        boatX: boatGroup.position.x, 
+        boatY: boatGroup.position.y,
+        boatZ: boatGroup.position.z,
+        cannonX: cannon.position.x,
+        cannonY: cannon.position.y,
+        cannonZ: cannon.position.z
+    });
 }
 
 function periodicGameStateUpdate(socket) {
@@ -512,20 +588,7 @@ function periodicGameStateUpdate(socket) {
     }, 2000);
 }
 
-function adjustCamera(cameraPlayer, playerRole, Team1, Team2) {
-    if (playerRole === 'player2') {
-        cameraPlayer.position.set(Team2.getBoat().position.x, Team2.getBoat().position.y - 2.9, Team2.getBoat().position.z + 2.5);
-        cameraPlayer.lookAt(new THREE.Vector3(Team2.getBoat().position.x, Team2.getBoat().position.y, Team2.getBoat().position.z));
-        cameraPlayer.rotation.x = 60 * (Math.PI / 180);
-    } else if (playerRole === 'player1') {
-        cameraPlayer.position.set(Team1.getBoat().position.x, Team1.getBoat().position.y + 2.9, Team1.getBoat().position.z + 2.5);
-        cameraPlayer.lookAt(new THREE.Vector3(Team1.getBoat().position.x, Team1.getBoat().position.y, Team1.getBoat().position.z));
-        cameraPlayer.rotation.x = -60 * (Math.PI / 180);
-    }
-    // Ajouter des ajustements pour player3 et player4 si nécessaire
-}
-
-function setupSocketListeners(socket, Team1, Team2)
+function setupSocketListeners(socket, Team1, Team2, currentPlayer)
 {
     socket.on('connect', (data) => {
         var Team = data.Team;
@@ -538,44 +601,37 @@ function setupSocketListeners(socket, Team1, Team2)
         console.log('Disconnected from the server');
     });
 
-    socket.on('playerInfo', (data) => {
-        playerId = data.playerId;
-        playerRole = data.playerRole;
-        ball.direction = data.ballDirection;
-        adjustCamera(cameraPlayer, playerRole, paddle1, paddle2);
-    });
-
-    socket.on('playerCount', (data) => {
-        playerCount = data;
-        console.log(`Player count: ${playerCount}`);
-    });
-
     socket.on('gameState', (data) => {
         ball.position.x = data.ballPosition.x;
         ball.position.y = data.ballPosition.y;
         ball.position.z = data.ballPosition.z;
     });
 
-    socket.on('paddlePosition', (data) => {
-        if (data.paddle === 'paddle1') {
-            paddle1.position.x = data.x;
-        } else if (data.paddle === 'paddle2') {
-            paddle2.position.x = data.x;
-        }
-    });
+    // socket.on('cannonPosition', (data) => {
+    //     console.log("cannonPosition: " + data);
+    //     let team = findTeam(Team1, Team2, data.team);
+    //     if (team && team.getCannon()) {
+    //         team.getCannon().position.x = data.x;
+    //         team.getCannon().position.y = data.y;
+    //         // team.getCannon().position.z = data.z;
+    //     } else {
+    //         console.error('Team or cannon not found for team', data.team);
+    //     }
+    // });
 
-    socket.on('startGame', () => {
-        if (playerRole != null){
-            gameStarted = true;
-            waitingMessage.style.display = 'none';
-            console.log('Game started');
-        }
-        else {
-            waitingMessage.style.display = 'block';
-            console.log('Game not started');
-            socket.emit('playerInfo unknown');
-        }
-    });
+    // socket.on('boatPosition', (data) => {
+    //     console.log("boatPosition: " + data);
+    //     let team = findTeam(Team1, Team2, data.team);
+    //     if (team && team.getBoat() && team.getCannon()) {
+    //         team.getBoat().position.x = data.bx;
+    //         team.getBoat().position.y = data.by;
+    //         team.getCannon().position.x = data.cx;
+    //         team.getCannon().position.y = data.cy;
+    //         team.getCannon().position.z = data.cz;
+    //     } else {
+    //         console.error('Team, boat or cannon not found for team', data.team);
+    //     }
+    // });
     
     socket.on('stopGame', () => {
         gameStarted = false;
@@ -589,6 +645,39 @@ function setupSocketListeners(socket, Team1, Team2)
         waitingMessage.style.display = 'block';
         waitingMessage.innerText = `Le joueur ${winner} a gagné !`;
         window.location.href = '/lobby';
+    });
+
+    // socket.on('boatPosition', (data) => {
+    //     let team = findTeam(Team1, Team2, data.team);
+    //     if (team && team.getBoat()) {
+    //         team.getBoat().position.set(data.x, data.y, data.z);
+    //         // Si le joueur actuel est le canonnier de cette équipe, mettre à jour sa position
+    //         if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamId() === data.team) {
+    //             updateCannoneerCamera(team.getBoat(), currentPlayer);
+    //         }
+    //     }
+    // });
+
+    socket.on('cannonPosition', (data) => {
+        let team = findTeam(Team1, Team2, data.team);
+        if (team && team.getCannon()) {
+            team.getCannon().position.set(data.x, data.y, data.z);
+        }
+    });
+
+    socket.on('boatAndCannonPosition', (data) => {
+        let team = findTeam(Team1, Team2, data.team);
+        if (team && team.getBoat() && team.getCannon()) {
+            team.getBoat().position.set(data.boatX, data.boatY, data.boatZ);
+            team.getCannon().position.set(data.cannonX, data.cannonY, data.cannonZ);
+            
+            // Si le joueur actuel est le canonnier de cette équipe, mettre à jour sa position
+            if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamId() === data.team) {
+                updateCannoneerCamera(team.getBoat(), currentPlayer);
+            }
+        } else {
+            console.error('Team, boat or cannon not found for team', data.team);
+        }
     });
 
     // Autres écouteurs...
@@ -621,16 +710,18 @@ function setupCameraControls(cameraPlayer, displayInfo) {
 
             // Déplacement de la caméra
             if (keys['w']) { // Avancer
-                cameraPlayer.position.add(direction.clone().multiplyScalar(0.1)); // Avancer dans la direction de la caméra
+                // cameraPlayer.position.add(direction.clone().multiplyScalar(0.1)); // Avancer dans la direction de la caméra
+                cameraPlayer.position.y += 0.1;
             }
             if (keys['s']) { // Reculer
-                cameraPlayer.position.add(direction.clone().multiplyScalar(-0.1)); // Reculer dans la direction opposée
+                // cameraPlayer.position.add(direction.clone().multiplyScalar(-0.1)); // Reculer dans la direction opposée
+                cameraPlayer.position.y -= 0.1;
             }
             if (keys['ArrowUp']) {
-                cameraPlayer.position.z -= 0.1; // Avancer
+                cameraPlayer.position.z += 0.1; // Avancer
             }
             if (keys['ArrowDown']) {
-                cameraPlayer.position.z += 0.1; // Reculer
+                cameraPlayer.position.z -= 0.1; // Reculer
             }
             if (keys['ArrowLeft']) {
                 cameraPlayer.position.x -= 0.1; // Déplacer à gauche
@@ -665,3 +756,18 @@ function setupCameraControls(cameraPlayer, displayInfo) {
 
     setInterval(updateCameraPosition, 16); // Mettre à jour la position de la caméra à chaque intervalle
 }
+
+function updateCannoneerCamera(boatGroup, player) {
+    // Mettre à jour la position de la caméra du canonnier en fonction de la position du bateau
+    let cannoneerCamera = player.getCamera();
+    if (cannoneerCamera) {
+        // Ajuster ces valeurs selon vos besoins
+        cannoneerCamera.position.set(
+            boatGroup.position.x,
+            boatGroup.position.y + 5,  // Légèrement au-dessus du bateau
+            boatGroup.position.z - 10  // Derrière le bateau
+        );
+        cannoneerCamera.lookAt(boatGroup.position);
+    }
+}
+
