@@ -1,8 +1,5 @@
 // const ip = process.env.HOST_IP || "localhost";
 
-var socket
-
-buttonConnec.onclick = putFormConnect;
 
 function getCookie(cname) {
     let name = cname + "=";
@@ -20,19 +17,11 @@ function getCookie(cname) {
     return "";
 }
 
-function putFormConnect()
-{
-    buttonConnectionAPI42.style.display = 'none';
-    buttonConnec.style.display = 'none';
-    buttonCreateAccount.style.display = 'none';
-    formConnect.style.display = 'flex';
-}
 
-document.getElementById('formConnect').addEventListener('submit', async function(event) 
+async function gang()
 {
+
     event.preventDefault();
-    // await initIP();
-
     if (this.checkValidity()) {
 
         const username = document.getElementById('username').value;
@@ -101,12 +90,12 @@ document.getElementById('formConnect').addEventListener('submit', async function
                     }
                 };
                 // refreshHomePage();
-                handleLocation
+                handleLocation();
             }
             else
             {
                 if (data.status == "error")
                     alert(data.msgError);
             }})
-    }    
-});
+        }
+    };

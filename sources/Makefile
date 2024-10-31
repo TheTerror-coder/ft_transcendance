@@ -56,7 +56,6 @@ web : # Rebuild and restart only the web container
 
 cleanv cv : # clean all volumes
 	-make down
-	-make down
 	-docker volume prune -f
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv

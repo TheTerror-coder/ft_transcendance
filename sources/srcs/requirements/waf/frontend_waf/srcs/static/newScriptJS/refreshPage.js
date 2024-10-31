@@ -1,12 +1,11 @@
 
 
-const instance = new loginPageClass();
-const test = new homePageClass();
+// const test = new homePageClass();
 
 const routes = {
     404: "chelou",
-    "/": instance.loginPageDisplayVAR,   
-    "/homePage": test.homePageDisplayVAR,
+    "/": loginPageDisplayVAR,   
+    // "/homePage": homePageDisplayVAR,
     "/lobby": "/templates/lobby.html",
 };
 
@@ -22,12 +21,18 @@ const route = (event) => {
 const handleLocation = async () => {
     const path = window.location.pathname;
     const route = routes[path] || routes[404];
-    document.getElementById("mainPage").innerHTML = route;
+    mainPage = document.getElementById("mainPage");
+    mainPage.innerHTML = route;
+    if (path == "/")
+    {
+        const instance = new loginPageClass();
+        instance.buttonConnec.onclick = () => putFormConnect(instance);
+        instance.formConnect.onsubmit = gang;
+    }
 };
 
 window.onpopstate = handleLocation;
 window.route = route;
 
 handleLocation();
-
 
