@@ -3,9 +3,9 @@ const Team = require('./Team.js');
 const Channel = require('./channel.js');
 
 const express = require('express');
-// const https = require('https');
-const http = require('http');
-// const fs = require('fs');
+const https = require('https');
+// const http = require('http');
+const fs = require('fs');
 const socketIo = require('socket.io');
 const { instrument } = require("@socket.io/admin-ui");
 const { InMemoryStore } = require("@socket.io/admin-ui");
@@ -14,16 +14,20 @@ const { v4: uuidv4 } = require('uuid');
 const Debug = require('debug');
 
 const ip = process.env.HOST_IP || "localhost";
+// Créez une instance de debug pour Socket.IO
+const socketDebug = Debug('socket.io:*');
 
 const allowedOrigins = ['http://' + ip + ':8888',
                         'http://' + ip + ':3000',
+                        'https://' + ip + ':3000',
                         "https://admin.socket.io",
                         'http://localhost:3000'];
 
-// const httpsOptions = {
-//     key: fs.readFileSync('./volumes/web/certs/web.key'),
-//     cert: fs.readFileSync('./volumes/web/certs/web.crt')
-// };
+const httpsOptions = {
+    key: fs.readFileSync('/usr/share/node/volumes/node/certs/node.key'),
+    cert: fs.readFileSync('/usr/share/node/volumes/node/certs/node.crt'),
+    ca: fs.readFileSync('/usr/share/node/volumes/node/certs/ca/root_ca.crt')
+};
 
 // let httpsOptions;
 
@@ -62,14 +66,14 @@ app.use((req, res, next) => {
 
 app.use(express.static('node'));
 
-// app.enable('trust proxy');
+app.enable('trust proxy');
 
 // // Exemple de route
 // app.get('/', (req, res) => {
 //     res.send('Hello from Node.js!');
 // });
 
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions, app);
 const io = socketIo(server, {
     cors: {
         origin: allowedOrigins,
@@ -92,8 +96,6 @@ instrument(io, {
     logger: console
 });
 
-// Créez une instance de debug pour Socket.IO
-const socketDebug = Debug('socket.io:*');
 
 // Activez les logs si nécessaire (vous pouvez le faire conditionnellement)
 Debug.enable('socket.io:*');
