@@ -31,24 +31,33 @@ DEBUG = True
 
 ALLOWED_HOSTS = [ '*' ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://*',
-    'http://host.docker.internal:8888',
-]
-
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8888',
-    'http://host.docker.internal:8888',
+    "https://10.13.5.1:1443",  # Add specific origin for frontend
 ]
 
-CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-]
+CORS_ALLOW_CREDENTIALS = True  # Allow credentials like cookies or HTTP authentication
 
-CORS_ALLOW_HEADERS = [
-    "Content-Type",
+CSRF_TRUSTED_ORIGINS = [
+    "https://10.13.5.1:1443",    # Add frontend origin for CSRF protection
 ]
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://*',
+#     'http://host.docker.internal:8888',
+# ]
+# CORS_ALLOWED_ORIGINS = [ 
+#     'http://localhost:8888',
+#     'http://host.docker.internal:8888',
+# ]
+
+
+# CORS_ALLOW_METHODS = [
+#     "GET",
+#     "POST",
+# ]
+
+# CORS_ALLOW_HEADERS = [
+#     "Content-Type",
+# ]
 
 # Application definition
 

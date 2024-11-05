@@ -33,7 +33,6 @@ let flagSelected = "en";
 
 function putFormConnect(instance)
 {
-    console.log("TESTETETSTETSTS");
     instance.buttonConnectionAPI42.style.display = 'none';
     instance.buttonConnec.style.display = 'none';
     instance.buttonCreateAccount.style.display = 'none';
@@ -51,7 +50,6 @@ const loginPageDisplayVAR = `<div class="loginPage" id="loginPage">
             <button class="fontConnexionWith42" id="connectionApi">CONNECTION API <img src="../photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
             <button class="fontConnexion" id="connectionEmail"  style="margin-top: -8px;">CONNECTION</button>
             <button class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
-            
             
             <form class="createAccount" id="formConnect">
                 <p class="fontConnexion">
@@ -95,13 +93,9 @@ class loginPageClass {
         
         this.createAccountChange = mainPage.querySelector("#formAccount");
         
-        
         this.formConnect = mainPage.querySelector("#formConnect");
         
         this.buttonRefreshPage = mainPage.querySelector('#refreshPage');
-        
-        // let createAccountForm;
-        
         
         this.buttonConnec = mainPage.querySelector("#connectionEmail");
     }

@@ -1,4 +1,4 @@
-.lobby
+/* .lobby
 {
     display: none;
 }
@@ -40,7 +40,7 @@
 .gunnerButton
 {
     display: none;
-}
+} */
 
 .lobbyRapidPlay
 {
@@ -103,7 +103,7 @@
 
 .videoBackground
 {
-    display: none;
+    /* display: none; */
     position: fixed;
     top: 50%;
     left: 50%;
