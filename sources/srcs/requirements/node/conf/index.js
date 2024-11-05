@@ -293,7 +293,7 @@ io.on('connection', (socket) => {
         let game = ChannelList.get(data.gameCode)?.getGame();
         if (game) {
             await game.updateCannonPosition(data.team, data.x, data.y, data.z);
-            io.to(data.gameCode).emit('cannonPosition', data);
+            socket.to(data.gameCode).emit('cannonPosition', data);
         } else {
             console.error(`Game not found for gameCode: ${data.gameCode}`);
         }
@@ -303,7 +303,7 @@ io.on('connection', (socket) => {
         let game = ChannelList.get(data.gameCode)?.getGame();
         if (game) {
             await game.updateBoatPosition(data.team, data.x, data.y, data.z);
-            io.to(data.gameCode).emit('boatPosition', data);
+            socket.to(data.gameCode).emit('boatPosition', data);
         } else {
             console.error(`Game not found for gameCode: ${data.gameCode}`);
         }
@@ -315,7 +315,7 @@ io.on('connection', (socket) => {
             const team = game.teams.get(parseInt(data.team));
             if (team && team.getBoat() && team.getCannon()) {
                 await game.updateBoatAndCannonPosition(data.team, data.boatX, data.boatY, data.boatZ, data.cannonX, data.cannonY, data.cannonZ);
-                io.to(data.gameCode).emit('boatAndCannonPosition', data);
+                socket.to(data.gameCode).emit('boatAndCannonPosition', data);
             } else {
                 console.error(`Team, boat or cannon not found for team ${data.team}`);
             }

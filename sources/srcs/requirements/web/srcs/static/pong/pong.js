@@ -8,6 +8,77 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 console.log("pong.js loaded");
 
+let BOAT_MOVE_SPEED = 0.2;
+let CANNON_MOVE_SPEED = 0.1;
+let FRAME_RATE = 110;
+
+let intervalId = null;
+let gameCodeGlobal = null;
+let socketGlobal = null;
+let keysGlobal = null;
+let currentPlayerTeamGlobal = null;
+let currentPlayerGlobal = null;
+
+// Fonction pour afficher les valeurs actuelles
+function displayCurrentValues() {
+    console.log(`BOAT_MOVE_SPEED: ${BOAT_MOVE_SPEED}, CANNON_MOVE_SPEED: ${CANNON_MOVE_SPEED}, FRAME_RATE: ${FRAME_RATE}`);
+}
+
+// Fonction pour ajuster les valeurs
+function adjustValues(key) {
+    switch (key) {
+        case 'ArrowUp':
+            BOAT_MOVE_SPEED += 0.1;
+            break;
+        case 'ArrowDown':
+            BOAT_MOVE_SPEED = Math.max(0, BOAT_MOVE_SPEED - 0.1);
+            break;
+        case 'ArrowRight':
+            CANNON_MOVE_SPEED += 0.01;
+            break;
+        case 'ArrowLeft':
+            CANNON_MOVE_SPEED = Math.max(0, CANNON_MOVE_SPEED - 0.01);
+            break;
+        case '+':
+            FRAME_RATE += 10;
+            break;
+        case '-':
+            FRAME_RATE = Math.max(10, FRAME_RATE - 10);
+            break;
+        case 'p':
+            restartInterval();
+            break;
+        default:
+            return;
+    }
+    displayCurrentValues();
+}
+
+// Fonction pour redémarrer l'intervalle avec la nouvelle FRAME_RATE
+function restartInterval() {
+    if (intervalId) {
+        clearInterval(intervalId);
+    }
+    console.log('restartInterval : ', FRAME_RATE);
+    intervalId = setInterval(() => {
+        updateAndEmitBoatPositions(gameCodeGlobal, socketGlobal, keysGlobal, currentPlayerTeamGlobal, currentPlayerGlobal);
+        updateAndEmitCannonPositions(gameCodeGlobal, socketGlobal, keysGlobal, currentPlayerTeamGlobal, currentPlayerGlobal);
+    }, FRAME_RATE);
+}
+
+// Écouteur d'événements pour ajuster les valeurs en continu
+window.addEventListener('keydown', (event) => {
+    if (!intervalId) {
+        adjustValues(event.key);
+        intervalId = setInterval(() => adjustValues(event.key), 100);
+    }
+});
+
+window.addEventListener('keyup', () => {
+    clearInterval(intervalId);
+    intervalId = null;
+});
+
 export async function main(gameCode, socket) {
     console.log('socket : ', socket);
     
@@ -102,10 +173,15 @@ export async function main(gameCode, socket) {
 
     setupEventListeners(socket, keys);
 
+    gameCodeGlobal = gameCode;
+    socketGlobal = socket;
+    keysGlobal = keys;
+    currentPlayerTeamGlobal = currentPlayerTeam;
+    currentPlayerGlobal = currentPlayer;
     setInterval(() => {
         updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
         updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    }, 16);
+    }, FRAME_RATE);
     // periodicGameStateUpdate(socket);
 
     setupEventListeners(socket, keys);
@@ -522,11 +598,11 @@ function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam,
 
         if (cannon) {
             if (keys && keys['d'] && cannon.position.x < 6) {
-                cannon.position.x += 0.1 * directionMove;
+                cannon.position.x += CANNON_MOVE_SPEED * directionMove;
                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
             if (keys && keys['a'] && cannon.position.x > -6) {
-                cannon.position.x -= 0.1 * directionMove;
+                cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
         }
@@ -543,12 +619,12 @@ function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, c
         let boatMoved = false;
 
         if (keys && keys['d'] && boatGroup.position.x < 40) {
-            boatGroup.position.x += 0.1 * directionMove;
+            boatGroup.position.x += BOAT_MOVE_SPEED * directionMove;
             // cannon.position.x += 0.1;
             boatMoved = true;
         }
         if (keys && keys['a'] && boatGroup.position.x > -40) {
-            boatGroup.position.x -= 0.1 * directionMove;
+            boatGroup.position.x -= BOAT_MOVE_SPEED * directionMove;
             // cannon.position.x -= 0.1;
             boatMoved = true;
         }
