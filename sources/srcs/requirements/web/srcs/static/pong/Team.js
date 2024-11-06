@@ -52,6 +52,12 @@ class Team
     setBoat(boat)
     {
         this.boat = boat;
+        // if (!this.boat) {
+        //     console.error('Boat is not set for team', this.TeamId);
+        //     return;
+        // }
+        // boat.name = `bateauTeam${this.TeamId}`;
+        // this.boat.add(boat);
     }
 
     // setCannon(cannon)
@@ -60,12 +66,13 @@ class Team
     // }
 
     setCannon(cannon) {
-        if (!this.boat) {
-            console.error('Boat is not set for team', this.TeamId);
-            return;
-        }
-        cannon.name = `cannonTeam${this.TeamId}`;
-        this.boat.add(cannon);
+        // if (!this.boat) {
+        //     console.error('Boat is not set for team', this.TeamId);
+        //     return;
+        // }
+        // cannon.name = `cannonTeam${this.TeamId}`;
+        // this.boat.add(cannon);
+        this.cannon = cannon;
     }
 
     removePlayer(id)
@@ -79,13 +86,18 @@ class Team
         return (this.TeamId);
     }
 
-    getBoat()
+    getBoatGroup()
     {
         if (!this.boat) {
             console.error('Boat is not set for team', this.TeamId);
             return null;
         }
         return this.boat;
+    }
+
+    getBoat()
+    {
+        return this.boat.getObjectByName(`bateauTeam${this.TeamId}`);
     }
 
     // getCannon()

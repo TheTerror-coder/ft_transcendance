@@ -10,6 +10,17 @@ class Team
         this.boat = { x: 0, y: 0, z: 0 };
         this.cannon = { x: 0, y: 0, z: 0 };
         this.isFull = false;
+        this.score = 0;
+    }
+
+    addPoint()
+    {
+        this.score++;
+    }
+
+    getScore()
+    {
+        return (this.score);
     }
 
     setIsFull()

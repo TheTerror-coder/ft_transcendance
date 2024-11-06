@@ -1,668 +1,875 @@
+import Team from './Team.js';
+import Player from './Player.js';
+// import * as THREE from 'three';
+// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// import { TextureLoader } from 'three/addons/loaders/TextureLoader.js';
+// import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+// import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { initDebug, restartInterval, setupCameraControls } from './debug.js';
+import { updateAndEmitBoatPositions, updateAndEmitCannonPositions } from './controls.js';
+import * as render from './render.js';
+import * as network from './network.js';
 
-window.onload = function() {
-    // Vérifier si l'utilisateur doit être redirigé vers le lobby après un rechargement
-    const shouldRedirect = localStorage.getItem('redirectAfterReload');
-    if (shouldRedirect) {
-        localStorage.removeItem('redirectAfterReload');
-        window.location.href = '/lobby';
-        return; // Arrêter l'exécution supplémentaire pour éviter de reconnecter le socket
+console.log("pong.js loaded");
+
+let BOAT_MOVE_SPEED = 0.2;
+let CANNON_MOVE_SPEED = 0.1;
+let FRAME_RATE = 110;
+
+// let intervalId = null;
+// let gameCodeGlobal = null;
+// let socketGlobal = null;
+// let keysGlobal = null;
+// let currentPlayerTeamGlobal = null;
+// let currentPlayerGlobal = null;
+
+// let ball;
+
+// // Fonction pour afficher les valeurs actuelles
+// function displayCurrentValues() {
+//     console.log(`BOAT_MOVE_SPEED: ${BOAT_MOVE_SPEED}, CANNON_MOVE_SPEED: ${CANNON_MOVE_SPEED}, FRAME_RATE: ${FRAME_RATE}`);
+// }
+
+// // Fonction pour ajuster les valeurs
+// function adjustValues(key) {
+//     switch (key) {
+//         case 'ArrowUp':
+//             BOAT_MOVE_SPEED += 0.1;
+//             break;
+//         case 'ArrowDown':
+//             BOAT_MOVE_SPEED = Math.max(0, BOAT_MOVE_SPEED - 0.1);
+//             break;
+//         case 'ArrowRight':
+//             CANNON_MOVE_SPEED += 0.01;
+//             break;
+//         case 'ArrowLeft':
+//             CANNON_MOVE_SPEED = Math.max(0, CANNON_MOVE_SPEED - 0.01);
+//             break;
+//         case '+':
+//             FRAME_RATE += 10;
+//             break;
+//         case '-':
+//             FRAME_RATE = Math.max(10, FRAME_RATE - 10);
+//             break;
+//         case 'p':
+//             restartInterval();
+//             break;
+//         default:
+//             return;
+//     }
+//     displayCurrentValues();
+// }
+
+// // Fonction pour redémarrer l'intervalle avec la nouvelle FRAME_RATE
+// function restartInterval() {
+//     if (intervalId) {
+//         clearInterval(intervalId);
+//     }
+//     console.log('restartInterval : ', FRAME_RATE);
+//     intervalId = setInterval(() => {
+//         updateAndEmitBoatPositions(gameCodeGlobal, socketGlobal, keysGlobal, currentPlayerTeamGlobal, currentPlayerGlobal);
+//         updateAndEmitCannonPositions(gameCodeGlobal, socketGlobal, keysGlobal, currentPlayerTeamGlobal, currentPlayerGlobal);
+//     }, FRAME_RATE);
+// }
+
+// // Écouteur d'événements pour ajuster les valeurs en continu
+// window.addEventListener('keydown', (event) => {
+//     if (!intervalId) {
+//         adjustValues(event.key);
+//         intervalId = setInterval(() => adjustValues(event.key), 100);
+//     }
+// });
+
+// window.addEventListener('keyup', () => {
+//     clearInterval(intervalId);
+//     intervalId = null;
+// });
+
+export async function main(gameCode, socket) {
+    console.log('socket : ', socket);
+    
+    socket.emit('GameStarted', gameCode);
+
+    console.log("gameCode : ", gameCode);
+
+    let Team1 = null;
+    let Team2 = null;
+    let currentPlayer = null;
+    let currentPlayerTeam = null;
+    socket.on('gameData', async (gameData) => {
+        console.log('Données de la partie:', gameData);
+        if (gameData) {
+            ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
+            console.log('initGame done');
+            console.log('Team1:', Team1);
+            console.log('Team2:', Team2);
+            console.log('currentPlayer:', currentPlayer);
+            console.log('currentPlayerTeam:', currentPlayerTeam);
+        } else {
+            console.error('Aucune donnée de partie trouvée.');
+        }
+    });
+
+    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball } = await render.initScene();
+
+    
+    // Créer un élément pour afficher la rotation et la position
+    const displayInfo = document.createElement('div');
+    displayInfo.style.position = 'absolute';
+    displayInfo.style.top = '10px';
+    displayInfo.style.left = '10px';
+    displayInfo.style.color = 'white';
+    document.body.appendChild(displayInfo);
+
+    // Créer un élément pour afficher la position de la balle
+    const ballPositionDisplay = document.createElement('div');
+    ballPositionDisplay.style.position = 'absolute';
+    ballPositionDisplay.style.bottom = '10px';
+    ballPositionDisplay.style.left = '10px';
+    ballPositionDisplay.style.color = 'white';
+    document.body.appendChild(ballPositionDisplay);
+    
+    // Créer une caméra contrôlable
+    setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
+    
+    // const GLTFloader = new GLTFLoader();
+    const keys = {};
+    // let bateau = await render.initBateaux(scene, GLTFloader);
+    // console.log('bateau:', bateau);
+    // let cannonGroup = await render.initCannons(scene);
+    // console.log('CannonGroup:', cannonGroup);
+    // let boatGroup1 = await render.CreateBoatGroup(scene, bateau.bateauTeam1, cannonGroup.get('cannonTeam1'), 1);
+    // let boatGroup2 = await render.CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2);
+    Team1.setBoat(boatGroup1);
+    Team2.setBoat(boatGroup2);
+    Team1.setCannon(boatGroup1.getObjectByName(`cannonTeam1`));
+    Team2.setCannon(boatGroup2.getObjectByName(`cannonTeam2`));
+    // console.log('Team1 boat:', Team1.getBoat());
+    // console.log('Team2 boat:', Team2.getBoat());
+    // console.log('Team1 cannon:', Team1.getCannon());
+    // console.log('Team2 cannon:', Team2.getCannon());
+    // let ocean = await render.initOceans(scene, new THREE.TextureLoader());
+    // let ball = await render.initBall();
+
+    if (currentPlayerTeam && currentPlayer) {
+        let boat = currentPlayerTeam.getBoat();
+        let cannon = currentPlayerTeam.getCannon();
+
+        if (boat && cannon) {
+            currentPlayer.setCameraPos(boat, cannon);
+            cameraPlayer = initCamera(currentPlayer, cameraPlayer, cannon, boat);
+        } else {
+            console.error('Boat or cannon is undefined');
+        }
+    } else {
+        console.error('currentPlayerTeam or currentPlayer is undefined');
     }
-    const socket = io('http://localhost:3000'); // Si vous accédez directement depuis votre machine
-    console.log("Loading game script...");
-    
-    let playerId = null;
-    let gameStarted = false;
-    let elementsPlaced = false; 
-    let playerCount = 0;
+    // cameraPlayer.position.set(0, 20, 70);
+    // cameraPlayer.rotation.set(0, 0, 0);
+    console.log('cameraPlayer : ', cameraPlayer);
 
-    const waitingMessage = document.createElement('div');
-    waitingMessage.id = 'waitingMessage';
-    waitingMessage.style.position = 'absolute';
-    waitingMessage.style.top = '50%';
-    waitingMessage.style.left = '50%';
-    waitingMessage.style.transform = 'translate(-50%, -50%)';
-    waitingMessage.style.fontSize = '24px';
-    waitingMessage.style.color = 'white';
-    waitingMessage.innerText = 'En attente d\'un autre joueur...';
-    document.body.appendChild(waitingMessage);
+    for (const player of Team1.getPlayerMap().values())
+    {
+        console.log('Player Team1 : ', player);
+        console.log('Player Team1 camera pos : ', player.getCameraPos());
+    }
+    for (const player of Team2.getPlayerMap().values())
+    {
+        console.log('Player Team2 : ', player);
+        console.log('Player Team2 camera pos : ', player.getCameraPos());
+    }
 
-    window.addEventListener('beforeunload', function(event) {
-        console.log('Page is being reloaded');
-        localStorage.setItem('redirectAfterReload', 'true'); // Définir l'indicateur pour la redirection après rechargement
-        socket.disconnect();
-        event.preventDefault(); // Utiliser preventDefault pour déclencher la boîte de dialogue de confirmation standard
-    });
-    
-    socket.on('connect', () => {
-        console.log('Connected to the server');
-    });
-    
-    socket.on('disconnect', () => {
-        socket.emit('stopGame');
-        window.location.href = '/lobby';
-        console.log('Disconnected from the server');
-    });
+    network.updateServerData(gameCode, socket, currentPlayerTeam);
 
-    // Recevoir l'identifiant unique du joueur
-    socket.on('playerInfo', (data) => {
-        playerId = data.playerId;
-        playerRole = data.playerRole;
-        ball.direction = data.ballDirection;
-        console.log(`Player ID: ${playerId}`);
-        console.log(`Player Role: ${playerRole}`);
-        console.log(`Ball Direction: ${ball.direction.x}, ${ball.direction.y}, ${ball.direction.z}`);
-    });
+    setupEventListeners(socket, keys);
+    initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
+    restartInterval();
+    // setInterval(() => {
+    //     updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
+    //     updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer);
+    // }, FRAME_RATE);
+    // periodicGameStateUpdate(socket);
 
-    socket.on('playerCount', (data) => {
-        playerCount = data;
-        console.log(`Player count: ${playerCount}`);
-    });
-
-    socket.on('gameState', (data) => {
-        ball.position.x = data.ballPosition.x;
-        ball.position.y = data.ballPosition.y;
-        ball.position.z = data.ballPosition.z;
-    });
-
-    // Recevoir la position des paddles du serveur
-    socket.on('paddlePosition', (data) => {
-        if (data.paddle === 'paddle1') {
-            paddle1.position.x = data.x;
-            if (cannon1_support)
-                cannon1_support.position.x = data.x;
-            if (cannon1_tube)
-                cannon1_tube.position.x = data.x;
-        } else if (data.paddle === 'paddle2') {
-            paddle2.position.x = data.x;
-            if (cannon2_support)
-                cannon2_support.position.x = data.x;
-            if (cannon2_tube)
-                cannon2_tube.position.x = data.x;
-        }
-    });
-
-    // Recevoir le signal de démarrage du jeu
-    socket.on('startGame', () => {
-        if (playerRole != null){
-            gameStarted = true;
-            waitingMessage.style.display = 'none';
-            console.log('Game started');
-        }
-        else {
-            waitingMessage.style.display = 'block';
-            console.log('Game not started');
-            socket.emit('playerInfo unknown');
-        }
-    });
-
-    // Recevoir le signal d'arrêt du jeu
-    socket.on('stopGame', () => {
-        gameStarted = false;
-        waitingMessage.style.display = 'block';
-        console.log('Game stopped');
-        window.location.href = '/lobby';
-    });
-
-    socket.on('winner', (winner) => {
-        console.log(`Le joueur ${winner} a gagné !`);
-        waitingMessage.style.display = 'block';
-        waitingMessage.innerText = `Le joueur ${winner} a gagné !`;
-        // document.getElementById('PartieFinie').style.display = 'block';
-        window.location.href = '/lobby';
-        // window.location.reload();
-    });
-
-    // Initialiser Three.js
-    const scene = new THREE.Scene();
-    const cameraPlayer1 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const cameraSpectateur = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const cameraPlayer2 = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    renderer.domElement.style.position = 'absolute';
-    renderer.domElement.style.top = '0';
-    renderer.domElement.style.left = '0';
-    renderer.domElement.style.width = '100%';
-    renderer.domElement.style.height = '100%';
-
-    document.getElementById('gameCanvas').appendChild(renderer.domElement);
-
-    window.cannon1TubeGroup = new THREE.Group();
-    window.cannon2TubeGroup = new THREE.Group();
-    window.cannon1Group = new THREE.Group();
-    window.cannon2Group = new THREE.Group();
-
-    // Créer un rectangle vert
-    const rectangleGeometry = new THREE.PlaneGeometry(2, 1);
-    const rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-    
-    // Positionner le rectangle au centre de la scène
-    rectangle.position.set(0, 0, 0);
-    
-    // Ajouter le rectangle à la scène
-    scene.add(rectangle);
-
-    // Vérifie cette partie
-    cameraSpectateur.position.set(0, 0, 20);
-    cameraSpectateur.rotation.set(0, 0, 0);
-    // Ajouter la cameraSpectateur à la scène
-    scene.add(cameraSpectateur);
-    // Contrôles clavier de la cameraSpectateur avec les touches WASD
-    const keys2 = {};
-    window.addEventListener('keydown', (event) => {
-        keys2[event.key] = true;
-    });
-    window.addEventListener('keyup', (event) => {
-        keys2[event.key] = false;
-    });
-    setInterval(function() {
-        if (keys2['w']) {
-            cameraSpectateur.position.x -= Math.sin(cameraSpectateur.rotation.y) * 0.05;
-            cameraSpectateur.position.z -= Math.cos(cameraSpectateur.rotation.y) * 0.05;
-        }
-        if (keys2['s']) {
-            cameraSpectateur.position.x += Math.sin(cameraSpectateur.rotation.y) * 0.05;
-            cameraSpectateur.position.z += Math.cos(cameraSpectateur.rotation.y) * 0.05;
-        }
-        if (keys2['ArrowUp']) {
-            cameraSpectateur.position.y += 0.05;
-        }
-        if (keys2['ArrowDown']) {
-            cameraSpectateur.position.y -= 0.05;
-        }
-        if (keys2['ArrowLeft']) {
-            cameraSpectateur.position.x -= 0.05;
-        }
-        if (keys2['ArrowRight']) {
-            cameraSpectateur.position.x += 0.05;
-        }
-        if (keys2['y']) {
-            cameraSpectateur.rotation.x += 0.05;
-        }
-        if (keys2['h']) {
-            cameraSpectateur.rotation.x -= 0.05;
-        }
-        if (keys2['g']) {
-            cameraSpectateur.rotation.y += 0.05;
-        }
-        if (keys2['j']) {
-            cameraSpectateur.rotation.y -= 0.05;
-        }
-        if (keys2['t']) {
-            cameraSpectateur.rotation.z += 0.05;
-        }
-        if (keys2['u']) {
-            cameraSpectateur.rotation.z -= 0.05;
-        }
+    // setupEventListeners(socket, keys);
+    setInterval(() => {
+        network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball);
     }, 16);
 
-    let activeCamera = cameraPlayer1; // Par défaut, la camera1 est active
-
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'p') { // Appuyer sur 'p' pour changer de caméra
-            if (activeCamera != cameraSpectateur) {
-                activeCamera = cameraSpectateur;
-            } else {
-                activeCamera = cameraPlayer1;
-            }
-        }
-        // console.log(`Active camera: ${activeCamera}`);
-        console.log(`PlayerCount: ${playerCount}`);
-        if (playerCount === 2)
-        {
-            if (event.key === 'c')
-            {
-                if (activeCamera != cameraPlayer2)
-                    activeCamera = cameraPlayer2;
-                else
-                    activeCamera = cameraPlayer1;
-            }
-        }
-    });
-
-    // Ajouter un fond bleu plus océan
-    const oceanColor = 0x1E90FF; // Couleur bleu océan
-    scene.background = new THREE.Color(oceanColor);
-
-    // Ajouter des lumières
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Lumière ambiante
-    scene.add(ambientLight);
-
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau1
-    directionalLight1.position.set(0, 20, 10);
-    scene.add(directionalLight1);
-
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau2
-    directionalLight2.position.set(0, -20, 10);
-    scene.add(directionalLight2);
-
-    // Charge le modèle GLB de l'ocean
-    let ocean = null;
-    // let mixer = null;
-    const gltfLoader = new THREE.GLTFLoader();
-    const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg'); // Remplacez par le chemin de votre texture
-
-    gltfLoader.load('../../static/pong/assets/models/mar.glb', function (gltf) {
-        ocean = gltf.scene.clone();
-        ocean.scale.set(5000, 5, 5000);
-        ocean.position.set(0, 0, 1);
-        ocean.rotation.set(Math.PI / 2, 0, 0);
-
-        // Appliquer la texture à tous les matériaux du modèle
-        ocean.traverse((child) => {
-            if (child.isMesh) {
-                child.material.map = texture; // Appliquer la texture
-                child.material.needsUpdate = true; // Indiquer que le matériau a besoin d'être mis à jour
-            }
-        });
-
-        scene.add(ocean);
-
-    }, undefined, function (error) {
-        console.error('Une erreur est survenue lors du chargement du modèle GLB', error);
-    });
-
-    // Charger le modèle GLTF des bateau
-    let bateau1 = null;
-    let bateau2 = null;
-    gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
-        // Paddle 1
-        bateau1 = gltf.scene.clone();
-        bateau1.position.set(0, 20, -1);
-        bateau1.scale.set(10, 5, 5);
-        bateau1.rotation.set(Math.PI / 2, 0, 0);
-
-        // Paddle 2
-        bateau2 = gltf.scene.clone();
-        bateau2.position.set(0, -20, -1);
-        bateau2.scale.set(10, 5, 5);
-        bateau2.rotation.set(Math.PI / 2, 0, 0);
-
-        scene.add(bateau1);
-        scene.add(bateau2);
-        console.log('Model loaded successfully');
-    }, undefined, function (error) {
-        console.error('An error occurred while loading the GLTF file', error);
-    });
-
-    function InitCannon_Support(value) {
-        var cannon1_support = null;
-        var cannon2_support = null;
-        const MTLloader = new THREE.MTLLoader();
-        MTLloader.setPath('../../static/pong/assets/textures/');
-        MTLloader.load('Juste_Support.mtl', function(materials) {
-            materials.preload();
-
-            const OBJLoader = new THREE.OBJLoader();
-            OBJLoader.setMaterials(materials);
-            OBJLoader.setPath('../../static/pong/assets/models/');
-            OBJLoader.load('Juste_Support.obj', function(object) {
-                cannon1_support = object.clone();
-                // cannon1_support.scale.set(0.01, 0.03, 0.03);
-                // cannon1_support.rotation.set(0, 0, -(Math.PI / 2));
-
-                cannon2_support = object.clone();
-                // cannon2_support.scale.set(0.01, 0.03, 0.03);
-                // cannon2_support.rotation.set(0, 0, Math.PI / 2);
-
-                // Vérifier si les objets sont bien chargés avant de les ajouter à la scène
-                // if (cannon1_support)
-                //     scene.add(cannon1_support);
-                // if (cannon2_support)
-                //     scene.add(cannon2_support);
-                if (value == 0)
-                {
-                    console.log("Cannon1_support loaded");
-                    return (cannon1_support);
-                }
-                else if (value == 1)
-                {
-                    console.log("Cannon2_support loaded");
-                    return (cannon2_support);
-                }
-            });
-        });
-    }
-
-    function InitCannon_Tube(value) {
-        var cannon1_tube = null;
-        var cannon2_tube = null;
-        const MTLloader = new THREE.MTLLoader();
-        MTLloader.setPath('../../static/pong/assets/textures/');
-        MTLloader.load('Juste_Cannon.mtl', function(materials) {
-            materials.preload();
-
-            const OBJLoader = new THREE.OBJLoader();
-            OBJLoader.setMaterials(materials);
-            OBJLoader.setPath('../../static/pong/assets/models/');
-            OBJLoader.load('Juste_Cannon.obj', function(object) {
-                cannon1_tube = object.clone();
-                // cannon1_tube.scale.set(0.01, 0.03, 0.03);
-                // cannon1_tube.rotation.set(0, 0, -(Math.PI / 2));
-                // cannon1_tube.position.set(0, 0, 3);
-
-                cannon2_tube = object.clone();
-                // cannon2_tube.scale.set(0.01, 0.03, 0.03);
-                // cannon2_tube.rotation.set(0, 0, Math.PI / 2);
-
-                // Vérifier si les objets sont bien chargés avant de les ajouter à la scène
-                // if (cannon1_tube)
-                //     scene.add(cannon1_tube);
-                // if (cannon2_tube)
-                //     scene.add(cannon2_tube);
-                if (value == 0)
-                {
-                    console.log("Cannon1_tube loaded");
-                    return (cannon1_tube);
-                }
-                else if (value == 1)
-                {
-                    console.log("Cannon2_tube loaded");
-                    return (cannon2_tube);
-                }
-            });
-        });
-    }
-
-    function InitCannon(value) {
-        var cannon1_support = InitCannon_Support(0);
-        var cannon2_support = InitCannon_Support(1);
-        var cannon1_tube = InitCannon_Tube(0);
-        var cannon2_tube = InitCannon_Tube(1);
-
-        if (cannon1_support == null || cannon2_support == null || cannon1_tube == null || cannon2_tube == null)
-        {
-            console.error(`Erreur lors du chargement des objets : InitCannon ${value}`);
-            return (null);
-        }
-
-        cannon1TubeGroup = new THREE.Group();
-        cannon2TubeGroup = new THREE.Group();
-        cannon1Group = new THREE.Group();
-        cannon2Group = new THREE.Group();
-
-        cannon1_support.name = 'cannon1_support';
-        cannon2_support.name = 'cannon2_support';
-        cannon1_tube.name = 'cannon1_tube';
-        cannon2_tube.name = 'cannon2_tube';
-        
-        // Ajouter les tubes aux groupes de tubes
-        if (cannon1_tube)
-            cannon1TubeGroup.add(cannon1_tube);
-        if (cannon2_tube)
-            cannon2TubeGroup.add(cannon2_tube);
-
-        // Ajouter les supports et les groupes de tubes aux groupes principaux
-        if (cannon1_support)
-            cannon1Group.add(cannon1_support);
-        cannon1Group.add(cannon1TubeGroup);
-
-        if (cannon2_support)
-            cannon2Group.add(cannon2_support);
-        cannon2Group.add(cannon2TubeGroup);
-
-        
-        // Ajouter les groupes principaux à la scène
-        // scene.add(cannon1Group);
-        // scene.add(cannon2Group);
-        
-        cannon1Group.scale.set(0.01, 0.03, 0.03);
-        cannon2Group.scale.set(0.01, 0.03, 0.03);
-        if (value == 0)
-            return (cannon1Group);
-        else if (value == 1)
-            return (cannon2Group);
-    }
-
-    // Créer les objets du jeu Pong
-    const paddleGeometry = new THREE.BoxGeometry(0.7, 0.2, 0.6);
-    const paddle1Material = new THREE.MeshBasicMaterial({ color: 0x800080 });
-    const paddle2Material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const paddle1 = new THREE.Mesh(paddleGeometry, paddle1Material);
-    const paddle2 = new THREE.Mesh(paddleGeometry, paddle2Material);
-    // scene.add(paddle1);
-    // scene.add(paddle2);
-
-    const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-    scene.add(ball);
-
-    // Ajouter les hitboxes autour des paddles
-    const paddle1Hitbox = new THREE.BoxHelper(paddle1, 0xff0000); // Couleur rouge pour la hitbox
-    const paddle2Hitbox = new THREE.BoxHelper(paddle2, 0xff0000); // Couleur rouge pour la hitbox
-    scene.add(paddle1Hitbox);
-    scene.add(paddle2Hitbox);
-
-    const playerZoneGeometry = new THREE.BoxGeometry(5.75, 1.5, 0.1);
-    const playerZoneMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 }); // Couleur marron
-    const Player1Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
-    const Player2Zone = new THREE.Mesh(playerZoneGeometry, playerZoneMaterial);
-    // scene.add(Player1Zone);
-    // scene.add(Player2Zone);
-
-    const Player1ZoneHitbox = new THREE.BoxHelper(Player1Zone, 0xff0000);
-    const Player2ZoneHitbox = new THREE.BoxHelper(Player2Zone, 0xff0000);
-
-    // Variables pour suivre les touches enfoncées
-    const keys = {};
-
-    // Écouteurs d'événements pour les touches
-    window.addEventListener('keydown', (event) => {
-        console.log(`Key pressed: ${event.key}`);
-        keys[event.key] = true;
-    });
-
-    window.addEventListener('keyup', (event) => {
-        console.log(`Key released : ${event.key}`);
-        keys[event.key] = false;
-    });
-
-    function PlaceElements() {
-        if (bateau1 && bateau2 && !elementsPlaced) {
-            var cannon1 = InitCannon(0);
-            var cannon2 = InitCannon(1);
-            if (playerRole === 'player1')
-                socket.emit('bateauPosition', { playerId, x: bateau1.position.x, y: bateau1.position.y, z: bateau1.position.z, width: bateau1.scale.x, height: bateau1.scale.y });
-            else if (playerRole === 'player2')
-                socket.emit('bateauPosition', { playerId, x: bateau2.position.x, y: bateau2.position.y, z: bateau2.position.z, width: bateau2.scale.x, height: bateau2.scale.y });
-            // Positionner les paddles légèrement au-dessus des bateaux
-            paddle1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, bateau1.position.y - 3.2, bateau1.position.z * bateau1.scale.z + 9.9);
-            paddle2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, bateau2.position.y + 5, bateau2.position.z * bateau2.scale.z + 9.9);
-            socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
-            socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-            window.cannon1Group.position.set(paddle1.position.x, paddle1.position.y + 1.02, paddle1.position.z - 1.8);
-            window.cannon2Group.position.set(paddle2.position.x, paddle2.position.y - 1.02, paddle2.position.z - 1.8);
-            Player1Zone.position.set(paddle1.position.x, paddle1.position.y + 0.5, paddle1.position.z);
-            Player2Zone.position.set(paddle2.position.x, paddle2.position.y - 0.5, paddle2.position.z);
-            Player1Zone.rotation.set(90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
-            Player2Zone.rotation.set(-90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
-            scene.add(Player1ZoneHitbox);
-            scene.add(Player2ZoneHitbox);
-            Player1ZoneHitbox.update();
-            Player2ZoneHitbox.update();
-
-            // Appliquer une rotation à la caméra pour le joueur 2
-            if (playerRole === 'player2') {
-                cameraPlayer1.position.set(paddle2.position.x, paddle2.position.y - 2.9, paddle2.position.z + 2.5); // Derrière le paddle
-                cameraPlayer1.lookAt(new THREE.Vector3(paddle2.position.x, paddle2.position.y, paddle2.position.z));
-                cameraPlayer1.rotation.x = 60 * (Math.PI / 180);
-                if (playerCount === 2)
-                {
-                    cameraPlayer2.position.set(0, -5, 40);
-                    cameraPlayer2.rotation.set(0, 0, 0);
-                }
-            } else if (playerRole === 'player1') {
-                cameraPlayer1.position.set(paddle1.position.x, paddle1.position.y + 2.9, paddle1.position.z + 2.5); // Derrière le paddle
-                cameraPlayer1.lookAt(new THREE.Vector3(paddle1.position.x, paddle1.position.y, paddle1.position.z));
-                cameraPlayer1.rotation.x = -60 * (Math.PI / 180);
-                cameraPlayer1.rotation.z = 180 * (Math.PI / 180); // Rotation de 180 degrés
-                if (playerCount === 2)
-                {
-                    cameraPlayer2.position.set(0, 5, 40);
-                    cameraPlayer2.rotation.set(0, 0, 0);
-                    cameraPlayer2.rotation.z = 180 * (Math.PI / 180);
-                }
-            }
-            else if (playerRole === 'player3')
-            {
-                cameraPlayer1.position.set(0, 0, 20);
-                cameraPlayer1.rotation.set(0, 0, 0);
-            }
-            else if (playerRole === 'player4')
-            {
-                cameraPlayer2.position.set(0, 0, 20);
-                cameraPlayer2.rotation.set(0, 0, 0);
-            }
-            elementsPlaced = true; // Marquer les éléments comme placés
-        }
-    }
-
-    function getXMinMax(mesh)
-    {
-        const box = new THREE.Box3().setFromObject(mesh);
-        return {
-            xMin: box.min.x,
-            xMax: box.max.x
-        };
-    }
-
-    // Fonction pour envoyer la position du paddle à des intervalles réguliers
-    setInterval(() => {
-        if (activeCamera === cameraPlayer1)
-        {
-            // console.log("True");
-            if (keys['a']) {
-                if (playerRole === 'player1' && paddle1.position.x < getXMinMax(Player1Zone).xMax)
-                    {
-                        paddle1.position.x += 0.05;
-                        window.cannon1Group.position.x += 0.05;
-                        console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
-                    }
-                else if (playerRole === 'player2' && paddle2.position.x > getXMinMax(Player2Zone).xMin)
-                    {
-                        paddle2.position.x -= 0.05;
-                        window.cannon2Group.position.x -= 0.05;
-                        console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-                    }
-            }
-            if (keys['d']) {
-                if (playerRole === 'player1' && paddle1.position.x > getXMinMax(Player1Zone).xMin)
-                    {
-                        paddle1.position.x -= 0.05;
-                        window.cannon1Group.position.x -= 0.05;
-                        console.log(`Paddle position updated for player ${playerId}: ${paddle1.position.x}, ${paddle1.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
-                    }
-                else if (playerRole === 'player2' && paddle2.position.x < getXMinMax(Player2Zone).xMax)
-                    {
-                        paddle2.position.x += 0.05;
-                        window.cannon2Group.position.x += 0.05;
-                        console.log(`Paddle position updated for player ${playerId}: ${paddle2.position.x}, ${paddle2.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-                    }
-            }
-            if (keys['w'])
-            {
-                if (playerRole === 'player1' && cannon1_tube.rotation.x < 2.5)
-                {
-                    cannon1TubeGroup.rotation.x += 0.05;
-                }
-            }
-            if (keys['s'])
-            {
-                if (playerRole === 'player1' && cannon1_tube.rotation.x > -2.5)
-                {
-                    cannon1TubeGroup.rotation.x -= 0.05;
-                }
-            }
-        }
-        if (activeCamera === cameraPlayer2)
-        {
-            if (keys['a'])
-            {
-                console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
-                if (playerRole === 'player1' && bateau1.position.x < 20)
-                    {
-                        bateau1.position.x += 0.5;
-                        window.cannon1Group.position.x += 0.5;
-                        paddle1.position.x += 0.5;
-                        Player1Zone.position.x += 0.5;
-                        Player1ZoneHitbox.update();
-                        cameraPlayer1.position.x += 0.5;
-                        console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
-                    }
-                else if (playerRole === 'player2' && bateau2.position.x > -20)
-                    {
-                        bateau2.position.x -= 0.5;
-                        window.cannon2Group.position.x -= 0.5;
-                        paddle2.position.x -= 0.5;
-                        Player2Zone.position.x -= 0.5;
-                        Player2ZoneHitbox.update();
-                        cameraPlayer1.position.x -= 0.5;
-                        console.log(`Bateau position updated for player ${playerId}: ${bateau2.position.x}, ${bateau2.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-                    }
-            }
-            if (keys['d'])
-            {
-                console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
-                if (playerRole === 'player1' && bateau1.position.x > -20)
-                    {
-                        bateau1.position.x -= 0.5;
-                        window.cannon1Group.position.x -= 0.5;
-                        paddle1.position.x -= 0.5; 
-                        Player1Zone.position.x -= 0.5;
-                        Player1ZoneHitbox.update();
-                        cameraPlayer1.position.x -= 0.5;
-                        console.log(`Bateau position updated for player ${playerId}: ${bateau1.position.x}, ${bateau1.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle1', x: paddle1.position.x, y: paddle1.position.y });
-                    }
-                else if (playerRole === 'player2' && bateau2.position.x < 20)
-                    {
-                        bateau2.position.x += 0.5;
-                        window.cannon2Group.position.x += 0.5;
-                        paddle2.position.x += 0.5;
-                        Player2Zone.position.x += 0.5;
-                        Player2ZoneHitbox.update();
-                        cameraPlayer1.position.x += 0.5;
-                        console.log(`Bateau position updated for player ${playerId}: ${bateau2.position.x}, ${bateau2.position.y}`);
-                        socket.emit('paddlePosition', { playerId, paddle: 'paddle2', x: paddle2.position.x, y: paddle2.position.y });
-                    }
-            }
-        }
-    }, 16); // Envoyer la position toutes les 100ms
-
-    // Fonction d'animation
+    // render.loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, Team1.getBoatGroup(), Team2.getBoatGroup());
     function animate() {
+        // if (!gameStarted) {
+        //     return;
+        // }
         requestAnimationFrame(animate);
-
-    
-        if (!gameStarted) {
-            return;
-        }
-
-        PlaceElements();
-    
-        // Mettre à jour les hitboxes
-        paddle1Hitbox.update();
-        paddle2Hitbox.update();
-    
-        renderer.render(scene, activeCamera);
+        renderer.render(scene, cameraPlayer);
     }
 
     animate();
 
-    // Écouteur d'événements pour le redimensionnement de la fenêtre
-    window.addEventListener('resize', () => {
-        cameraPlayer1.aspect = window.innerWidth / window.innerHeight;
-        cameraPlayer1.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+    socket.on('gameState', (data) => {
+        updateBallPosition(data.ballPosition, ball);
+        displayBallPosition(data.ballPosition, ballPositionDisplay);
     });
-};
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    window.onload = async function() {
+        if (localStorage.getItem('redirectAfterReload')) {
+            localStorage.removeItem('redirectAfterReload');
+            // window.location.href = '/lobby';
+            return;
+        }
+
+        await main();
+    };
+});
+
+// function findTeam(Team1, Team2, teamID)
+// {
+//     if (teamID === Team1.getTeamId())
+//         return (Team1);
+//     else
+//         return (Team2);
+// }
+
+// async function CreateBoatGroup(scene, bateau, cannon, teamId)
+// {
+//     let boatGroup = new THREE.Group();
+//     bateau.name = `bateauTeam${teamId}`;
+//     bateau.rotation.set(Math.PI / 2, 0, 0);
+    
+//     // Positionner et orienter le canon
+//     if (teamId === 1) {
+//         bateau.position.set(0, 20, -1);
+//         cannon.position.set(
+//             bateau.position.x - (bateau.scale.x / 2) + 2,
+//             bateau.position.y - 2.18,
+//             bateau.position.z * bateau.scale.z + 8.1
+//         );
+//         cannon.rotation.set(0, 0, -Math.PI / 2);
+//     } else if (teamId === 2) {
+//         bateau.position.set(0, -20, -1);
+//         cannon.position.set(
+//             bateau.position.x - (bateau.scale.x / 2) + 2,
+//             bateau.position.y + 3.98,
+//             bateau.position.z * bateau.scale.z + 8.1
+//         );
+//         cannon.rotation.set(0, 0, Math.PI / 2);
+//     }
+//     console.log('bateau position : ', bateau.position);
+//     boatGroup.add(bateau);
+//     console.log('boatGroup.getObjectByName(bateauTeam' + teamId + ') : ', boatGroup.getObjectByName(`bateauTeam${teamId}`));
+    
+//     return boatGroup;
+// }
+
+// function updateServerData(gameCode, socket, currentPlayerTeam)
+// {
+//     if (!currentPlayerTeam) {
+//         console.error('currentPlayerTeam is undefined');
+//         return;
+//     }
+
+//     const boat = currentPlayerTeam.getBoat();
+//     const cannon = currentPlayerTeam.getCannon();
+
+//     if (!boat || !cannon) {
+//         console.error('Boat or cannon is undefined for team', currentPlayerTeam.getTeamId());
+//         return;
+//     }
+
+//     console.log('updateServerData : ', { 
+//         gameCode: gameCode, 
+//         TeamID: currentPlayerTeam.getTeamId(), 
+//         boat: boat.position, 
+//         cannon: cannon.position 
+//     });
+    
+//     socket.emit('ClientData', { 
+//         gameCode: gameCode, 
+//         TeamID: currentPlayerTeam.getTeamId(), 
+//         boat: boat.position, 
+//         cannon: cannon.position 
+//     });
+// }
+
+// function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2)
+// {
+//     scene.add(ball);
+//     scene.add(ocean);
+//     scene.add(ambientLight);
+//     scene.add(directionalLight1);
+//     scene.add(directionalLight2);
+//     scene.add(bateau1);
+//     scene.add(bateau2);
+//     // scene.add(cannonTeam1);
+//     // scene.add(cannonTeam2);
+// }
+
+async function initGame(gameData, socketID) {
+    console.log('Initialisation du jeu avec les données : ', gameData);
+
+    // Créer les équipes
+    const team1 = new Team(gameData.team1.name, gameData.team1.maxNbPlayer, gameData.team1.TeamId);
+    const team2 = new Team(gameData.team2.name, gameData.team2.maxNbPlayer, gameData.team2.TeamId);
+
+    let currentPlayer = null;
+    let currentPlayerTeam = null;
+
+    // Accéder aux joueurs de l'équipe 1 et les ajouter à l'équipe
+    const team1Promises = Object.keys(gameData.team1.Player).map(key => {
+        return new Promise((resolve) => {
+            const playerData = gameData.team1.Player[key];
+            const player = new Player(playerData.id, playerData.role, playerData.name, team1.getTeamId());
+            team1.setPlayer(player);
+            console.log(`Joueur ${key} de l'équipe 1 :`, player);
+            if (playerData.id === socketID) {
+                currentPlayer = player;
+                currentPlayerTeam = team1;
+            }
+            resolve();
+        });
+    });
+
+    // Accéder aux joueurs de l'équipe 2 et les ajouter à l'équipe
+    const team2Promises = Object.keys(gameData.team2.Player).map(key => {
+        return new Promise((resolve) => {
+            const playerData = gameData.team2.Player[key];
+            const player = new Player(playerData.id, playerData.role, playerData.name, team2.getTeamId());
+            team2.setPlayer(player);
+            console.log(`Joueur ${key} de l'équipe 2 :`, player);
+            if (playerData.id === socketID) {
+                currentPlayer = player;
+                currentPlayerTeam = team2;
+            }
+            resolve();
+        });
+    });
+
+    // Attendre que tous les joueurs soient ajoutés aux équipes
+    await Promise.all([...team1Promises, ...team2Promises]);
+
+    // Afficher les équipes et leurs joueurs
+    console.log('Équipe 1 :', team1);
+    console.log('Équipe 2 :', team2);
+
+    if (currentPlayer) {
+        console.log('Joueur actuel :', currentPlayer);
+        console.log('Équipe du joueur actuel :', currentPlayerTeam);
+    } else {
+        console.log('Joueur actuel non trouvé');
+    }
+
+    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam }; // Retourner les équipes, le joueur actuel et son équipe
+}
+
+function initCamera(player, cameraPlayer, cannon, bateau)
+{
+    cameraPlayer.position.copy(player.getCameraPos());
+    console.log('player.getCameraRotation() : ', player.getCameraRotation());
+    cameraPlayer.rotation.set(player.getCameraRotation().x, player.getCameraRotation().y, player.getCameraRotation().z);
+    // if (player.getRole() === 'captain') {
+    //     // Vue d'ensemble pour le capitaine
+    //     // cameraPlayer.lookAt(bateau);
+    // } else if (player.getRole() === 'Cannoneer') {
+    //     // Vue depuis le canon pour le canonnier
+    //     // cameraPlayer.lookAt(cannon);
+    // }
+    // player.setCamera(cameraPlayer);
+    return cameraPlayer;
+}
+
+// function initScene() {
+//     const scene = new THREE.Scene();
+//     const cameraPlayer = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
+//     const renderer = new THREE.WebGLRenderer();
+//     renderer.setSize(window.innerWidth, window.innerHeight);
+//     document.body.appendChild(renderer.domElement);
+
+//     // Ajouter des lumières
+//     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Lumière ambiante
+
+//     const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau1
+//     directionalLight1.position.set(0, 20, 10);
+
+//     const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1); // Lumière directionnelle pour bateau2
+//     directionalLight2.position.set(0, -20, 10);
+//     // Ajouter un fond bleu plus océan
+//     const oceanColor = 0x1E90FF; // Couleur bleu océan
+//     scene.background = new THREE.Color(oceanColor);
+//     return { scene, cameraPlayer, renderer, ambientLight, directionalLight1, directionalLight2 };
+// }
+
+function setupEventListeners(socket, keys, cameraPlayer) {
+    window.addEventListener('keydown', (event) => {
+        keys[event.key] = true;
+    });
+
+    window.addEventListener('keyup', (event) => {
+        keys[event.key] = false;
+    });
+
+    window.addEventListener('resize', function () {
+        if (cameraPlayer) {
+            cameraPlayer.aspect = window.innerWidth / window.innerHeight;
+            cameraPlayer.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    });
+
+    window.addEventListener('beforeunload', function (event) {
+        localStorage.setItem('redirectAfterReload', 'true');
+        socket.disconnect();
+    });
+}
+
+// function initBall() {
+//     return new Promise((resolve, reject) => {
+//         try {
+//             const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+//             const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+//             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+//             console.log('Ball initialized successfully');
+//             resolve(ball);
+//         } catch (error) {
+//             console.error('Error initializing ball:', error);
+//             reject(error);
+//         }
+//     });
+// }
+
+// function initBateaux(scene, gltfLoader) {
+//     return new Promise((resolve, reject) => {
+//         // Charger les modèles GLTF des bateaux
+//         gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
+//             const texture = new THREE.TextureLoader().load('../../static/pong/assets/textures/bateau_texture.png');
+//             gltf.scene.traverse((child) => {
+//                 if (child.isMesh) {
+//                     child.material.map = texture;
+//                     child.material.needsUpdate = true;
+//                 }
+//             });
+//             const bateauTeam1 = gltf.scene.clone();
+//             bateauTeam1.position.set(0, 20, -1);
+//             bateauTeam1.scale.set(10, 5, 5);
+//             // bateauTeam1.rotation.set(Math.PI / 2, 0, 0);
+
+//             const bateauTeam2 = gltf.scene.clone();
+//             bateauTeam2.position.set(0, -20, -1);
+//             bateauTeam2.scale.set(10, 5, 5);
+//             // bateauTeam2.rotation.set(Math.PI / 2, 0, 0);
+
+//             console.log('Boat models loaded successfully');
+//             resolve({ bateauTeam1, bateauTeam2 });
+//         }, undefined, function (error) {
+//             console.error('Error loading the boat models:', error);
+//             reject(error);
+//         });
+//     });
+// }
+
+// function initOceans(scene, textureLoader) {
+//     return new Promise((resolve, reject) => {
+//         // Charger la texture de l'océan
+//         const oceanTexture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg', 
+//             // Fonction de succès
+//             function(texture) {
+//                 // Créer un plan rectangulaire pour représenter l'océan
+//                 const oceanGeometry = new THREE.PlaneGeometry(5000, 5000);
+//                 const oceanMaterial = new THREE.MeshBasicMaterial({ 
+//                     map: texture,
+//                     side: THREE.FrontSide // Rendre le plan visible d'un seul côté
+//                 });
+                
+//                 const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+                
+//                 // Positionner et orienter l'océan
+//                 // ocean.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
+//                 ocean.position.y = -1; // Légèrement en dessous du niveau 0 pour éviter les conflits avec d'autres objets
+
+//                 // Étirer la texture pour couvrir toute la surface sans répétition
+//                 texture.wrapS = THREE.ClampToEdgeWrapping;
+//                 texture.wrapT = THREE.ClampToEdgeWrapping;
+//                 texture.repeat.set(1, 1);
+
+//                 console.log('Plan océanique créé avec succès');
+//                 resolve(ocean);
+//             },
+//             // Fonction de progression (optionnelle)
+//             undefined,
+//             // Fonction d'erreur
+//             function(error) {
+//                 console.error('Error loading the ocean texture:', error);
+//                 reject(error);
+//             }
+//         );
+//     });
+// }
+
+// function loadCannons_Support(MTLloader, OBJLoader) {
+//     return new Promise((resolve, reject) => {
+//         MTLloader.setPath('../../static/pong/assets/textures/');
+//         MTLloader.load('Juste_Support.mtl', function(materials) {
+//             materials.preload();
+//             OBJLoader.setMaterials(materials);
+//             OBJLoader.setPath('../../static/pong/assets/models/');
+//             OBJLoader.load('Juste_Support.obj', function(object) {
+//                 const cannonSupport1 = object.clone();
+//                 const cannonSupport2 = object.clone();
+//                 console.log('Cannon supports loaded successfully');
+//                 console.log('Cannon support 1 :', cannonSupport1);
+//                 console.log('Cannon support 2 :', cannonSupport2);
+//                 resolve({ cannonSupport1, cannonSupport2 });
+//             }, undefined, function (error) {
+//                 console.error('Error loading the cannon support model:', error);
+//                 reject(error);
+//             });
+//         }, undefined, function (error) {
+//             console.error('Error loading the materials:', error);
+//             reject(error);
+//         });
+//     });
+// }
+
+// function loadCannons_Tube(MTLloader, OBJLoader) {
+//     return new Promise((resolve, reject) => {
+//         // Charger les tubes de canon
+//         MTLloader.load('Juste_Cannon.mtl', function(materials) {
+//             materials.preload();
+//             OBJLoader.setMaterials(materials);
+//             OBJLoader.load('Juste_Cannon.obj', function(object) {
+//                 const cannonTube1 = object.clone();
+//                 const cannonTube2 = object.clone();
+//                 console.log('Cannon tubes loaded successfully');
+//                 resolve({ cannonTube1, cannonTube2 });
+//             }, undefined, function (error) {
+//                 console.error('Error loading the cannon tube model:', error);
+//                 reject(error);
+//             });
+//         });
+//     });
+// }
+
+// async function initCannons(scene) {
+//     const MTLloader = new MTLLoader();
+//     const objLoader = new OBJLoader(); // Assurez-vous d'utiliser une minuscule pour l'instance
+//     let cannonGroup = new Map();
+
+//     try {
+//         const { cannonSupport1, cannonSupport2 } = await loadCannons_Support(MTLloader, objLoader);
+//         const { cannonTube1, cannonTube2 } = await loadCannons_Tube(MTLloader, objLoader);
+
+//         cannonSupport1.name = `cannonSupportTeam1`;
+//         cannonSupport2.name = `cannonSupportTeam2`;
+//         cannonTube1.name = `cannonTubeTeam1`;
+//         cannonTube2.name = `cannonTubeTeam2`;
+
+//         // Créer les groupes de canons pour chaque équipe
+//         let cannonTeam1 = new THREE.Group();
+//         let cannonTeam2 = new THREE.Group();
+//         let cannon1_tube_group = new THREE.Group();
+//         let cannon2_tube_group = new THREE.Group();
+
+//         cannonTeam1.name = `cannonTeam1`;
+//         cannonTeam2.name = `cannonTeam2`;
+//         cannon1_tube_group.name = `cannon1_tube_group`;
+//         cannon2_tube_group.name = `cannon2_tube_group`;
+
+//         // Ajouter les tubes de canon dans leurs groupes respectifs
+//         cannon1_tube_group.add(cannonTube1);
+//         cannon2_tube_group.add(cannonTube2);
+
+//         // Ajouter les groupes de tubes de canon aux groupes de canons
+//         cannonTeam1.add(cannon1_tube_group);
+//         cannonTeam2.add(cannon2_tube_group);
+
+//         // Ajouter les supports de canon aux groupes de canons
+//         cannonTeam1.add(cannonSupport1);
+//         cannonTeam2.add(cannonSupport2);
+
+//         // cannonTeam1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, 20, 60);
+//         // cannonTeam2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, -20, 60);
+//         cannonTeam1.scale.set(0.01, 0.03, 0.03);
+//         cannonTeam2.scale.set(0.01, 0.03, 0.03);
+
+//         // Ajouter les groupes de canons à la Map
+//         cannonGroup.set('cannonTeam1', cannonTeam1);
+//         cannonGroup.set('cannonTeam2', cannonTeam2);
+
+//         return cannonGroup;
+//     } catch (error) {
+//         console.error('Error initializing cannons:', error);
+//     }
+// }
+
+// function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer)
+// {
+//     if (currentPlayer.getRole() === 'Cannoneer') {
+//         let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
+//         let TeamID = currentPlayerTeam.getTeamId();
+//         let cannon = currentPlayerTeam.getCannon();
+
+//         if (cannon) {
+//             if (keys && keys['d'] && cannon.position.x < 6) {
+//                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
+//                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+//             }
+//             if (keys && keys['a'] && cannon.position.x > -6) {
+//                 cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
+//                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+//             }
+//         }
+//     }
+// }
+
+// function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer) {
+//     if (currentPlayer.getRole() === 'captain') {
+//         let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
+//         let TeamID = currentPlayerTeam.getTeamId();
+//         let boatGroup = currentPlayerTeam.getBoatGroup();
+//         // let cannon = currentPlayerTeam.getCannon();
+
+//         let boatMoved = false;
+
+//         if (keys && keys['d'] && boatGroup.position.x < 40) {
+//             boatGroup.position.x += BOAT_MOVE_SPEED * directionMove;
+//             // cannon.position.x += 0.1;
+//             boatMoved = true;
+//         }
+//         if (keys && keys['a'] && boatGroup.position.x > -40) {
+//             boatGroup.position.x -= BOAT_MOVE_SPEED * directionMove;
+//             // cannon.position.x -= 0.1;
+//             boatMoved = true;
+//         }
+
+//         if (boatMoved) {
+//             emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID);
+//         }
+//     }
+// }
+
+// function emitCannonPosition(socket, gameCode, TeamID, position) {
+//     socket.emit('cannonPosition', { 
+//         gameCode: gameCode, 
+//         team: TeamID, 
+//         x: position.x,
+//         y: position.y,
+//         z: position.z
+//     });
+// }
+
+// function emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID) {
+//     // Calculer les positions globales
+//     let boatGlobalPosition = new THREE.Vector3();
+//     boatGroup.getObjectByName(`bateauTeam${TeamID}`).getWorldPosition(boatGlobalPosition);
+
+//     let cannonGlobalPosition = new THREE.Vector3();
+//     boatGroup.getObjectByName(`cannonTeam${TeamID}`).getWorldPosition(cannonGlobalPosition);
+
+//     // Envoyer les positions au serveur
+//     socket.emit('updatePositions', {
+//         gameCode: gameCode,
+//         team: TeamID,
+//         boatPosition: {
+//             x: boatGlobalPosition.x,
+//             y: boatGlobalPosition.y,
+//             z: boatGlobalPosition.z
+//         },
+//         cannonPosition: {
+//             x: cannonGlobalPosition.x,
+//             y: cannonGlobalPosition.y,
+//             z: cannonGlobalPosition.z
+//         }
+//     });
+// }
+
+// // Exemple d'utilisation lors du déplacement du groupe
+// function moveBoatGroup(boatGroup, direction) {
+//     boatGroup.position.x += direction; // Déplacer le groupe
+//     emitBoatAndCannonPosition(socket, gameCode, boat, cannon);
+// }
+
+// function emitBoatAndCannonPosition(socket, gameCode, TeamID, boatGroup) {
+//     let boat = boatGroup.getObjectByName(`bateauTeam${TeamID}`);
+//     let cannon = boatGroup.getObjectByName(`cannonTeam${TeamID}`);
+//     socket.emit('boatAndCannonPosition', { 
+//         gameCode: gameCode, 
+//         team: TeamID, 
+//         boatX: boat.position.x, 
+//         boatY: boat.position.y,
+//         boatZ: boat.position.z,
+//         cannonX: cannon.position.x,
+//         cannonY: cannon.position.y,
+//         cannonZ: cannon.position.z
+//     });
+// }
+
+// function periodicGameStateUpdate(socket) {
+//     setInterval(() => {
+//         socket.emit('requestGameStateUpdate');
+//     }, 2000);
+// }
+
+// function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball)
+// {
+//     socket.on('connect', (data) => {
+//         var Team = data.Team;
+//         console.log('Connected to the server');
+//     });
+
+//     socket.on('disconnect', () => {
+//         socket.emit('stopGame');
+//         window.location.href = '/lobby';
+//         console.log('Disconnected from the server');
+//     });
+
+//     socket.on('gameState', (data) => {
+//         ball.position.x = data.ballPosition.x;
+//         ball.position.y = data.ballPosition.y;
+//         ball.position.z = data.ballPosition.z;
+//     });
+    
+//     socket.on('stopGame', () => {
+//         gameStarted = false;
+//         waitingMessage.style.display = 'block';
+//         console.log('Game stopped');
+//         window.location.href = '/lobby';
+//     });
+
+//     socket.on('winner', (winner) => {
+//         console.log(`Le joueur ${winner} a gagné !`);
+//         waitingMessage.style.display = 'block';
+//         waitingMessage.innerText = `Le joueur ${winner} a gagné !`;
+//         window.location.href = '/lobby';
+//     });
+
+//     socket.on('cannonPosition', (data) => {
+//         let team = findTeam(Team1, Team2, data.team);
+//         if (team && team.getCannon()) {
+//             team.getCannon().position.set(data.x, data.y, data.z);
+//         }
+//     });
+
+//     socket.on('boatAndCannonPosition', (data) => {
+//         const {boatPosition, cannonPosition} = data;
+//         console.log('boatAndCannonPosition received');
+//         console.log('boatPosition: ', boatPosition);
+//         console.log('cannonPosition: ', cannonPosition);
+//         console.log('team: ', data.team);
+//         let team = findTeam(Team1, Team2, data.team);
+//         if (team && team.getBoat() && team.getCannon()) {
+//             team.getBoat().position.set(boatPosition.x, boatPosition.y, boatPosition.z);
+//             team.getCannon().position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z);
+            
+//             // Si le joueur actuel est le canonnier de cette équipe, mettre à jour sa position
+//             if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamId() === data.team) {
+//                 updateCannoneerCamera(team.getBoat(), currentPlayer);
+//             }
+//         } else {
+//             console.error('Team, boat or cannon not found for team', data.team);
+//         }
+//     });
+
+//     // Autres écouteurs...
+// }
+
+// function setupCameraControls(cameraPlayer, displayInfo) {
+//     const keys = {};
+//     let isCameraControlActive = false;
+
+//     window.addEventListener('keydown', (event) => {
+//         if (event.key === 'c') {
+//             isCameraControlActive = !isCameraControlActive; // Activer ou désactiver le contrôle de la caméra
+//         }
+//         keys[event.key] = true;
+//     });
+
+//     window.addEventListener('keyup', (event) => {
+//         keys[event.key] = false;
+//     });
+
+//     function updateCameraPosition() {
+//         if (isCameraControlActive) {
+//             // Créer un vecteur de direction pour le mouvement
+//             const direction = new THREE.Vector3(); // Déclaration de la variable direction ici
+//             cameraPlayer.getWorldDirection(direction); // Obtenir la direction dans laquelle la caméra regarde
+
+//             // Normaliser le vecteur de direction pour éviter un mouvement plus rapide
+//             direction.y = 0; // Ignorer la direction verticale
+//             direction.normalize();
+
+//             // Déplacement de la caméra
+//             if (keys['w']) { // Avancer
+//                 // cameraPlayer.position.add(direction.clone().multiplyScalar(0.1)); // Avancer dans la direction de la caméra
+//                 cameraPlayer.position.y += 0.1;
+//             }
+//             if (keys['s']) { // Reculer
+//                 // cameraPlayer.position.add(direction.clone().multiplyScalar(-0.1)); // Reculer dans la direction opposée
+//                 cameraPlayer.position.y -= 0.1;
+//             }
+//             if (keys['ArrowUp']) {
+//                 cameraPlayer.position.z += 0.1; // Avancer
+//             }
+//             if (keys['ArrowDown']) {
+//                 cameraPlayer.position.z -= 0.1; // Reculer
+//             }
+//             if (keys['ArrowLeft']) {
+//                 cameraPlayer.position.x -= 0.1; // Déplacer à gauche
+//             }
+//             if (keys['ArrowRight']) {
+//                 cameraPlayer.position.x += 0.1; // Déplacer à droite
+//             }
+//             if (keys['q']) { // Rotation à gauche
+//                 cameraPlayer.rotation.y -= 0.01;
+//             }
+//             if (keys['e']) { // Rotation à droite
+//                 cameraPlayer.rotation.y += 0.01;
+//             }
+//             if (keys['r']) { // Rotation vers le haut
+//                 cameraPlayer.rotation.x -= 0.01;
+//             }
+//             if (keys['f']) { // Rotation vers le bas
+//                 cameraPlayer.rotation.x += 0.01;
+//             }
+//             if (keys['t']) { // Rotation vers le haut
+//                 cameraPlayer.rotation.z += 0.01;
+//             }
+//             if (keys['g']) { // Rotation vers le bas
+//                 cameraPlayer.rotation.z -= 0.01;
+//             }
+//         }
+
+//         // Afficher les valeurs de position et de rotation en temps réel
+//         displayInfo.innerText = `Position - X: ${cameraPlayer.position.x.toFixed(2)}, Y: ${cameraPlayer.position.y.toFixed(2)}, Z: ${cameraPlayer.position.z.toFixed(2)}\n` +
+//                                  `Rotation - X: ${cameraPlayer.rotation.x.toFixed(2)}, Y: ${cameraPlayer.rotation.y.toFixed(2)}, Z: ${cameraPlayer.rotation.z.toFixed(2)}`;
+//     }
+
+//     setInterval(updateCameraPosition, 16); // Mettre à jour la position de la caméra à chaque intervalle
+// }
+
+// function updateCannoneerCamera(boatGroup, player) {
+//     // Mettre à jour la position de la caméra du canonnier en fonction de la position du bateau
+//     let cannoneerCamera = player.getCamera();
+//     if (cannoneerCamera) {
+//         // Ajuster ces valeurs selon vos besoins
+//         cannoneerCamera.position.set(
+//             boatGroup.position.x,
+//             boatGroup.position.y + 5,  // Légèrement au-dessus du bateau
+//             boatGroup.position.z - 10  // Derrière le bateau
+//         );
+//         cannoneerCamera.lookAt(boatGroup.position);
+//     }
+// }
+
+// Fonction pour mettre à jour la position de la balle
+function updateBallPosition(ballPosition, ball) {
+    if (ball) {
+        ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
+    }
+}
+
+// Fonction pour afficher la position de la balle
+function displayBallPosition(ballPosition, displayElement) {
+    displayElement.innerText = `Ball Position - X: ${ballPosition.x.toFixed(2)}, Y: ${ballPosition.y.toFixed(2)}, Z: ${ballPosition.z.toFixed(2)}`;
+}
+

@@ -139,6 +139,14 @@ class Game
     // }
 
     async updateBoatAndCannonPosition(teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
+        console.log("updateBoatAndCannonPosition");
+        console.log("teamId: " + teamId);
+        console.log("boatX: " + boatX);
+        console.log("boatY: " + boatY);
+        console.log("boatZ: " + boatZ);
+        console.log("cannonX: " + cannonX);
+        console.log("cannonY: " + cannonY);
+        console.log("cannonZ: " + cannonZ);
         this.updateBoatPosition(teamId, boatX, boatY, boatZ);
         this.updateCannonPosition(teamId, cannonX, cannonY, cannonZ);
     }
