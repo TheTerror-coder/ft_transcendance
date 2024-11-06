@@ -39,7 +39,8 @@ function putFormConnect(instance)
     instance.formConnect.style.display = 'flex';
 }
 
-const loginPageDisplayVAR = `<div class="loginPage" id="loginPage">
+const loginPageDisplayVAR = 
+`<div class="loginPage" id="loginPage">
 
     <div class="loginButton" id="loginButton">
         <button id="refreshPage"><img src="../photos/picturePng/loginPage/onePong.png" alt="ONE PONG" style="min-width: 450px; min-height: 160px;"></button>
@@ -82,6 +83,7 @@ const loginPageDisplayVAR = `<div class="loginPage" id="loginPage">
 class loginPageClass {
     constructor() 
     {
+        background.style.backgroundImage = "url(../photos/picturePng/loginPage/landscapeOnePiece.png)";
         this.loginPage = mainPage.querySelector("#loginPage");
         
         this.loginButton = mainPage.querySelector("#loginButton");

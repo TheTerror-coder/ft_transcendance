@@ -4,9 +4,11 @@
 
 const routes = {
     404: "chelou",
-    "/": loginPageDisplayVAR,   
+    "/": loginPageDisplayVAR,  
+    "/loginPage": loginPageDisplayVAR, 
     "/homePage": homePageDisplayVAR,
-    "/lobby": "/templates/lobby.html",
+    "/lobby": CreateJoinLobbyDisplayVAR,
+    "/profile": profilePageDisplayVAR,
 };
 
 const route = (event) => {
@@ -20,12 +22,15 @@ const route = (event) => {
 
 const handleLocation = async () => {
     const path = window.location.pathname;
-    console.log("test: path " + path);
     const route = routes[path] || routes[404];
     mainPage = document.getElementById("mainPage");
-    console.log(route);
     mainPage.innerHTML = route;
     if (path == "/")
+    {
+        window.history.pushState({}, "", "/loginPage");
+        handleLocation();
+    }
+    if (path == "/loginPage")
     {
         const instance = new loginPageClass();
         instance.buttonConnec.onclick = () => putFormConnect(instance);
@@ -35,19 +40,36 @@ const handleLocation = async () => {
     }
     if (path == "/homePage")
     {
+        // verifier si le frere est connecte
         const homePage = new homePageClass();
-        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/landscapeMenu.png')";
         flag.className = "homepageFlag";
         flag.id = 'homepageFlag';
         homePage.rebeccaImg.style.display = 'block';
         let englandFlagImg = document.querySelector("#englandFlagImg");
         englandFlagImg.className = "englandFlag";
         englandFlag.style.marginRight = "-0.01px";
+        homePage.playButtonImg.onclick = () => playDisplayHomepage(homePage);
+        homePage.wantedProfile.onclick = () => profileDisplay();
+    }
+    if (path == "/profile")
+    {
 
+        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/landscapeMenu.png')";
+        
+    }
+    if (path == "/lobby")
+        {
+            const lobby = new CreateJoinLobbyClass();
+            lobby.buttonCreateLobby.onclick = () => CreateLobbyDisplay(lobby);
+        // verifier si le frere est connecte
+        // const lobbyPage = new lobbyPageClass();
+        // lobbyPage.crossButton.onclick = () => handleLocation();
+        // lobbyPage.playButtonInLobby.onclick = () => handleLocation();
     }
 };
 
 window.onpopstate = handleLocation;
-window.route = route;
+// window.route = route;
+
 
 handleLocation();

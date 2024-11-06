@@ -32,13 +32,13 @@ DEBUG = True
 ALLOWED_HOSTS = [ '*' ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://10.13.5.1:1443",  # Add specific origin for frontend
+    "https://host.docker:1443",  # Add specific origin for frontend
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Allow credentials like cookies or HTTP authentication
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://10.13.5.1:1443",    # Add frontend origin for CSRF protection
+    "https://host.docker:1443",    # Add frontend origin for CSRF protection
 ]
 # CSRF_TRUSTED_ORIGINS = [
 #     'http://*',

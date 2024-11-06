@@ -4,36 +4,35 @@
 
 
 
-function playDisplayHomepage()
+function playDisplayHomepage(homePage)
 {
     homePage.playButton.style.display = 'none';
     homePage.centerPlayDisplay.style.display = 'flex';
-    homePage.firstElement.innerHTML = rapidPlayHTML;
+    homePage.firstElement.innerHTML = homePage.rapidPlayHTML;
     homePage.firstElement.style.display = "flex";
     homePage.firstElement.style.backgroundImage = "url('static/photos/picturePng/homePage/Kizaru.png')";
-    homePage.secondElement.innerHTML = TournamentButtonHTML;
+    homePage.secondElement.innerHTML = homePage.TournamentButtonHTML;
     homePage.secondElement.style.backgroundImage = "url('static/photos/picturePng/homePage/TournamentLuffy.png')";
     const rapidPlayButton = document.getElementById("rapidPlayButton");
-    rapidPlayButton.onclick = () => rapidPlayLobbyDisplay;
+    rapidPlayButton.onclick = () => rapidPlayLobbyDisplay(homePage);
 }
 
-function rapidPlayLobbyDisplay()
+function rapidPlayLobbyDisplay(homePage)
 {
-    homePage.firstElement.innerHTML = joinCreateLobbyHTML;
+    homePage.firstElement.innerHTML = homePage.joinCreateLobbyHTML;
     homePage.firstElement.style.backgroundImage = "none";
-    homePage.secondElement.innerHTML = createLobbyButtonHTML;
+    homePage.secondElement.innerHTML = homePage.createLobbyButtonHTML;
     homePage.secondElement.style.backgroundImage = "none";
     const joinLobbyButton = document.getElementById("joinLobbyButton");
-    // joinLobbyButton.onclick = joinRapidPlay;
+    // free(homePage);
+    joinLobbyButton.onclick = () => joinRapidPlay();
 }
 
-homePage.playButtonImg.onclick = playDisplayHomepage;
-
-// function joinRapidPlay()
-// {
-//     homePage.lobby.style.display = "flex";
-//     lobbyDisplay();
-// }
+function joinRapidPlay()
+{   
+    window.history.pushState({}, "", "/lobby");
+    handleLocation();
+}
 
 class PlayMenu
 {
