@@ -46,14 +46,6 @@ async function initObject(scene)
     let boatGroup2 = await CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2);
     console.log('boatGroup1 : ', boatGroup1);
     console.log('boatGroup2 : ', boatGroup2);
-    // Team1.setBoat(boatGroup1);
-    // Team2.setBoat(boatGroup2);
-    // Team1.setCannon(cannonGroup.get('cannonTeam1'));
-    // Team2.setCannon(cannonGroup.get('cannonTeam2'));
-    // console.log('Team1 boat:', Team1.getBoat());
-    // console.log('Team2 boat:', Team2.getBoat());
-    // console.log('Team1 cannon:', Team1.getCannon());
-    // console.log('Team2 cannon:', Team2.getCannon());
     let ocean = await initOceans(scene, new THREE.TextureLoader());
     let ball = await initBall();
 
@@ -86,11 +78,11 @@ function initBateaux(scene, gltfLoader) {
                 }
             });
             const bateauTeam1 = gltf.scene.clone();
-            bateauTeam1.position.set(0, 20, -1);
+            // bateauTeam1.position.set(0, 20, -1);
             bateauTeam1.scale.set(10, 5, 5);
 
             const bateauTeam2 = gltf.scene.clone();
-            bateauTeam2.position.set(0, -20, -1);
+            // bateauTeam2.position.set(0, -20, -1);
             bateauTeam2.scale.set(10, 5, 5);
 
             console.log('Boat models loaded successfully');
@@ -233,28 +225,37 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
     bateau.name = `bateauTeam${teamId}`;
     bateau.rotation.set(Math.PI / 2, 0, 0);
     cannon.name = `cannonTeam${teamId}`;
+    boatGroup.add(bateau);
+    boatGroup.add(cannon);
     
     // Positionner et orienter le canon
     if (teamId === 1) {
-        bateau.position.set(0, 20, -1);
-        cannon.position.set(
-            bateau.position.x - (bateau.scale.x / 2) + 2,
-            bateau.position.y - 2.18,
-            bateau.position.z * bateau.scale.z + 8.1
-        );
-        cannon.rotation.set(0, 0, -Math.PI / 2);
+        // bateau.position.set(0, 20, -1);
+        boatGroup.position.set(0, 20, -1);
+        console.log('boatGroup.scale.y : ', boatGroup.scale.y);
+        boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
+        boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
+        // cannon.position.set(
+        //     boatGroup.position.x - (boatGroup.scale.x / 2) - 2,
+        //     boatGroup.position.y,
+        //     boatGroup.position.z + 5
+        // );
+        // cannon.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
     } else if (teamId === 2) {
-        bateau.position.set(0, -20, -1);
-        cannon.position.set(
-            bateau.position.x - (bateau.scale.x / 2) + 2,
-            bateau.position.y + 3.98,
-            bateau.position.z * bateau.scale.z + 8.1
-        );
-        cannon.rotation.set(0, 0, Math.PI / 2);
+        // bateau.position.set(0, -20, -1);
+        boatGroup.position.set(0, -20, -1);
+        console.log('boatGroup.scale.y : ', boatGroup.scale.y);
+        boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
+        boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
+        // cannon.position.set(
+        //     boatGroup.position.x - (boatGroup.scale.x / 2) - 2,
+        //     (boatGroup.position.y * -1),
+        //     boatGroup.position.z + 5
+        // );
+        // cannon.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
     }
+    // boatGroup.rotation.set(Math.PI / 2, 0, 0);
     console.log('bateau position : ', bateau.position);
-    boatGroup.add(bateau);
-    boatGroup.add(cannon);
     console.log('boatGroup.getObjectByName(bateauTeam' + teamId + ') : ', boatGroup.getObjectByName(`bateauTeam${teamId}`));
     
     return boatGroup;

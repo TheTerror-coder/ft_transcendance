@@ -7,7 +7,7 @@ import * as network from './network.js';
 
 console.log("pong.js loaded");
 
-let BOAT_MOVE_SPEED = 0.2;
+let BOAT_MOVE_SPEED = 0.5;
 let CANNON_MOVE_SPEED = 0.1;
 let FRAME_RATE = 110;
 

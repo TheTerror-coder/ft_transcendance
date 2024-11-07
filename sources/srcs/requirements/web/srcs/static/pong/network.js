@@ -53,29 +53,25 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball) 
         window.location.href = '/lobby';
     });
 
-    socket.on('cannonPosition', (data) => {
-        let team = findTeam(Team1, Team2, data.team);
+    socket.on('cannonPosition', async (data) => {
+        const {teamID, cannonPosition} = data;
+        let team = findTeam(Team1, Team2, teamID);
         if (team && team.getCannon()) {
-            team.getCannon().position.set(data.x, data.y, data.z);
+            team.getCannon().position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z);
         }
     });
 
-    socket.on('boatAndCannonPosition', (data) => {
-        const {boatPosition, cannonPosition} = data;
-        console.log('boatAndCannonPosition received');
-        console.log('boatPosition: ', boatPosition);
-        console.log('cannonPosition: ', cannonPosition);
-        console.log('team: ', data.team);
-        let team = findTeam(Team1, Team2, data.team);
-        if (team && team.getBoat() && team.getCannon()) {
-            team.getBoat().position.set(boatPosition.x, boatPosition.y, boatPosition.z);
-            team.getCannon().position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z);
+    socket.on('boatPosition', async (data) => {
+        const {teamID, boatPosition} = data;
+        let team = findTeam(Team1, Team2, teamID);
+        if (team && team.getBoatGroup()) {
+            team.getBoatGroup().position.set(boatPosition.x, boatPosition.y, boatPosition.z);
             
-            if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamId() === data.team) {
-                updateCannoneerCamera(team.getBoat(), currentPlayer);
+            if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamId() === teamID) {
+                updateCannoneerCamera(team.getBoatGroup(), currentPlayer);
             }
         } else {
-            console.error('Team, boat or cannon not found for team', data.team);
+            console.error('Team, boat or cannon not found for team', teamID);
         }
     });
 }

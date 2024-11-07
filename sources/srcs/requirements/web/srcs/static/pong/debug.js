@@ -1,4 +1,5 @@
 import { updateAndEmitBoatPositions, updateAndEmitCannonPositions } from './controls.js';
+import * as THREE from 'three';
 
 let BOAT_MOVE_SPEED = 0.2;
 let CANNON_MOVE_SPEED = 0.1;

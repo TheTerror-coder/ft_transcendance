@@ -57,16 +57,15 @@ class Game
     }
 
     async updateBoatPosition(teamId, x, y, z) {
+        console.log("updateBoatPosition");
         const team = this.getTeam(teamId);
         if (team) {
             const boat = team.getBoat();
-            const cannon = team.getCannon();
-            if (boat && cannon) {
-                boat.x = x;
-                boat.y = y;
-                boat.z = z;
+            if (boat) {
+                team.setBoatPosition(x, y, z);
+                console.log("boat: ", boat);
             } else {
-                console.error(`Boat or cannon not found for team ${teamId}`);
+                console.error(`Boat not found for team ${teamId}`);
             }
         } else {
             console.error(`Team ${teamId} not found`);
@@ -74,13 +73,13 @@ class Game
     }
 
     async updateCannonPosition(teamId, x, y, z) {
+        console.log("updateCannonPosition");
         const team = this.getTeam(teamId);
         if (team) {
             const cannon = team.getCannon();
             if (cannon) {
-                cannon.x = x;
-                cannon.y = y;
-                cannon.z = z;
+                team.setCannonPosition(x, y, z);
+                console.log("cannon: ", cannon);
             } else {
                 console.error(`Cannon not found for team ${teamId}`);
             }

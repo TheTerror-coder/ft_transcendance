@@ -46,31 +46,33 @@ function emitCannonPosition(socket, gameCode, TeamID, position) {
     socket.emit('cannonPosition', { 
         gameCode: gameCode, 
         team: TeamID, 
-        x: position.x,
-        y: position.y,
-        z: position.z
+        cannonPosition: {
+            x: position.x,
+            y: position.y,
+            z: position.z
+        }
     });
 }
 
 function emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID) {
-    let boatGlobalPosition = new THREE.Vector3();
-    boatGroup.getObjectByName(`bateauTeam${TeamID}`).getWorldPosition(boatGlobalPosition);
+    // let boatGlobalPosition = new THREE.Vector3();
+    // boatGroup.getObjectByName(`bateauTeam${TeamID}`).getWorldPosition(boatGlobalPosition);
 
-    let cannonGlobalPosition = new THREE.Vector3();
-    boatGroup.getObjectByName(`cannonTeam${TeamID}`).getWorldPosition(cannonGlobalPosition);
+    // let cannonGlobalPosition = new THREE.Vector3();
+    // boatGroup.getObjectByName(`cannonTeam${TeamID}`).getWorldPosition(cannonGlobalPosition);
 
-    socket.emit('updatePositions', {
+    socket.emit('boatPosition', {
         gameCode: gameCode,
         team: TeamID,
         boatPosition: {
-            x: boatGlobalPosition.x,
-            y: boatGlobalPosition.y,
-            z: boatGlobalPosition.z
+            x: boatGroup.position.x,
+            y: boatGroup.position.y,
+            z: boatGroup.position.z
         },
-        cannonPosition: {
-            x: cannonGlobalPosition.x,
-            y: cannonGlobalPosition.y,
-            z: cannonGlobalPosition.z
-        }
+        // cannonPosition: {
+        //     x: cannonGlobalPosition.x,
+        //     y: cannonGlobalPosition.y,
+        //     z: cannonGlobalPosition.z
+        // }
     });
 } 
