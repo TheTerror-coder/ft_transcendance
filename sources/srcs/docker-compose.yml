@@ -224,8 +224,8 @@ services:
         [
           "CMD-SHELL",
           # "curl -s http://localhost:3000/healthcheck | grep -q 'healthy'",
-          # "curl -s --cacert $NODE_ROOT_CA https://localhost:${NODE_PORT}/healthcheck | grep -q 'healthy'", # In production
-          "curl -s --insecure https://localhost:${NODE_PORT}/healthcheck | grep -q 'healthy'", # In development for ben (please jm fix this)
+          "curl -s --cacert $NODE_ROOT_CA https://localhost:${NODE_PORT}/healthcheck | grep -q 'healthy'", # In production
+          # "curl -s --insecure https://localhost:${NODE_PORT}/healthcheck | grep -q 'healthy'", # In development for ben (please jm fix this)
         ]
       start_period: 10s
       interval: 10s
