@@ -144,6 +144,7 @@ services:
       args:
         - PYTHON_TAG=${WEB_TAG}
         - PYTHON_UID=${WEB_UID}
+        - PYTHON_USER=${WEB_USER}
         - PYTHON_GID=${WEB_GID}
         - PYTHON_SRCS=${WEB_SRCS}
         - SHARED_GID=${SHARED_GID}
@@ -204,6 +205,7 @@ services:
         - PYTHON_TAG=${GAMESERVER_TAG}
         - PYTHON_UID=${GAMESERVER_UID}
         - PYTHON_GID=${GAMESERVER_GID}
+        - PYTHON_USER=${GAMESERVER_USER}
         - PYTHON_SRCS=${GAMESERVER_SRCS}
         - SHARED_GID=${SHARED_GID}
         - PYTHON_HOME=${GAMESERVER_HOME}

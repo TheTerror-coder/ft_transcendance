@@ -43,7 +43,8 @@ WORKDIR ${PYTHON_HOME}/apps
 USER ${PYTHON_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ ${PYTHON_HOME}"/container-init.d/script.sh" ]
+# CMD [ "{$PYTHON_HOME}/container-init.d/script.sh" ]
+CMD [ "sh", "-c", "${PYTHON_HOME}/container-init.d/script.sh" ]
 
 # CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
