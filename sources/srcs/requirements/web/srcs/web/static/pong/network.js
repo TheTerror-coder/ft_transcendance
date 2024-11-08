@@ -82,7 +82,7 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
         return;
     }
 
-    const boat = currentPlayerTeam.getBoat();
+    const boat = currentPlayerTeam.getBoatGroup();
     const cannon = currentPlayerTeam.getCannon();
 
     if (!boat || !cannon) {
@@ -94,14 +94,16 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
         gameCode: gameCode, 
         TeamID: currentPlayerTeam.getTeamId(), 
         boat: boat.position, 
-        cannon: cannon.position 
+        cannon: cannon.position, 
+        boatDimensions: boat.userData.dimensions,
     });
     
     socket.emit('ClientData', { 
         gameCode: gameCode, 
         TeamID: currentPlayerTeam.getTeamId(), 
         boat: boat.position, 
-        cannon: cannon.position 
+        cannon: cannon.position, 
+        boatDimensions: boat.userData.dimensions,
     });
 }
 

@@ -142,19 +142,20 @@ services:
     build:
       context: ./requirements/web/
       args:
-        - WEB_TAG=${WEB_TAG}
-        - WEB_UID=${WEB_UID}
-        - WEB_GID=${WEB_GID}
+        - PYTHON_TAG=${WEB_TAG}
+        - PYTHON_UID=${WEB_UID}
+        - PYTHON_GID=${WEB_GID}
+        - PYTHON_SRCS=${WEB_SRCS}
         - SHARED_GID=${SHARED_GID}
-        - WEB_HOME=${WEB_HOME}
-        - WEB_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
+        - PYTHON_HOME=${WEB_HOME}
+        - PYTHON_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
         - STATICFILES_DIR=${WEB_STATICFILES_DIR}
         - STATICFILES_DIR=${STATICFILES_DIR}
         - HOST_IP=${HOST_IP}
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-      - WEB_HOME=${WEB_HOME}
-      - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
+      - PYTHON_HOME=${WEB_HOME}
+      - PYTHON_ENTRYPOINT=${WEB_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
@@ -189,46 +190,103 @@ services:
       - 8888:${WEB_PORT}
     restart: on-failure
   
-  node:
+  gameserver:
     depends_on:
       db_postgres:
         condition: service_healthy
         restart: true
-    image: ${NODE_IMAGE}
-    container_name: ${NODE_CONTAINER}
+    image: ${GAMESERVER_IMAGE}
+    container_name: ${GAMESERVER_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/node/
+      context: ./requirements/web/
       args:
-        - NODE_TAG=${NODE_TAG}
-        - NODE_UID=${NODE_UID}
-        - NODE_GID=${NODE_GID}
+        - PYTHON_TAG=${GAMESERVER_TAG}
+        - PYTHON_UID=${GAMESERVER_UID}
+        - PYTHON_GID=${GAMESERVER_GID}
+        - PYTHON_SRCS=${GAMESERVER_SRCS}
         - SHARED_GID=${SHARED_GID}
-        - NODE_HOME=${NODE_HOME}
-        - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
+        - PYTHON_HOME=${GAMESERVER_HOME}
+        - PYTHON_DIRS_TO_MAKE=${GAMESERVER_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+        - STATICFILES_DIR=${STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
     environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - PYTHON_HOME=${GAMESERVER_HOME}
+      - PYTHON_ENTRYPOINT=${GAMESERVER_ENTRYPOINT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
+      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+      - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
+      - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
     volumes:
-      - node_certs:${NODE_SSL_DIR}
-      - web_certs:${NODE_HOME}/volumes/web/certs
+      - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
+      - gameserver_certs:${GAMESERVER_SSL_DIR}
+    healthcheck: #*file_healthcheck
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:${GAMESERVER_PORT} | grep -q ''",
+          # "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:${GAMESERVER_PORT} | grep -q ''", # In production
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
     expose:
-      - ${NODE_PORT}
+      - ${GAMESERVER_PORT}
     networks:
       - ${NETWORK_NAME}
     ports:
-      - ${NODE_PORT}:${NODE_PORT}
-    # healthcheck: #*file_healthcheck
-    #   test:
-    #     [
-    #       "CMD-SHELL",
-    #       "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-    #       # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
-    #     ]
-    #   start_period: 10s
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 1
-    # restart: on-failure
+      - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
+    restart: on-failure
+  
+  # node:
+  #   depends_on:
+  #     db_postgres:
+  #       condition: service_healthy
+  #       restart: true
+  #   image: ${NODE_IMAGE}
+  #   container_name: ${NODE_CONTAINER}
+  #   pull_policy: never
+  #   build:
+  #     context: ./requirements/node/
+  #     args:
+  #       - NODE_TAG=${NODE_TAG}
+  #       - NODE_UID=${NODE_UID}
+  #       - NODE_GID=${NODE_GID}
+  #       - SHARED_GID=${SHARED_GID}
+  #       - NODE_HOME=${NODE_HOME}
+  #       - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
+  #   environment:
+  #     - HOST_IP=${HOST_IP}
+  #   volumes:
+  #     - node_certs:${NODE_SSL_DIR}
+  #     - web_certs:${NODE_HOME}/volumes/web/certs
+  #   expose:
+  #     - ${NODE_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   ports:
+  #     - ${NODE_PORT}:${NODE_PORT}
+  #   # healthcheck: #*file_healthcheck
+  #   #   test:
+  #   #     [
+  #   #       "CMD-SHELL",
+  #   #       "curl -s http://localhost:${WEB_PORT} | grep -q ''",
+  #   #       # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
+  #   #     ]
+  #   #   start_period: 10s
+  #   #   interval: 10s
+  #   #   timeout: 5s
+  #   #   retries: 1
+  #   # restart: on-failure
 
   web_waf:
     depends_on:
@@ -394,6 +452,8 @@ volumes:
   nginx_certs:
     driver: local
   web_certs:
+    driver: local
+  gameserver_certs:
     driver: local
   node_certs:
     driver: local

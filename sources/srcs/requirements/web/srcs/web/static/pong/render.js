@@ -204,8 +204,6 @@ async function initCannons(scene) {
         cannonTeam1.add(cannonSupport1);
         cannonTeam2.add(cannonSupport2);
 
-        // cannonTeam1.position.set(bateau1.position.x - (bateau1.scale.x / 2) + 2, 20, 60);
-        // cannonTeam2.position.set(bateau2.position.x - (bateau2.scale.x / 2) + 2, -20, 60);
         cannonTeam1.scale.set(0.01, 0.03, 0.03);
         cannonTeam2.scale.set(0.01, 0.03, 0.03);
 
@@ -230,36 +228,39 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
     
     // Positionner et orienter le canon
     if (teamId === 1) {
-        // bateau.position.set(0, 20, -1);
         boatGroup.position.set(0, 20, -1);
         console.log('boatGroup.scale.y : ', boatGroup.scale.y);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
-        // cannon.position.set(
-        //     boatGroup.position.x - (boatGroup.scale.x / 2) - 2,
-        //     boatGroup.position.y,
-        //     boatGroup.position.z + 5
-        // );
-        // cannon.rotation.set(-Math.PI / 2, 0, -Math.PI / 2);
     } else if (teamId === 2) {
-        // bateau.position.set(0, -20, -1);
         boatGroup.position.set(0, -20, -1);
         console.log('boatGroup.scale.y : ', boatGroup.scale.y);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
-        // cannon.position.set(
-        //     boatGroup.position.x - (boatGroup.scale.x / 2) - 2,
-        //     (boatGroup.position.y * -1),
-        //     boatGroup.position.z + 5
-        // );
-        // cannon.rotation.set(-Math.PI / 2, 0, Math.PI / 2);
     }
-    // boatGroup.rotation.set(Math.PI / 2, 0, 0);
     console.log('bateau position : ', bateau.position);
     console.log('boatGroup.getObjectByName(bateauTeam' + teamId + ') : ', boatGroup.getObjectByName(`bateauTeam${teamId}`));
     
+    // Créer et stocker la hitbox
+    const boundingBox = new THREE.Box3().setFromObject(bateau);
+    boatGroup.userData.hitbox = boundingBox;
+
+    // Pour debug/visualisation
+    showBoundingBox(bateau, scene);
+
+    // Ajouter les dimensions à l'objet pour transmission au serveur
+    boatGroup.userData.dimensions = {
+        width: boundingBox.max.x - boundingBox.min.x,
+        height: boundingBox.max.y - boundingBox.min.y,
+        depth: boundingBox.max.z - boundingBox.min.z,
+        center: boundingBox.getCenter(new THREE.Vector3())
+    };
+
     return boatGroup;
 }
 
-
-// ... autres fonctions de rendu si nécessaire
+function showBoundingBox(object, scene) {
+    const boundingBox = new THREE.Box3().setFromObject(object);
+    const helper = new THREE.Box3Helper(boundingBox, 0xffff00);
+    scene.add(helper);
+}
