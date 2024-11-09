@@ -10,6 +10,7 @@ FROM python:${PYTHON_TAG}
 ARG PYTHON_UID=1111
 ARG PYTHON_GID=1111
 ARG PYTHON_USER=user
+ARG PYTHON_SRCS=./srcs
 ARG SHARED_GID=1010
 ARG PYTHON_HOME=/usr/share/web
 ARG PYTHON_DIRS_TO_MAKE=.
@@ -35,7 +36,7 @@ pip install django-cors-headers
 EOF
 
 COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=700 ./tools/script.sh ${PYTHON_HOME}/container-init.d
-COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ${PYTHON_SRCS}/ ${PYTHON_HOME}/apps
+COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ./${PYTHON_SRCS}/ ${PYTHON_HOME}/apps
 COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ./tools/HOST_IP.sh ${PYTHON_HOME}/container-init.d
 
 WORKDIR ${PYTHON_HOME}/apps

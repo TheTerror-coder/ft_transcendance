@@ -37,6 +37,7 @@ services:
       - vault_healthiness:${VAULT_HOME}/volumes/healthiness
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
+      - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
       - web_certs:${VAULT_HOME}/volumes/web/certs
       - node_certs:${VAULT_HOME}/volumes/node/certs
     networks:
@@ -167,6 +168,7 @@ services:
       - VAULT_CACERT=${WEB_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
+      - WEB_PORT=${WEB_PORT}
     volumes:
       - webapps:${WEB_HOME}/apps
       - staticfiles:${WEB_STATICFILES_DIR}
@@ -176,8 +178,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-          # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
+          "curl -s http://localhost:$WEB_PORT/healthcheck/ | grep -q 'healthy'",
+          # "curl -s --cacert $WEB_ROOT_CA https://localhost:$WEB_PORT/healthcheck/ | grep -q 'healthy'", # In production
         ]
       start_period: 10s
       interval: 10s
@@ -227,6 +229,7 @@ services:
       - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
     volumes:
       - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
       - gameserver_certs:${GAMESERVER_SSL_DIR}
@@ -234,8 +237,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:${GAMESERVER_PORT} | grep -q ''",
-          # "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:${GAMESERVER_PORT} | grep -q ''", # In production
+          # "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
+          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
         ]
       start_period: 10s
       interval: 10s
@@ -411,6 +414,9 @@ services:
   
   ready:
     depends_on:
+      gameserver:
+        condition: service_healthy
+        restart: true
       web_waf:
         condition: service_healthy
         restart: true

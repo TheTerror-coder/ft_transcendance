@@ -1,5 +1,5 @@
 
-ENV :=../../../.env
+ENV :=../../../../.env
 
 include $(ENV)
 

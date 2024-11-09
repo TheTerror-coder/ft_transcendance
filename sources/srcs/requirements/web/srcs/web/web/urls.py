@@ -19,10 +19,12 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.urls import path, include
 from django.conf import settings
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('authentification.urls')),
+    path('healthcheck/', views.healthcheck, name="healthcheck"),
     path('lobby/pong/', TemplateView.as_view(template_name='pong/index.html')),
     path('lobby/', TemplateView.as_view(template_name='pong/lobby.html')),
     path('lobby/lobby1/', TemplateView.as_view(template_name='pong/lobby1.html')),
