@@ -127,7 +127,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 
 STATICFILES_DIRS = [
-	BASE_DIR / "static",
+	BASE_DIR / "./",
 ]
 
 # Default primary key field type
