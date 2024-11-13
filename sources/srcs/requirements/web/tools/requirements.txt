@@ -38,3 +38,5 @@ txaio==23.1.1
 typing_extensions==4.12.2
 urllib3==2.2.3
 zope.interface==7.1.1
+python-socketio[asyncio]==5.11.4
+# aiohttp==3.10.10

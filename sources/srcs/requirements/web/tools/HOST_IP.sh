@@ -1,5 +1,7 @@
    #!/bin/bash
 
+  mkdir -p $PYTHON_HOME/apps/static
+
    # Créer le fichier de configuration JSON
    echo "{
      \"HOST_IP\": \"${HOST_IP}\"

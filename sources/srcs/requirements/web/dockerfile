@@ -21,7 +21,7 @@ USER 0
 WORKDIR ${PYTHON_HOME}
 
 RUN --mount=type=bind,source=./tools/requirements.txt,target=./requirements.txt <<EOF
-apk add --update --no-cache dumb-init curl shadow
+apk add --update --no-cache dumb-init curl shadow vim
 useradd --uid ${PYTHON_UID} --user-group -m --no-log-init --home-dir ${PYTHON_HOME} --shell /bin/sh --comment "container's rootless user" ${PYTHON_USER}
 addgroup -g ${SHARED_GID} transcendance
 addgroup ${PYTHON_USER} transcendance
@@ -33,11 +33,12 @@ chown -R ${PYTHON_UID}:${SHARED_GID} ${PYTHON_HOME}
 chown ${PYTHON_UID}:${PYTHON_GID} ${PYTHON_HOME}/secrets
 pip install -r ./requirements.txt
 pip install django-cors-headers
+pip install aiohttp
 EOF
 
+COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ./tools/HOST_IP.sh ${PYTHON_HOME}/container-init.d
 COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=700 ./tools/script.sh ${PYTHON_HOME}/container-init.d
 COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ./${PYTHON_SRCS}/ ${PYTHON_HOME}/apps
-COPY --chown=${PYTHON_UID}:${PYTHON_GID} --chmod=770 ./tools/HOST_IP.sh ${PYTHON_HOME}/container-init.d
 
 WORKDIR ${PYTHON_HOME}/apps
 

@@ -1,28 +1,41 @@
 class Team:
-    def __init__(self, name, nbPlayer, TeamId):
-        self.TeamId = TeamId
+    def __init__(self, name, maxNbPlayer, TeamId):
         self.name = name
-        self.nbPlayer = 0
-        self.maxNbPlayer = nbPlayer
+        self.maxNbPlayer = int(maxNbPlayer)
+        self.TeamId = TeamId
         self.player = {}
-        self.boat = {'x': 0, 'y': 0, 'z': 0}
-        self.cannon = {'x': 0, 'y': 0, 'z': 0}
+        self.nbPlayer = 0
         self.isFull = False
         self.score = 0
-        self.hitbox = None
+        self.hitbox = {
+            'min': {'x': 0, 'y': 0, 'z': 0},
+            'max': {'x': 0, 'y': 0, 'z': 0}
+        }
+        self.boat = {'x': 0, 'y': 0, 'z': 0}
+        self.cannon = {'x': 0, 'y': 0, 'z': 0}
+
+    def setIsFull(self):
+        self.isFull = self.nbPlayer >= self.maxNbPlayer
+        return self.isFull
+
+    def getIsFull(self):
+        return self.isFull
+
+    def setPlayer(self, player):
+        self.player[player.id] = player
+        self.nbPlayer += 1
+        self.setIsFull()
 
     def setBoatHitbox(self, position, dimensions):
-        self.hitbox = {
-            'min': {
-                'x': position['x'] - dimensions['width']/2,
-                'y': position['y'] - dimensions['height']/2,
-                'z': position['z'] - dimensions['depth']/2
-            },
-            'max': {
-                'x': position['x'] + dimensions['width']/2,
-                'y': position['y'] + dimensions['height']/2,
-                'z': position['z'] + dimensions['depth']/2
-            }
+        self.hitbox['min'] = {
+            'x': position['x'] - dimensions['width']/2,
+            'y': position['y'] - dimensions['height']/2,
+            'z': position['z'] - dimensions['depth']/2
+        }
+        self.hitbox['max'] = {
+            'x': position['x'] + dimensions['width']/2,
+            'y': position['y'] + dimensions['height']/2,
+            'z': position['z'] + dimensions['depth']/2
         }
 
     def getBoatHitbox(self):
@@ -33,23 +46,6 @@ class Team:
 
     def getScore(self):
         return self.score
-
-    def setIsFull(self):
-        self.isFull = self.nbPlayer >= self.maxNbPlayer
-
-    def getIsFull(self):
-        return self.isFull
-
-    def setPlayer(self, player):
-        if self.getIsFull():
-            print("This Team is already full...")
-            return
-        self.player[player.id] = player
-        self.nbPlayer += 1
-        self.setIsFull()
-
-    def setTeamName(self, name):
-        self.name = name
 
     def setBoat(self, boat):
         self.boat = boat
@@ -77,9 +73,6 @@ class Team:
         return self.TeamId
 
     def getBoat(self):
-        if not self.boat:
-            print(f"Boat not initialized for team {self.TeamId}")
-            return None
         return self.boat
 
     def getCannon(self):
