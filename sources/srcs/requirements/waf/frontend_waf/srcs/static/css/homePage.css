@@ -5,7 +5,7 @@
 
 .wantedFriendHomePageDisplay
 {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -15,7 +15,7 @@
 
 .friendButton
 {
-    display: none;
+    display: flex;
     justify-content: flex-end;
     align-items: flex-end;
     opacity: 70%;
@@ -40,6 +40,7 @@
 
 .wantedProfile
 {
+    display: block;
     background-image: url('../photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
@@ -80,9 +81,9 @@
 
 .centerHomepage
 {
+    display: flex;
     justify-content: space-between;
     width: 100%;
-    display: none;
     align-items: center; /* Center vertically */
     z-index: 2;
 }
@@ -90,7 +91,7 @@
 
 .homePage
 {
-    display: none;
+    display: flex;
 }
 
 
@@ -103,8 +104,6 @@
 
 #homepageFlag button
 {
-    /* float: right; */
-    /* margin-right: 0%; */
     width: 70px;
     height: 70px;
     margin-right: 10px;
@@ -128,9 +127,6 @@
 }
 .rebecca
 {
-    /* width: 200px; */
-    /* background-color: #f0f0f0; */
-    /* padding: 20px; */
     box-sizing: border-box;
     margin-top: -60px;
 }
@@ -138,7 +134,6 @@
 
 .profileDisplay
 {
-    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;

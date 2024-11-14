@@ -1,20 +1,21 @@
 
 // buttonConnectionAPI42.onclick = connectAPI42;
-buttonCreateAccount.onclick = createAnAccount;
+// buttonCreateAccount.onclick = createAnAccount;
 
-function createAnAccount()
+// function createAnAccount()
+// {
+//     if (flagSelected === "en")
+//     {
+//         buttonConnectionAPI42.style.display = 'none';
+//         buttonConnec.style.display = 'none';
+//         buttonCreateAccount.style.display = 'none';
+//         createAccountChange.style.display = 'flex'; 
+//     }
+// }
+
+
+async function createAccount(instance) 
 {
-    if (flagSelected === "en")
-    {
-        buttonConnectionAPI42.style.display = 'none';
-        buttonConnec.style.display = 'none';
-        buttonCreateAccount.style.display = 'none';
-        createAccountChange.style.display = 'flex'; 
-    }
-}
-
-
-document.getElementById('formAccount').addEventListener('submit', function(event) {
     // Prevent the form from submitting immediately
     event.preventDefault();
 
@@ -86,7 +87,7 @@ document.getElementById('formAccount').addEventListener('submit', function(event
         // If form is not valid, show an error popup
         alert('Some of the required information is not complete.');
     }
-});
+};
 
 
 async function hashStringSHA256(input) 

@@ -33,9 +33,11 @@ def connect(request):
 
 
 # envoyer le msg nom d'utilisateur n'existe pas
+@require_POST
 @api_view(['POST'])
 @csrf_protect
 def login_view(request):
+    print("LOL je suis dans la views des barres")
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -44,6 +46,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 if user.username in user_sockets:
+                    return JsonResponse({'status': 'error', 'msgError': 'user: {request.user.username} is already connected!'}, status=400)
                     return Response({'status': 'error', 'msgError': f'user: {request.user.username} is already connected!'}, status=400)
                 login(request, user)
                 return Response({'status': 'success', 'username': user.username})
