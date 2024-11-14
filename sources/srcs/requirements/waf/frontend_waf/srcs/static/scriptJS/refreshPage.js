@@ -17,11 +17,12 @@ function refreshPage()
     buttonConnec.style.display = 'block';
     buttonCreateAccount.style.display = 'block';
     loginPage.style.display = 'block';
+    history.pushState(null, null, "/login");
 }
 
 function refreshLoginPage()
 {
-    background.style.backgroundImage = "url('photos/picturePng/loginPage/landscapeOnePiece.png')";
+    background.style.backgroundImage = "url('../photos/picturePng/loginPage/landscapeOnePiece.png')";
     loginButton.style.display = 'block';
     woodPresentation.style.display = 'block';
     flag.className = "flag";
@@ -29,18 +30,20 @@ function refreshLoginPage()
 
     homePage.style.display = 'none';
     centerHomepage.style.display = 'none';
+    history.pushState(null, null, "/login");
 }
 
 function refreshHomePage()
 {
     // checkPoint();
-    background.style.backgroundImage = "url('photos/picturePng/homePage/landscape_menu.png')";
+    background.style.backgroundImage = "url('../static/photos/picturePng/homePage/landscapeMenu.png')";
     loginButton.style.display = 'none';
     woodPresentation.style.display = 'none';
     flag.className = "homepageFlag";
     flag.id = 'homepageFlag';
     rebeccaImg.style.display = 'block';
     friendButton.style.display = 'flex';
+    wantedFriendHomePageDisplay.style.display = 'flex';
 
     let englandFlagImg = document.querySelector("#englandFlagImg");
     englandFlagImg.className = "englandFlag";
@@ -48,12 +51,15 @@ function refreshHomePage()
     
     homePage.style.display = 'flex';
     centerHomepage.style.display = 'flex';
+    history.pushState(null, null, "/homepage");
+
 }
 
 function lobbyDisplay()
 {
     videoBackground.style.display = "block";
     homePage.style.display = "none";
+    history.pushState(null, null, "/lobby");
 }
 
 function profileDisplay()
@@ -74,9 +80,23 @@ function checkPoint()
 {
     window.location.hash = "#homepage";
     // Save this in localStorage as a checkpoint
-    localStorage.setItem('activeSection', '#homepage');
     console.log(window.location.pathname);
     // deleteAllCookies();
 
 }
+
+window.addEventListener('beforeunload', function (event) {
+    // Optionally display a confirmation dialog (in some browsers)
+    event.preventDefault(); // Prevents the default action
+    path = window.location.pathname;
+    const routes = {
+        '/': refreshLoginPage,
+        '/login': refreshLoginPage,
+        '/homepage': refreshHomePage,
+        '/lobby': lobbyDisplay,
+    }
+    console.log("test gang " + routes[path]);
+    alert('test');
+    routes[path]
+});
 

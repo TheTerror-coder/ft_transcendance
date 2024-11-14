@@ -1,14 +1,23 @@
 @font-face {
     font-family: wantedFont;
-    src: url(wantedFont.ttf);
+    src: url(../wantedFont.ttf);
+}
+
+.wantedFriendHomePageDisplay
+{
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: -webkit-fill-available;
+    margin-top: 12%;
 }
 
 .friendButton
 {
     display: none;
     justify-content: flex-end;
-    margin-top: -120px;
-    margin-right: 23.78px;
+    align-items: flex-end;
     opacity: 70%;
     transition: all 0.5s;
 }
@@ -35,6 +44,7 @@
     width: 302px;
     height: 442px;
     opacity: 90%;
+    align-self: end;
 }
 
 .wantedProfile:hover
@@ -67,37 +77,6 @@
     color: #493B3A;
 }
 
-.playImg
-{
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    border-radius: 50%;
-    justify-content: center;
-    background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
-    background-clip: text;
-    color: transparent;
-    font-size: 600%;
-    font-family: onePieceFont;
-    -webkit-text-stroke: 0.5px rgb(255, 255, 255);
-    font-weight: 700;
-    padding: 70px;
-    z-index: 3;
-}
-
-.playButton
-{
-    flex-grow: 1;
-    display: flex;
-    margin-left: -300.16px;
-    justify-content: center;
-    background-image: url('../photos/picturePng/homePage/Logo_One_Piece.png');
-    align-items: center;
-    background-position: center;
-    padding: 10px 20px;
-    background-repeat: no-repeat;
-    margin-top: -50px;
-}
 
 .centerHomepage
 {
@@ -106,14 +85,12 @@
     display: none;
     align-items: center; /* Center vertically */
     z-index: 2;
-    /* background-size: cover; */
 }
 
 
 .homePage
 {
     display: none;
-    /* justify-content: space-between; */
 }
 
 
@@ -142,30 +119,6 @@
 .englandFlag
 {
     transform: scale(1.2);
-}
-
-.playDisplay
-{
-    display: none;
-    background-color: rgb(255,255,255, 0.7);
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    flex-direction: column;
-}
-
-.playDisplay p
-{
-    font-size: 300%;
-}
-
-.rapidPlay
-{
-    background-image: url('../photos/picturePng/homePage/Kizaru.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    padding: 30%;
 }
 
 .rebeccaImg
