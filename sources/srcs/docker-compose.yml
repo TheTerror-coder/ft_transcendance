@@ -401,7 +401,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${VAULTWAF_HTTPS_PORT} > /dev/null",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${VAULTWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s
@@ -471,9 +471,6 @@ services:
 
   ready:
     depends_on:
-      web_waf:
-        condition: service_healthy
-        restart: true
       vault_waf:
         condition: service_healthy
         restart: true
@@ -481,6 +478,9 @@ services:
         condition: service_healthy
         restart: true
       node_waf:
+        condition: service_healthy
+        restart: true
+      web_waf:
         condition: service_healthy
         restart: true
     image: alpine:${ALPINE_VERSION}

@@ -2,9 +2,15 @@
 
 // const test = new homePageClass();
 
+function refreshHomePage()
+{
+    window.history.pushState({}, "", "/homePage");
+    handleLocation();
+}
+
+
 const routes = {
     404: "chelou",
-    "/": loginPageDisplayVAR,  
     "/loginPage": loginPageDisplayVAR, 
     "/homePage": homePageDisplayVAR,
     "/lobby": CreateJoinLobbyDisplayVAR,
@@ -44,17 +50,18 @@ const handleLocation = async () => {
         const homePage = new homePageClass();
         flag.className = "homepageFlag";
         flag.id = 'homepageFlag';
-        homePage.rebeccaImg.style.display = 'block';
+        // homePage.rebeccaImg.style.display = 'block';
         let englandFlagImg = document.querySelector("#englandFlagImg");
         englandFlagImg.className = "englandFlag";
         englandFlag.style.marginRight = "-0.01px";
         homePage.playButtonImg.onclick = () => playDisplayHomepage(homePage);
         homePage.wantedProfile.onclick = () => profileDisplay();
+        // homePage.buttonFriend.onclick = () => friendDisplay(homePage);
     }
     if (path == "/profile")
     {
 
-        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/landscapeMenu.png')";
+        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
         
     }
     if (path == "/lobby")
@@ -70,6 +77,5 @@ const handleLocation = async () => {
 
 window.onpopstate = handleLocation;
 // window.route = route;
-
 
 handleLocation();
