@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'authentification',
     'channels',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
