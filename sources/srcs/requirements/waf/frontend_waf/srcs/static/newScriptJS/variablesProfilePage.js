@@ -2,38 +2,43 @@
 
 
 const profilePageDisplayVAR = 
-`<div class="profilePage" id="profilePage">
-    <div style="display: block; flex-direction: column;">
-        <div class="friendDisplay" id="friendDisplay">
-            <p>SOCIAL</p>
-            <img src="../static/photos/picturePng/homePage/add_friend_button.png" alt="one piece crew !">
-            <h1>Friends</h1>
-            <div id="listFriend"></div>
-        
-            <h1>Pending Friend Requests</h1>
-            <div id="pendingRequests"></div>
-            <form method="post" id="removeFriendForm">
-                <div class="form-group">
-                    <label for="friendUsernameREMOVE">REMOVE FRIEND</label>
-                    <input type="text" class="form-control" placeholder="Enter Username" id="usernameRemoveFriend" name="username" required>
-                </div>
-                <button type="submit" class="btn btn-danger" id="submitRemoveFriendButton">Remove</button>
-            </form>
+`<div class="profilePage">
+    <div class="bookProfile">
+            <div class="sideBar">
+            </div>
+            <div style="display:flex; flex-direction: column; width:180px;">
+                <h1 style="font-size: 30px; align-self: center;">Friends</h1>
+                <form style="width:170px;">
+                    <div class="form-group">
+                        <select multiple class="form-control" id="exampleFormControlSelect2">
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        </select>
+                    </div>
+                    <input style="width: 170px; margin-top: 20px;"></input>
+                </form>
+                <h1 style="font-size: 30px; align-self: center;">waitingListFriend</h1>
+                <form style="width:170px;">
+                    <div class="form-group">
+                        <select multiple class="form-control" id="waitingListFriend">
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        <option>Username</option>
+                        </select>
+                    </div>
+                    <input style="width: 170px; margin-top: 20px;"></input>
+                    <div style="display:flex; justify-content: center; margin-top: 20px;">
+                        <button class="buttonCreate type="submit"">ADD</button>
+                    </div>
+                </form>
+            </div>
+            <div class="cover">
+                <p>SOCIAL</p>
+            </div>
         </div>
-        <button class="wantedProfile" id="wantedInProfilePage">
-                <img src="../static/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
-            <p>USERNAME</p>
-            <span>10.0</span>
-        </button>
-
-        <form id="updateProfileForm">
-            <input type="text" class="form-control" placeholder="Enter new Username" id="newUsername" name="newUsername" required>
-            <button type="submit" class="btn btn-danger" id="buttonChangeUsername">Submit username</button>
-        </form>
-
-        <form>
-            <input id="newPicture" type="file" id="updatedPhoto" required>
-            <button id="buttonChangePicture" type="submit" class="btn btn-danger">Submit picture</button>
-        </form>
-    </div>
 </div>`;

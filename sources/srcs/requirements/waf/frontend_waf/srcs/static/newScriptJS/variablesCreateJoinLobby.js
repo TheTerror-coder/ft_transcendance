@@ -7,9 +7,10 @@ class CreateJoinLobbyClass
         this.switchNumbersOfPlayers = document.getElementById("switchNumbersOfPlayers");
         this.luffyChibi = document.getElementById("luffyChibi");
         this.zoroSanjiChibi = document.getElementById("zoroSanjiChibi");
-        this.buttonCreateLobby = document.getElementById("buttonCreateLobby");
+        this.buttonCreateLobby = document.getElementById("buttonCreate");
+        this.cross = document.getElementById("cross");
 
-
+        this.cross.onclick = () => refreshHomePage();
         switchNumbersOfPlayers.addEventListener('change', function() {
             const time = 900;
             switchNumbersOfPlayers.disabled = true;
@@ -18,13 +19,13 @@ class CreateJoinLobbyClass
                 }, time);
             if (switchNumbersOfPlayers.checked) 
             {
-            zoroSanjiChibi.style.opacity = 1;
-            luffyChibi.style.opacity = 0.7;
+                zoroSanjiChibi.style.opacity = 1;
+                luffyChibi.style.opacity = 0.7;
             } 
             else 
             {
-            zoroSanjiChibi.style.opacity = 0.7;
-            luffyChibi.style.opacity = 1;
+                zoroSanjiChibi.style.opacity = 0.7;
+                luffyChibi.style.opacity = 1;
             }
         });
         window.addEventListener('DOMContentLoaded', () => {
@@ -74,7 +75,7 @@ const CreateJoinLobbyDisplayVAR =
                 </div>
             </div>
             <div style="display: flex; justify-content: center;">
-                <button id="buttonCreateLobby"> CHELOU </button>
+                <button class="buttonCreate" id="buttonCreate">Create</button>
             </div>
         </div>
     </div>

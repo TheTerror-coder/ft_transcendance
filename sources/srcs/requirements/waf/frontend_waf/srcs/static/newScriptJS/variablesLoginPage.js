@@ -84,21 +84,21 @@ class loginPageClass {
     constructor() 
     {
         background.style.backgroundImage = "url(../photos/picturePng/loginPage/landscapeOnePiece.png)";
-        this.loginPage = mainPage.querySelector("#loginPage");
+        this.loginPage = document.getElementById("loginPage");
+
         
-        this.loginButton = mainPage.querySelector("#loginButton");
-        this.woodPresentation = mainPage.querySelector("#woodPresentation");
-        this.background = mainPage.querySelector("#background");
+        this.loginButton = document.getElementById("loginButton");
+        this.woodPresentation = document.getElementById("woodPresentation");
+        this.background = document.getElementById("background");
         
-        this.buttonConnectionAPI42 = mainPage.querySelector("#connectionApi");
-        this.buttonCreateAccount = mainPage.querySelector("#createAnAccount");
+        this.buttonConnectionAPI42 = document.getElementById("connectionApi");
+        this.buttonCreateAccount = document.getElementById("createAnAccount");
         
-        this.createAccountChange = mainPage.querySelector("#formAccount");
+        this.createAccountChange = document.getElementById("formAccount");
         
-        this.formConnect = mainPage.querySelector("#formConnect");
-        
-        this.buttonRefreshPage = mainPage.querySelector('#refreshPage');
-        
-        this.buttonConnec = mainPage.querySelector("#connectionEmail");
+        this.formConnect = document.getElementById("formConnect");
+
+        this.buttonRefreshPage = document.getElementById('refreshPage');
+        this.buttonConnec = document.getElementById("connectionEmail");
     }
 }

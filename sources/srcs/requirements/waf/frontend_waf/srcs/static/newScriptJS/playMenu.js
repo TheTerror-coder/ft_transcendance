@@ -2,8 +2,6 @@
 
 
 
-
-
 function playDisplayHomepage(homePage)
 {
     homePage.playButton.style.display = 'none';
@@ -23,6 +21,13 @@ function rapidPlayLobbyDisplay(homePage)
     homePage.firstElement.style.backgroundImage = "none";
     homePage.secondElement.innerHTML = homePage.createLobbyButtonHTML;
     homePage.secondElement.style.backgroundImage = "none";
+    homePage.thirdElement.style.display = "block";
+    homePage.thirdElement.innerHTML = homePage.localPlayButtonHTML;
+    homePage.thirdElement.style.alignSelf = "center";
+    homePage.firstElement.style.height = "109px";
+    homePage.secondElement.style.height = "109px";
+    homePage.thirdElement.style.height = "109px";
+
     const joinLobbyButton = document.getElementById("joinLobbyButton");
     // free(homePage);
     joinLobbyButton.onclick = () => joinRapidPlay();
