@@ -29,13 +29,36 @@ function rapidPlayLobbyDisplay(homePage)
     homePage.thirdElement.style.height = "109px";
 
     const joinLobbyButton = document.getElementById("joinLobbyButton");
-    // free(homePage);
-    joinLobbyButton.onclick = () => joinRapidPlay();
+    joinLobbyButton.onclick = () => joinLobbyPlay(homePage);
+    const createLobbyButton = document.getElementById("createLobbyButton");
+    createLobbyButton.onclick = () => createLobbyPlay();
 }
 
-function joinRapidPlay()
+function joinLobbyPlay(homePage)
+{
+    homePage.firstElement.style.display = "none"; 
+    homePage.secondElement.style.display = "none"; 
+    homePage.thirdElement.style.display = "none";
+    homePage.playDisplay.innerHTML = homePage.joinCodeDisplay;
+    const crossButton = document.getElementById("crossButton");
+    crossButton.onclick = () => refreshJoinCreateLocalPlay(homePage);
+}
+
+function refreshJoinCreateLocalPlay(homePage)
+{
+    homePage.playDisplay.innerHTML = centerPlayDisplayVAR;
+    homePage.firstElement = document.getElementById("firstElement");
+    homePage.secondElement = document.getElementById("secondElement");
+    homePage.thirdElement = document.getElementById("thirdElement");
+    homePage.firstElement.style.display = "flex"; 
+    homePage.secondElement.style.display = "flex"; 
+    homePage.thirdElement.style.display = "flex";
+    homePage.playDisplay.innerHTML = rapidPlayLobbyDisplay(homePage)
+}
+
+function createLobbyPlay()
 {   
-    window.history.pushState({}, "", "/lobby");
+    window.history.pushState({}, "", "/createLobby");
     handleLocation();
 }
 

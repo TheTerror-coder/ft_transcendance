@@ -3,6 +3,21 @@
 //     <img src="../static/photos/picturePng/homePage/rebecca_newspapers.png" alt="Rebecca" style="margin-top: -10px;" class="rebeccaImg" id="rebeccaImg">
 // </div>
 
+
+const centerPlayDisplayVAR =     
+`
+<div class="centerPlayDisplay" id="centerPlayDisplay">
+    <div class="playDisplay" id="playDisplay">
+        <!-- rapidPlayButton -->
+        <div class="imgPlayMenu" id="firstElement">
+        </div>
+        <div class="imgPlayMenu" id="secondElement">
+        </div>
+        <div class="imgPlayMenu" id="thirdElement" style="display: none;">
+        </div>
+    </div>
+</div>`;
+
 const homePageDisplayVAR = 
 `<div class="homePage" id="homePage">
     <div class="centerHomepage" id="centerHomepage">
@@ -28,7 +43,7 @@ const homePageDisplayVAR =
                 </form>
             </div>
             <div class="cover">
-                <p>SOCIAL</p>
+
             </div>
         </div>
     <div class="playButton" id="playButton">
@@ -53,7 +68,6 @@ const homePageDisplayVAR =
         </button>
     </div>
 </div>`;
-
 
 class homePageClass
 {
@@ -82,16 +96,30 @@ class homePageClass
         this.centerPlayDisplay = document.getElementById("centerPlayDisplay");
 
 
-
+        this.playDisplay = document.getElementById("playDisplay");
         
         this.playButton = document.getElementById("playButton");
         this.playButtonImg = document.getElementById("playButtonImg");
-        this.playDisplay = document.getElementById("playDisplay");
         this.firstElement = document.getElementById("firstElement");
         this.secondElement = document.getElementById("secondElement");
         this.thirdElement = document.getElementById("thirdElement");
-
+        
         this.lobby = document.getElementById("lobby");
+
+
+        this.joinCodeDisplay = 
+                `
+                <div class="cross" id="cross">
+                    <button id="crossButton"><img src="../static/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+                </div>
+                <div style="display:flex; justify-content: center; align-item: center;">
+                    <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px;">
+                        <p class="fontConnexion">
+                            <input id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
+                        </p>
+                        <button class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
+                    </div>
+                </div>`;
 
         this.joinCreateLobbyHTML = `<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>`;
 

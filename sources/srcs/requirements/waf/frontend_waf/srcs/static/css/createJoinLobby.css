@@ -112,6 +112,7 @@
     background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
   }
 }
+
 .radioInput
 {
     align-self: center;
@@ -120,7 +121,7 @@
 
 .zoroSanjiChibi
 {
-    opacity: 0.7;
+    opacity: 0.4;
 }
 
 .luffyChibi

@@ -88,7 +88,7 @@
 
 /* From Uiverse.io by mobinkakei */ 
 .wrapper {
-  width: 200px;
+  width: 302px;
   height: 60px;
   position: relative;
   z-index: 1;
@@ -99,7 +99,7 @@
   height: 20px;
   position: absolute;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: darkred;
   left: 15%;
   transform-origin: 50%;
   animation: circle7124 .5s alternate infinite ease;

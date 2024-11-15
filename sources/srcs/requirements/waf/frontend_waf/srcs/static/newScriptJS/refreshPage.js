@@ -10,10 +10,10 @@ function refreshHomePage()
 
 
 const routes = {
-    404: "chelou",
+    404: Page404DisplayVAR,
     "/loginPage": loginPageDisplayVAR, 
     "/homePage": homePageDisplayVAR,
-    "/lobby": CreateJoinLobbyDisplayVAR,
+    "/createLobby": CreateJoinLobbyDisplayVAR,
     "/profile": profilePageDisplayVAR,
 };
 
@@ -29,15 +29,12 @@ const route = (event) => {
 const handleLocation = async () => {
     const path = window.location.pathname;
     const route = routes[path] || routes[404];
+    let flag404 = 0;
     mainPage = document.getElementById("mainPage");
     mainPage.innerHTML = route;
-    if (path == "/")
-    {
-        window.history.pushState({}, "", "/loginPage");
-        handleLocation();
-    }
     if (path == "/loginPage")
     {
+        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
         const instance = new loginPageClass();
         instance.buttonConnec.onclick = () => putFormConnect(instance);
         instance.buttonCreateAccount.onclick = () => putFormCreateAccount(instance);
@@ -56,22 +53,34 @@ const handleLocation = async () => {
         englandFlag.style.marginRight = "-0.01px";
         homePage.playButtonImg.onclick = () => playDisplayHomepage(homePage);
         homePage.wantedProfile.onclick = () => profileDisplay();
-        // homePage.buttonFriend.onclick = () => friendDisplay(homePage);
     }
     if (path == "/profile")
     {
 
         background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
-        
+
     }
-    if (path == "/lobby")
-        {
-            const lobby = new CreateJoinLobbyClass();
-            lobby.buttonCreateLobby.onclick = () => CreateLobbyDisplay(lobby);
+    if (path == "/createLobby")
+    {
+        const lobby = new CreateJoinLobbyClass();
+        lobby.buttonCreateLobby.onclick = () => CreateLobbyDisplay(lobby);
         // verifier si le frere est connecte
         // const lobbyPage = new lobbyPageClass();
         // lobbyPage.crossButton.onclick = () => handleLocation();
         // lobbyPage.playButtonInLobby.onclick = () => handleLocation();
+    }
+    if (path == "/")
+    {
+        window.history.pushState({}, "", "/loginPage");
+        flag404 = 1;
+        handleLocation();
+    }
+    if (route == Page404DisplayVAR && flag404 == 0)
+    {
+        background.style.backgroundImage = "url('../static/photos/picturePng/404Page/Background404.jpeg')";
+        mainPage.style.display = "flex";
+        mainPage.style.justifyContent = "center";
+        mainPage.style.alignItems = "center";
     }
 };
 

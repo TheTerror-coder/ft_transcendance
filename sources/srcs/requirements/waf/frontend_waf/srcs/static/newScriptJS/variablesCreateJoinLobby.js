@@ -9,6 +9,7 @@ class CreateJoinLobbyClass
         this.zoroSanjiChibi = document.getElementById("zoroSanjiChibi");
         this.buttonCreateLobby = document.getElementById("buttonCreate");
         this.cross = document.getElementById("cross");
+        this.chooseTeamSwitch = document.getElementById("chooseTeamSwitch");
 
         this.cross.onclick = () => refreshHomePage();
         switchNumbersOfPlayers.addEventListener('change', function() {
@@ -20,19 +21,17 @@ class CreateJoinLobbyClass
             if (switchNumbersOfPlayers.checked) 
             {
                 zoroSanjiChibi.style.opacity = 1;
-                luffyChibi.style.opacity = 0.7;
+                luffyChibi.style.opacity = 0.4;
+                chooseTeamSwitch.style.display = "flex";
             } 
             else 
             {
-                zoroSanjiChibi.style.opacity = 0.7;
+                zoroSanjiChibi.style.opacity = 0.4;
                 luffyChibi.style.opacity = 1;
+                chooseTeamSwitch.style.display = "none";
+
             }
         });
-        window.addEventListener('DOMContentLoaded', () => {
-            switchNumbersOfPlayers.checked = false;
-            zoroSanjiChibi.style.opacity = 0.7;
-            luffyChibi.style.opacity = 1;
-          });
 
     }
 }
@@ -41,13 +40,17 @@ class CreateJoinLobbyClass
 function CreateLobbyDisplay(state) 
 {
     if (state.switchNumbersOfPlayers.checked == false)
-    {
         mainPage.innerHTML = lobbyPageDisplayVAR;
-    }
     else
     {
-        mainPage.innerHTML = "";
+        mainPage.innerHTML = lobbyTwoPlayerDisplayVAR;
+        const centerLobbyDisplay = document.getElementById("centerLobbyDisplay");
+        centerLobbyDisplay.style.marginLeft = "0px";
+        centerLobbyDisplay.style.marginRight = "0px";
     }
+    const crossButton = document.getElementById("crossButton");
+    crossButton.onclick = () => refreshHomePage();
+    const playButtonInLobby = document.getElementById("playButtonInLobby");
 }
 
 
@@ -55,7 +58,7 @@ function CreateLobbyDisplay(state)
 const CreateJoinLobbyDisplayVAR = 
 `<div class="lobby" id="lobby">
     <video class="videoBackground" id="videoBackground" autoplay muted loop>
-        <source src="../static/photos/picturePng/lobbyPage/luffy-vs-usopp.mp4" type="video/mp4" style="z-index: -1;">
+        <source src="../static/photos/picturePng/lobbyPage/lobbyBackground.mp4" type="video/mp4" style="z-index: -1;">
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
@@ -73,6 +76,9 @@ const CreateJoinLobbyDisplayVAR =
                     </div>
                     <img src="../static/photos/picturePng/lobbyPage/sanjiAndZoroChibi.png" alt="Two" class="zoroSanjiChibi" id="zoroSanjiChibi">
                 </div>
+            </div>
+            <div id="chooseTeamSwitch" style="display: none; flex-direction: ">
+                <p> ICI CA VA CHOISIR SA TEAM EN LEGEEEEEENDE</p>
             </div>
             <div style="display: flex; justify-content: center;">
                 <button class="buttonCreate" id="buttonCreate">Create</button>

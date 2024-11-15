@@ -48,10 +48,9 @@ const loginPageDisplayVAR =
     <div class="woodPresentation" id="woodPresentation">
         <img src="../photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">
         <div class="woodPresentationContent" id="connect">
-            <button class="fontConnexionWith42" id="connectionApi">CONNECTION API <img src="../photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
+            <button class="fontConnexionWith42" id="connectionApi">CONNECTION API<img src="../photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
             <button class="fontConnexion" id="connectionEmail"  style="margin-top: -8px;">CONNECTION</button>
             <button class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
-            
             <form class="createAccount" id="formConnect">
                 <p class="fontConnexion">
                     <input id="username" type="username" class="form-control" placeholder="Username" aria-label="Username" style="font-family: arial" required>
