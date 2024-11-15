@@ -1,0 +1,11 @@
+<div class="homePage" id="homePage">
+	<div id="status" class="status"></div>
+	<div id="username" class="username"></div>
+	<div id="firstname" class="firstname"></div>
+	<div id="lastname" class="lastname"></div>
+	<div id="email" class="email"></div>
+	<button id="logout" class="logout" type="button">
+		Logout
+	</button>
+	<img id="profile-image" src="" alt="">
+</div>

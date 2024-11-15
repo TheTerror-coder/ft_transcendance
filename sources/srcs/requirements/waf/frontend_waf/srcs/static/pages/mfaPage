@@ -1,0 +1,40 @@
+<div class="mfaPage" id="mfaPage" style="display: grid;">
+	<h1>Two-Factor Authentication</h1>
+	
+	<h2>Authenticator App</h2>
+	<div id="mfa-auth-app-active">
+		<p id="mfa-auth-app-active">
+			Authentication using an authenticator app is active.
+		</p>
+		<a id="mfa-deactivate-totp" href="">Deactivate</a>
+	</div>
+	<div id="mfa-auth-app-not-active">
+		<p>
+			An authenticator app is not active.
+		</p>
+		<a id="mfa-activate-totp" href="">Activate</a>
+	</div>
+  
+		
+	<h2>Security Keys</h2>
+	<p>
+		You have added {webauthn.length} security keys.
+	</p>
+	<a href="">Manage</a>
+	<p>
+		No security keys have been added.
+	</p>
+	<a href="">Add</a>
+  
+	
+	<h2>Recovery Codes</h2>
+	<p>
+		No recovery codes set up.
+	</p>
+	<a href="">Generate</a>
+	<p>
+		There are {recoveryCodes.unused_code_count} out of {recoveryCodes.total_code_count} recovery codes available.
+	</p>
+	<a href="">View</a>
+	<a href="">Regenerate</a>
+</div>

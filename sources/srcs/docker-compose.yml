@@ -1,32 +1,115 @@
 name: ${PROJECT_NAME}
 
 services:
-  db_postgres:
-    image: ${POSTGRES_IMAGE}
-    container_name: ${POSTGRES_CONTAINER}
-    pull_policy: never
-    build: ./requirements/db_postgres/
+  vault_init:
+    image: ${VAULT_INIT_IMAGE}
+    container_name: ${VAULT_INIT_CONTAINER}
+    build:
+      context: ./requirements/vault_init/
+      args:
+        - VAULT_VERSION=${VAULT_VERSION}
+        - VAULT_UID=${VAULT_UID}
+        - VAULT_GID=${VAULT_GID}
+        - SHARED_GID=${SHARED_GID}
+        - VAULT_HOME=${VAULT_HOME}
+        - VAULT_INIT_DIRS_TO_MAKE=${VAULT_INIT_DIRS_TO_MAKE}
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=${POSTGRES_PORT}
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - PKI_ACCESS_TOKEN=${PKI_ACCESS_TOKEN}
+      - ROOT_ACCESS_TOKEN=${ROOT_ACCESS_TOKEN}
+      - VAULT_ADDR=${VAULT_INIT_ADDR}
+      - VAULT_CACERT=${VAULT_INIT_CACERT}
+      - VAULT_HOME=${VAULT_HOME}
+      - VAULT_UID=${VAULT_UID}
+      - VAULT_GID=${VAULT_GID}
+      - WEB_UID=${WEB_UID}
+      - WEB_GID=${WEB_GID}
+      - SHARED_GID=${SHARED_GID}
+      - ALT_NAMES=${ALT_NAMES}
+      - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
+      - WEB_ALT_NAMES=${WEB_ALT_NAMES}
+      - NODE_ALT_NAMES=${NODE_ALT_NAMES}
+      - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
-    healthcheck: #&file_healthcheck
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:${VAULT_HOME}/volumes/vault/file
+      - vault_healthiness:${VAULT_HOME}/volumes/healthiness
+      - vault_certs:${VAULT_HOME}/volumes/vault/certs
+      - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
+      - web_certs:${VAULT_HOME}/volumes/web/certs
+      - node_certs:${VAULT_HOME}/volumes/node/certs
+    networks:
+      - transcendance
+    healthcheck:
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 2s
-      timeout: 15s
-      retries: 3
-      start_period: 20s
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 2
+    restart: on-failure
+
+  vault:
+    depends_on:
+      vault_init:
+        condition: service_healthy
+        restart: true
+    image: ${VAULT_IMAGE}
+    container_name: ${VAULT_CONTAINER}
+    build:
+      context: ./requirements/vault/
+      args:
+        - VAULT_VERSION=${VAULT_VERSION}
+        - VAULT_UID=${VAULT_UID}
+        - VAULT_GID=${VAULT_GID}
+        - SHARED_GID=${SHARED_GID}
+        - VAULT_HOME=${VAULT_HOME}
+        - VAULT_DIRS_TO_MAKE=${VAULT_DIRS_TO_MAKE}
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_CACERT=${VAULT_CACERT}
+      - VAULT_SKIP_VERIFY=true
+      - SKIP_SETCAP=true
+      - VAULT_HEALTHFLAG=${VAULT_HEALTHFLAG}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:${VAULT_HOME}/file
+      - vault_certs:${VAULT_HOME}/certs
+      - vault_healthiness:${VAULT_HOME}/healthiness
     expose:
-      - ${POSTGRES_PORT}
+      - ${VAULT_API_PORT}
+    ports:
+      - ${VAULT_API_PORT}:${VAULT_API_PORT}
+    networks:
+      - transcendance
+    healthcheck:
+      test: ["CMD-SHELL", "test -f $VAULT_HEALTHFLAG || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
+  mail:
+    image: ${MAIL_IMAGE}
+    container_name: ${MAIL_CONTAINER}
+    expose:
+      - ${MAIL_PORT}
     networks:
       - ${NETWORK_NAME}
-    # restart: on-failure
+    ports:
+      - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
+    restart: on-failure
 
   web:
     depends_on:
-      db_postgres:
+      mail:
+        condition: service_started
+        restart: true
+      vault:
         condition: service_healthy
         restart: true
     image: ${WEB_IMAGE}
@@ -35,79 +118,290 @@ services:
     build:
       context: ./requirements/web/
       args:
+        - WEB_TAG=${WEB_TAG}
+        - WEB_UID=${WEB_UID}
+        - WEB_GID=${WEB_GID}
+        - SHARED_GID=${SHARED_GID}
+        - WEB_HOME=${WEB_HOME}
+        - WEB_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${WEB_STATICFILES_DIR}
         - STATICFILES_DIR=${STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
     environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - WEB_HOME=${WEB_HOME}
       - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${STATICFILES_DIR}
+      - STATICFILES_DIR=${WEB_STATICFILES_DIR}
+      - WEB_ROOT_CA=${WEB_ROOT_CA}
+      - VAULT_CACERT=${WEB_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - MAIL_CONTAINER=${MAIL_CONTAINER}
+      - MAIL_PORT=${MAIL_PORT}
     volumes:
-      - webapps:/usr/src/apps
-      - staticfiles:${STATICFILES_DIR}
+      - ./requirements/web/srcs/:${WEB_HOME}/apps/
+      # - webapps:${WEB_HOME}/apps
+      # - staticfiles:${WEB_STATICFILES_DIR}
+      - vault_certs:${WEB_HOME}/volumes/vault/certs
+      - web_certs:${WEB_SSL_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:${WEB_PORT} | grep -q ''",
+          "curl -s http://localhost:${WEB_PORT} | grep -q ''",
+          # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
         ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
     expose:
       - ${WEB_PORT}
     networks:
       - ${NETWORK_NAME}
     ports:
-      - 8888:${WEB_PORT}
-    # restart: on-failure
+      - 8000:${WEB_PORT}
+    restart: on-failure
 
-  nginx:
-    # depends_on:
-    #   - web
+  frontend_waf:
     depends_on:
       web:
         condition: service_healthy
-    image: ${NGINX_IMAGE}
-    container_name: ${NGINX_CONTAINER}
+        restart: true
+    image: ${FRONTENDWAF_IMAGE}
+    container_name: ${FRONTENDWAF_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/nginx/
+      context: ./requirements/waf/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./frontend_waf/conf/frontend.conf.template
+    environment:
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - FRONTENDWAF_HTTP_PORT=${FRONTENDWAF_HTTP_PORT}
+      - FRONTENDWAF_HTTPS_PORT=${FRONTENDWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
     volumes:
-      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-      - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
-      - staticfiles:${STATICFILES_DIR}
+      - ./requirements/waf/frontend_waf/srcs/templates/base.html:${MODSEC_HOME}/html/base.html
+      - ./requirements/waf/frontend_waf/srcs/static/:${MODSEC_HOME}/volumes/www/static/
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      # - staticfiles:${NGINX_STATICFILES_DIR}
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+    ports:
+      - ${FRONTENDWAF_HTTP_PORT}:${FRONTENDWAF_HTTP_PORT}
+      - ${FRONTENDWAF_HTTPS_PORT}:${FRONTENDWAF_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:80 | grep -q ''",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${FRONTENDWAF_HTTPS_PORT} > /dev/null",
         ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    # restart: on-failure
+
+  proxy_waf:
+    depends_on:
+      web:
+        condition: service_healthy
+        restart: true
+      frontend_waf:
+        condition: service_healthy
+        restart: true
+    image: ${PROXYWAF_IMAGE}
+    container_name: ${PROXYWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./proxy_waf/conf/proxy.conf.template
+    environment:
+      - ALLOWED_METHODS=${MODSEC_ALLOWED_METHODS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      - staticfiles:${NGINX_STATICFILES_DIR}
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
     ports:
-      - ${NGINX_PORT}:80
+      - ${PROXYWAF_HTTP_PORT}:${PROXYWAF_HTTP_PORT}
+      - ${PROXYWAF_HTTPS_PORT}:${PROXYWAF_HTTPS_PORT}
     networks:
       - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${PROXYWAF_HTTPS_PORT} > /dev/null",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
     # restart: on-failure
+  
+  # web_waf:
+  #   depends_on:
+  #     web:
+  #       condition: service_healthy
+  #       restart: true
+  #   image: ${WEBWAF_IMAGE}
+  #   container_name: ${WEBWAF_CONTAINER}
+  #   pull_policy: never
+  #   build:
+  #     context: ./requirements/waf/
+  #     args:
+  #       - MODSECURITY_TAG=${MODSECURITY_TAG}
+  #       - NGINX_UID=${NGINX_UID}
+  #       - NGINX_GID=${NGINX_GID}
+  #       - MODSEC_HOME=${MODSEC_HOME}
+  #       - SHARED_GID=${SHARED_GID}
+  #       - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+  #       - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+  #       - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+  #       - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+  #       - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+  #       - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+  #       - REVERSEPROXY_CONF_FILE=./web_waf/conf/web.conf.template
+  #   environment:
+  #     - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+  #     - MODSEC_HOME=${MODSEC_HOME}
+  #     - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+  #     - WEBWAF_HTTP_PORT=${WEBWAF_HTTP_PORT}
+  #     - WEBWAF_HTTPS_PORT=${WEBWAF_HTTPS_PORT}
+  #     - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+  #     - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+  #     # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+  #     # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+  #     # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+  #   volumes:
+  #     # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+  #     - staticfiles:${NGINX_STATICFILES_DIR}
+  #     - modsec_data:${MODSEC_DATA_DIR}
+  #     # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+  #     # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+  #     # - nginx_logs:${NGINX_LOG_FILES_DIR}
+  #     - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+  #     - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+  #   ports:
+  #     - ${WEBWAF_HTTP_PORT}:${WEBWAF_HTTP_PORT}
+  #     - ${WEBWAF_HTTPS_PORT}:${WEBWAF_HTTPS_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "curl -s --cacert $NGINX_ROOT_CA https://localhost:${WEBWAF_HTTPS_PORT} > /dev/null",
+  #       ]
+  #     start_period: 10s
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 1
+  #   # restart: on-failure
+
+  ready:
+    depends_on:
+      web:
+        condition: service_healthy
+        restart: true
+      proxy_waf:
+        condition: service_healthy
+        restart: true
+      frontend_waf:
+        condition: service_healthy
+        restart: true
+    image: alpine:${ALPINE_VERSION}
+    container_name: ready_c
+    command: echo "Microservices Infrastructure is ready and healthy!"
+    restart: on-failure
 
 networks:
   transcendance:
     driver: bridge
 
 volumes:
+  vault_data:
+    driver: local
+  vault_healthiness:
+    driver: local
+  modsec_data:
+    driver: local
+  modsec_audit_logs:
+    driver: local
+  modsec_debug_logs:
+    driver: local
+  nginx_logs:
+    driver: local
   webapps:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${WEBAPPS_VOLUME}
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: ${WEBAPPS_VOLUME}
   staticfiles:
+    driver: local
+  certs:
+    driver: local
+  vault_certs:
+    driver: local
+  nginx_certs:
+    driver: local
+  web_certs:
+    driver: local
+  node_certs:
     driver: local

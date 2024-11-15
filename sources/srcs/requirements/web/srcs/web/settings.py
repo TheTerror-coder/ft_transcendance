@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from . import parameters
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,31 +27,62 @@ SECRET_KEY = 'django-insecure-for0kxtor^fj#q)33m-(myq9_53*!*z2ho4loe@w-5)5vq1$+i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ '*' ]
+ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'web', 'frontend_waf' ]
+
+
+CORS_ALLOWED_ORIGINS = [
+	'https://localhost:14443',
+	'http://localhost:8000',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-	'http://transcendance.fr:8080'
+	'https://localhost:14443',
+	'http://localhost:18880',
+	'http://localhost:8000',
 ]
 
 # Application definition
 
 INSTALLED_APPS = [
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
+
+    'corsheaders',
+    'rest_framework',
+
+	# allauth
+	'allauth',
+    'allauth.account',
+    'allauth.headless',
+	'allauth.socialaccount',
+	'allauth.mfa',
+    'allauth.usersessions',
+	
+	'ultimapi',
+    'oauth',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+	# Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'web.urls'
@@ -58,7 +90,7 @@ ROOT_URLCONF = 'web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -73,21 +105,51 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'web.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('POSTGRES_DB'),
+#         'USER': os.environ.get('POSTGRES_USER'),
+#         'PASSWORD': str(
+# 			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+# 				verify=os.environ.get('VAULT_CACERT'),
+# 				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+# 		),
+#         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+#         'PORT': os.environ.get('POSTGRES_PORT'),
+#     }
+# }
+
+
+#a effacer si make des docker
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.environ.get('POSTGRES_DB'),
+    #     'USER': os.environ.get('POSTGRES_USER'),
+    #     'PASSWORD': str(
+	# 		requests.get("https://vault_c:8200/v1/secret/data/postgres",
+	# 			verify=os.environ.get('VAULT_CACERT'),
+	# 			headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+	# 	),
+    #     'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+    #     'PORT': os.environ.get('POSTGRES_PORT'),
+    # }
+    
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-        'PORT': os.environ.get('POSTGRES_PORT'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': os.environ.get('POSTGRES_DB'),
+        # 'USER': os.environ.get('POSTGRES_USER'),
+        # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        # 'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+        # 'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -119,11 +181,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 
@@ -135,3 +196,65 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+########################
+###    jm customs    ###
+########################
+
+HEADLESS_ONLY = True
+
+MFA_TOTP_ISSUER = 'OnePong'
+MFA_SUPPORTED_TYPES = ["totp"]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+EMAIL_HOST = os.getenv('MAIL_CONTAINER')
+EMAIL_PORT = os.getenv('MAIL_PORT')
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_USERNAME_REQUIRED = True
+# ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
+# SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+# SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+# ACCOUNT_REAUTHENTICATION_TIMEOUT = 5000
+
+AUTHENTICATION_BACKENDS = [
+	#default
+	'django.contrib.auth.backends.ModelBackend',
+
+	# `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+HEADLESS_FRONTEND_URLS = {
+    "account_confirm_email": "/frontpong/account/verify-email/?key={key}",
+    "account_reset_password": "/account/password/reset",
+    "account_reset_password_from_key": "/account/password/reset/key/{key}",
+    "account_signup": "/account/signup",
+    "socialaccount_login_error": parameters.CALLBACK_URL,
+}
+
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/frontpong/account/login/'
+LOGOUT_REDIRECT_URL = '/frontpong/account/login/'
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'ultimapi': {
+        'APP': {
+            'client_id': parameters.OAUTH2_CLIENT_ID,
+            'secret': parameters.OAUTH2_CLIENT_SECRET,
+            'key': ''
+        },
+		'AUTH_PARAMS': {
+			'redirect_uri': parameters.OAUTH2_AUTHORIZATION_REDIRECT_URL,
+        },
+    }
+}
+
+SITE_ID = 1
