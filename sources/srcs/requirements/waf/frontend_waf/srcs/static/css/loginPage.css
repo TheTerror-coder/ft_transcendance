@@ -1,6 +1,6 @@
 @font-face {
     font-family: onePieceFont;
-    src: url(../onePieceFont.ttf);
+    src: url(/static/onePieceFont.ttf);
 }
 
 p
@@ -10,7 +10,7 @@ p
 
 .background
 {
-    background-image: url(../photos/picturePng/loginPage/landscapeOnePiece.png);
+    background-image: url(/static/photos/picturePng/loginPage/landscapeOnePiece.png);
     background-repeat: no-repeat;
     background-size: cover;
     width: 100vw;

@@ -37,6 +37,19 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
 		await logout();
 	}
+	else if (target.id === ELEMENTs.buttonConnec()?.id){
+		putFormConnect();
+	}
+	else if (target.id === ELEMENTs.buttonCreateAccount()?.id){
+		putFormCreateAccount(instance);
+	}
+	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
+		handleLocation();
+	}
+	else if (target.id === ELEMENTs.formConnect()?.id){
+		connect();
+	}
+	 
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
 	// }
@@ -117,7 +130,7 @@ urlRoutes[PATHs.VIEWS.HOME] = {
 // 	title : "Verify Email | " + PAGE_TITLE,
 // 	description : "",
 // };
-		
+
 const handlelocation = async () => {
 	console.log('popstate');
 	let pathname = window.location.pathname;

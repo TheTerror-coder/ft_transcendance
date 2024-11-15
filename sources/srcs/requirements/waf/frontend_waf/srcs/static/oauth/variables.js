@@ -15,10 +15,8 @@ const PATHs = Object.freeze({
 		MFA : '/frontpong/account/mfa/',
 		VERIFY_EMAIL : '/frontpong/account/verify-email/',
 		EMAIL_STATUS : '/frontpong/account/email-status/',
-		// TOTP : Object.freeze({
-		// 	ACTIVATE : '/frontpong/account/mfa/totp/activate/',
-		// 	DEACTIVATE : '/frontpong/account/mfa/totp/deactivate/',
-		// }),
+		LOBBY : '/createLobby/',
+		PROFILE : '/profile/',
 	}),
 
 });
@@ -40,6 +38,8 @@ const URLs = Object.freeze({
 		MFA_VIEW : BASE_URL + PATHs.VIEWS.CALLBACKURL,
 		VERIFY_EMAIL_VIEW : BASE_URL + PATHs.VIEWS.VERIFY_EMAIL,
 		EMAIL_STATUS_VIEW : BASE_URL + PATHs.VIEWS.EMAIL_STATUS,
+		LOBBY : BASE_URL + PATHs.VIEWS.LOBBY,
+		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
 		// TOTP
 		// TOTP_VIEWs : Object.freeze({
 		// 	// Activate TOTP authentication
@@ -90,7 +90,6 @@ const AuthenticatorType = Object.freeze({
 
 const ELEMENTs = Object.freeze({
 	mainPage :  () => document.getElementById("mainPage"),
-	signInWith42Button :  () => document.getElementById("signInWith42Button"),
 	loginPageButton :  () => document.getElementById("loginPageButton"),
 	statusDiv :  () => document.getElementById("status"),
 	usernameDiv :  () => document.getElementById("username"),
@@ -116,6 +115,22 @@ const ELEMENTs = Object.freeze({
 
 	oauth_modal_content : () => document.getElementById("oauth-modal-content"),
 
+	loginPage : () => document.getElementById("loginPage"),
+	
+	
+	loginButton : () => document.getElementById("loginButton"),
+	woodPresentation : () => document.getElementById("woodPresentation"),
+	background : () => document.getElementById("background"),
+	
+	signInWith42Button :  () => document.getElementById("signInWith42Button"),
+	buttonCreateAccount : () => document.getElementById("createAnAccount"),
+	
+	createAccountChange : () => document.getElementById("formAccount"),
+	
+	formConnect : () => document.getElementById("formConnect"),
+
+	buttonRefreshPage : () => document.getElementById('refreshPage'),
+	buttonConnec : () => document.getElementById("connectionEmail"),
 });
 
 let N_ALERT = 0;

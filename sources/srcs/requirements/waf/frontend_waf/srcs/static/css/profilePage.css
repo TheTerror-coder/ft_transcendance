@@ -6,7 +6,7 @@
 
 .wantedInProfilePage
 {
-    background-image: url('../photos/picturePng/homePage/Wanted_connexion.png');
+    background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
 }

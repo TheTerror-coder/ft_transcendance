@@ -1,10 +1,10 @@
 .rapidPlay
 {
-    background-image: url('../photos/picturePng/homePage/Kizaru.png');
+    background-image: url('/photos/picturePng/homePage/Kizaru.png');
 }
 .tournamentButtonImg
 {
-    background-image: url('../photos/picturePng/homePage/TournamentLuffy.png');
+    background-image: url('/photos/picturePng/homePage/TournamentLuffy.png');
 }
 
 .imgPlayMenu
@@ -78,7 +78,7 @@
 {
     display: flex;
     justify-content: center;
-    background-image: url('../photos/picturePng/homePage/Logo_One_Piece.png');
+    background-image: url('/photos/picturePng/homePage/Logo_One_Piece.png');
     align-items: center;
     background-position: center;
     background-repeat: no-repeat;

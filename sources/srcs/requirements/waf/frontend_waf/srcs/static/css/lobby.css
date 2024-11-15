@@ -59,7 +59,7 @@
 
 .PlayButtonInLobby
 {
-    background-image: url("../photos/picturePng/lobbyPage/fire.png");
+    background-image: url("/photos/picturePng/lobbyPage/fire.png");
     background-position: center;
     background-repeat: no-repeat;
     font-family: onePieceFont;

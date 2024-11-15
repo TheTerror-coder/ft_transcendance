@@ -18,8 +18,8 @@ async function	loginPageView(title, description, data) {
 	// if (await isUserAuthenticated())
 	// 	window.location.replace(URLs.VIEWS.HOME);
 	document.title = title;
-	const html = await getHtml(PAGE_ROUTEs.LOGIN);
-	ELEMENTs.mainPage().innerHTML = html;
+	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
+	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
 	// 	keyboard: false
