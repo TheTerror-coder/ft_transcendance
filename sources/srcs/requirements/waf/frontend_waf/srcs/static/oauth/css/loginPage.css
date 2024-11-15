@@ -1,0 +1,237 @@
+@font-face {
+    font-family: onePieceFont;
+    src: url(/static/oauth/onePieceFont.ttf);
+}
+
+p
+{
+    font-family: onePieceFont;
+}
+
+.background
+{
+    background-image: url(../../../../media/photos/picturePng/loginPage/landscapeOnePiece.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 100vw;
+    height: 100vh; 
+    z-index: 1;
+    margin: 0;
+}
+
+body
+{
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.flag
+{
+    display: flex;
+    margin-right: 2%;
+    justify-content: flex-end;
+}
+
+.loginButton
+{
+    z-index: 3; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* position: fixed */
+    transition: margin-top 2s ease, box-shadow 3s ease-in-out, filter 1.2s ease;
+
+}
+
+.loginButton:hover
+{
+    margin-top: 40px;
+    /* box-shadow: #FFF 0px 0px 1px, #FFF 0px 0px 2px, #FFF 0px 0px 3px, #ac1616 0px 0px 4px, #ac1616 0px 0px 5px, #ac1616 0px 0px 8px, #ac1616 0px 0px 10px, #ac1616 0px 0px 15px;  */
+    filter:  contrast(170%) brightness(150%) saturate(300%);
+}
+
+
+.fontConnexionWith42
+{
+    font-family: onePieceFont;
+    color: #FEF698;
+    background:none;
+    border:none;
+    cursor: pointer;
+    z-index: 4;
+    position:relative;
+    font-size: 300%;
+    display: absolute;
+    transition: all 1.5s ease;
+}
+
+
+.fontConnexionWith42:hover
+{
+    text-shadow: 0 -0.5px 0 #fff, 0 0.5px 0 #2e2e2e, 0 1px 0 #2c2c2c, 0 1.5px 0 #2a2a2a, 0 2px 0 #282828, 0 2.5px 0 #262626, 0 3px 0 #242424, 0 3.5px 0 #222, 0 4px 0 #202020, 0 4.5px 0 #1e1e1e, 0 5px 0 #1c1c1c, 0 5.5px 0 #1a1a1a, 0 6px 0 #181818, 0 6.5px 0 #161616, 0 7px 0 #141414, 0 7.5px 0 #121212, 0 11px 15px rgba(0,0,0,0.9);
+}
+
+.fontConnexionWith42:hover .logo42
+{
+    transform: scale(120%);
+}
+
+.logo42
+{
+    margin-top: -10px;
+    transition: transform 1.5s ease;
+}
+
+.fontConnexion
+{
+    font-family: onePieceFont;
+    color: #FEF698;
+    background:none;
+    border:none;
+    cursor: pointer;
+    z-index: 4;
+    position:relative;
+    font-size: 300%;
+    display: absolute;
+    transition: text-shadow 1.3s ease;
+}
+
+.fontConnexion:hover
+{
+    text-shadow: 0 -0.5px 0 #fff, 0 0.5px 0 #2e2e2e, 0 1px 0 #2c2c2c, 0 1.5px 0 #2a2a2a, 0 2px 0 #282828, 0 2.5px 0 #262626, 0 3px 0 #242424, 0 3.5px 0 #222, 0 4px 0 #202020, 0 4.5px 0 #1e1e1e, 0 5px 0 #1c1c1c, 0 5.5px 0 #1a1a1a, 0 6px 0 #181818, 0 6.5px 0 #161616, 0 7px 0 #141414, 0 7.5px 0 #121212, 0 11px 15px rgba(0,0,0,0.9);
+}
+
+.fontConfirmCreateAccount
+{
+    font-family: onePieceFont;
+    font-size: 500%;
+    background:none;
+    cursor: pointer;
+    z-index: 4;
+    position:relative;
+    display: absolute;
+    justify-content: center; 
+    color:#B2220A;
+    margin-top: 30px;
+    border:none;
+    padding-left: 28px;
+    padding-right: 28px;
+    transition: all 1.5s ease;
+}
+
+.fontConfirmCreateAccount:hover
+{
+    letter-spacing: .1em;
+    padding-left: 0px;
+    padding-right: 0px;
+    text-shadow: 0 -1px 0 #fff, 0 1px 0 #2e2e2e, 0 2px 0 #2c2c2c, 0 3px 0 #2a2a2a, 0 4px 0 #282828, 0 5px 0 #262626, 0 6px 0 #242424, 0 7px 0 #222, 0 8px 0 #202020, 0 9px 0 #1e1e1e, 0 10px 0 #1c1c1c, 0 11px 0 #1a1a1a, 0 12px 0 #181818, 0 13px 0 #161616, 0 14px 0 #141414, 0 15px 0 #121212, 0 22px 30px rgba(0,0,0,0.9);
+}
+
+
+
+
+/* .logo42
+{
+     box-shadow: #FFF 0px 0px 1px, #FFF 0px 0px 2px, #FFF 0px 0px 3px, #000000 0px 0px 4px, #000000 0px 0px 5px, #000000 0px 0px 8px, #000000 0px 0px 10px, #000000 0px 0px 15px; 
+} */
+
+button
+{
+    /* display: block; */
+    /* margin: 0.5rem 0; */
+    background:none;
+    cursor: pointer;
+    border:none;
+}
+
+.woodPresentation
+{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 600px;
+    margin-top: auto;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.createAccount
+{
+    margin-top: 16px;
+    display: none; 
+    flex-direction: column;
+    gap: 16px;
+}
+
+.woodPresentationContent
+{
+    /* height: 97%; */
+    display: flex; 
+    flex-direction: column; 
+    position: absolute; 
+    margin-top: 192px;
+    
+    /* min-width: 25%;
+    min-height: 25%; */
+}
+
+/*########### jm customs ##############*/
+
+.mainPage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 10%;
+}
+
+/* From Uiverse.io by cssbuttons-io */ 
+.logout {
+	align-items: center;
+	background-image: linear-gradient(144deg, #af40ff, #5b42f3 50%, #00ddeb);
+	border: 0;
+	border-radius: 8px;
+	box-shadow: rgba(151, 65, 252, 0.2) 0 15px 30px -5px;
+	box-sizing: border-box;
+	color: #ffffff;
+	display: flex;
+	font-size: 18px;
+	justify-content: center;
+	line-height: 1em;
+	max-width: 100%;
+	min-width: 140px;
+	padding: 3px;
+	text-decoration: none;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: manipulation;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: all 0.3s;
+}
+
+.logout:active,
+.logout:hover {
+outline: 0;
+}
+
+.logout span {
+background-color: rgb(5, 6, 45);
+padding: 16px 24px;
+border-radius: 6px;
+width: 100%;
+height: 100%;
+transition: 300ms;
+}
+
+.logout:hover span {
+background: none;
+}
+
+.logout:active {
+transform: scale(0.9);
+}
+  

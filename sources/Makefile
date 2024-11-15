@@ -54,8 +54,8 @@ web : # Rebuild and restart only the web container
 	-docker volume rm $$(docker volume ls --filter name=webapps --format "{{.Name}}")
 	-docker compose -f $(COMPOSE_FILE) up -d --build web
 
+###JM Customs###
 cleanv cv : # clean all volumes
-	-make down
 	-docker volume prune -f
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv
