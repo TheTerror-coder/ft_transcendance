@@ -18,7 +18,7 @@ const flag = document.querySelector("#flag");
 
 
 // CONNEXION VARIABLE
-const buttonConnectionAPI42 = document.querySelector("#connectionApi");
+const signInWith42Button = document.querySelector("#connectionApi");
 const buttonConnec = document.querySelector("#connectionEmail");
 const buttonCreateAccount = document.querySelector("#createAnAccount");
 

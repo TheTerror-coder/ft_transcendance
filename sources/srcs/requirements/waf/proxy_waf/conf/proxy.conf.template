@@ -82,7 +82,7 @@ server {
 	# 	root   /usr/share/nginx/volumes/www;
 	# 	try_files	$uri $uri/ =404;
 	# }
-	location /static/admin/ {
+	location = /static/admin/ {
 		include includes/webshared_conf.conf;
 	}
 

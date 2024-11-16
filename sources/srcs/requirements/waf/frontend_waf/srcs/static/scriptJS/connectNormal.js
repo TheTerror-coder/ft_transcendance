@@ -22,7 +22,7 @@ function getCookie(cname) {
 
 function putFormConnect()
 {
-    buttonConnectionAPI42.style.display = 'none';
+    signInWith42Button.style.display = 'none';
     buttonConnec.style.display = 'none';
     buttonCreateAccount.style.display = 'none';
     formConnect.style.display = 'flex';

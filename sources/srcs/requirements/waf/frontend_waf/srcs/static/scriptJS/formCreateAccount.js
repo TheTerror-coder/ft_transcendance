@@ -1,12 +1,12 @@
 
-// buttonConnectionAPI42.onclick = connectAPI42;
-buttonCreateAccount.onclick = createAnAccount;
+// signInWith42Button.onclick = connectAPI42;
+// buttonCreateAccount.onclick = createAnAccount;
 
 function createAnAccount()
 {
     if (flagSelected === "en")
     {
-        buttonConnectionAPI42.style.display = 'none';
+        signInWith42Button.style.display = 'none';
         buttonConnec.style.display = 'none';
         buttonCreateAccount.style.display = 'none';
         createAccountChange.style.display = 'flex'; 

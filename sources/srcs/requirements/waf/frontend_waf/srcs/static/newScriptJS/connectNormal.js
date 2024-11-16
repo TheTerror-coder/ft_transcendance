@@ -26,6 +26,7 @@ function getCookie(cname) {
 
 function connect()
 {
+	console.log('connect() function')
     window.history.pushState({}, "", "/homePage");
     handleLocation();
 }

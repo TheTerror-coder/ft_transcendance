@@ -13,7 +13,7 @@ function refreshPage()
         createAccountChange.style.display = 'none';
     else if (formConnect.style.display == 'flex')
         formConnect.style.display = 'none'
-    buttonConnectionAPI42.style.display = 'block';
+    signInWith42Button.style.display = 'block';
     buttonConnec.style.display = 'block';
     buttonCreateAccount.style.display = 'block';
     loginPage.style.display = 'block';

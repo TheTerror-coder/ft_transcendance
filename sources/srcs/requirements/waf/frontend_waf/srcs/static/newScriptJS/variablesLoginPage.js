@@ -17,7 +17,7 @@ let flagSelected = "en";
 // const woodPresentation = document.querySelector("#woodPresentation");
 // const background = document.querySelector("#background");
 
-// const buttonConnectionAPI42 = document.querySelector("#connectionApi");
+// const signInWith42Button = document.querySelector("#connectionApi");
 // const buttonConnec = document.querySelector("#connectionEmail");
 // const buttonCreateAccount = document.querySelector("#createAnAccount");
 
@@ -33,7 +33,7 @@ let flagSelected = "en";
 
 function putFormConnect()
 {
-    ELEMENTs.buttonConnectionAPI42().style.display = 'none';
+    ELEMENTs.signInWith42Button().style.display = 'none';
     ELEMENTs.buttonConnec().style.display = 'none';
     ELEMENTs.buttonCreateAccount().style.display = 'none';
     ELEMENTs.formConnect().style.display = 'flex';
@@ -58,7 +58,7 @@ const loginPageDisplayVAR =
                 <p class="fontConnexion">
                     <input id="password" type="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
                 </p>
-                <button class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">CONFIRM</button>
+                <button id="connexion-confirm-button" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">CONFIRM</button>
             </form>
             <form class="createAccount" id="formAccount">
                 <p class="fontConnexion">
@@ -90,8 +90,7 @@ class loginPageClass {
         this.woodPresentation = document.getElementById("woodPresentation");
         this.background = document.getElementById("background");
         
-        this.buttonConnectionAPI42 = document.getElementById("connectionApi");
-        this.buttonCreateAccount = document.getElementById("createAnAccount");
+        this.signInWith42Button = document.getElementById("connectionApi");
         
         this.createAccountChange = document.getElementById("formAccount");
         

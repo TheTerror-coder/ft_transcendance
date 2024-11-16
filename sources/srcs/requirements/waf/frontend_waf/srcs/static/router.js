@@ -41,14 +41,17 @@ const eventManager = async (event) => {
 		putFormConnect();
 	}
 	else if (target.id === ELEMENTs.buttonCreateAccount()?.id){
-		putFormCreateAccount(instance);
+		putFormCreateAccount();
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 		handleLocation();
 	}
-	else if (target.id === ELEMENTs.formConnect()?.id){
+	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
 		connect();
 	}
+	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
+	// 	handleLocation();
+	// }
 	 
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
@@ -73,12 +76,12 @@ const urlRoute = async (event) => {
 	event = event || window.event;
 	event.preventDefault();
 	window.history.pushState({}, "", event.target.href);
-	handlelocation();
+	handleLocation();
 };
 
 const primaryRoutes = {};
 primaryRoutes[PATHs.VIEWS.LOGIN] = {
-	view : loginPageView,
+	view : loginView,
 	title : "Login | " + PAGE_TITLE,
 	description : "",
 };
@@ -110,6 +113,16 @@ urlRoutes[PATHs.VIEWS.HOME] = {
 	title : "Home | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.LOBBY] = {
+	view : createLobbyView,
+	title : "Lobby | " + PAGE_TITLE,
+	description : "",
+};
+urlRoutes[PATHs.VIEWS.PROFILE] = {
+	view : profileView,
+	title : "Profile | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -131,7 +144,7 @@ urlRoutes[PATHs.VIEWS.HOME] = {
 // 	description : "",
 // };
 
-const handlelocation = async () => {
+const handleLocation = async () => {
 	console.log('popstate');
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
@@ -208,9 +221,9 @@ async function onePongAlerter(type, title, message) {
 	);
 }
 
-window.onpopstate = handlelocation;
+window.onpopstate = handleLocation;
 // window.route = urlRoute;
 
-handlelocation();
+handleLocation();
 
 

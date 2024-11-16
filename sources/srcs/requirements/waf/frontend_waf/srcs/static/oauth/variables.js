@@ -131,6 +131,7 @@ const ELEMENTs = Object.freeze({
 
 	buttonRefreshPage : () => document.getElementById('refreshPage'),
 	buttonConnec : () => document.getElementById("connectionEmail"),
+	connexion_confirm_button : () => document.getElementById("connexion-confirm-button"),
 });
 
 let N_ALERT = 0;
