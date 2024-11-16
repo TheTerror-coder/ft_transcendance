@@ -22,13 +22,12 @@ services:
       - VAULT_HOME=${VAULT_HOME}
       - VAULT_UID=${VAULT_UID}
       - VAULT_GID=${VAULT_GID}
-      - WEB_UID=${WEB_UID}
-      - WEB_GID=${WEB_GID}
+      - BACKEND_UID=${BACKEND_UID}
+      - BACKEND_GID=${BACKEND_GID}
       - SHARED_GID=${SHARED_GID}
       - ALT_NAMES=${ALT_NAMES}
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
-      - WEB_ALT_NAMES=${WEB_ALT_NAMES}
-      - NODE_ALT_NAMES=${NODE_ALT_NAMES}
+      - BACKEND_ALT_NAMES=${BACKEND_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
@@ -38,8 +37,7 @@ services:
       - vault_healthiness:${VAULT_HOME}/volumes/healthiness
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
-      - web_certs:${VAULT_HOME}/volumes/web/certs
-      - node_certs:${VAULT_HOME}/volumes/node/certs
+      - backend_certs:${VAULT_HOME}/volumes/backend/certs
     networks:
       - transcendance
     healthcheck:
@@ -104,7 +102,7 @@ services:
       - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
     restart: on-failure
 
-  web:
+  backend:
     depends_on:
       mail:
         condition: service_started
@@ -112,65 +110,64 @@ services:
       vault:
         condition: service_healthy
         restart: true
-    image: ${WEB_IMAGE}
-    container_name: ${WEB_CONTAINER}
+    image: ${BACKEND_IMAGE}
+    container_name: ${BACKEND_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/web/
+      context: ./requirements/backend/
       args:
-        - WEB_TAG=${WEB_TAG}
-        - WEB_UID=${WEB_UID}
-        - WEB_GID=${WEB_GID}
+        - BACKEND_TAG=${BACKEND_TAG}
+        - BACKEND_UID=${BACKEND_UID}
+        - BACKEND_GID=${BACKEND_GID}
         - SHARED_GID=${SHARED_GID}
-        - WEB_HOME=${WEB_HOME}
-        - WEB_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
-        - STATICFILES_DIR=${WEB_STATICFILES_DIR}
+        - BACKEND_HOME=${BACKEND_HOME}
+        - BACKEND_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
         - STATICFILES_DIR=${STATICFILES_DIR}
         - HOST_IP=${HOST_IP}
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-      - WEB_HOME=${WEB_HOME}
-      - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
+      - BACKEND_HOME=${BACKEND_HOME}
+      - BACKEND_ENTRYPOINT=${BACKEND_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${WEB_STATICFILES_DIR}
-      - WEB_ROOT_CA=${WEB_ROOT_CA}
-      - VAULT_CACERT=${WEB_VAULT_CACERT}
+      - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+      - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
+      - VAULT_CACERT=${BACKEND_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
       - MAIL_CONTAINER=${MAIL_CONTAINER}
       - MAIL_PORT=${MAIL_PORT}
     volumes:
-      - ./requirements/web/srcs/:${WEB_HOME}/apps/
-      # - webapps:${WEB_HOME}/apps
-      # - staticfiles:${WEB_STATICFILES_DIR}
-      - vault_certs:${WEB_HOME}/volumes/vault/certs
-      - web_certs:${WEB_SSL_DIR}
+      - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
+      # - staticfiles:${BACKEND_STATICFILES_DIR}
+      - vault_certs:${BACKEND_HOME}/volumes/vault/certs
+      - backend_certs:${BACKEND_SSL_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-          # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
+          "curl -s http://localhost:${BACKEND_PORT} | grep -q ''",
+          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT} | grep -q ''", # In production
         ]
       start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 1
     expose:
-      - ${WEB_PORT}
+      - ${BACKEND_PORT}
     networks:
       - ${NETWORK_NAME}
     ports:
-      - 8000:${WEB_PORT}
+      - 8000:${BACKEND_PORT}
     restart: on-failure
 
   frontend_waf:
     depends_on:
-      web:
+      backend:
         condition: service_healthy
         restart: true
     image: ${FRONTENDWAF_IMAGE}
@@ -232,7 +229,7 @@ services:
 
   proxy_waf:
     depends_on:
-      web:
+      backend:
         condition: service_healthy
         restart: true
       frontend_waf:
@@ -294,66 +291,6 @@ services:
       retries: 1
     # restart: on-failure
   
-  web_waf:
-    depends_on:
-      web:
-        condition: service_healthy
-        restart: true
-    image: ${WEBWAF_IMAGE}
-    container_name: ${WEBWAF_CONTAINER}
-    pull_policy: never
-    build:
-      context: ./requirements/waf/
-      args:
-        - MODSECURITY_TAG=${MODSECURITY_TAG}
-        - NGINX_UID=${NGINX_UID}
-        - NGINX_GID=${NGINX_GID}
-        - MODSEC_HOME=${MODSEC_HOME}
-        - SHARED_GID=${SHARED_GID}
-        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
-        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
-        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
-        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
-        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
-        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
-        - REVERSEPROXY_CONF_FILE=./web_waf/conf/web.conf.template
-    environment:
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_HOME=${MODSEC_HOME}
-      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
-      - WEBWAF_HTTP_PORT=${WEBWAF_HTTP_PORT}
-      - WEBWAF_HTTPS_PORT=${WEBWAF_HTTPS_PORT}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
-      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
-      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
-    volumes:
-      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
-      - staticfiles:${NGINX_STATICFILES_DIR}
-      - modsec_data:${MODSEC_DATA_DIR}
-      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
-      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
-      # - nginx_logs:${NGINX_LOG_FILES_DIR}
-      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
-      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
-    ports:
-      - ${WEBWAF_HTTP_PORT}:${WEBWAF_HTTP_PORT}
-      - ${WEBWAF_HTTPS_PORT}:${WEBWAF_HTTPS_PORT}
-    networks:
-      - ${NETWORK_NAME}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${WEBWAF_HTTPS_PORT} > /dev/null",
-        ]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 1
-    # restart: on-failure
-
   vault_waf:
     depends_on:
       vault:
@@ -415,7 +352,7 @@ services:
 
   ready:
     depends_on:
-      web:
+      backend:
         condition: service_healthy
         restart: true
       proxy_waf:
@@ -449,12 +386,6 @@ volumes:
     driver: local
   nginx_logs:
     driver: local
-  webapps:
-    driver: local
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${WEBAPPS_VOLUME}
   staticfiles:
     driver: local
   certs:
@@ -463,7 +394,5 @@ volumes:
     driver: local
   nginx_certs:
     driver: local
-  web_certs:
-    driver: local
-  node_certs:
+  backend_certs:
     driver: local

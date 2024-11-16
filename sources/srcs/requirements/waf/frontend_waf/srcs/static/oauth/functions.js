@@ -216,7 +216,7 @@ async function askRefreshSession(params) {
 }
 
 // async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:14443/hello/');
+// 	const response = await request('GET', 'https://localhost:1443/hello/');
 // 	if (response.status === 200)
 // 		console.log('request succeeded!!');
 // 	console.log('request failed!!');

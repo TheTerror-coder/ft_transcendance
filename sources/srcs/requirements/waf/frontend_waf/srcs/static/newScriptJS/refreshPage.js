@@ -34,7 +34,7 @@ const handleLocation = async () => {
     mainPage.innerHTML = route;
     if (path == "/loginPage")
     {
-        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
+        background.style.backgroundImage = "url('/static/static/photos/picturePng/homePage/luffyBackground.png')";
         const instance = new loginPageClass();
         instance.buttonConnec.onclick = () => putFormConnect(instance);
         instance.buttonCreateAccount.onclick = () => putFormCreateAccount(instance);
@@ -57,7 +57,7 @@ const handleLocation = async () => {
     if (path == "/profile")
     {
 
-        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
+        background.style.backgroundImage = "url('/static/static/photos/picturePng/homePage/luffyBackground.png')";
 
     }
     if (path == "/createLobby")
@@ -77,7 +77,7 @@ const handleLocation = async () => {
     }
     if (route == Page404DisplayVAR && flag404 == 0)
     {
-        background.style.backgroundImage = "url('../static/photos/picturePng/404Page/Background404.jpeg')";
+        background.style.backgroundImage = "url('/static/static/photos/picturePng/404Page/Background404.jpeg')";
         mainPage.style.display = "flex";
         mainPage.style.justifyContent = "center";
         mainPage.style.alignItems = "center";

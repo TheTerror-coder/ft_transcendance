@@ -13,15 +13,15 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream frontendmediator {
-	server		frontend_waf:1443;
+	server		frontend_waf:3443;
 }
 
-upstream webmediator {
-	server		web:8000;
+upstream backendmediator {
+	server		backend:8000;
 }
 
 server {
-	listen 18880;
+	listen 1880;
 
 	server_name localhost;
 	set $always_redirect on;
@@ -33,7 +33,7 @@ server {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host:14443$request_uri;
+			return 301 https://$host:1443$request_uri;
 		}
 	}
 
@@ -42,14 +42,14 @@ server {
 }
 
 server {
-	listen 14443 ssl;
-	listen [::]:14443 ssl;
+	listen 1443 ssl;
+	listen [::]:1443 ssl;
 
 	server_name localhost;
 	#set $proxy_upstream http://frontendmediator;
 	set $frontend_upstream https://frontendmediator; # TODO: uncomment at production
-	set $web_upstream http://webmediator;
-	# set $web_upstream https://webmediator; # TODO: uncomment at production
+	set $backend_upstream http://backendmediator;
+	# set $backend_upstream https://backendmediator; # TODO: uncomment at production
 
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
 
@@ -83,7 +83,7 @@ server {
 	# 	try_files	$uri $uri/ =404;
 	# }
 	location = /static/admin/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 
 	location / {
@@ -97,28 +97,28 @@ server {
 	}
 
 	location /admin/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /backend/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /_allauth/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /accounts/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /oauth/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /hello/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /csrf/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 	location /ping/ {
-		include includes/webshared_conf.conf;
+		include includes/backendshared_conf.conf;
 	}
 
 	include includes/location_common.conf;

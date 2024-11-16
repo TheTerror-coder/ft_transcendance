@@ -14,7 +14,7 @@ ARG NGINX_GID=101
 ARG SHARED_GID=1010
 ARG MODSEC_DIRS_TO_MAKE=.
 ARG MODSEC_LOGS_ROOT=/var/log
-ARG REVERSEPROXY_CONF_FILE=./conf/web.conf.template
+ARG REVERSEPROXY_CONF_FILE=./conf/backend.conf.template
 
 USER 0
 
@@ -38,10 +38,10 @@ EOF
 # COPY --chown=${NGINX_UID}:${NGINX_GID}  ./frontend_waf/srcs/templates/base.html ${MODSEC_HOME}/html/
 # COPY --chown=${NGINX_UID}:${NGINX_GID}  ./frontend_waf/srcs/static/ ${MODSEC_HOME}/volumes/www/static/
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ${REVERSEPROXY_CONF_FILE} /etc/nginx/templates/conf.d/default.conf.template
-COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/webshared_conf.conf /etc/nginx/includes/webshared_conf.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendshared_conf.conf /etc/nginx/includes/backendshared_conf.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendshared_conf.conf /etc/nginx/includes/frontendshared_conf.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendproxy_backend.conf /etc/nginx/includes/frontendproxy_backend.conf
-COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/webproxy_backend.conf /etc/nginx/includes/webproxy_backend.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendproxy_backend.conf /etc/nginx/includes/backendproxy_backend.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/location_common.conf.template /etc/nginx/templates/includes/location_common.conf.template
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/logging.conf.template /etc/nginx/templates/conf.d/logging.conf.template
 

@@ -1,8 +1,8 @@
 
 const PAGE_TITLE = 'One Pong';
-const BASE_URL = 'https://localhost:14443';
-const OAUTH_BASE_URL = 'https://localhost:14443/oauth';
-const ALLAUTH_BASE_URL = 'https://localhost:14443/_allauth/browser/v1';
+const BASE_URL = 'https://localhost:1443';
+const OAUTH_BASE_URL = 'https://localhost:1443/oauth';
+const ALLAUTH_BASE_URL = 'https://localhost:1443/_allauth/browser/v1';
 const OAUTH2_PRODIVIDER_ID = 'ultimapi';
 
 const PATHs = Object.freeze({
