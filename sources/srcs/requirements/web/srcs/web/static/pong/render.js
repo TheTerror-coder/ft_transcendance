@@ -229,31 +229,27 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
     // Positionner et orienter le canon
     if (teamId === 1) {
         boatGroup.position.set(0, 20, -1);
-        console.log('boatGroup.scale.y : ', boatGroup.scale.y);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
     } else if (teamId === 2) {
         boatGroup.position.set(0, -20, -1);
-        console.log('boatGroup.scale.y : ', boatGroup.scale.y);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
     }
-    console.log('bateau position : ', bateau.position);
-    console.log('boatGroup.getObjectByName(bateauTeam' + teamId + ') : ', boatGroup.getObjectByName(`bateauTeam${teamId}`));
     
-    // Créer et stocker la hitbox
+    // Créer la hitbox pour les collisions
     const boundingBox = new THREE.Box3().setFromObject(bateau);
-    boatGroup.userData.hitbox = boundingBox;
-
-    // Pour debug/visualisation
-    showBoundingBox(bateau, scene);
-
-    // Ajouter les dimensions à l'objet pour transmission au serveur
-    boatGroup.userData.dimensions = {
-        width: boundingBox.max.x - boundingBox.min.x,
-        height: boundingBox.max.y - boundingBox.min.y,
-        depth: boundingBox.max.z - boundingBox.min.z,
-        center: boundingBox.getCenter(new THREE.Vector3())
+    boatGroup.userData.hitbox = {
+        min: {
+            x: boundingBox.min.x + 7,
+            y: boundingBox.min.y + (teamId === 1 ? 2 : 0),
+            z: boundingBox.min.z
+        },
+        max: {
+            x: boundingBox.max.x,
+            y: boundingBox.max.y - (teamId === 2 ? 2 : 0),
+            z: boundingBox.max.z
+        }
     };
 
     return boatGroup;

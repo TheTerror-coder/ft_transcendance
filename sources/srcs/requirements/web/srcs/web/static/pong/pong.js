@@ -4,6 +4,7 @@ import { initDebug, restartInterval, setupCameraControls } from './debug.js';
 import { updateAndEmitBoatPositions, updateAndEmitCannonPositions } from './controls.js';
 import * as render from './render.js';
 import * as network from './network.js';
+import * as THREE from 'three'; // TODO : remove for production
 
 console.log("pong.js loaded");
 
@@ -37,7 +38,12 @@ export async function main(gameCode, socket) {
     });
 
     let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball } = await render.initScene();
-
+    let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
+    let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
+    let boat1Hitbox = new THREE.Box3Helper(boat1BoundingBox, 0xffff00); // TODO : remove for production
+    let boat2Hitbox = new THREE.Box3Helper(boat2BoundingBox, 0xff0000); // TODO : remove for production
+    scene.add(boat1Hitbox); // TODO : remove for production
+    scene.add(boat2Hitbox); // TODO : remove for production
     
     // Créer un élément pour afficher la rotation et la position
     const displayInfo = document.createElement('div');
@@ -110,6 +116,19 @@ export async function main(gameCode, socket) {
         //     return;
         // }
         requestAnimationFrame(animate);
+
+        boat1BoundingBox.setFromObject(boatGroup1);
+        boat2BoundingBox.setFromObject(boatGroup2);
+
+        boat1BoundingBox.min.x += 7;
+        boat2BoundingBox.min.x += 7;
+        boat1BoundingBox.max.x += 2;
+        boat2BoundingBox.max.x -= 2;
+        
+        boat1Hitbox.updateMatrixWorld(true);
+        boat2Hitbox.updateMatrixWorld(true);
+        
+        // Rendre la scène
         renderer.render(scene, cameraPlayer);
     }
 

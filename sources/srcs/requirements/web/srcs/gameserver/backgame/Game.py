@@ -3,16 +3,18 @@ import sys
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
+    filename='game.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
+    datefmt='%Y-%m-%d %H:%M:%S',
+    # stream=sys.stdout
 )
 logger = logging.getLogger(__name__)
 
 class Game:
     def __init__(self):
-        self.ballPosition = {'x': 0, 'y': 0, 'z': 0}
-        self.ballDirection = {'x': 0, 'y': 0, 'z': 0}
+        # self.ballPosition = {'x': 0, 'y': 0, 'z': 0}
+        # self.ballDirection = {'x': 0, 'y': 0, 'z': 0}
         self.gameInterval = None
         self.tickRate = 1000 / 60
         self.gameStarted = False
@@ -20,6 +22,98 @@ class Game:
         self.nbPlayerPerTeam = 0
         self.nbPlayerConnected = 0
         self.isPaused = False
+        
+        # Constantes pour la balle
+        self.BALL_SPEED = 0.2
+        self.SPEED_INCREASE_FACTOR = 1.1
+        self.BALL_UPDATE_INTERVAL = 50
+        self.FIELD_WIDTH = 60
+        self.FIELD_HEIGHT = 60
+        
+        # État de la balle
+        self.ballPosition = self.initializeBallPosition()
+        self.ballDirection = self.initializeBallDirection()
+
+    def initializeBallPosition(self):
+        return {"x": 0, "y": 0, "z": 0}
+
+    def initializeBallDirection(self):
+        import random
+        return {
+            "x": random.random() * 2 - 1,
+            "y": random.random() * 2 - 1,
+            "z": 0
+        }
+
+    async def updateBallPosition(self):
+        self.ballPosition["x"] += self.ballDirection["x"] * self.BALL_SPEED
+        self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
+        return self.ballPosition
+
+    async def isColliding(self, team):
+        ballRadius = 0.5
+        hitbox = team.getBoatHitbox()
+        boatPos = team.getBoat()
+        
+        if not hitbox or not boatPos:
+            logger.debug("Hitbox ou position du bateau non disponible")
+            return False
+            
+        isInXRange = hitbox['min']['x'] - ballRadius <= self.ballPosition['x'] <= hitbox['max']['x'] + ballRadius
+        isInYRange = hitbox['min']['y'] - ballRadius <= self.ballPosition['y'] <= hitbox['max']['y'] + ballRadius
+        isInZRange = hitbox['min']['z'] - ballRadius <= self.ballPosition['z'] <= hitbox['max']['z'] + ballRadius
+        
+        if isInXRange and isInYRange and isInZRange:
+            logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Hitbox: {hitbox}")
+            return True
+            
+        return False
+
+    async def detectCollisionWithBoats(self):
+        for key, team in self.teams.items():
+            boat_pos = team.getBoat()
+            if boat_pos['x'] == 0 and boat_pos['y'] == 0 and boat_pos['z'] == 0:
+                continue
+                
+            if await self.isColliding(team):
+                logger.info(f"Collision avec le bateau de l'équipe {key}")
+                return True
+        return False
+
+    async def handleCollisions(self, sio, gameCode):
+        # Collision avec les murs latéraux
+        if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2 or self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
+            self.ballDirection["x"] = -self.ballDirection["x"]
+            self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR
+            logger.info(f"Nouvelle vitesse de la balle: {self.BALL_SPEED}")
+
+        # Collision avec les bateaux
+        if await self.detectCollisionWithBoats():
+            self.ballDirection["y"] = -self.ballDirection["y"]
+            
+        # Points marqués
+        if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
+            self.teams[1].addPoint()
+            self.resetBall()
+            await sio.emit('scoreUpdate', {
+                'team1': self.teams[1].getScore(),
+                'team2': self.teams[2].getScore()
+            }, room=gameCode)
+        elif self.ballPosition["y"] >= self.FIELD_HEIGHT / 2:
+            self.teams[2].addPoint()
+            self.resetBall()
+            await sio.emit('scoreUpdate', {
+                'team1': self.teams[1].getScore(),
+                'team2': self.teams[2].getScore()
+            }, room=gameCode)
+
+    def resetBall(self):
+        self.ballPosition = self.initializeBallPosition()
+        self.ballDirection = self.initializeBallDirection()
+        self.BALL_SPEED = 0.2  # Réinitialiser la vitesse
+
+    def getBallPosition(self):
+        return self.ballPosition
 
     def addNbPlayerConnected(self):
         logger.info("addNbPlayerConnected")
@@ -51,20 +145,21 @@ class Game:
             del self.teams[Team.TeamId]
 
     async def updateBoatPosition(self, teamId, x, y, z):
-        logger.info(f"updateBoatPosition x: {x} y: {y} z: {z} for team {teamId} in Game.py")
+        # logger.info(f"updateBoatPosition x: {x} y: {y} z: {z} for team {teamId} in Game.py")
         team = self.getTeam(teamId)
         if team:
             boat = team.getBoat()
             if boat:
                 team.setBoatPosition(x, y, z)
-                logger.info(f"Boat position set to: {boat} for team {teamId} in Game.py")
+                # logger.info(f"Boat position set to: {boat} for team {teamId} in Game.py")
+                # logger.info(f"Values in updateBoatPosition: x: {x} y: {y} z: {z}")
             else:
                 logger.info(f"Boat not found for team {teamId}")
         else:
             logger.info(f"Team {teamId} not found")
 
     async def updateCannonPosition(self, teamId, x, y, z):
-        logger.info("updateCannonPosition")
+        # logger.info("updateCannonPosition")
         team = self.getTeam(teamId)
         if team:
             cannon = team.getCannon()
@@ -76,25 +171,24 @@ class Game:
         else:
             logger.info(f"Team {teamId} not found")
 
-    def updateClientData(self, data):
+    async def updateClientData(self, data):
         teamId = data.get('team')
         boat = data.get('boat', {})
         cannon = data.get('cannon', {})
-        boatDimensions = data.get('boatDimensions', {})
+        hitbox = data.get('boatHitbox')
+        logger.info(f"updateClientData teamId: {teamId} boat: {boat} cannon: {cannon} hitbox: {hitbox}")
 
-        if teamId and boat:
-            self.updateBoatPosition(teamId, boat['x'], boat['y'], boat['z'])
-        if teamId and cannon:
-            self.updateCannonPosition(teamId, cannon['x'], cannon['y'], cannon['z'])
-        if teamId and boat and boatDimensions:
-            self.updateBoatHitbox(teamId, boat, boatDimensions)
-
-    def updateBoatHitbox(self, teamId, position, dimensions):
-        team = self.getTeam(teamId)
-        if team:
-            team.setBoatHitbox(position, dimensions)
-        else:
-            logger.info(f"Team {teamId} not found")
+        if teamId:
+            team = self.getTeam(teamId)
+            if team:
+                if boat:
+                    team.setBoatPosition(boat['x'], boat['y'], boat['z'])
+                if cannon:
+                    await self.updateCannonPosition(teamId, cannon['x'], cannon['y'], cannon['z'])
+                if hitbox:
+                    team.setBoatHitbox(hitbox)
+            else:
+                logger.error(f"Team {teamId} not found")
 
     async def sendGameData(self, sio, gameCode):
         logger.info("sendGameData")

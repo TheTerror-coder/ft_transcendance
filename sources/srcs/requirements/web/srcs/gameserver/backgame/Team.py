@@ -1,3 +1,16 @@
+import logging
+import sys
+
+# Configuration du logging au début du fichier
+logging.basicConfig(
+    filename='game.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    # stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
+
 class Team:
     def __init__(self, name, maxNbPlayer, TeamId):
         self.name = name
@@ -7,12 +20,12 @@ class Team:
         self.nbPlayer = 0
         self.isFull = False
         self.score = 0
+        self.boat = {'x': 0, 'y': 0, 'z': 0}
+        self.cannon = {'x': 0, 'y': 0, 'z': 0}
         self.hitbox = {
             'min': {'x': 0, 'y': 0, 'z': 0},
             'max': {'x': 0, 'y': 0, 'z': 0}
         }
-        self.boat = {'x': 0, 'y': 0, 'z': 0}
-        self.cannon = {'x': 0, 'y': 0, 'z': 0}
 
     def setIsFull(self):
         self.isFull = self.nbPlayer >= self.maxNbPlayer
@@ -26,35 +39,45 @@ class Team:
         self.nbPlayer += 1
         self.setIsFull()
 
-    def setBoatHitbox(self, position, dimensions):
-        self.hitbox['min'] = {
-            'x': position['x'] - dimensions['width']/2,
-            'y': position['y'] - dimensions['height']/2,
-            'z': position['z'] - dimensions['depth']/2
-        }
-        self.hitbox['max'] = {
-            'x': position['x'] + dimensions['width']/2,
-            'y': position['y'] + dimensions['height']/2,
-            'z': position['z'] + dimensions['depth']/2
-        }
+    def setBoatPosition(self, x, y, z):
+        # Calculer le déplacement
+        dx = x - self.boat['x']
+        dy = y - self.boat['y']
+        dz = z - self.boat['z']
+        
+        # Mettre à jour la position du bateau
+        self.boat['x'] = x
+        self.boat['y'] = y
+        self.boat['z'] = z
+        
+        # Mettre à jour la hitbox avec le même déplacement
+        if self.hitbox:
+            self.hitbox['min']['x'] += dx
+            self.hitbox['min']['y'] += dy
+            self.hitbox['min']['z'] += dz
+            self.hitbox['max']['x'] += dx
+            self.hitbox['max']['y'] += dy
+            self.hitbox['max']['z'] += dz
+        
+        # logger.info(f"Boat and hitbox updated for team {self.TeamId}: pos={self.boat}, hitbox={self.hitbox}")
+
+    def setBoatHitbox(self, hitbox):
+        self.hitbox = hitbox
+        # logger.info(f"Hitbox set to: {hitbox} for team {self.TeamId}")
 
     def getBoatHitbox(self):
         return self.hitbox
 
     def addPoint(self):
+        logger.info(f"Team {self.TeamId} scored a point")
         self.score += 1
+        logger.info(f"Team {self.TeamId} score: {self.score}")
 
     def getScore(self):
         return self.score
 
     def setBoat(self, boat):
         self.boat = boat
-
-    def setBoatPosition(self, x, y, z):
-        self.boat['x'] = x
-        self.boat['y'] = y
-        self.boat['z'] = z
-        print(f"Boat position set to: {self.boat} for team {self.TeamId} in Team.py")
 
     def setCannon(self, cannon):
         self.cannon = cannon

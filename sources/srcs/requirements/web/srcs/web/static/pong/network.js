@@ -1,4 +1,3 @@
-
 function findTeam(Team1, Team2, teamID)
 {
     if (teamID === Team1.getTeamId())
@@ -82,28 +81,22 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
         return;
     }
 
-    const boat = currentPlayerTeam.getBoatGroup();
-    const cannon = currentPlayerTeam.getCannon();
-
-    if (!boat || !cannon) {
-        console.error('Boat or cannon is undefined for team', currentPlayerTeam.getTeamId());
+    const boat = currentPlayerTeam.getBoat();
+    const boatGroup = currentPlayerTeam.getBoatGroup();
+    if (!boat || !boatGroup) {
+        console.error('Boat or boatGroup is undefined for team', currentPlayerTeam.getTeamId());
         return;
     }
 
-    console.log('updateServerData : ', { 
-        gameCode: gameCode, 
-        TeamID: currentPlayerTeam.getTeamId(), 
-        boat: boat.position, 
-        cannon: cannon.position, 
-        boatDimensions: boat.userData.dimensions,
-    });
-    
+    // Mettre à jour la hitbox
+    // boatGroup.updateHitbox();
+
     socket.emit('ClientData', { 
         gameCode: gameCode, 
-        TeamID: currentPlayerTeam.getTeamId(), 
-        boat: boat.position, 
-        cannon: cannon.position, 
-        boatDimensions: boat.userData.dimensions,
+        team: currentPlayerTeam.getTeamId(), 
+        boat: boat.position,
+        cannon: boatGroup.getObjectByName(`cannonTeam${currentPlayerTeam.getTeamId()}`).position,
+        boatHitbox: boatGroup.userData.hitbox
     });
 }
 
