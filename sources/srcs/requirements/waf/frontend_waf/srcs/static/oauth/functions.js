@@ -20,7 +20,7 @@ function postForm(action, data)
 
 async function getCsrfToken()
 {
-	const url = BASE_URL + URLs.CSRF_endp;
+	const url = URLs.CSRF;
 	const req = new Request(url);
 	req.mode = 'cors';
 	req.headers = {

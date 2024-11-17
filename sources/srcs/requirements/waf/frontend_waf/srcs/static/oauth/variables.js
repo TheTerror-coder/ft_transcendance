@@ -1,7 +1,7 @@
 
 const PAGE_TITLE = 'One Pong';
 const BASE_URL = 'https://localhost:1443';
-const OAUTH_BASE_URL = 'https://localhost:1443/oauth';
+const BACKEND_BASE_URL = 'https://localhost:1443/backpong';
 const ALLAUTH_BASE_URL = 'https://localhost:1443/_allauth/browser/v1';
 const OAUTH2_PRODIVIDER_ID = 'ultimapi';
 
@@ -26,7 +26,6 @@ const URLs = Object.freeze({
 	
 	//DRF api endpoints
 	HELLO_endp : '/hello/',
-	CSRF_endp : '/csrf/',
 	PROFILE_endp : BASE_URL + '/oauth/profile/',
 	
 	// VIEWS \\
@@ -42,16 +41,19 @@ const URLs = Object.freeze({
 		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
 		// TOTP
 		// TOTP_VIEWs : Object.freeze({
-		// 	// Activate TOTP authentication
-		// 	ACTIVATE : BASE_URL + PATHs.VIEWS.TOTP.ACTIVATE,
-		// 	// Deactivate TOTP authentication
-		// 	DEACTIVATE : BASE_URL + PATHs.VIEWS.TOTP.DEACTIVATE,
-		// }),
+			// 	// Activate TOTP authentication
+			// 	ACTIVATE : BASE_URL + PATHs.VIEWS.TOTP.ACTIVATE,
+			// 	// Deactivate TOTP authentication
+			// 	DEACTIVATE : BASE_URL + PATHs.VIEWS.TOTP.DEACTIVATE,
+			// }),
 	}),
-	
+		
+
+	// BACKEND //
+	CSRF : BACKEND_BASE_URL + '/csrf/',
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
-		GENERATE_TOTP_QRCODE : OAUTH_BASE_URL + '/qr/generate-totp-qrcode/',
+		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
 	}),
 	// allauth \\
 	ALLAUTH : Object.freeze({

@@ -91,6 +91,45 @@ services:
       retries: 3
     restart: on-failure
 
+  db_postgres:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: ${POSTGRES_IMAGE}
+    container_name: ${POSTGRES_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/db_postgres/
+      args:
+        - POSTGRES_TAG=${POSTGRES_TAG}
+        - POSTGRES_HOME=${POSTGRES_HOME}
+        - POSTGRES_UID=${POSTGRES_UID}
+        - POSTGRES_GID=${POSTGRES_GID}
+        - SHARED_GID=${SHARED_GID}
+        - POSTGRES_DIRS_TO_MAKE=${POSTGRES_DIRS_TO_MAKE}
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - POSTGRES_HOME=${POSTGRES_HOME}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - VAULT_CACERT=${POSTGRES_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+    volumes:
+      - vault_certs:${POSTGRES_HOME}/volumes/vault/certs
+    healthcheck: #&file_healthcheck
+      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    expose:
+      - ${POSTGRES_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    # restart: on-failure
+
   mail:
     image: ${MAIL_IMAGE}
     container_name: ${MAIL_CONTAINER}
@@ -107,7 +146,7 @@ services:
       mail:
         condition: service_started
         restart: true
-      vault:
+      db_postgres:
         condition: service_healthy
         restart: true
     image: ${BACKEND_IMAGE}
@@ -143,15 +182,15 @@ services:
       - MAIL_PORT=${MAIL_PORT}
     volumes:
       - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
-      # - staticfiles:${BACKEND_STATICFILES_DIR}
+      - staticfiles:${BACKEND_STATICFILES_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
       - backend_certs:${BACKEND_SSL_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:${BACKEND_PORT} | grep -q ''",
-          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT} | grep -q ''", # In production
+          "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
+          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # In production
         ]
       start_period: 10s
       interval: 10s
@@ -219,7 +258,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${FRONTENDWAF_HTTPS_PORT} > /dev/null",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${FRONTENDWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s
@@ -283,7 +322,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${PROXYWAF_HTTPS_PORT} > /dev/null",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${PROXYWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s

@@ -19,18 +19,24 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from django.urls import path, include
 from django.conf import settings
-from . import views
+from . import health, views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     
-    path('oauth/', include('oauth.urls')),
-
+	####################################
+	###    Django default URLs       ###
+	####################################
+    path('admin/', admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("_allauth/", include("allauth.headless.urls")),
 
-	path('hello/', views.hello, name='hello'),
-	path('csrf/', views.csrf, name='csrf'),
-	path('ping/', views.ping, name='ping'),
+
+	####################################
+	### ONE PONG Backend CUSTOM URLs ###
+	####################################
+	path('backpong/healthcheck/', health.healthcheck, name='csrf'),
+	path('backpong/csrf/', views.csrf, name='csrf'),
+	path('backpong/user-management/', include('usermanagement.urls')),
+    path('backpong/oauth/', include('oauth.urls')),
 
 ]

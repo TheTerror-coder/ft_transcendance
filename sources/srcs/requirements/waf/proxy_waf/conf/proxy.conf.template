@@ -77,47 +77,48 @@ server {
 	# 	root   /usr/share/nginx/volumes/www/static/;
 	# }
 
-	# location ^~ /static/ {
-	# 	add_header	X-InStatic-uri "$uri" always;
-	# 	root   /usr/share/nginx/volumes/www;
-	# 	try_files	$uri $uri/ =404;
-	# }
-	location = /static/admin/ {
-		include includes/backendshared_conf.conf;
+	##########################################
+	###   Container Healthcheck Endpoint   ###
+	##########################################
+	location = /healthcheck {
+		return 200 'healthy!\n';
 	}
 
-	location / {
-		include includes/frontendshared_conf.conf;
+	##########################################
+	### Django admin  static files routing ###
+	##########################################
+	location /static/admin/ {
+		root   /usr/share/nginx/volumes/www;
+		try_files	$uri $uri/ =404;
 	}
-	location /home/ {
+	location /static/rest_framework/ {
+		root   /usr/share/nginx/volumes/www;
+		try_files	$uri $uri/ =404;
+	}
+
+	##########################################
+	###         Frontend routing           ###
+	##########################################
+	location / {
 		include includes/frontendshared_conf.conf;
 	}
 	location /frontpong/ {
 		include includes/frontendshared_conf.conf;
 	}
 
+	##################################
+	###       Backend routing      ###
+	##################################
 	location /admin/ {
 		include includes/backendshared_conf.conf;
 	}
-	location /backend/ {
+	location /backpong/ {
 		include includes/backendshared_conf.conf;
 	}
 	location /_allauth/ {
 		include includes/backendshared_conf.conf;
 	}
 	location /accounts/ {
-		include includes/backendshared_conf.conf;
-	}
-	location /oauth/ {
-		include includes/backendshared_conf.conf;
-	}
-	location /hello/ {
-		include includes/backendshared_conf.conf;
-	}
-	location /csrf/ {
-		include includes/backendshared_conf.conf;
-	}
-	location /ping/ {
 		include includes/backendshared_conf.conf;
 	}
 

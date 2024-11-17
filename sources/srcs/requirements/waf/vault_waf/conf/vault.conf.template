@@ -64,10 +64,16 @@ server {
 	ssl_verify_client off;
 	ssl_verify_depth 1;
 
+	##########################################
+	###   Container Healthcheck Endpoint   ###
+	##########################################
 	location = /healthcheck {
-		return 200 'healthy\n';
+		return 200 'healthy!\n';
 	}
 
+	##########################################
+	###       Vaut Reverse Proxy Conf      ###
+	##########################################
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 

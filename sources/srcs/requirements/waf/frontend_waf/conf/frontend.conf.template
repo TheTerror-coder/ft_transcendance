@@ -59,18 +59,30 @@ server {
 	ssl_verify_client off;
 	ssl_verify_depth 1;
 
+	##########################################
+	###   Container Healthcheck Endpoint   ###
+	##########################################
+	location = /healthcheck {
+		return 200 'healthy!\n';
+	}
+	
+	##########################################
+	###         Static Files Routing       ###
+	##########################################
 	location ~* .(mp4|webm|jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf)$
 	{
-		add_header	X-InStaticREGex-uri "$uri" always;
+		# add_header	X-InStaticREGex-uri "$uri" always;
 		root   /usr/share/nginx/volumes/www/static/;
 	}
-
 	location ^~ /static/ {
-		add_header	X-InStatic-uri "$uri" always;
+		# add_header	X-InStatic-uri "$uri" always;
 		root   /usr/share/nginx/volumes/www;
 		try_files	$uri $uri/ =404;
 	}
 
+	##########################################
+	###          Frontend Server           ###
+	##########################################
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 

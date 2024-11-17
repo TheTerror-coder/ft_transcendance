@@ -47,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
 
+	'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
+    'channels',
 
 	# allauth
 	'allauth',
@@ -68,6 +70,7 @@ INSTALLED_APPS = [
 	
 	'ultimapi',
     'oauth',
+    'usermanagement',
 
 ]
 
@@ -187,7 +190,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.environ.get('STATICFILES_DIR')
+
+STATICFILES_DIRS = [
+	# BASE_DIR / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -195,9 +204,22 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-########################
-###    jm customs    ###
-########################
+##############################
+###    One Pong customs    ###
+##############################
+
+ASGI_APPLICATION = 'backend.asgi.application'
+
+AUTH_USER_MODEL = 'usermanagement.CustomUser'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('localhost', 6379)],
+        },
+    },
+}
 
 HEADLESS_ONLY = True
 
@@ -230,10 +252,10 @@ AUTHENTICATION_BACKENDS = [
 
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "/frontpong/account/verify-email/?key={key}",
-    "account_reset_password": "/account/password/reset",
-    "account_reset_password_from_key": "/account/password/reset/key/{key}",
-    "account_signup": "/account/signup",
-    "socialaccount_login_error": parameters.CALLBACK_URL,
+    # "account_reset_password": "/frontpong/account/password/reset",
+    # "account_reset_password_from_key": "/frontpong/account/password/reset/key/{key}",
+    # "account_signup": "/frontpong/account/signup",
+    # "socialaccount_login_error": parameters.CALLBACK_URL,
 }
 
 
