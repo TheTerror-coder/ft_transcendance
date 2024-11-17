@@ -13,7 +13,7 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream frontendmediator {
-	server		frontend_waf:3443;
+	server		frontend:3443;
 }
 
 upstream backendmediator {
@@ -51,6 +51,7 @@ server {
 	set $backend_upstream http://backendmediator;
 	# set $backend_upstream https://backendmediator; # TODO: uncomment at production
 
+	access_log /dev/stdout;
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
 
 	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;

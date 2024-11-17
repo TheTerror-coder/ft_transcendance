@@ -44,6 +44,7 @@ server {
 	server_name localhost;
 	set $upstream https://vaultmediator;
 
+	access_log /dev/stdout;
 	access_log /var/log/nginx/vault.access.log vaultlog;
 
 	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
