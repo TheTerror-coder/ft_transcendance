@@ -26,5 +26,6 @@ ls :
 	docker container ls
 logs :
 	docker logs $(WEB_CONTAINER)
-
+logsf :
+	docker logs -f $(WEB_CONTAINER)
 re : fclean all

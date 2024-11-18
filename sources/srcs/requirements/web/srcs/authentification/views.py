@@ -5,18 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import FriendRequest
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from authentification.consumers.consumers import user_sockets
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 import json
 import os
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-
 @api_view(['POST'])
-@csrf_protect
+# @csrf_protect
+@csrf_exempt
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -35,9 +35,10 @@ def connect(request):
 # envoyer le msg nom d'utilisateur n'existe pas
 @require_POST
 @api_view(['POST'])
-@csrf_protect
+# @csrf_protect
+@csrf_exempt
 def login_view(request):
-    print("LOL je suis dans la views des barres")
+    print("Données reçues : ", request.POST)
     if request.method == 'POST':
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -59,7 +60,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return Response({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
-
 
 # check si l'utilisateur exite deja 
 @api_view(['POST'])

@@ -26,8 +26,23 @@ function getCookie(cname) {
 
 function connect()
 {
-    window.history.pushState({}, "", "/homePage");
-    handleLocation();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    console.log("connect", username, password);
+    // window.history.pushState({}, "", "/homePage");
+    // handleLocation();
+    fetch('http://localhost:8888/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            // 'X-CSRFToken': csrfToken,
+        },
+        // credentials: "include",
+        body: new URLSearchParams({
+            'username': username,
+            'password': password,
+        }),
+    })
 }
 
 // async function connect()

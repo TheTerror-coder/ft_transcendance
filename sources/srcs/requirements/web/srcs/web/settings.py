@@ -47,8 +47,10 @@ ALLOWED_HOSTS = [ '*' ]
 # CORS_ALLOWED_ORIGINS = [ 
 #     'http://localhost:8888',
 #     'http://host.docker.internal:8888',
+#     'https://10.13.5.6:1443',
 # ]
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOW_METHODS = [
 #     "GET",
