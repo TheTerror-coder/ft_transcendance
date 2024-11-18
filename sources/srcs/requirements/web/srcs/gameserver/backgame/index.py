@@ -227,6 +227,7 @@ async def connect(sid, environ):
     async def joinGame(sid, data):
         gameCode = data.get('gameCode')
         if gameCode in ChannelList:
+            logger.info(f"Player {sid} joined game {gameCode}")
             channel = ChannelList[gameCode]
             game = channel.getGame()
             
@@ -297,8 +298,9 @@ async def connect(sid, environ):
         gameCode = data.get('gameCode')
         logger.info(f"ClientData {gameCode}")
         if gameCode in ChannelList:
+            logger.info(f"ClientData {gameCode} in ChannelList")
             game = ChannelList[gameCode].getGame()
-            game.updateClientData(data)
+            await game.updateClientData(data)
             game.gameStarted = True
 
     @sio.event
@@ -374,6 +376,15 @@ async def startGame(gameCode, game):
     while not game.gameStarted:
         if game.nbPlayerConnected == game.nbPlayerPerTeam * 2:
             game.gameStarted = True
+        j = 0
+        for i in game.teams.values():
+            logger.info(f"team {i.TeamId} isFull: {i.getIsFull()}")
+            j += 1
+        logger.info(f"j: {j}")
+        if j == 2:
+            game.gameStarted = True
+        else:
+            game.gameStarted = False
         await asyncio.sleep(0.1)
     
     logger.info(f"Démarrage de la partie {gameCode} avec {game.nbPlayerConnected} joueurs")

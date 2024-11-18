@@ -90,6 +90,7 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
 
     // Mettre à jour la hitbox
     // boatGroup.updateHitbox();
+    console.log('boatGroup.userData.hitbox', boatGroup.userData.hitbox);
 
     socket.emit('ClientData', { 
         gameCode: gameCode, 

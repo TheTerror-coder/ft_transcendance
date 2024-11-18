@@ -22,6 +22,7 @@ class Team:
         self.score = 0
         self.boat = {'x': 0, 'y': 0, 'z': 0}
         self.cannon = {'x': 0, 'y': 0, 'z': 0}
+        self.formerBoatPosition = {'x': 0, 'y': 0, 'z': 0}
         self.hitbox = {
             'min': {'x': 0, 'y': 0, 'z': 0},
             'max': {'x': 0, 'y': 0, 'z': 0}
@@ -44,12 +45,12 @@ class Team:
         dx = x - self.boat['x']
         dy = y - self.boat['y']
         dz = z - self.boat['z']
+        self.formerBoatPosition = {'x': self.boat['x'], 'y': self.boat['y'], 'z': self.boat['z']}
         
         # Mettre à jour la position du bateau
         self.boat['x'] = x
         self.boat['y'] = y
         self.boat['z'] = z
-        
         # Mettre à jour la hitbox avec le même déplacement
         if self.hitbox:
             self.hitbox['min']['x'] += dx
@@ -63,10 +64,13 @@ class Team:
 
     def setBoatHitbox(self, hitbox):
         self.hitbox = hitbox
-        # logger.info(f"Hitbox set to: {hitbox} for team {self.TeamId}")
+        logger.info(f"Hitbox set to: {hitbox} for team {self.TeamId}")
 
     def getBoatHitbox(self):
         return self.hitbox
+    
+    def getFormerBoatPosition(self):
+        return self.formerBoatPosition
 
     def addPoint(self):
         logger.info(f"Team {self.TeamId} scored a point")

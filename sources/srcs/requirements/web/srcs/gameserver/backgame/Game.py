@@ -35,7 +35,7 @@ class Game:
         self.ballDirection = self.initializeBallDirection()
 
     def initializeBallPosition(self):
-        return {"x": 0, "y": 0, "z": 0}
+        return {"x": 0, "y": 0, "z": 2}
 
     def initializeBallDirection(self):
         import random
@@ -58,13 +58,38 @@ class Game:
         if not hitbox or not boatPos:
             logger.debug("Hitbox ou position du bateau non disponible")
             return False
-            
-        isInXRange = hitbox['min']['x'] - ballRadius <= self.ballPosition['x'] <= hitbox['max']['x'] + ballRadius
-        isInYRange = hitbox['min']['y'] - ballRadius <= self.ballPosition['y'] <= hitbox['max']['y'] + ballRadius
-        isInZRange = hitbox['min']['z'] - ballRadius <= self.ballPosition['z'] <= hitbox['max']['z'] + ballRadius
+        # logger.info(f"hitbox: {hitbox} boatPos: {boatPos}")
+
+        # Calculer le déplacement du bateau
+        formerBoatPos = team.getFormerBoatPosition()
+        dx = boatPos['x'] - formerBoatPos['x']
+        dy = boatPos['y'] - formerBoatPos['y']
+        dz = boatPos['z'] - formerBoatPos['z']
+        # Ajuster la hitbox en fonction de la position du bateau
+        adjusted_hitbox = {
+            'min': {
+                'x': hitbox['min']['x'] + dx,
+                'y': hitbox['min']['y'] + dy,
+                'z': hitbox['min']['z'] + dz
+            },
+            'max': {
+                'x': hitbox['max']['x'] + dx,
+                'y': hitbox['max']['y'] + dy,
+                'z': hitbox['max']['z'] + dz
+            }
+        }
         
-        if isInXRange and isInYRange and isInZRange:
-            logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Hitbox: {hitbox}")
+        logger.info(f"team: {team.TeamId}")
+        # Vérifier la collision avec la hitbox ajustée
+        isInXRange = adjusted_hitbox['min']['x'] - ballRadius <= self.ballPosition['x'] <= adjusted_hitbox['max']['x'] + ballRadius
+        isInYRange = adjusted_hitbox['min']['y'] - ballRadius <= self.ballPosition['y'] <= adjusted_hitbox['max']['y'] + ballRadius
+        # isInZRange = adjusted_hitbox['min']['z'] - ballRadius <= self.ballPosition['z'] <= adjusted_hitbox['max']['z'] + ballRadius
+        logger.info(f"isInXRange: adjusted_hitbox min x: {adjusted_hitbox['min']['x']}, ballRadius: {ballRadius}, ballPosition x: {self.ballPosition['x']}, adjusted_hitbox max x: {adjusted_hitbox['max']['x']}")
+        logger.info(f"isInYRange: adjusted_hitbox min y: {adjusted_hitbox['min']['y']}, ballRadius: {ballRadius}, ballPosition y: {self.ballPosition['y']}, adjusted_hitbox max y: {adjusted_hitbox['max']['y']}")
+        logger.info(f"isInXRange: {isInXRange} isInYRange: {isInYRange}")
+        
+        if isInXRange and isInYRange:
+            logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Adjusted Hitbox: {adjusted_hitbox}")
             return True
             
         return False
@@ -90,6 +115,7 @@ class Game:
         # Collision avec les bateaux
         if await self.detectCollisionWithBoats():
             self.ballDirection["y"] = -self.ballDirection["y"]
+            logger.info(f"Collision avec les bateaux - Nouvelle direction de la balle: {self.ballDirection}")
             
         # Points marqués
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
