@@ -7,7 +7,6 @@ include $(ENV)
 all : build up
 
 build b : # Build or rebuild services
-	-mkdir -p $(PATHTO_WEBAPPS_DATA)
 	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
 	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) create --remove-orphans
@@ -43,19 +42,19 @@ rmi : # Removes images
 	-docker rmi $$(docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
 	-docker volume prune -f
-	-rm -rf ./srcs/requirements/web/webapps/*
+#	-rm -rf ./srcs/requirements/backend/backendapps/*
 #TODO: enable below line and disable the above one on personal space monitorable by sudo
-#	-sudo rm -rf ./srcs/requirements/web/webapps/*
+#	-sudo rm -rf ./srcs/requirements/backend/backendapps/*
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
-web : # Rebuild and restart only the web container
-	-docker compose -f $(COMPOSE_FILE) down web
-	-docker volume rm $$(docker volume ls --filter name=webapps --format "{{.Name}}")
-	-docker compose -f $(COMPOSE_FILE) up -d --build web
+backend : # Rebuild and restart only the backend container
+	-docker compose -f $(COMPOSE_FILE) down backend
+	-docker volume rm $$(docker volume ls --filter name=backendapps --format "{{.Name}}")
+	-docker compose -f $(COMPOSE_FILE) up -d --build backend
 
+###JM Customs###
 cleanv cv : # clean all volumes
-	-make down
 	-docker volume prune -f
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
 clean c : down rm rmi rmv

@@ -67,7 +67,7 @@ request_nginx_certificate () {
 	echo -e "\nNginx SSL Certificate - creating..."
 	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output $VAULT_HOME/volumes/nginx/certs/ca/root_ca.crt
 	vault write -format=json nginx/issue/nginx_intermediate_ca_role \
-		common_name="transcendance.fr" \
+		common_name="onePong" \
 		alt_names="$MODSEC_ALT_NAMES" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \

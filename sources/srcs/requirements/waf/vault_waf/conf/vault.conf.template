@@ -17,7 +17,7 @@ upstream vaultmediator {
 }
 
 server {
-	listen 3880;
+	listen 5880;
 
 	server_name localhost;
 	set $upstream https://vaultmediator;
@@ -29,7 +29,7 @@ server {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host:3443$request_uri;
+			return 301 https://$host:5443$request_uri;
 		}
 	}
 
@@ -38,12 +38,13 @@ server {
 }
 
 server {
-	listen 3443 ssl;
-	listen [::]:3443 ssl;
+	listen 5443 ssl;
+	listen [::]:5443 ssl;
 
 	server_name localhost;
 	set $upstream https://vaultmediator;
 
+	access_log /dev/stdout;
 	access_log /var/log/nginx/vault.access.log vaultlog;
 
 	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
@@ -64,10 +65,16 @@ server {
 	ssl_verify_client off;
 	ssl_verify_depth 1;
 
+	##########################################
+	###   Container Healthcheck Endpoint   ###
+	##########################################
 	location = /healthcheck {
-		return 200 'healthy\n';
+		return 200 'healthy!\n';
 	}
 
+	##########################################
+	###       Vaut Reverse Proxy Conf      ###
+	##########################################
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 

@@ -1,0 +1,40 @@
+.profilePage
+{
+    display: flex;
+}
+
+
+.wantedInProfilePage
+{
+    background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
+    width: 302px;
+    height: 442px;
+}
+
+
+.bookProfile
+{
+    position: relative;
+    border-radius: 10px;
+    width: 290px;
+    height: 440px;
+    background-color: whitesmoke;
+    box-shadow: 1px 1px 12px #000;
+    perspective: 2000px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-box-pack: center;
+    color: #000;
+    margin-left: 10px;
+    align-self: center;
+}
+
+.bookProfile:hover .cover {
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    -webkit-transform: rotatey(-80deg);
+    -ms-transform: rotatey(-80deg);
+    transform: rotatey(-80deg);
+  }
