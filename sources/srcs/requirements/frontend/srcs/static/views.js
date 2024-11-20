@@ -29,7 +29,7 @@ async function	loginView(title, description, data) {
 	// 	window.location.replace(URLs.VIEWS.HOME);
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
-	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
+	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
 		// 	keyboard: false
