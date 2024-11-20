@@ -1,6 +1,6 @@
 @font-face {
     font-family: wantedFont;
-    src: url(/wantedFont.ttf);
+    src: url(/static/wantedFont.ttf);
 }
 
 .wantedFriendHomePageDisplay
@@ -72,14 +72,6 @@
     z-index: 2;
     margin-top: 150px;
 }
-
-
-.homePage
-{
-    display: flex;
-}
-
-
 
 .homepageFlag
 {

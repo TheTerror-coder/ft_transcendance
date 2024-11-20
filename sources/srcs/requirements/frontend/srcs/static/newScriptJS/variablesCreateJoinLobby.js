@@ -56,7 +56,7 @@ function CreateLobbyDisplay(state)
 
 
 const CreateJoinLobbyDisplayVAR = 
-`<div class="lobby" id="lobby">
+`<div>
     <video class="videoBackground" id="videoBackground" autoplay muted loop>
         <source src="../static/photos/picturePng/lobbyPage/lobbyBackground.mp4" type="video/mp4" style="z-index: -1;">
     </video>

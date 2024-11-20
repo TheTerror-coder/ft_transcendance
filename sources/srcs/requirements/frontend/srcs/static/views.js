@@ -1,27 +1,21 @@
-async function	homeView(title, description, data) {
-	console.log('you are home view');
-	document.title = title;
 
-	// verifier si le frere est connecte
-	const homePage = new homePageClass();
+
+async function	homeView(title, description, data) 
+{
+	console.log('you are home page view');
+	document.title = title;
+	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
+
+	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	flag.className = "homepageFlag";
 	flag.id = 'homepageFlag';
-	// homePage.rebeccaImg.style.display = 'block';
-	let englandFlagImg = document.querySelector("#englandFlagImg");
+	let englandFlagImg = document.getElementById("englandFlagImg");
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
-	homePage.playButtonImg.onclick = () => playDisplayHomepage(homePage);
-	homePage.wantedProfile.onclick = () => profileDisplay();
-	// const profile = await makeRequest('POST', URLs.PROFILE_endp);
-	// const html = await getHtml(PAGE_ROUTEs.HOME);
-	// ELEMENTs.mainPage().innerHTML = html;
-	// ELEMENTs.statusDiv().innerHTML = 'status: ' + profile.status;
-	// ELEMENTs.usernameDiv().innerHTML = 'user: ' + profile.username;
-	// ELEMENTs.firstnameDiv().innerHTML = 'firstname: ' + profile.firstname;
-	// ELEMENTs.lastnameDiv().innerHTML = 'lastname: ' + profile.lastname;
-	// ELEMENTs.emailDiv().innerHTML = 'email: ' + profile.email;
-	// ELEMENTs.profile_image().setAttribute('src', profile.profile_image)
+	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
+	// ELEMENTs.wantedProfile.onclick = () => profileDisplay();
 }
+
 
 async function	loginView(title, description, data) {
 	console.log('you are at login view');
@@ -36,8 +30,11 @@ async function	loginView(title, description, data) {
 		//   })
 		//   myModal.show();
 }
-async function	profileView(title, description, data) {
+async function	profileView(title, description, data) 
+{
+	document.title = title;
 	background.style.backgroundImage = "url('/static/static/photos/picturePng/homePage/luffyBackground.png')";
+	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 }
 
 async function	createLobbyView(title, description, data) {

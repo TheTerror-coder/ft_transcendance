@@ -2,58 +2,58 @@
 
 
 
-function playDisplayHomepage(homePage)
+function playDisplayHomepage()
 {
-    homePage.playButton.style.display = 'none';
-    homePage.centerPlayDisplay.style.display = 'flex';
-    homePage.firstElement.innerHTML = homePage.rapidPlayHTML;
-    homePage.firstElement.style.display = "flex";
-    homePage.firstElement.style.backgroundImage = "url('static/photos/picturePng/homePage/Kizaru.png')";
-    homePage.secondElement.innerHTML = homePage.TournamentButtonHTML;
-    homePage.secondElement.style.backgroundImage = "url('static/photos/picturePng/homePage/TournamentLuffy.png')";
+    ELEMENTs.playButton().style.display = 'none';
+    ELEMENTs.centerPlayDisplay().style.display = 'flex';
+    ELEMENTs.firstElement().innerHTML = rapidPlayHTML;
+    ELEMENTs.firstElement().style.display = "flex";
+    ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
+    ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
+    ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
     const rapidPlayButton = document.getElementById("rapidPlayButton");
-    rapidPlayButton.onclick = () => rapidPlayLobbyDisplay(homePage);
+    rapidPlayButton.onclick = () => rapidPlayLobbyDisplay();
 }
 
-function rapidPlayLobbyDisplay(homePage)
+function rapidPlayLobbyDisplay()
 {
-    homePage.firstElement.innerHTML = homePage.joinCreateLobbyHTML;
-    homePage.firstElement.style.backgroundImage = "none";
-    homePage.secondElement.innerHTML = homePage.createLobbyButtonHTML;
-    homePage.secondElement.style.backgroundImage = "none";
-    homePage.thirdElement.style.display = "block";
-    homePage.thirdElement.innerHTML = homePage.localPlayButtonHTML;
-    homePage.thirdElement.style.alignSelf = "center";
-    homePage.firstElement.style.height = "109px";
-    homePage.secondElement.style.height = "109px";
-    homePage.thirdElement.style.height = "109px";
+    ELEMENTs.firstElement().innerHTML = joinCreateLobbyHTML;
+    ELEMENTs.firstElement().style.backgroundImage = "none";
+    ELEMENTs.secondElement().innerHTML = createLobbyButtonHTML;
+    ELEMENTs.secondElement().style.backgroundImage = "none";
+    ELEMENTs.thirdElement().style.display = "block";
+    ELEMENTs.thirdElement().innerHTML = localPlayButtonHTML;
+    ELEMENTs.thirdElement().style.alignSelf = "center";
+    ELEMENTs.firstElement().style.height = "109px";
+    ELEMENTs.secondElement().style.height = "109px";
+    ELEMENTs.thirdElement().style.height = "109px";
 
     const joinLobbyButton = document.getElementById("joinLobbyButton");
-    joinLobbyButton.onclick = () => joinLobbyPlay(homePage);
+    joinLobbyButton.onclick = () => joinLobbyPlay();
     const createLobbyButton = document.getElementById("createLobbyButton");
     createLobbyButton.onclick = () => createLobbyPlay();
 }
 
-function joinLobbyPlay(homePage)
+function joinLobbyPlay()
 {
-    homePage.firstElement.style.display = "none"; 
-    homePage.secondElement.style.display = "none"; 
-    homePage.thirdElement.style.display = "none";
-    homePage.playDisplay.innerHTML = homePage.joinCodeDisplay;
+    ELEMENTs.firstElement().style.display = "none"; 
+    ELEMENTs.secondElement().style.display = "none"; 
+    ELEMENTs.thirdElement().style.display = "none";
+    ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
     const crossButton = document.getElementById("crossButton");
-    crossButton.onclick = () => refreshJoinCreateLocalPlay(homePage);
+    crossButton.onclick = () => refreshJoinCreateLocalPlay();
 }
 
-function refreshJoinCreateLocalPlay(homePage)
+function refreshJoinCreateLocalPlay()
 {
-    homePage.playDisplay.innerHTML = centerPlayDisplayVAR;
-    homePage.firstElement = document.getElementById("firstElement");
-    homePage.secondElement = document.getElementById("secondElement");
-    homePage.thirdElement = document.getElementById("thirdElement");
-    homePage.firstElement.style.display = "flex"; 
-    homePage.secondElement.style.display = "flex"; 
-    homePage.thirdElement.style.display = "flex";
-    homePage.playDisplay.innerHTML = rapidPlayLobbyDisplay(homePage)
+    ELEMENTs.playDisplay().innerHTML = centerPlayDisplayVAR;
+    ELEMENTs.firstElement() = document.getElementById("firstElement");
+    ELEMENTs.secondElement() = document.getElementById("secondElement");
+    ELEMENTs.thirdElement() = document.getElementById("thirdElement");
+    ELEMENTs.firstElement().style.display = "flex"; 
+    ELEMENTs.secondElement().style.display = "flex"; 
+    ELEMENTs.thirdElement().style.display = "flex";
+    ELEMENTs.playDisplay().innerHTML = rapidPlayLobbyDisplay(homePage)
 }
 
 function createLobbyPlay()
@@ -61,113 +61,3 @@ function createLobbyPlay()
     window.history.pushState({}, "", "/createLobby");
     handleLocation();
 }
-
-class PlayMenu
-{
-    constructor()
-    {
-
-
-        // this.rapidPlayButton = document.getElementById("rapidPlayButton");
-        // this.createLobbyButton = document.getElementById("createLobbyButton");
-        // this.joinLobbyButton = document.getElementById("joinLobbyButton");
-        // this.onePlayerButton = document.getElementById("onePlayerButton");
-        // this.twoPlayerButton = document.getElementById("twoPlayerButton");
-        // this.captainButton = document.getElementById("captainButton");
-        // this.gunnerButton = document.getElementById("gunnerButton");
-        
-
-    }
-
-
-
-    // rapidPlay()
-    // {
-    //     this.tournamentButton.style.display = "none";
-    //     this.rapidPlayButton.style.display = "none";
-    //     this.joinLobbyButton.style.display = "block";
-    //     this.createLobbyButton.style.display = "block";
-    // }
-
-    // twoPlayerChooseRole()
-    // {
-    //     this.onePlayerButton.style.display = "none";
-    //     this.twoPlayerButton.style.display = "none";
-    //     this.captainButton.style.display = "block";
-    //     this.gunnerButton.style.display = "block";
-    // }
-
-    // onePlayerRapidPlay()
-    // {
-    //     lobbyDisplay();
-    // }
-
-
-
-    // joinRapidPlay()
-    // {
-    //     lobbyDisplay();
-    // }
-}
-
-
-
-// playButtonImg.onclick = playDisplayHomepage;
-
-// rapidPlayButton.onclick = rapidPlay;
-
-// createLobbyButton.onclick = rapidPlayLobbyDisplay;
-
-// joinLobbyButton.onclick =  joinRapidPlay;
-
-// onePlayerButton.onclick = onePlayerRapidPlay;
-
-// twoPlayerButton.onclick = twoPlayerChooseRole;
-
-
-
-// captainButton.onclick = () => twoPlayerRapidPlay("captain");
-// gunnerButton.onclick = () => twoPlayerRapidPlay("gunner");
-
-// function playDisplayHomepage()
-// {
-//     centerPlayDisplay.style.display = 'flex';
-//     playButton.style.display = 'none';
-// }
-
-// function rapidPlay()
-// {
-//     tournamentButton.style.display = "none";
-//     rapidPlayButton.style.display = "none";
-//     joinLobbyButton.style.display = "block";
-//     createLobbyButton.style.display = "block";
-// }
-
-
-// function twoPlayerChooseRole()
-// {
-//     onePlayerButton.style.display = "none";
-//     twoPlayerButton.style.display = "none";
-//     captainButton.style.display = "block";
-//     gunnerButton.style.display = "block";
-
-//     // lobbyDisplay();
-    
-// }
-
-
-
-// function onePlayerRapidPlay()
-// {
-//     lobbyDisplay();
-
-// }
-
-// function rapidPlayLobbyDisplay()
-// {
-//     joinLobbyButton.style.display = "none";
-//     createLobbyButton.style.display = "none";
-//     onePlayerButton.style.display = "block";
-//     twoPlayerButton.style.display = "block";
-// }
-
