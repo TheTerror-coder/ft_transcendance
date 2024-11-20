@@ -62,6 +62,7 @@ const URLs = Object.freeze({
 		PROFILE : BACKEND_BASE_URL + '/user-management/profile/',		
 	}),
 
+
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',

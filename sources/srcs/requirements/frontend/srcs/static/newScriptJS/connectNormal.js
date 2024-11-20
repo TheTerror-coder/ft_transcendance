@@ -57,8 +57,19 @@ async function connect()
         window.history.pushState({}, "", "/homePage");
         handleLocation();
     }
-    else {
-        if (data.status == "error")
-            alert(data.msgError);
+    else if (response.status === 'error') {
+        if (typeof response.errors === 'object') {
+            let errorMessages = '';
+            for (let key in response.errors) {
+                if (response.errors.hasOwnProperty(key)) {
+                    errorMessages += `${key}: ${response.errors[key]}\n`;
+                }
+            }
+            alert(errorMessages);
+            console.log("Errors:", errorMessages);
+        } else {
+            alert(response.errors);
+            console.log("Errors:", response.errors);
+        }
     }
 }

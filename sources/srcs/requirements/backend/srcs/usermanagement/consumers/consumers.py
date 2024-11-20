@@ -14,55 +14,44 @@ user_sockets = {}
 
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     
+
     async def connect(self):
-        print("******************Connected", sys.stderr)
-        self.accept()
-    # async def connect(self):
-    #     self.user = self.scope['user']
-    #     if not self.user.is_authenticated:
-    #         await self.close()
-    #     else:
-    #         self.room_group_name = f"friend_invite_{self.user.id}"
-    #         await self.accept()
-    #         user_sockets[self.user.username] = self.channel_name
-    #         await self.channel_layer.group_add(
-    #             self.room_group_name,
-    #             self.channel_name
-    #         )
-    #         print(f"User {self.user.username} joined room: {self.room_group_name}")
+        self.user = self.scope['user']
+        if not self.user.is_authenticated:
+            await self.close()
+        else:
+            self.room_group_name = f"friend_invite_{self.user.id}"
+            await self.accept()
+            user_sockets[self.user.username] = self.channel_name
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+            print(f"User {self.user.username} joined room: {self.room_group_name}")
 
 
     async def disconnect(self, close_code):
-        print("******************Disconnected", sys.stderr)
-    # async def disconnect(self, close_code):
-    #     await self.channel_layer.group_discard(
-    #         self.room_group_name,
-    #         self.channel_name
-    #     )
-    #     if self.user.username in user_sockets:
-    #         del user_sockets[self.user.username]
-    #     print(f"User {self.user.username} left room: {self.room_group_name}")
-
-
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+        if self.user.username in user_sockets:
+            del user_sockets[self.user.username]
+        print(f"User {self.user.username} left room: {self.room_group_name}")
+   
+   
     async def receive(self, text_data=None):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
-
-        self.send(text_data=json.dumps({"message": message}))
-   
-   
-    # async def receive(self, text_data=None):
-    #     text_data_json = json.loads(text_data)
-    #     if text_data_json['type'] == 'invitation':
-    #         await self.send_invitation(text_data_json['username'])
-    #     elif text_data_json['type'] == 'response.invitation':
-    #         friend_request_id = text_data_json['friend_request_id']
-    #         friend_request = await self.get_friend_request_by_id(friend_request_id)
-    #         if friend_request:
-    #             if text_data_json['response'] == 'accept':
-    #                 friend_request = await self.accept_friend_request(friend_request)
-    #             elif text_data_json['response'] == 'reject':
-    #                 friend_request = await self.decline_friend_request(friend_request)
+        if text_data_json['type'] == 'invitation':
+            await self.send_invitation(text_data_json['username'])
+        elif text_data_json['type'] == 'response.invitation':
+            friend_request_id = text_data_json['friend_request_id']
+            friend_request = await self.get_friend_request_by_id(friend_request_id)
+            if friend_request:
+                if text_data_json['response'] == 'accept':
+                    friend_request = await self.accept_friend_request(friend_request)
+                elif text_data_json['response'] == 'reject':
+                    friend_request = await self.decline_friend_request(friend_request)
 
 
     async def send_invitation(self, username):

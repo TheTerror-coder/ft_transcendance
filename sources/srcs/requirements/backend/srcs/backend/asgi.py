@@ -24,9 +24,9 @@ from backend.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
+    "websocket": (
         URLRouter([
-            path(r'websocket/test/$', FriendInviteConsumer.as_asgi()),
+            re_path(r'websocket/friend_invite/$', FriendInviteConsumer.as_asgi()),
      ])
     ),
 })

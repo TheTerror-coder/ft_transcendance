@@ -23,14 +23,19 @@ def test(request):
 @api_view(['POST'])
 @csrf_protect
 def register(request):
-    print("Données reçues : ", request.data, file=sys.stderr)
     if request.method == 'POST':
         form = CustomUserCreationForm(request.data, request.FILES)
+        print("Données reçues : ", form.errors, file=sys.stderr)
         if form.is_valid():
             form.save()
             return Response({'status': 'success'})
         else:
-            return Response({'status': 'error', 'errors': form.errors}, status=400)
+            error_messages = {field: error_list for field, error_list in form.errors.items()}
+            return Response({
+                'status': 'error',
+                'message': 'Validation failed. Please correct the errors below.',
+                'errors': error_messages
+            }, status=400)
     return Response({'error': 'Invalid request method'}, status=405)
 
 
@@ -56,9 +61,19 @@ def login_view(request):
                 login(request, user)
                 return Response({'status': 'success', 'username': user.username})
             else:
-                return Response({'status': 'error', 'msgError': form.errors}, status=400)
+                error_messages = {field: error_list for field, error_list in form.errors.items()}
+                return Response({
+                    'status': 'error',
+                    'message': 'Validation failed. Please correct the errors below.',
+                    'errors': error_messages
+                }, status=400)
         else:
-            return Response({'status': 'error', 'msgError': 'incorrect passwords'}, status=400)
+            error_messages = {field: error_list for field, error_list in form.errors.items()}
+            return Response({
+                'status': 'error',
+                'message': 'Validation failed. Please correct the errors below.',
+                'errors': error_messages
+            }, status=400)
     return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
 def logout_view(request):
