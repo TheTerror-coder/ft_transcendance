@@ -60,8 +60,9 @@ cleanv cv : # clean all volumes
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-docker system prune -f
+re : clean all
 reset : clean cleanv all
-freset re : fclean all
+freset : fclean all
 
 valerie: cleanv all
 

@@ -3,17 +3,44 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.core.validators import FileExtensionValidator
+from django.contrib.auth import authenticate
 
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'photo', 'email', 'password1', 'password2', 'victories', 'games_played')
+        fields = ('username', 'photo', 'email', 'password1', 'password2')
 
 
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(max_length=254, widget=forms.TextInput(attrs={'autofocus': True}))
-    password = forms.CharField(label="Password", strip=False, widget=forms.PasswordInput)
+class CustomAuthenticationForm(forms.Form):  # On ne hérite pas d'AuthenticationForm ici
+    email = forms.EmailField(
+        max_length=254,
+        widget=forms.EmailInput(attrs={'autofocus': True}),
+        label="Email"
+    )
+    password = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput
+    )
+
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+
+        if email and password:
+            self.user_cache = authenticate(email=email, password=password)
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    "Invalid email or password."
+                )
+        return self.cleaned_data
+
+    def get_user(self):
+        return self.user_cache
+
+
+
 
 
 class UpdateUsernameForm(forms.ModelForm):

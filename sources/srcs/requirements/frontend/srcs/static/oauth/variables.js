@@ -51,6 +51,17 @@ const URLs = Object.freeze({
 
 	// BACKEND //
 	CSRF : BACKEND_BASE_URL + '/csrf/',
+	
+	USERMANAGEMENT : Object.freeze({
+		CONNECT : BACKEND_BASE_URL + '/user-management/login/',
+		REGISTER : BACKEND_BASE_URL + '/user-management/register/',
+		UPDATEPROFILE : BACKEND_BASE_URL + '/user-management/update-profile/',
+		UPDATEPHOTO : BACKEND_BASE_URL + '/user-management/update-photo/',
+		ADDFRIEND : BACKEND_BASE_URL + '/user-management/add-friend/',
+		REMOVEFRIEND : BACKEND_BASE_URL + '/user-management/remove-friend/',
+		PROFILE : BACKEND_BASE_URL + '/user-management/profile/',		
+	}),
+
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
@@ -126,6 +137,7 @@ const ELEMENTs = Object.freeze({
 	
 	signInWith42Button :  () => document.getElementById("signInWith42Button"),
 	buttonCreateAccount : () => document.getElementById("createAnAccount"),
+	createaccount_confirm_button : () => document.getElementById("create-account-confirm-button"),
 	
 	createAccountChange : () => document.getElementById("formAccount"),
 	
@@ -134,6 +146,9 @@ const ELEMENTs = Object.freeze({
 	buttonRefreshPage : () => document.getElementById('refreshPage'),
 	buttonConnec : () => document.getElementById("connectionEmail"),
 	connexion_confirm_button : () => document.getElementById("connexion-confirm-button"),
+
+
+	
 });
 
 let N_ALERT = 0;

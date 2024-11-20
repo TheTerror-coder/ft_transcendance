@@ -31,6 +31,14 @@ let flagSelected = "en";
 
 // const buttonRefreshPage = document.querySelector('#refreshPage');
 
+function putFormRegister()
+{
+    ELEMENTs.signInWith42Button().style.display = 'none';
+    ELEMENTs.buttonConnec().style.display = 'none';
+    ELEMENTs.buttonCreateAccount().style.display = 'none';
+    ELEMENTs.createAccountChange().style.display = 'flex';
+}
+
 function putFormConnect()
 {
     ELEMENTs.signInWith42Button().style.display = 'none';
@@ -53,7 +61,7 @@ const loginPageDisplayVAR =
             <button class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
             <form class="createAccount" id="formConnect">
                 <p class="fontConnexion">
-                    <input id="username" type="username" class="form-control" placeholder="Username" aria-label="Username" style="font-family: arial" required>
+                    <input id="email" type="email" class="form-control" placeholder="email" aria-label="Email" style="font-family: arial" required>
                 </p>
                 <p class="fontConnexion">
                     <input id="password" type="password" class="form-control" placeholder="Password" aria-label="Username" style="font-family: arial;" required>
@@ -73,7 +81,7 @@ const loginPageDisplayVAR =
                 <p class="fontConnexion" style="margin-top: -3px;">
                     <input id="createConfirmPassword" type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" style="font-family: arial" aria-label="Username" required>
                 </p>
-                <button class="fontConfirmCreateAccount" type="submit">CONFIRM</button>
+                <button id="create-account-confirm-button" class="fontConfirmCreateAccount" type="submit">CONFIRM</button>
             </form>
         </div>
 </div>`;
