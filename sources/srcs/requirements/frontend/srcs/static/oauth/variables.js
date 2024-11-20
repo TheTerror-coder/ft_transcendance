@@ -37,6 +37,7 @@ const URLs = Object.freeze({
 		MFA_VIEW : BASE_URL + PATHs.VIEWS.CALLBACKURL,
 		VERIFY_EMAIL_VIEW : BASE_URL + PATHs.VIEWS.VERIFY_EMAIL,
 		EMAIL_STATUS_VIEW : BASE_URL + PATHs.VIEWS.EMAIL_STATUS,
+		CREATE_LOBBY : BASE_URL + PATHs.VIEWS.CREATE_LOBBY, // a faire
 		LOBBY : BASE_URL + PATHs.VIEWS.LOBBY,
 		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
 		// TOTP
@@ -147,7 +148,21 @@ const ELEMENTs = Object.freeze({
 	buttonConnec : () => document.getElementById("connectionEmail"),
 	connexion_confirm_button : () => document.getElementById("connexion-confirm-button"),
 
+	// homePage
+	playButtonImg : () => document.getElementById("playButtonImg"),
+	wantedProfile : () => document.getElementById("wantedProfile"),
 
+	wantedProfile : () => document.getElementById("wantedProfile"),
+        
+	playDisplay : () => document.getElementById("playDisplay"),
+	
+	
+	centerPlayDisplay : () => document.getElementById("centerPlayDisplay"),
+	playButton : () => document.getElementById("playButton"),
+	playButtonImg : () => document.getElementById("playButtonImg"),
+	firstElement : () => document.getElementById("firstElement"),
+	secondElement : () => document.getElementById("secondElement"),
+	thirdElement : () => document.getElementById("thirdElement"),
 	
 });
 

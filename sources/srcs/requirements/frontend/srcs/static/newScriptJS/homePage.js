@@ -1,12 +1,5 @@
 function profileDisplay() 
 {
-    window.history.pushState({}, "", "/profile");
+    window.history.pushState({}, "", URLs.VIEWS.PROFILE);
     handleLocation();
-}
-
-
-function friendDisplay(homePage)
-{
-    homePage.addFriend.style.display = "block";
-    homePage.friendButton.style.display = "none";
 }

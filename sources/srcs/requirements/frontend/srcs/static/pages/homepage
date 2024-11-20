@@ -1,4 +1,4 @@
-<div class="homePage" id="homePage">
+<div style="display: flex">
 	<div id="status" class="status"></div>
 	<div id="username" class="username"></div>
 	<div id="firstname" class="firstname"></div>

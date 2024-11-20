@@ -52,6 +52,13 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id){
 		createAccount();
 	}
+	else if (target.id === ELEMENTs.wantedProfile()?.id){
+		profileDisplay();
+	}
+	else if (target.id === ELEMENTs.playButtonImg()?.id){
+		playDisplayHomepage();
+	}
+
 	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
