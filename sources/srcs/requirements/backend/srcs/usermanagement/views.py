@@ -13,17 +13,19 @@ import os
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+import sys
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def test(request):
     return Response({'msg' : 'hello world from One Pong!!'})
 
 @api_view(['POST'])
 @csrf_protect
 def register(request):
+    print("Données reçues : ", request.data, file=sys.stderr)
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST, request.FILES)
+        form = CustomUserCreationForm(request.data, request.FILES)
         if form.is_valid():
             form.save()
             return Response({'status': 'success'})
@@ -40,13 +42,14 @@ def connect(request):
 @api_view(['POST'])
 @csrf_protect
 def login_view(request):
-    print("Données reçues : ", request.POST)
     if request.method == 'POST':
-        form = CustomAuthenticationForm(request, data=request.POST)
+        print("Données reçues : ", request.data, file=sys.stderr)
+        form = CustomAuthenticationForm(data=request.data)
+        print("Données brutes reçues : ", form, file=sys.stderr)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            email = form.cleaned_data.get('email')
+            user = authenticate(email=email, password=password)
             if user is not None:
                 if user.username in user_sockets:
                     return Response({'status': 'error', 'msgError': f'user: {request.user.username} is already connected!'}, status=400)

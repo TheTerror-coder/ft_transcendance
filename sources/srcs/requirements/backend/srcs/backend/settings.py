@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import requests
+from . import tools
 from pathlib import Path
 from . import parameters
 
@@ -131,29 +133,29 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 #a effacer si make des docker
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.environ.get('POSTGRES_DB'),
-    #     'USER': os.environ.get('POSTGRES_USER'),
-    #     'PASSWORD': str(
-	# 		requests.get("https://vault_c:8200/v1/secret/data/postgres",
-	# 			verify=os.environ.get('VAULT_CACERT'),
-	# 			headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
-	# 	),
-    #     'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-    #     'PORT': os.environ.get('POSTGRES_PORT'),
-    # }
-    
     'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': os.environ.get('POSTGRES_DB'),
-        # 'USER': os.environ.get('POSTGRES_USER'),
-        # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        # 'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-        # 'PORT': os.environ.get('POSTGRES_PORT'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': str(
+			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+				verify=os.environ.get('VAULT_CACERT'),
+				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+		),
+        'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
+    
+    # 'default': {
+    #         # 'ENGINE': 'django.db.backends.sqlite3',
+    #         # 'NAME': BASE_DIR / 'db.sqlite3',
+    #     # 'ENGINE': 'django.db.backends.postgresql',
+    #     # 'NAME': os.environ.get('POSTGRES_DB'),
+    #     # 'USER': os.environ.get('POSTGRES_USER'),
+    #     # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+    #     # 'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+    #     # 'PORT': os.environ.get('POSTGRES_PORT'),
+    # }
 }
 
 
@@ -246,10 +248,11 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 AUTHENTICATION_BACKENDS = [
 	#default
 	'django.contrib.auth.backends.ModelBackend',
-
+    'usermanagement.authentication_backends.EmailBackend',
 	# `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
 
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "/frontpong/account/verify-email/?key={key}",

@@ -41,7 +41,7 @@ const eventManager = async (event) => {
 		putFormConnect();
 	}
 	else if (target.id === ELEMENTs.buttonCreateAccount()?.id){
-		putFormCreateAccount();
+		putFormRegister();
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 		handleLocation();
@@ -49,6 +49,10 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
 		connect();
 	}
+	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id){
+		createAccount();
+	}
+	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
 	// }
