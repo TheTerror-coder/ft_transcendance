@@ -3,7 +3,6 @@ class lobbyPageClass
     constructor()
     {
         background.style.backgroundImage = "none";
-        this.crossButton = document.querySelector("#crossButton");
         this.playButtonInLobby = document.querySelector("#playButtonInLobby");
         crossButton.onclick = () => refreshHomePage();
     }

@@ -1,7 +1,6 @@
 
 
 
-
 function playDisplayHomepage()
 {
     ELEMENTs.playButton().style.display = 'none';
@@ -58,6 +57,6 @@ function refreshJoinCreateLocalPlay()
 
 function createLobbyPlay()
 {   
-    window.history.pushState({}, "", "/createLobby");
+    window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
 }

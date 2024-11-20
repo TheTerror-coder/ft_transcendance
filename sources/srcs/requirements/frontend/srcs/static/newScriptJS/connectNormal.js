@@ -3,9 +3,13 @@ async function connect()
 {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-
+    if (email === '' || password === '') {
+        alert('Please fill in all fields.');
+        return ;
+    }
     const data = {"email": email, "password": password};
 	console.log('connect() functiongg', data);
+    console.log("URLs.USERMANAGEMENT.CONNECT", URLs.USERMANAGEMENT.CONNECT);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
     console.log('response', response);
     if (response.status == "success") {
@@ -58,7 +62,8 @@ async function connect()
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
     }
-    else if (response.status === 'error') {
+    else if (response.status === 'error') 
+    {
         if (typeof response.errors === 'object') {
             let errorMessages = '';
             for (let key in response.errors) {
@@ -73,4 +78,6 @@ async function connect()
             console.log("Errors:", response.errors);
         }
     }
+    console.log('CHELOU LA FIN DE CONNECT');
+    console.log("response", response);
 }

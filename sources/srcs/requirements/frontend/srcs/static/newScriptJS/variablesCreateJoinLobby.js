@@ -37,16 +37,15 @@ class CreateJoinLobbyClass
 }
 
 
-function CreateLobbyDisplay(state) 
+function CreateLobbyDisplay() 
 {
-    if (state.switchNumbersOfPlayers.checked == false)
-        mainPage.innerHTML = lobbyPageDisplayVAR;
+    if (ELEMENTs.switchNumbersOfPlayers().checked == false)
+        ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
     else
     {
-        mainPage.innerHTML = lobbyTwoPlayerDisplayVAR;
-        const centerLobbyDisplay = document.getElementById("centerLobbyDisplay");
-        centerLobbyDisplay.style.marginLeft = "0px";
-        centerLobbyDisplay.style.marginRight = "0px";
+        ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
+        ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
+        ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }
     const crossButton = document.getElementById("crossButton");
     crossButton.onclick = () => refreshHomePage();
