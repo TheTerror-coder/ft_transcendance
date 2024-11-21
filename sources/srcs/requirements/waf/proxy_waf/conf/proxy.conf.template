@@ -48,8 +48,8 @@ server {
 	server_name localhost;
 	#set $proxy_upstream http://frontendmediator;
 	set $frontend_upstream https://frontendmediator; # TODO: uncomment at production
-	# set $backend_upstream http://backendmediator;
-	set $backend_upstream https://backendmediator; # TODO: uncomment at production
+	set $backend_upstream http://backendmediator;
+	# set $backend_upstream https://backendmediator; # TODO: uncomment at production
 
 	access_log /dev/stdout;
 	access_log /var/log/nginx/proxy.access.log proxylog_format;

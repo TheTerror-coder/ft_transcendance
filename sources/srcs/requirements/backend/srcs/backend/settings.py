@@ -109,6 +109,7 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = 'backend.asgi.application'
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
@@ -211,18 +212,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ###    One Pong customs    ###
 ##############################
 
-ASGI_APPLICATION = 'backend.asgi.application'
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('localhost', 6379)],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('localhost', 6379)],
+#         },
+#     },
+# }
 
 HEADLESS_ONLY = True
 
@@ -282,3 +282,4 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 SITE_ID = 1
+

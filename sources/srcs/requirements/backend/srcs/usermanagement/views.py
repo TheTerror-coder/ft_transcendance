@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_protect
-from usermanagement.consumers.consumers import user_sockets
+from usermanagement.consumers import user_sockets
 from django.views.decorators.http import require_http_methods
 import json
 import os
@@ -25,7 +25,6 @@ def test(request):
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.data, request.FILES)
-        print("Données reçues : ", form.errors, file=sys.stderr)
         if form.is_valid():
             form.save()
             return Response({'status': 'success'})
@@ -48,9 +47,7 @@ def connect(request):
 @csrf_protect
 def login_view(request):
     if request.method == 'POST':
-        print("Données reçues : ", request.data, file=sys.stderr)
         form = CustomAuthenticationForm(data=request.data)
-        print("Données brutes reçues : ", form, file=sys.stderr)
         if form.is_valid():
             password = form.cleaned_data.get('password')
             email = form.cleaned_data.get('email')
@@ -59,7 +56,7 @@ def login_view(request):
                 if user.username in user_sockets:
                     return Response({'status': 'error', 'msgError': f'user: {request.user.username} is already connected!'}, status=400)
                 login(request, user)
-                return Response({'status': 'success', 'username': user.username})
+                return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
             else:
                 error_messages = {field: error_list for field, error_list in form.errors.items()}
                 return Response({

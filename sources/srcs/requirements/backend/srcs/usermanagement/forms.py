@@ -12,7 +12,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'photo', 'email', 'password1', 'password2')
 
 
-class CustomAuthenticationForm(forms.Form):  # On ne hérite pas d'AuthenticationForm ici
+class CustomAuthenticationForm(forms.Form):
     email = forms.EmailField(
         max_length=254,
         widget=forms.EmailInput(attrs={'autofocus': True}),

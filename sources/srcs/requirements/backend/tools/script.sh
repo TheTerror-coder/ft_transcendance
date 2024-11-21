@@ -1,8 +1,6 @@
 #!/bin/sh
 
 # sh -c $BACKEND_HOME/container-init.d/HOST_IP.sh
-
-# tail -f /dev/null
 if	! test -e $HEALTHFLAG_FILE
 then
 
@@ -13,3 +11,6 @@ then
 fi
 
 $BACKEND_ENTRYPOINT
+# export DJANGO_SETTINGS_MODULE=backend.settings
+# daphne -b 0.0.0.0 -p 8001 backend.asgi:application &
+# tail -f /dev/null

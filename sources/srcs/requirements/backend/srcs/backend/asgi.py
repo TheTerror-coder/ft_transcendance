@@ -1,32 +1,24 @@
-"""
-ASGI config for backend project.
 
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
-"""
-
-# import os
-
-# from django.core.asgi import get_asgi_application
-
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
-
-# application = get_asgi_application()
-
-### Custom
-
+import os
+import django
+from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
-from backend.routing import websocket_urlpatterns
+from .routing import websocket_urlpatterns
+from usermanagement.consumers import FriendInviteConsumer
+# from usermanagement.consumers import ChatConsumer
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+django.setup()
+django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": (
+    "http": django_asgi_app,
+    "websocket": AuthMiddlewareStack(
         URLRouter([
-            re_path(r'websocket/friend_invite/$', FriendInviteConsumer.as_asgi()),
-     ])
+            # path('websocket/friend_invite/', ChatConsumer.as_asgi()),
+            path("websocket/friend_invite/", FriendInviteConsumer.as_asgi()),
+        ])
     ),
 })

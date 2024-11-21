@@ -3,7 +3,7 @@ import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
-from usermanagement.models import FriendRequest
+from .models import FriendRequest
 from asgiref.sync import sync_to_async
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -12,11 +12,34 @@ import sys
 
 user_sockets = {}
 
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+
+# class ChatConsumer(AsyncJsonWebsocketConsumer):
+#     async def connect(self):
+#         sys.stderr.write("*****************connected" + '\n')
+#         await self.accept()
+
+#     async def disconnect(self, close_code):
+#         sys.stderr.write("*****************disconnected" + '\n')
+#         pass
+
+#     async def receive(self, text_data):
+#         sys.stderr.write("*****************receive" + '\n')
+#         text_data_json = json.loads(text_data)
+#         message = text_data_json["message"]
+
+#         await self.send(text_data=json.dumps({"message": message}))
+
+
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
-    
 
     async def connect(self):
+        sys.stderr.write("*****************connected" + '\n')
         self.user = self.scope['user']
+        sys.stderr.write(str(self.scope) + '\n')
+        sys.stderr.write(str(self.user.id) + '\n')
+        sys.stderr.write(str(self.user.username) + '\n')
         if not self.user.is_authenticated:
             await self.close()
         else:
@@ -31,6 +54,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
+        sys.stderr.write("*****************disconnected" + '\n')
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -41,6 +65,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
    
     async def receive(self, text_data=None):
+        sys.stderr.write("*****************receive" + '\n')
         text_data_json = json.loads(text_data)
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])

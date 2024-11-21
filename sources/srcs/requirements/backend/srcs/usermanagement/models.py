@@ -26,13 +26,11 @@ class CustomUser(AbstractUser):
     victories = models.IntegerField(default=0)
     games_played = models.IntegerField(default=0)
 
-    # Méthodes supplémentaires
     def recent_games(self):
         return Game.objects.filter(player=self).order_by('-date')[:3]
 
-    # Utilisez l'email pour l'identification de l'utilisateur
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']  # Les champs nécessaires lors de la création via createsuperuser
+    REQUIRED_FIELDS = ['username']
 
 
 class Game(models.Model):
