@@ -2,8 +2,8 @@
 
 const joinCodeDisplay = 
 `
-<div class="cross" id="cross">
-    <button id="crossButton"><img src="../static/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+<div class="crossPlayMenu" id="cross">
+    <button id="crossButton"><img src="/static/photos/picturePng/homePage/minicross.png" alt="quitButton"></button>
 </div>
 <div style="display:flex; justify-content: center; align-item: center;">
     <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px;">
@@ -23,22 +23,6 @@ const localPlayButtonHTML = `<button class="localPlayButton fontTextPlay" id="lo
 const rapidPlayHTML = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
 
 const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-
-
-
-const centerPlayDisplayVAR =     
-`
-<div class="centerPlayDisplay" id="centerPlayDisplay">
-    <div class="playDisplay" id="playDisplay">
-        <!-- rapidPlayButton -->
-        <div class="imgPlayMenu" id="firstElement">
-        </div>
-        <div class="imgPlayMenu" id="secondElement">
-        </div>
-        <div class="imgPlayMenu" id="thirdElement" style="display: none;">
-        </div>
-    </div>
-</div>`;
 
 const homePageDisplayVAR = 
 `<div style="display:flex">
@@ -73,7 +57,9 @@ const homePageDisplayVAR =
     </div>
     <div class="centerPlayDisplay" id="centerPlayDisplay">
         <div class="playDisplay" id="playDisplay">
-            <!-- rapidPlayButton -->
+            <div class="crossPlayMenu">
+                <button id="returnButtonPlayMenu"><img src="/static/photos/picturePng/homePage/miniCross.png" alt="Return Back"></button>
+            </div>
             <div class="imgPlayMenu" id="firstElement">
             </div>
             <div class="imgPlayMenu" id="secondElement">

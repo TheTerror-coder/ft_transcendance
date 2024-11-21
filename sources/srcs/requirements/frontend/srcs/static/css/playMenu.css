@@ -74,3 +74,10 @@
     min-width: 329px;
     height: 500px;
 }
+
+.crossPlayMenu
+{
+    margin-top: 5px; 
+    margin-bottom: -45px;
+    z-index: 5;
+}

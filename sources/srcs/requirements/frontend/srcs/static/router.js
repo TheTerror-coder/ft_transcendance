@@ -2,10 +2,12 @@
 const eventManager = async (event) => {
 	const { target } = event;
 	
+
 	if (target.matches('a')){
 		await urlRoute(event);
 	}
 	
+	console.log(target.id);
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
 		event.preventDefault();
 		await redirectToProvider();
@@ -57,6 +59,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 		event.preventDefault();
 		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
+		console.log("Pour le refresh de la page en html gang ta capte : URLs.VIEWS.LOGIN_VIEW = ", URLs.VIEWS.LOGIN_VIEW);
 		handleLocation();
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
@@ -72,14 +75,13 @@ const eventManager = async (event) => {
 		profileDisplay();
 	}
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
-		event.preventDefault();
+		// event.preventDefault();
 		playDisplayHomepage();
 	}
 	else if (target.id === ELEMENTs.buttonCreateLobby()?.id){
 		event.preventDefault();
 		CreateLobbyDisplay();
 	}
-
 
 	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){

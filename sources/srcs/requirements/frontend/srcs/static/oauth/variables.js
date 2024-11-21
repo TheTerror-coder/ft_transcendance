@@ -146,7 +146,7 @@ const ELEMENTs = Object.freeze({
 	
 	formConnect : () => document.getElementById("formConnect"),
 
-	buttonRefreshPage : () => document.getElementById('refreshPage'),
+	buttonRefreshPage : () => document.getElementById("refreshPage"),
 	buttonConnec : () => document.getElementById("connectionEmail"),
 	connexion_confirm_button : () => document.getElementById("connexion-confirm-button"),
 
@@ -165,6 +165,7 @@ const ELEMENTs = Object.freeze({
 	firstElement : () => document.getElementById("firstElement"),
 	secondElement : () => document.getElementById("secondElement"),
 	thirdElement : () => document.getElementById("thirdElement"),
+	
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),

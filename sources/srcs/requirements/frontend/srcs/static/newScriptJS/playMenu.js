@@ -10,6 +10,8 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
     ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const rapidPlayButton = document.getElementById("rapidPlayButton");
     rapidPlayButton.onclick = () => rapidPlayLobbyDisplay();
 }
@@ -39,24 +41,36 @@ function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
-    const crossButton = document.getElementById("crossButton");
-    crossButton.onclick = () => refreshJoinCreateLocalPlay();
+
 }
 
-function refreshJoinCreateLocalPlay()
-{
-    ELEMENTs.playDisplay().innerHTML = centerPlayDisplayVAR;
-    ELEMENTs.firstElement() = document.getElementById("firstElement");
-    ELEMENTs.secondElement() = document.getElementById("secondElement");
-    ELEMENTs.thirdElement() = document.getElementById("thirdElement");
-    ELEMENTs.firstElement().style.display = "flex"; 
-    ELEMENTs.secondElement().style.display = "flex"; 
-    ELEMENTs.thirdElement().style.display = "flex";
-    ELEMENTs.playDisplay().innerHTML = rapidPlayLobbyDisplay(homePage)
-}
+
 
 function createLobbyPlay()
 {   
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
+}
+
+function navigationPlayMenu()
+{
+    let nav = 0;
+    if (ELEMENTs.thirdElement().style.display === "block")
+        nav = 1;
+    if (ELEMENTs.firstElement().style.display === "none")
+        nav = 2;
+
+    refreshHomePage();
+    setTimeout(() => {
+        if (nav == 1)
+        {
+            ELEMENTs.playButtonImg().click();
+        }
+        if (nav == 2)
+        {
+            ELEMENTs.playButtonImg().click();
+            rapidPlayButton.click();
+        }
+    }, 40)
+
 }

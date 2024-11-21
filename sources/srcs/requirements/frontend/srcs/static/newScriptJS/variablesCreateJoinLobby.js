@@ -62,7 +62,7 @@ const CreateJoinLobbyDisplayVAR =
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
             <div class="cross" id="cross">
-                <button id="crossButton"><img src="../static/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+                <button id="crossButton"><img src="/static/photos/picturePng/homePage/cross.png" alt="quitButton"></button>
             </div>
             <div style="display: flex; flex-direction: column;">
                 <div style="display: flex; justify-content: center;">

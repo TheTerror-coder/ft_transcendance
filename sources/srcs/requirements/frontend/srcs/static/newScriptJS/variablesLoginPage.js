@@ -10,27 +10,6 @@ const flag = document.querySelector("#flag");
 let flagSelected = "en";
 
 
-
-// const loginPage = document.querySelector("#loginPage");
-
-// const loginButton = document.querySelector("#loginButton");
-// const woodPresentation = document.querySelector("#woodPresentation");
-// const background = document.querySelector("#background");
-
-// const signInWith42Button = document.querySelector("#connectionApi");
-// const buttonConnec = document.querySelector("#connectionEmail");
-// const buttonCreateAccount = document.querySelector("#createAnAccount");
-
-// const createAccountChange = document.querySelector("#formAccount");
-
-
-// const formConnect = document.querySelector("#formConnect");
-
-
-// let createAccountForm;
-
-// const buttonRefreshPage = document.querySelector('#refreshPage');
-
 function putFormRegister()
 {
     ELEMENTs.signInWith42Button().style.display = 'none';
@@ -49,9 +28,8 @@ function putFormConnect()
 
 const loginPageDisplayVAR = 
 `<div class="loginPage" id="loginPage">
-
-    <div class="loginButton" id="loginButton">
-        <button id="refreshPage"><img src="/static/photos/picturePng/loginPage/onePong.png" alt="ONE PONG" style="min-width: 450px; min-height: 160px;"></button>
+    <div id="loginButton" style="display: flex;align-items: center;justify-content: center;">
+        <button class="loginButton"><img id="refreshPage" src="/static/photos/picturePng/loginPage/onePong.png" alt="ONE PONG" style="min-width: 450px; min-height: 160px;"></button>
     </div>
     <div class="woodPresentation" id="woodPresentation">
         <img src="/static/photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">
@@ -86,25 +64,3 @@ const loginPageDisplayVAR =
         </div>
 </div>`;
 
-
-class loginPageClass {
-    constructor() 
-    {
-        background.style.backgroundImage = "url(/static/photos/picturePng/loginPage/landscapeOnePiece.png)";
-        this.loginPage = document.getElementById("loginPage");
-
-        
-        this.loginButton = document.getElementById("loginButton");
-        this.woodPresentation = document.getElementById("woodPresentation");
-        this.background = document.getElementById("background");
-        
-        this.signInWith42Button = document.getElementById("connectionApi");
-        
-        this.createAccountChange = document.getElementById("formAccount");
-        
-        this.formConnect = document.getElementById("formConnect");
-
-        this.buttonRefreshPage = document.getElementById('refreshPage');
-        this.buttonConnec = document.getElementById("connectionEmail");
-    }
-}
