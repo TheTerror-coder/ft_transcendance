@@ -77,6 +77,7 @@ async function connect()
             alert(response.errors);
             console.log("Errors:", response.errors);
         }
+        ELEMENTs.password().value = "";
     }
     console.log('CHELOU LA FIN DE CONNECT');
     console.log("response", response);

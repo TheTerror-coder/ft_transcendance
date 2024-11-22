@@ -3,10 +3,10 @@
 const joinCodeDisplay = 
 `
 <div class="crossPlayMenu" id="cross">
-    <button id="crossButton"><img src="/static/photos/picturePng/homePage/minicross.png" alt="quitButton"></button>
+    <button id="returnButtonPlayMenu"><img src="/static/photos/picturePng/homePage/miniCross.png" alt="quitButton"></button>
 </div>
 <div style="display:flex; justify-content: center; align-item: center;">
-    <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px;">
+    <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px; margin-bottom: 200px;">
         <p class="fontConnexion">
             <input id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
         </p>
@@ -76,48 +76,3 @@ const homePageDisplayVAR =
         </button>
     </div>
 </div>`;
-
-class homePageClass
-{
-    constructor()
-    {
-        background.style.backgroundImage = "url('../static/photos/picturePng/homePage/luffyBackground.png')";
-   
-        this.wantedProfile = document.getElementById("wantedProfile");
-        
-        this.playDisplay = document.getElementById("playDisplay");
-        
-        
-        this.centerPlayDisplay = document.getElementById("centerPlayDisplay");
-        this.playButton = document.getElementById("playButton");
-        this.playButtonImg = document.getElementById("playButtonImg");
-        this.firstElement = document.getElementById("firstElement");
-        this.secondElement = document.getElementById("secondElement");
-        this.thirdElement = document.getElementById("thirdElement");
-
-        // this.joinCodeDisplay = 
-        // `<div class="cross" id="cross">
-        //     <button id="crossButton"><img src="../static/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
-        // </div>
-        // <div style="display:flex; justify-content: center; align-item: center;">
-        //     <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px;">
-        //         <p class="fontConnexion">
-        //             <input id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
-        //         </p>
-        //         <button class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
-        //     </div>
-        // </div>`;
-
-        // this.joinCreateLobbyHTML = `<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>`;
-
-        // this.createLobbyButtonHTML =  `<button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>`;
-
-        // this.localPlayButtonHTML = `<button class="localPlayButton fontTextPlay" id="localPlayButton">LOCAL PLAY</button>`;
-
-        // this.rapidPlayHTML = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
-
-        // this.TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-
-
-    }
-}

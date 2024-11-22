@@ -7,7 +7,6 @@ const eventManager = async (event) => {
 		await urlRoute(event);
 	}
 	
-	console.log(target.id);
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
 		event.preventDefault();
 		await redirectToProvider();

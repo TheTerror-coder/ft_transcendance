@@ -41,7 +41,8 @@ function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
-
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
 }
 
 
@@ -55,10 +56,11 @@ function createLobbyPlay()
 function navigationPlayMenu()
 {
     let nav = 0;
-    if (ELEMENTs.thirdElement().style.display === "block")
-        nav = 1;
-    if (ELEMENTs.firstElement().style.display === "none")
+    console.log("ELEMENTs.firstElement() = ", ELEMENTs.firstElement());
+    if (ELEMENTs.firstElement() === null && ELEMENTs.secondElement() === null && ELEMENTs.thirdElement() === null)
         nav = 2;
+    else if (ELEMENTs.thirdElement().style.display === "block")
+        nav = 1;
 
     refreshHomePage();
     setTimeout(() => {
@@ -68,9 +70,10 @@ function navigationPlayMenu()
         }
         if (nav == 2)
         {
+            console.log("here in nav == 2");
             ELEMENTs.playButtonImg().click();
             rapidPlayButton.click();
         }
-    }, 40)
+    }, 40);
 
 }

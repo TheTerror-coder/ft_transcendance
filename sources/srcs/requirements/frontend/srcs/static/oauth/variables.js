@@ -137,6 +137,11 @@ const ELEMENTs = Object.freeze({
 	loginButton : () => document.getElementById("loginButton"),
 	woodPresentation : () => document.getElementById("woodPresentation"),
 	background : () => document.getElementById("background"),
+
+
+	password : () => document.getElementById("password"),
+	createPassword : () => document.getElementById("createPassword"),
+	createConfirmPassword : () => document.getElementById("createConfirmPassword"),
 	
 	signInWith42Button :  () => document.getElementById("signInWith42Button"),
 	buttonCreateAccount : () => document.getElementById("createAnAccount"),
@@ -169,11 +174,16 @@ const ELEMENTs = Object.freeze({
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
+	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
+	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	teamFontOne : () => document.getElementById("teamFontOne"),
+	teamFontTwo : () => document.getElementById("teamFontTwo"),
 	luffyChibi : () => document.getElementById("luffyChibi"),
 	zoroSanjiChibi : () => document.getElementById("zoroSanjiChibi"),
 	buttonCreateLobby : () => document.getElementById("buttonCreate"),
 	cross : () => document.getElementById("cross"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	contentCreateLobby : () => document.getElementById("contentCreateLobby"),
 
 	centerLobbyDisplay : () => document.getElementById("centerLobbyDisplay"),
 	// LOBBY
