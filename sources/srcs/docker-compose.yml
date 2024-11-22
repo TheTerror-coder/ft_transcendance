@@ -132,6 +132,63 @@ services:
       - ${NETWORK_NAME}
     # restart: on-failure
 
+
+  redis:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: redis:${REDIS_TAG}
+    container_name: ${REDIS_CONTAINER}
+    expose:
+      - 16379
+    networks:
+      - ${NETWORK_NAME}
+    entrypoint: ["redis-server", "--port", "16379", "--loglevel", "debug"]
+    # restart: on-failure
+
+
+  # redis:
+  #   depends_on:
+  #     vault:
+  #       condition: service_healthy
+  #       restart: true
+  #   image: ${REDIS_IMAGE}
+  #   container_name: ${REDIS_CONTAINER}
+  #   pull_policy: never
+  #   build:
+  #     context: ./requirements/redis/
+  #     args:
+  #       - REDIS_TAG=${REDIS_TAG}
+  #       - REDIS_HOME=${REDIS_HOME}
+  #       - REDIS_UID=${REDIS_UID}
+  #       - REDIS_GID=${REDIS_GID}
+  #       - SHARED_GID=${SHARED_GID}
+  #       - REDIS_DIRS_TO_MAKE=${REDIS_DIRS_TO_MAKE}
+  #   environment:
+  #     - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+  #     - REDIS_HOME=${REDIS_HOME}
+  #     - REDIS_USER=${REDIS_USER}
+  #     - REDIS_DB=${REDIS_DB}
+  #     - REDIS_PORT=${REDIS_PORT}
+  #     - REDIS_DATA=${REDIS_DATA}
+  #     - VAULT_CACERT=${REDIS_VAULT_CACERT}
+  #     - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+  #   volumes:
+  #     # - db_data:${REDIS_DATA}
+  #     - vault_certs:${REDIS_HOME}/volumes/vault/certs
+  #   healthcheck: #&file_healthcheck
+  #     test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+  #     start_period: 10s
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 1
+  #   expose:
+  #     - ${REDIS_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   # restart: on-failure
+
   mail:
     image: ${MAIL_IMAGE}
     container_name: ${MAIL_CONTAINER}
@@ -150,6 +207,9 @@ services:
         restart: true
       db_postgres:
         condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
         restart: true
     image: ${BACKEND_IMAGE}
     container_name: ${BACKEND_CONTAINER}
@@ -173,6 +233,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_CONTAINER=${REDIS_CONTAINER}
+      - REDIS_PORT=${REDIS_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}

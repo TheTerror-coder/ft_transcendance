@@ -51,6 +51,7 @@ CSRF_TRUSTED_ORIGINS = [
 INSTALLED_APPS = [
 
 	'daphne',
+    'usermanagement',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,7 +62,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
-    'channels',
+    # 'channels',
 
 	# allauth
 	'allauth',
@@ -73,7 +74,6 @@ INSTALLED_APPS = [
 	
 	'ultimapi',
     'oauth',
-    'usermanagement',
 
 ]
 
@@ -215,14 +215,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usermanagement.CustomUser'
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('localhost', 6379)],
-#         },
-#     },
-# }
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+        },
+    },
+}
 
 HEADLESS_ONLY = True
 

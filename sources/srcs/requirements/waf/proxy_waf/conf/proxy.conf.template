@@ -122,6 +122,10 @@ server {
 	location /accounts/ {
 		include includes/backendshared_conf.conf;
 	}
+	### websockets ###
+	location /websocket/ {
+		include includes/backendshared_conf.conf;
+	}
 
 	include includes/location_common.conf;
 }

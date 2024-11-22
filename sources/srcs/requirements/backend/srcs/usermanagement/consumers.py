@@ -45,7 +45,11 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         else:
             self.room_group_name = f"friend_invite_{self.user.id}"
             await self.accept()
+            sys.stderr.write("*****************before channel name:" + '\n')
             user_sockets[self.user.username] = self.channel_name
+            if self.channel_name:
+                sys.stderr.write("*****************channel name exist" + '\n')
+            sys.stderr.write("*****************after channel name:" + '\n')
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name

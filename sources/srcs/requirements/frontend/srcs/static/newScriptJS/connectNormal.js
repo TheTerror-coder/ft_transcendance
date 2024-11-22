@@ -9,7 +9,7 @@ async function connect()
     console.log(response);
     if (response.status == "success") {
         alert('connecting...');
-        socket = new WebSocket("ws://localhost:8000/websocket/friend_invite/");
+        socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
         socket.onopen = function() {
             console.log("WebSocket connection established.", socket);
         };

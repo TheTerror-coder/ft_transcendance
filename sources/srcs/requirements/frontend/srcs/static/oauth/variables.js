@@ -60,7 +60,8 @@ const URLs = Object.freeze({
 		UPDATEPHOTO : BACKEND_BASE_URL + '/user-management/update-photo/',
 		ADDFRIEND : BACKEND_BASE_URL + '/user-management/add-friend/',
 		REMOVEFRIEND : BACKEND_BASE_URL + '/user-management/remove-friend/',
-		PROFILE : BACKEND_BASE_URL + '/user-management/profile/',		
+		PROFILE : BACKEND_BASE_URL + '/user-management/profile/',
+		USERNAME : BACKEND_BASE_URL + '/user-management/users/',	
 	}),
 
 

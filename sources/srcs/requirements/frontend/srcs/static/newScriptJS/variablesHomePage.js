@@ -84,8 +84,8 @@ const homePageDisplayVAR =
     </div>
     <div class="wantedFriendHomePageDisplay">
         <button class="wantedProfile" id="wantedProfile">
-            <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
-            <p>USERNAME</p>
+            <img id="pictureOfWanted" alt="profile picture" class="profilePicture">
+            <p id="usernameOfWanted"></p>
             <span>10.000</span>
         </button>
     </div>

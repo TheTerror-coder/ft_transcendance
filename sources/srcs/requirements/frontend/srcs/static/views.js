@@ -12,6 +12,8 @@ async function	homeView(title, description, data)
 	let englandFlagImg = document.getElementById("englandFlagImg");
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
+
+
 	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
 	// ELEMENTs.wantedProfile.onclick = () => profileDisplay();
 }

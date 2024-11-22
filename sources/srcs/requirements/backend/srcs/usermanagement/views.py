@@ -13,6 +13,8 @@ import os
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
 import sys
 
 
@@ -265,7 +267,9 @@ def remove_friend(request):
         return Response(response)
 
 
-@login_required
-def users(request, username):
-    user = get_object_or_404(User, username=username)
-    return render(request, 'user.html', {'user': user})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def users(request):
+    print('users', file=sys.stderr)
+    user = request.user
+    return Response({'user': user.username, 'email': user.email, 'picture': user.photo.url})
