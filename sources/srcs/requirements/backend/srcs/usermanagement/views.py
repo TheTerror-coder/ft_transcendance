@@ -44,7 +44,7 @@ def connect(request):
     return render(request, 'base.html')
 
 
-# envoyer le msg nom d'utilisateur n'existe pas
+# envoyer le msg double connexion
 @api_view(['POST'])
 @csrf_protect
 def login_view(request):
@@ -56,7 +56,10 @@ def login_view(request):
             user = authenticate(email=email, password=password)
             if user is not None:
                 if user.username in user_sockets:
-                    return Response({'status': 'error', 'msgError': f'user: {request.user.username} is already connected!'}, status=400)
+                    return Response({
+                        'status': 'error',
+                        'message': f'user: {user.username} is already connected!',
+                    }, status=400)
                 login(request, user)
                 return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
             else:
@@ -176,9 +179,11 @@ User = get_user_model()
 @csrf_protect
 def send_friend_request(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.data.get('username')
         try:
+            print("Données reçues : LOL", username, file=sys.stderr)
             to_user = User.objects.get(username=username)
+            # print("Données reçues : LOL", username, file=sys.stderr)
             if to_user == request.user:
                 response = {
                     'status': 'error',
@@ -200,6 +205,7 @@ def send_friend_request(request):
             else:
                 response = {
                     'status': 'success',
+                    'username': to_user.username,
                     'message': f"Demande d'ami envoyée à {to_user.username}.",
                 }
                 return Response(response)

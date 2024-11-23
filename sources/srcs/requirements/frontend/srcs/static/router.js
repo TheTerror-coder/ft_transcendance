@@ -2,63 +2,90 @@
 const eventManager = async (event) => {
 	const { target } = event;
 	
+
 	if (target.matches('a')){
 		await urlRoute(event);
 	}
 	
-	event.preventDefault();
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
+		event.preventDefault();
 		await redirectToProvider();
 	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
+		event.preventDefault();
 		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.logoutButton()?.id){
+		event.preventDefault();
 		await logout();
 	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
+		event.preventDefault();
 		await verifyEmailJob();
 	}
 	else if (target.id === ELEMENTs.totp_activate_button()?.id){
+		event.preventDefault();
 		await activateTotpJob();
 	}
 	else if (target.id === ELEMENTs.validate_totp_value_button()?.id){
+		event.preventDefault();
 		await validateTotpValueJob();
 	}
 	else if (target.id === ELEMENTs.validate_2fa_value_button()?.id){
+		event.preventDefault();
 		await twoFaAuthenticateJob();
 	}
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
+		event.preventDefault();
 		await skipTotpActivation();
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
+		event.preventDefault();
 		await logout();
 	}
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
+		event.preventDefault();
 		await logout();
 	}
 	else if (target.id === ELEMENTs.buttonConnec()?.id){
+		event.preventDefault();
 		putFormConnect();
 	}
 	else if (target.id === ELEMENTs.buttonCreateAccount()?.id){
+		event.preventDefault();
 		putFormRegister();
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
+		event.preventDefault();
+		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
+		console.log("Pour le refresh de la page en html gang ta capte : URLs.VIEWS.LOGIN_VIEW = ", URLs.VIEWS.LOGIN_VIEW);
 		handleLocation();
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
-		connect();
+		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
+		await connect();
 	}
 	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id){
+		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
 	else if (target.id === ELEMENTs.wantedProfile()?.id){
+		// event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le bouton
 		profileDisplay();
 	}
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
+		// event.preventDefault();
 		playDisplayHomepage();
 	}
-
+	else if (target.id === ELEMENTs.buttonCreateLobby()?.id){
+		event.preventDefault();
+		CreateLobbyDisplay();
+	}
+	else if (target.id === ELEMENTs.addFriendButton()?.id)
+	{
+		event.preventDefault();
+		await addFriend();
+	}
 	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
@@ -124,9 +151,9 @@ urlRoutes[PATHs.VIEWS.HOME] = {
 	title : "Home | " + PAGE_TITLE,
 	description : "",
 };
-urlRoutes[PATHs.VIEWS.LOBBY] = {
+urlRoutes[PATHs.VIEWS.CREATE_LOBBY] = {
 	view : createLobbyView,
-	title : "Lobby | " + PAGE_TITLE,
+	title : "Create_lobby | " + PAGE_TITLE,
 	description : "",
 };
 urlRoutes[PATHs.VIEWS.PROFILE] = {

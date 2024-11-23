@@ -3,7 +3,6 @@ async function connect()
 {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
     console.log(response);
@@ -13,8 +12,6 @@ async function connect()
         socket.onopen = function() {
             console.log("WebSocket connection established.", socket);
         };
-        
-        console.log('ici', response);
         socket.onerror = function(error) {
             console.error("WebSocket error observed:", error);
         };
@@ -56,7 +53,8 @@ async function connect()
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
     }
-    else if (response.status === 'error') {
+    else if (response.status === 'error') 
+    {
         if (typeof response.errors === 'object') {
             let errorMessages = '';
             for (let key in response.errors) {
@@ -70,8 +68,9 @@ async function connect()
             }
             alert(errorMessages);
         } else {
-            alert(response.errors);
-            console.log("Errors:", response.errors);
+            alert(response.message);
+            console.log("Errors:", response.message);
         }
+        ELEMENTs.password().value = "";
     }
 }

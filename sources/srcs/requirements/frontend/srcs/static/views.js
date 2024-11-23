@@ -2,7 +2,6 @@
 
 async function	homeView(title, description, data) 
 {
-	console.log('you are home page view');
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 
@@ -12,7 +11,6 @@ async function	homeView(title, description, data)
 	let englandFlagImg = document.getElementById("englandFlagImg");
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
-
 
 	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
 	// ELEMENTs.wantedProfile.onclick = () => profileDisplay();
@@ -35,17 +33,29 @@ async function	loginView(title, description, data) {
 async function	profileView(title, description, data) 
 {
 	document.title = title;
-	background.style.backgroundImage = "url('/static/static/photos/picturePng/homePage/luffyBackground.png')";
+	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 }
 
-async function	createLobbyView(title, description, data) {
-	const lobby = new CreateJoinLobbyClass();
-	lobby.buttonCreateLobby.onclick = () => CreateLobbyDisplay(lobby);
-	// verifier si le frere est connecte
-	// const lobbyPage = new lobbyPageClass();
-	// lobbyPage.crossButton.onclick = () => handleLocation();
-	// lobbyPage.playButtonInLobby.onclick = () => handleLocation();
+async function	createLobbyView(title, description, data) 
+{
+	document.title = title;
+	ELEMENTs.mainPage().innerHTML = CreateJoinLobbyDisplayVAR;
+
+	ELEMENTs.switchNumbersOfPlayers().addEventListener('change', function() 
+	{
+		if (ELEMENTs.switchNumbersOfPlayers().checked) 
+		{
+			ELEMENTs.zoroSanjiChibi().style.opacity = 1;
+			ELEMENTs.luffyChibi().style.opacity = 0.4;
+		} 
+		else 
+		{
+			ELEMENTs.zoroSanjiChibi().style.opacity = 0.4;
+			ELEMENTs.luffyChibi().style.opacity = 1;
+		}
+	});
+	ELEMENTs.cross().onclick = () => refreshHomePage();
 }
 
 async function	providerCallbackView(title, description, data) {

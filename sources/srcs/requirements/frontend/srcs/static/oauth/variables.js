@@ -15,7 +15,8 @@ const PATHs = Object.freeze({
 		MFA : '/frontpong/account/mfa/',
 		VERIFY_EMAIL : '/frontpong/account/verify-email/',
 		EMAIL_STATUS : '/frontpong/account/email-status/',
-		LOBBY : '/createLobby/',
+		CREATE_LOBBY : '/create-lobby/',
+		LOBBY : '/lobby/',
 		PROFILE : '/profile/',
 	}),
 
@@ -137,6 +138,11 @@ const ELEMENTs = Object.freeze({
 	loginButton : () => document.getElementById("loginButton"),
 	woodPresentation : () => document.getElementById("woodPresentation"),
 	background : () => document.getElementById("background"),
+
+
+	password : () => document.getElementById("password"),
+	createPassword : () => document.getElementById("createPassword"),
+	createConfirmPassword : () => document.getElementById("createConfirmPassword"),
 	
 	signInWith42Button :  () => document.getElementById("signInWith42Button"),
 	buttonCreateAccount : () => document.getElementById("createAnAccount"),
@@ -146,7 +152,7 @@ const ELEMENTs = Object.freeze({
 	
 	formConnect : () => document.getElementById("formConnect"),
 
-	buttonRefreshPage : () => document.getElementById('refreshPage'),
+	buttonRefreshPage : () => document.getElementById("refreshPage"),
 	buttonConnec : () => document.getElementById("connectionEmail"),
 	connexion_confirm_button : () => document.getElementById("connexion-confirm-button"),
 
@@ -165,7 +171,26 @@ const ELEMENTs = Object.freeze({
 	firstElement : () => document.getElementById("firstElement"),
 	secondElement : () => document.getElementById("secondElement"),
 	thirdElement : () => document.getElementById("thirdElement"),
+
+	addFriendButton : () => document.getElementById("addFriendButton"),
 	
+
+	// createLobby
+	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
+	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
+	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	teamFontOne : () => document.getElementById("teamFontOne"),
+	teamFontTwo : () => document.getElementById("teamFontTwo"),
+	luffyChibi : () => document.getElementById("luffyChibi"),
+	zoroSanjiChibi : () => document.getElementById("zoroSanjiChibi"),
+	buttonCreateLobby : () => document.getElementById("buttonCreate"),
+	cross : () => document.getElementById("cross"),
+	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	contentCreateLobby : () => document.getElementById("contentCreateLobby"),
+
+	centerLobbyDisplay : () => document.getElementById("centerLobbyDisplay"),
+	// LOBBY
+	crossButton : () => document.getElementById("crossButton"),
 });
 
 let N_ALERT = 0;

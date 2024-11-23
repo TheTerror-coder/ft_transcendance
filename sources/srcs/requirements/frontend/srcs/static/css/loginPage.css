@@ -37,9 +37,7 @@ body
 .loginButton
 {
     z-index: 3; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
     /* position: fixed */
     transition: margin-top 2s ease, box-shadow 3s ease-in-out, filter 1.2s ease;
 
@@ -47,7 +45,7 @@ body
 
 .loginButton:hover
 {
-    margin-top: 40px;
+    /* margin-top: 40px; */
     /* box-shadow: #FFF 0px 0px 1px, #FFF 0px 0px 2px, #FFF 0px 0px 3px, #ac1616 0px 0px 4px, #ac1616 0px 0px 5px, #ac1616 0px 0px 8px, #ac1616 0px 0px 10px, #ac1616 0px 0px 15px;  */
     filter:  contrast(170%) brightness(150%) saturate(300%);
 }

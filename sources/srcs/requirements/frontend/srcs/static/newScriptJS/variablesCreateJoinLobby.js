@@ -1,57 +1,61 @@
 
-
-class CreateJoinLobbyClass
+function CreateLobbyDisplay() 
 {
-    constructor()
-    {
-        this.switchNumbersOfPlayers = document.getElementById("switchNumbersOfPlayers");
-        this.luffyChibi = document.getElementById("luffyChibi");
-        this.zoroSanjiChibi = document.getElementById("zoroSanjiChibi");
-        this.buttonCreateLobby = document.getElementById("buttonCreate");
-        this.cross = document.getElementById("cross");
-        this.chooseTeamSwitch = document.getElementById("chooseTeamSwitch");
-
-        this.cross.onclick = () => refreshHomePage();
-        switchNumbersOfPlayers.addEventListener('change', function() {
-            const time = 900;
-            switchNumbersOfPlayers.disabled = true;
-            setTimeout(() => {
-                switchNumbersOfPlayers.disabled = false;
-                }, time);
-            if (switchNumbersOfPlayers.checked) 
-            {
-                zoroSanjiChibi.style.opacity = 1;
-                luffyChibi.style.opacity = 0.4;
-                chooseTeamSwitch.style.display = "flex";
-            } 
-            else 
-            {
-                zoroSanjiChibi.style.opacity = 0.4;
-                luffyChibi.style.opacity = 1;
-                chooseTeamSwitch.style.display = "none";
-
-            }
-        });
-
-    }
-}
-
-
-function CreateLobbyDisplay(state) 
-{
-    if (state.switchNumbersOfPlayers.checked == false)
-        mainPage.innerHTML = lobbyPageDisplayVAR;
+    if (ELEMENTs.switchNumbersOfPlayers().checked == false)
+        ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
     else
     {
-        mainPage.innerHTML = lobbyTwoPlayerDisplayVAR;
-        const centerLobbyDisplay = document.getElementById("centerLobbyDisplay");
-        centerLobbyDisplay.style.marginLeft = "0px";
-        centerLobbyDisplay.style.marginRight = "0px";
+        ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
     }
     const crossButton = document.getElementById("crossButton");
     crossButton.onclick = () => refreshHomePage();
     const playButtonInLobby = document.getElementById("playButtonInLobby");
 }
+
+
+const TeamAndRoleTwoPlayerLobbyVAR =
+`
+<div style="height: 493px; margin-left: 200px; margin-right: 200px;">
+    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
+        <div style="align-self: center;">
+            <p>Choose Your Team !</p>
+        </div>
+        <div>
+            <div style="display:flex; justify-content: space-between; height:246px;">
+                <div style="display:flex; flex-direction: column;">
+                    <p class="teamChooseFont"> Black Beard </p>
+                    <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
+                </div>
+                <div class="container">
+                    <input type="checkbox" name="chooseTeamSwitch" id="chooseTeamSwitch" />
+                    <label for="chooseTeamSwitch" class="label"> </label>
+                </div>
+                <div style="display:flex; flex-direction: column;">
+                    <p class="teamChooseFont"> White Beard </p>
+                    <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chooseRoleDisplay" style="display: flex; flex-direction: column;margin-left: 140px; margin-right: 140px;">
+        <div style="align-self: center;">
+            <p> Choose Your Role ! </p>
+        </div>
+        <div style="display:flex; justify-content: space-between; height:246px;">
+            <div id="helmsmanRoleDisplay">
+                <p class="teamChooseFont"> Helmsman </p>
+            </div>
+                <div class="container">
+                    <input type="checkbox" name="chooseRoleSwitch" id="chooseRoleSwitch" />
+                    <label for="chooseRoleSwitch" class="label"> </label>
+                </div>
+            <div id="gunnerRoleDisplay">
+                <p class="teamChooseFont"> Gunner </p>
+            </div>
+        </div>
+    </div>
+</div>
+` 
 
 
 
@@ -62,23 +66,21 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div class="cross" id="cross">
-                <button id="crossButton"><img src="../static/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+            <div class="cross">
+                <button id="crossButton"><img id="cross" src="/static/photos/picturePng/cross.png" alt="quit Button"></button>
             </div>
-            <div style="display: flex; flex-direction: column;">
+            <div id="contentCreateLobby" style="display: flex; flex-direction: column;">
                 <div style="display: flex; justify-content: center;">
                     <p style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>
                 <div class="createLobbySwitch">
-                    <img src="../static/photos/picturePng/lobbyPage/luffyChibi.png" alt="One" class="luffyChibi" id="luffyChibi">
-                    <div class="radioInput">
-                        <input type="checkbox" role="switch" class="liquid-3" id="switchNumbersOfPlayers" /> 
+                    <img src="../static/photos/picturePng/lobbyPage/luffyChibi.png" alt="One" id="luffyChibi">
+                    <div class="container">
+                        <input type="checkbox" name="switchNumbersOfPlayers" id="switchNumbersOfPlayers" />
+                        <label for="switchNumbersOfPlayers" class="label"> </label>
                     </div>
-                    <img src="../static/photos/picturePng/lobbyPage/sanjiAndZoroChibi.png" alt="Two" class="zoroSanjiChibi" id="zoroSanjiChibi">
+                    <img src="/static/photos/picturePng/lobbyPage/sanjiAndZoroChibi.png" alt="Two" id="zoroSanjiChibi">
                 </div>
-            </div>
-            <div id="chooseTeamSwitch" style="display: none; flex-direction: ">
-                <p> ICI CA VA CHOISIR SA TEAM EN LEGEEEEEENDE</p>
             </div>
             <div style="display: flex; justify-content: center;">
                 <button class="buttonCreate" id="buttonCreate">Create</button>

@@ -1,7 +1,6 @@
 
 
 
-
 function playDisplayHomepage()
 {
     ELEMENTs.playButton().style.display = 'none';
@@ -11,6 +10,8 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
     ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const rapidPlayButton = document.getElementById("rapidPlayButton");
     rapidPlayButton.onclick = () => rapidPlayLobbyDisplay();
 }
@@ -40,24 +41,39 @@ function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
-    const crossButton = document.getElementById("crossButton");
-    crossButton.onclick = () => refreshJoinCreateLocalPlay();
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
 }
 
-function refreshJoinCreateLocalPlay()
-{
-    ELEMENTs.playDisplay().innerHTML = centerPlayDisplayVAR;
-    ELEMENTs.firstElement() = document.getElementById("firstElement");
-    ELEMENTs.secondElement() = document.getElementById("secondElement");
-    ELEMENTs.thirdElement() = document.getElementById("thirdElement");
-    ELEMENTs.firstElement().style.display = "flex"; 
-    ELEMENTs.secondElement().style.display = "flex"; 
-    ELEMENTs.thirdElement().style.display = "flex";
-    ELEMENTs.playDisplay().innerHTML = rapidPlayLobbyDisplay(homePage)
-}
+
 
 function createLobbyPlay()
 {   
-    window.history.pushState({}, "", "/createLobby");
+    window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
+}
+
+function navigationPlayMenu()
+{
+    let nav = 0;
+    console.log("ELEMENTs.firstElement() = ", ELEMENTs.firstElement());
+    if (ELEMENTs.firstElement() === null && ELEMENTs.secondElement() === null && ELEMENTs.thirdElement() === null)
+        nav = 2;
+    else if (ELEMENTs.thirdElement().style.display === "block")
+        nav = 1;
+
+    refreshHomePage();
+    setTimeout(() => {
+        if (nav == 1)
+        {
+            ELEMENTs.playButtonImg().click();
+        }
+        if (nav == 2)
+        {
+            console.log("here in nav == 2");
+            ELEMENTs.playButtonImg().click();
+            rapidPlayButton.click();
+        }
+    }, 40);
+
 }

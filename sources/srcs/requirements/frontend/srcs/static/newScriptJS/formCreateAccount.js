@@ -29,6 +29,8 @@ async function createAccount(instance) {
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REGISTER, data);
     if (response.status === 'success') {
         alert('Form is valid and passwords match! Submitting...');
+        window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
+        handleLocation();
     }
     else if (response.status === 'error') {
         if (typeof response.errors === 'object') {
@@ -44,6 +46,8 @@ async function createAccount(instance) {
             alert(response.errors);
             console.log("Errors:", response.errors);
         }
+        ELEMENTs.createPassword().value = '';
+        ELEMENTs.createConfirmPassword().value = '';
     }
 };
 

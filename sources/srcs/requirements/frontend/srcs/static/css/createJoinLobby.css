@@ -1,3 +1,40 @@
+
+#gunnerRoleDisplay
+{
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundGunner.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+#helmsmanRoleDisplay
+{
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundHelmsman.jpg');
+  background-position: center;
+  background-size: cover;
+}
+
+#KurohigeTeamDisplay
+{
+  height: 180px;
+  opacity: 0.9;
+}
+
+#ShirohigeTeamDisplay
+{
+  height: 180px;
+  opacity: 0.9;
+}
+
+.teamChooseFont
+{
+    font-size: 40px;
+    font-weight: bold;
+    color: #dc2700;
+    align-self: center;
+    margin: 0;
+}
+
+
 /* From Uiverse.io by zjssun */ 
 .buttonCreate 
 {
@@ -65,7 +102,7 @@
 
   100% 
   {
-    background-position: 
+    background-position:
       0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%,
       50% 40%, 65% 10%, 90% 20%;
     background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
@@ -119,14 +156,15 @@
     min-width: 160px;
 }
 
-.zoroSanjiChibi
+#zoroSanjiChibi
 {
     opacity: 0.4;
+    margin-right: 140px;
 }
 
-.luffyChibi
+#luffyChibi
 {
-    margin-left: 140px;
+    margin-left: 280px;
 }
 
 
@@ -139,9 +177,8 @@
 
 
 /* From Uiverse.io by Shoh2008 */ 
-.input {
+/* .input {
     -webkit-appearance: none;
-    /* remove default */
     display: block;
     margin: 10px;
     width: 24px;
@@ -168,13 +205,13 @@
 {
     -webkit-transform: scale(1.5);
     -webkit-transition: -webkit-transform .1s cubic-bezier(0, 0, .2, 1);
-}
+} */
 
 
 
 /* The up/down direction logic */
 
-.input,
+/* .input,
 .input:active 
 {
     background-position: 0 24px;
@@ -189,4 +226,112 @@
 .input:checked ~ .input:active 
 {
     background-position: 0 -24px;
+} */
+
+
+/* From Uiverse.io by Yaya12085 */ 
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.label {
+  height: 60px;
+  width: 120px;
+  background-color: #ffffff;
+  border-radius: 30px;
+  -webkit-box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  -webkit-transition: -webkit-transform 0.4s;
+  transition: -webkit-transform 0.4s;
+  transition: transform 0.4s;
+}
+
+.label:hover {
+  -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+  transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#switchNumbersOfPlayers:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#switchNumbersOfPlayers {
+  display: none;
+}
+
+#switchNumbersOfPlayers:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+#chooseTeamSwitch:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseTeamSwitch {
+  display: none;
+}
+
+#chooseTeamSwitch:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+#chooseRoleSwitch:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseRoleSwitch {
+  display: none;
+}
+
+#chooseRoleSwitch:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+.label::before {
+  position: absolute;
+  content: "";
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #000000;
+  background-image: linear-gradient(
+    130deg,
+    #757272 10%,
+    #ffffff 11%,
+    #726f6f 62%
+  );
+  left: 10px;
+  -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    10px 10px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
