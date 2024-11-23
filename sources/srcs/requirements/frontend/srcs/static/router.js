@@ -58,21 +58,26 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 		event.preventDefault();
 		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
-		console.log("Pour le refresh de la page en html gang ta capte : URLs.VIEWS.LOGIN_VIEW = ", URLs.VIEWS.LOGIN_VIEW);
 		handleLocation();
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		await connect();
 	}
-	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id){
+	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id)
+	{
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	else if (target.id === ELEMENTs.wantedProfile()?.id){
-		// event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le bouton
-		profileDisplay();
-	}
+	// else if (target.id === ELEMENTs.wantedProfile()?.id){
+	// 	event.preventDefault();
+	// 	profileView();
+	// }
+	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
+	// {
+	// 	event.preventDefault();
+	// 	changeProfilePhoto();
+	// }
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
 		// event.preventDefault();
 		playDisplayHomepage();
@@ -90,11 +95,11 @@ const eventManager = async (event) => {
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
 	// }
-	 
+	
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
 	// }
-	console.log('event listener');
+	console.log('event listener: ', target.id);
 };
 
 const auth_change = async (event) => {

@@ -173,6 +173,14 @@ const ELEMENTs = Object.freeze({
 
 	addFriendButton : () => document.getElementById("addFriendButton"),
 	
+	// profilePage
+
+	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),
+	changeUsernameButton : () => document.getElementById("changeUsernameButton"),
+	profilPhotoInProfilePage : () => document.getElementById("profilPhotoInProfilePage"),
+	fileButton : () => document.getElementById("photoSimulateClickInput"),
+	formFile : () => document.getElementById("formFile"),
+	
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
