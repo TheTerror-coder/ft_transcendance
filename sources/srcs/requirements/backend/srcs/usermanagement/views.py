@@ -176,6 +176,7 @@ User = get_user_model()
 @login_required
 @csrf_protect
 def send_friend_request(request):
+    print("Données reçues : LOL", request.data, file=sys.stderr)
     if request.method == 'POST':
         username = request.POST.get('username')
         try:

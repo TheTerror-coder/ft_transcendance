@@ -1,13 +1,3 @@
-class lobbyPageClass 
-{
-    constructor()
-    {
-        background.style.backgroundImage = "none";
-        this.playButtonInLobby = document.querySelector("#playButtonInLobby");
-        crossButton.onclick = () => refreshHomePage();
-    }
-}
-
 
 const lobbyTwoPlayerDisplayVAR = 
 `<div>

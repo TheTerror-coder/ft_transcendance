@@ -11,6 +11,7 @@ async function	homeView(title, description, data)
 	let englandFlagImg = document.getElementById("englandFlagImg");
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
+
 	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
 	// ELEMENTs.wantedProfile.onclick = () => profileDisplay();
 }
@@ -43,34 +44,15 @@ async function	createLobbyView(title, description, data)
 
 	ELEMENTs.switchNumbersOfPlayers().addEventListener('change', function() 
 	{
-		// const time = 200;
-		// ELEMENTs.switchNumbersOfPlayers().disabled = true;
-		// setTimeout(() => {
-		// 	ELEMENTs.switchNumbersOfPlayers().disabled = false;
-		// 	}, time);
 		if (ELEMENTs.switchNumbersOfPlayers().checked) 
 		{
 			ELEMENTs.zoroSanjiChibi().style.opacity = 1;
 			ELEMENTs.luffyChibi().style.opacity = 0.4;
-			ELEMENTs.chooseTeamSwitch().addEventListener('change', function() 
-			{
-                if (ELEMENTs.chooseTeamSwitch().checked)
-                {
-                    ELEMENTs.teamFontOne().style.opacity = 1;
-                    ELEMENTs.teamFontTwo().style.opacity = 0.4;
-                } 
-                else 
-                {
-                    ELEMENTs.teamFontOne().style.opacity = 0.4;
-                    ELEMENTs.teamFontTwo().style.opacity = 1;
-                }
-			});
 		} 
 		else 
 		{
 			ELEMENTs.zoroSanjiChibi().style.opacity = 0.4;
 			ELEMENTs.luffyChibi().style.opacity = 1;
-			ELEMENTs.chooseTeamSwitch().checked = false;
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();

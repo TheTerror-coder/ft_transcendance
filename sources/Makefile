@@ -54,10 +54,10 @@ backend : # Rebuild and restart only the backend container
 	-docker compose -f $(COMPOSE_FILE) up -d --build backend
 
 ###JM Customs###
+clean c : down rm rmi rmv
 cleanv cv : # clean all volumes
 	-docker volume prune -f
 	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
-clean c : down rm rmi rmv
 fclean fc : clean cleanv
 	-docker system prune -f
 re : clean all

@@ -170,6 +170,8 @@ const ELEMENTs = Object.freeze({
 	firstElement : () => document.getElementById("firstElement"),
 	secondElement : () => document.getElementById("secondElement"),
 	thirdElement : () => document.getElementById("thirdElement"),
+
+	addFriendButton : () => document.getElementById("addFriendButton"),
 	
 
 	// createLobby

@@ -15,31 +15,33 @@ function CreateLobbyDisplay()
 
 const TeamAndRoleTwoPlayerLobbyVAR =
 `
-<div>
-    <div id="chooseTeamSwitchDisplay">
+<div style="height: 493px; margin-left: 200px; margin-right: 200px;">
+    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
         <div style="align-self: center;">
             <p>Choose Your Team !</p>
         </div>
         <div>
-            <div style="display:flex; justify-content: space-between">
-                <div id="KurohigeTeamDisplay">
-                    <p class="teamChooseFont"> Team Kurohige </p>
+            <div style="display:flex; justify-content: space-between; height:246px;">
+                <div style="display:flex; flex-direction: column;">
+                    <p class="teamChooseFont"> Black Beard </p>
+                    <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
                 </div>
                 <div class="container">
                     <input type="checkbox" name="chooseTeamSwitch" id="chooseTeamSwitch" />
                     <label for="chooseTeamSwitch" class="label"> </label>
                 </div>
-                <div id="MugiwaraTeamDisplay">
-                    <p class="teamChooseFont"> Team Mugiwara </p>
+                <div style="display:flex; flex-direction: column;">
+                    <p class="teamChooseFont"> White Beard </p>
+                    <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
                 </div>
             </div>
         </div>
     </div>
-    <div id="chooseRoleDisplay">
+    <div id="chooseRoleDisplay" style="display: flex; flex-direction: column;margin-left: 140px; margin-right: 140px;">
         <div style="align-self: center;">
             <p> Choose Your Role ! </p>
         </div>
-        <div style="display:flex; justify-content: space-between;">
+        <div style="display:flex; justify-content: space-between; height:246px;">
             <div id="helmsmanRoleDisplay">
                 <p class="teamChooseFont"> Helmsman </p>
             </div>
@@ -72,12 +74,12 @@ const CreateJoinLobbyDisplayVAR =
                     <p style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>
                 <div class="createLobbySwitch">
-                    <img src="../static/photos/picturePng/lobbyPage/luffyChibi.png" alt="One" class="luffyChibi" id="luffyChibi">
+                    <img src="../static/photos/picturePng/lobbyPage/luffyChibi.png" alt="One" id="luffyChibi">
                     <div class="container">
                         <input type="checkbox" name="switchNumbersOfPlayers" id="switchNumbersOfPlayers" />
                         <label for="switchNumbersOfPlayers" class="label"> </label>
                     </div>
-                    <img src="/static/photos/picturePng/lobbyPage/sanjiAndZoroChibi.png" alt="Two" class="zoroSanjiChibi" id="zoroSanjiChibi">
+                    <img src="/static/photos/picturePng/lobbyPage/sanjiAndZoroChibi.png" alt="Two" id="zoroSanjiChibi">
                 </div>
             </div>
             <div style="display: flex; justify-content: center;">

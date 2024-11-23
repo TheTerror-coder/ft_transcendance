@@ -81,7 +81,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		CreateLobbyDisplay();
 	}
-
+	else if (target.id === ELEMENTs.addFriendButton()?.id)
+	{
+		event.preventDefault();
+		await addFriend();
+	}
 	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();

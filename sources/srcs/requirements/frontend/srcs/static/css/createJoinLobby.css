@@ -2,21 +2,27 @@
 #gunnerRoleDisplay
 {
   background-image: url('/photos/picturePng/lobbyPage/BackgroundGunner.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 #helmsmanRoleDisplay
 {
-  background-image: url('/photos/picturePng/lobbyPage/Backgroundhelmsman.jpg');
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundHelmsman.jpg');
+  background-position: center;
+  background-size: cover;
 }
 
 #KurohigeTeamDisplay
 {
-
+  height: 180px;
+  opacity: 0.9;
 }
 
-#MugiwaraTeamDisplay
+#ShirohigeTeamDisplay
 {
-
+  height: 180px;
+  opacity: 0.9;
 }
 
 .teamChooseFont
@@ -24,6 +30,8 @@
     font-size: 40px;
     font-weight: bold;
     color: #dc2700;
+    align-self: center;
+    margin: 0;
 }
 
 
@@ -148,14 +156,15 @@
     min-width: 160px;
 }
 
-.zoroSanjiChibi
+#zoroSanjiChibi
 {
     opacity: 0.4;
+    margin-right: 140px;
 }
 
-.luffyChibi
+#luffyChibi
 {
-    margin-left: 140px;
+    margin-left: 280px;
 }
 
 
