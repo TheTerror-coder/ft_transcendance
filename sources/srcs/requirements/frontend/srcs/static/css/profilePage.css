@@ -1,23 +1,72 @@
+/* 
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 5px;
+} */
+
 .profilePage
 {
     display: flex;
 }
 
 
-.wantedInProfilePage
+.wantedProfileInProfilePage
 {
+    display: block;
     background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
+    align-self: end;
 }
+
+.wantedProfileInProfilePage p
+{
+    font-family: wantedFont;
+    font-size: 200%;
+    margin-top: 32px;
+    margin-bottom: -2px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    color: #493B3A;
+    font-weight: 700;
+    opacity: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wantedProfileInProfilePage span
+{
+    font-family: wantedFont;
+    font-size: 165%;
+    opacity: 85%;
+    color: #493B3A;
+}
+
+
+
+.popover 
+{
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+
 
 
 .bookProfile
 {
     position: relative;
     border-radius: 10px;
-    width: 290px;
-    height: 440px;
+    width: 300px;
+    height: 455px;
     background-color: whitesmoke;
     box-shadow: 1px 1px 12px #000;
     perspective: 2000px;
@@ -29,6 +78,7 @@
     color: #000;
     margin-left: 10px;
     align-self: center;
+    margin-bottom: 100px;
 }
 
 .bookProfile:hover .cover {

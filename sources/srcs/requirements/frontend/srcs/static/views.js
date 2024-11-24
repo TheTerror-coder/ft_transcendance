@@ -13,7 +13,8 @@ async function	homeView(title, description, data)
 	englandFlag.style.marginRight = "-0.01px";
 
 	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
-	// ELEMENTs.wantedProfile.onclick = () => profileDisplay();
+	ELEMENTs.wantedProfile().onclick = () => profileView();
+	console.log('homeView: ');
 }
 
 
@@ -35,6 +36,13 @@ async function	profileView(title, description, data)
 	document.title = title;
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
+	console.log("je suis cense etre al avant display friend");
+	await displayFriend();
+	console.log("apres display friend");
+
+	// ELEMENTs.changeProfilePhotoButton().onclick = () => changeProfilePhoto();
+	// ELEMENTs.changeProfilePhotoButton().onclick = () => changeProfilePhoto();
+	ELEMENTs.changeUsernameButton().onclick = () => changeUsername();
 }
 
 async function	createLobbyView(title, description, data) 
