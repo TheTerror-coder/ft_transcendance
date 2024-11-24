@@ -33,22 +33,21 @@ const profilePageDisplayVAR =
                 <p>SOCIAL</p>
             </div>
         </div>
-        
-        <div class="wantedFriendHomePageDisplay">
-            <div class="wantedProfileInProfilePage">
-                <button id="changeProfilePhotoButton" type="button">
-                    <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture" id="profilPhotoInProfilePage">
-                </button>
-                <div style="display: flex; flex-direction: column;">
-                    <button id="changeUsernameButton">
-                        <p>USERNAME</p>
-                    </button>
-                    <span>10.000</span>
-                </div>
-            </div>
+        <div class="wantedProfileInProfilePage">
+            <button id="changeProfilePhotoButton" type="button">
+                <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">
+            </button>
+            <button>
+                <p id="changeUsernameButton">USERNAME</p>
+            </button>
+            <span>10.000</span>
         </div>
     </div>
 </div>`;
+
+{/* <div style="display: flex; flex-direction: column;">
+</div> */}
+
 
 {/* <input style="width: 170px; margin-top: 20px;"></input>
 <div style="display:flex; justify-content: center; margin-top: 20px;">

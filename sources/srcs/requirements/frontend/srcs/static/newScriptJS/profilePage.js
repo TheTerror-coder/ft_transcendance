@@ -41,7 +41,14 @@ friends.forEach(friend => {
 });
 }
 
-const popUpFriendVAR = 
+
+// Change Username
+
+const popUpUsernameVAR = `<input type="text" id="usernameChange" place-holder="Change Username">`;
+
+// Change Picture
+
+const popUpProfilPictureVAR = 
 `<div class="popover">
     <input type="file" id="formFile" hidden>
     <button id="photoSimulateClickInput">Change your profile photo</button>
@@ -53,11 +60,9 @@ const togglePopover = (event) =>
     // Check if popover already exists
     let existingPopover = document.getElementById('dynamicPopover');
 
-    if (ELEMENTs.formFile() && event.target === ELEMENTs.fileButton())
+
+    if (existingPopover && event.target !== ELEMENTs.fileButton()) 
     {
-        console.log("ELEMENTs.formFile().value");
-    }
-    else if (existingPopover) {
         existingPopover.remove(); // Remove it if it exists
     } 
     else 
@@ -65,8 +70,7 @@ const togglePopover = (event) =>
         // Create a container div and set its content
         const popoverContainer = document.createElement('div');
         popoverContainer.id = 'dynamicPopover';
-        popoverContainer.innerHTML = popUpFriendVAR;
-        
+        popoverContainer.innerHTML = popUpProfilPictureVAR;
         // Style and position the popover
         const rect = ELEMENTs.changeProfilePhotoButton().getBoundingClientRect();
         popoverContainer.style.position = 'absolute';
@@ -80,6 +84,8 @@ const togglePopover = (event) =>
     }
 };
 
+
+//profilePicture
 
 document.addEventListener('click', (event) => 
 {
@@ -108,12 +114,92 @@ document.addEventListener('click', (event) =>
         }
     });
     
-async function changePicture(params) {
+async function changePicture(picture) {
     const data = new FormData();
-    data.append("picture", params);
+    data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
     if (response.status === 'success') {
         alert('Profile photo updated');
+    }
+    else if (response.status === 'error') 
+    {
+        if (typeof response.errors === 'object') {
+            let errorMessages = '';
+            for (let key in response.errors) {
+                if (response.errors.hasOwnProperty(key)) {
+                    errorMessages += `${key}: ${response.errors[key]}\n`;
+                }
+            }
+            const tmp = errorMessages.substring(0, 7);
+            if (strcmp(tmp, "__all__")) {
+                errorMessages = errorMessages.substring(9);
+            }
+            alert(errorMessages);
+        } else {
+            alert(response.message);
+            console.log("Errors:", response.message);
+        }
+    }
+}
+
+
+// Change Username
+
+document.addEventListener('click', async (event) => 
+{
+    if (ELEMENTs.changeUsernameButton() !== null)
+    {
+        if (event.target === ELEMENTs.changeUsernameButton())
+        {
+            console.log("reconnu comme cree ELEMENTs.changeUsernamePopOver(): ", ELEMENTs.changeUsernamePopOver());
+            if (ELEMENTs.changeUsernamePopOver() === null)
+            {
+                console.log("create le bail");
+                const popoverContainer = document.createElement('div');
+                popoverContainer.id = "changeUsernamePopOver";
+                popoverContainer.innerHTML = popUpUsernameVAR;
+                const rect = ELEMENTs.changeUsernameButton().getBoundingClientRect();
+                popoverContainer.style.position = 'absolute';
+                popoverContainer.style.top = `${rect.top + window.scrollY}px`;
+                popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
+                popoverContainer.style.zIndex = 1;
+                popoverContainer.style.width = '233px';
+                popoverContainer.style.height = '30px';
+                ELEMENTs.changeUsernameButton().appendChild(popoverContainer);
+            }
+        }
+        else if (document.getElementById('usernameChange') && event.target === usernameChange)
+        {
+            console.log("ecrire en legende ?? SVP ?");
+            usernameChange.addEventListener('keypress', async (event) =>
+            {
+                console.log("dans l'evenement des keypress");
+                if (event.key === 'Enter')
+                {
+                    event.preventDefault();
+                    const newUsername = document.getElementById('usernameChange').value;
+                    console.log("newUsername: ", newUsername);
+                    ELEMENTs.changeUsernamePopOver().remove();
+                    changeUsername(newUsername);
+                }
+                if(event.key === 'space')
+                {
+                    event.preventDefault();   
+                }
+            });
+        }
+        else if (ELEMENTs.changeUsernamePopOver())
+            ELEMENTs.changeUsernamePopOver().remove();
+    }
+});
+
+async function changeUsername(newUsername) {
+    console.log("newUsername: ", newUsername);
+    const data = new FormData();
+    data.append("username", newUsername);
+    const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
+    if (response.status === 'success') {
+        alert('Username updated');
     }
     else if (response.status === 'error') 
     {

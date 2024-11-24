@@ -16,10 +16,21 @@
     display: flex;
 }
 
+.profileProfilePagePicture
+{
+    min-width: 243px;
+    min-height: 182px;
+    max-width: 243px;
+    max-height: 182px;
+    margin-right: -5px;
+    margin-top: 97px;
+}
+
 
 .wantedProfileInProfilePage
 {
-    display: block;
+    display: flex;
+    flex-direction: column;
     background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
     width: 302px;
     height: 442px;
@@ -49,6 +60,7 @@
     font-size: 165%;
     opacity: 85%;
     color: #493B3A;
+    align-self: center;
 }
 
 
@@ -66,7 +78,7 @@
     position: relative;
     border-radius: 10px;
     width: 300px;
-    height: 455px;
+    height: 285px;
     background-color: whitesmoke;
     box-shadow: 1px 1px 12px #000;
     perspective: 2000px;

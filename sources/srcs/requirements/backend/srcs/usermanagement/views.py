@@ -17,11 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 import sys
 
-
-@api_view(['GET', 'POST'])
-def test(request):
-    return Response({'msg' : 'hello world from One Pong!!'})
-
+# accept multiple username
 @api_view(['POST'])
 @csrf_protect
 def register(request):
@@ -44,7 +40,6 @@ def connect(request):
     return render(request, 'base.html')
 
 
-# envoyer le msg double connexion
 @api_view(['POST'])
 @csrf_protect
 def login_view(request):
@@ -82,31 +77,26 @@ def logout_view(request):
     logout(request)
     return Response({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
 
-# check si l'utilisateur exite deja 
+# check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def update_profile(request):
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-        username = data.get('username')
-    except json.JSONDecodeError:
-        return Response({'status': 'error', 'message': 'Invalid JSON'}, status=400)
-    
+    print("update-profile", request.data, file=sys.stderr)
+    username = request.data.get('username')
     form = UpdateUsernameForm({'username': username}, instance=request.user)
     
     if form.is_valid():
         form.save()
-        response = {
+        return Response({
             'status': 'success',
-            'message': 'Nom d\'utilisateur mis à jour avec succès.'
-        }
-        return Response(response)
-    response = {
-        'status': 'error',
-        'message': form.errors.get('username', ['Erreur inconnue'])[0]
-    }
-    return Response(response, status=400)
+            'message': 'Profile picture updated successfully.',
+        }, status=200)
+    else:
+        return Response({
+            'status': 'error',
+            'message': form.errors.get('username', ['Erreur inconnue'])[0],
+        }, status=400)
 
 
 @api_view(['POST'])
