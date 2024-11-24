@@ -180,6 +180,7 @@ const ELEMENTs = Object.freeze({
 	profilPhotoInProfilePage : () => document.getElementById("profilPhotoInProfilePage"),
 	fileButton : () => document.getElementById("photoSimulateClickInput"),
 	formFile : () => document.getElementById("formFile"),
+	changeUsernamePopOver : () => document.getElementById("changeUsernamePopOver"),
 	
 
 	// createLobby

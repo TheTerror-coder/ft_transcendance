@@ -41,9 +41,16 @@ friends.forEach(friend => {
 });
 }
 
-const popUpFriendVAR = 
+
+// Change Username
+
+const popUpUsernameVAR = `<input type="text" id="usernameChange">`;
+
+// Change Picture
+
+const popUpProfilPictureVAR = 
 `<div class="popover">
-    <button id="photoSimulateClickInput">Change your profile photo</button>
+    <button id="photoSimulateClickInput">Change your profile picture</button>
     <input type="file" id="formFile" hidden>
 </div>`;
 
@@ -53,11 +60,9 @@ const togglePopover = (event) =>
     // Check if popover already exists
     let existingPopover = document.getElementById('dynamicPopover');
 
-    if (ELEMENTs.formFile() && event.target === ELEMENTs.fileButton())
+
+    if (existingPopover && event.target !== ELEMENTs.fileButton()) 
     {
-        console.log("ELEMENTs.formFile().value");
-    }
-    else if (existingPopover) {
         existingPopover.remove(); // Remove it if it exists
     } 
     else 
@@ -65,8 +70,7 @@ const togglePopover = (event) =>
         // Create a container div and set its content
         const popoverContainer = document.createElement('div');
         popoverContainer.id = 'dynamicPopover';
-        popoverContainer.innerHTML = popUpFriendVAR;
-        
+        popoverContainer.innerHTML = popUpProfilPictureVAR;
         // Style and position the popover
         const rect = ELEMENTs.changeProfilePhotoButton().getBoundingClientRect();
         popoverContainer.style.position = 'absolute';
@@ -81,6 +85,8 @@ const togglePopover = (event) =>
 };
 
 
+//profilePicture
+
 document.addEventListener('click', (event) => 
 {
     let profilePhoto;
@@ -94,17 +100,16 @@ document.addEventListener('click', (event) =>
         {
                 ELEMENTs.formFile().click();
                 ELEMENTs.formFile().addEventListener('change', (event) => {
-                    profilePhoto = event.target.files[0];
-                    
-                    if (profilePhoto) 
-                    {
-                        console.log("profilePhoto: ", profilePhoto);
-                        document.getElementById('dynamicPopover')?.remove();
-                    } else 
-                    {
-                        console.error('No file selected');
-                        document.getElementById('dynamicPopover')?.remove();
-                    }
+                profilePhoto = event.target.files[0];
+                    // if (profilePhoto) 
+                    // {
+                    //     console.log("profilePhoto: ", profilePhoto);
+                    //     document.getElementById('dynamicPopover')?.remove();
+                    // } else 
+                    // {
+                    //     console.error('No file selected');
+                    //     document.getElementById('dynamicPopover')?.remove();
+                    // }
                 });
         }
     }
@@ -114,5 +119,49 @@ document.addEventListener('click', (event) =>
     }
     if (!ELEMENTs.changeProfilePhotoButton().contains(event.target) && !document.getElementById('dynamicPopover')?.contains(event.target)) {
         document.getElementById('dynamicPopover')?.remove();
+    }
+});
+
+
+// Change Username
+
+document.addEventListener('click', async (event) => 
+{
+    if (ELEMENTs.changeUsernameButton() !== null)
+    {
+        if (event.target === ELEMENTs.changeUsernameButton())
+        {
+            console.log("reconnu comme cree ELEMENTs.changeUsernamePopOver(): ", ELEMENTs.changeUsernamePopOver());
+            if (ELEMENTs.changeUsernamePopOver() === null)
+            {
+                console.log("create le bail");
+                const popoverContainer = document.createElement('div');
+                popoverContainer.id = "changeUsernamePopOver";
+                popoverContainer.innerHTML = popUpUsernameVAR;
+                const rect = ELEMENTs.changeUsernameButton().getBoundingClientRect();
+                popoverContainer.style.position = 'absolute';
+                popoverContainer.style.top = `${rect.top + window.scrollY}px`;
+                popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
+                popoverContainer.style.zIndex = 1;
+                popoverContainer.style.width = '233px';
+                ELEMENTs.changeUsernameButton().appendChild(popoverContainer);
+            }
+        }
+        else if (event.target === usernameChange)
+        {
+            console.log("ecrire en legende ?? SVP ?");
+            usernameChange.addEventListener('keypress', async (event) =>
+            {
+                console.log("dans l'evenement des keypress");
+                if (event.key === 'Enter')
+                {
+                    event.preventDefault();
+                    const newUsername = document.getElementById('usernameChange').value;
+                    console.log("newUsername: ", newUsername);
+                }
+            });
+        }
+        else if (ELEMENTs.changeUsernamePopOver())
+            ELEMENTs.changeUsernamePopOver().remove();
     }
 });

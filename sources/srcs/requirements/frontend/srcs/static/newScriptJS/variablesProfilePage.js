@@ -40,8 +40,8 @@ const profilePageDisplayVAR =
                     <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture" id="profilPhotoInProfilePage">
                 </button>
                 <div style="display: flex; flex-direction: column;">
-                    <button id="changeUsernameButton">
-                        <p>USERNAME</p>
+                    <button>
+                        <p id="changeUsernameButton">USERNAME</p>
                     </button>
                     <span>10.000</span>
                 </div>

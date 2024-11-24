@@ -40,9 +40,6 @@ async function	profileView(title, description, data)
 	await displayFriend();
 	console.log("apres display friend");
 
-	// ELEMENTs.changeProfilePhotoButton().onclick = () => changeProfilePhoto();
-	// ELEMENTs.changeProfilePhotoButton().onclick = () => changeProfilePhoto();
-	ELEMENTs.changeUsernameButton().onclick = () => changeUsername();
 }
 
 async function	createLobbyView(title, description, data) 
