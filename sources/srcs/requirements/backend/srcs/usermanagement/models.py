@@ -1,17 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.exceptions import ValidationError
+from .validators import validate_image_extension
 import os
-
-
-def validate_image_extension(value):
-    if not value:
-        return
-    ext = os.path.splitext(value.name)[1].lower()
-    valid_extensions = ['.png', '.jpg', '.jpeg', '.webp']
-    if ext not in valid_extensions:
-        raise ValidationError('Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.')
-
+import sys
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)

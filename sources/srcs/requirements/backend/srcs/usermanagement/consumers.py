@@ -14,24 +14,6 @@ user_sockets = {}
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-
-# class ChatConsumer(AsyncJsonWebsocketConsumer):
-#     async def connect(self):
-#         sys.stderr.write("*****************connected" + '\n')
-#         await self.accept()
-
-#     async def disconnect(self, close_code):
-#         sys.stderr.write("*****************disconnected" + '\n')
-#         pass
-
-#     async def receive(self, text_data):
-#         sys.stderr.write("*****************receive" + '\n')
-#         text_data_json = json.loads(text_data)
-#         message = text_data_json["message"]
-
-#         await self.send(text_data=json.dumps({"message": message}))
-
-
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):

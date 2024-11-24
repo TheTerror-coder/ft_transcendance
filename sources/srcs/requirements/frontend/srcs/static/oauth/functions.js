@@ -45,8 +45,12 @@ async function makeRequest(method, path, data, headers) {
 	}
 
   if (data) {
-	options.body = JSON.stringify(data)
-	options.headers['Content-Type'] = 'application/json'
+	if (data instanceof FormData) {
+		options.body = data;
+	} else {
+		options.body = JSON.stringify(data)
+		options.headers['Content-Type'] = 'application/json'
+	}
   }
   const resp = await fetch(path, options)
   const msg = await resp.json()
@@ -62,6 +66,8 @@ async function makeRequest(method, path, data, headers) {
 //   }
   return (msg);
 }
+
+
 
 async function redirectToProvider()
 {

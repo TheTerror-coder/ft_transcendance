@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth import authenticate
+from .validators import validate_image_extension
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -40,9 +41,6 @@ class CustomAuthenticationForm(forms.Form):
         return self.user_cache
 
 
-
-
-
 class UpdateUsernameForm(forms.ModelForm):
     class Meta:
         model = CustomUser
@@ -57,7 +55,7 @@ class UpdateUsernameForm(forms.ModelForm):
 
 class UpdatePhotoForm(forms.ModelForm):
     photo = forms.ImageField(
-        validators=[FileExtensionValidator(allowed_extensions=['png', 'jpg', 'jpeg', 'webp'])]
+        validators=[validate_image_extension]
     )
 
     class Meta:

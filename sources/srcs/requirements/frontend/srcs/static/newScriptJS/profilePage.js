@@ -43,8 +43,8 @@ friends.forEach(friend => {
 
 const popUpFriendVAR = 
 `<div class="popover">
-    <button id="photoSimulateClickInput">Change your profile photo</button>
     <input type="file" id="formFile" hidden>
+    <button id="photoSimulateClickInput">Change your profile photo</button>
 </div>`;
 
     
@@ -87,32 +87,51 @@ document.addEventListener('click', (event) =>
 
     if (ELEMENTs.changeProfilePhotoButton() === null)
         return ;
-    console.log("event dans ma fonction ta capte: ", event.target);
     if (ELEMENTs.fileButton() !== null)
-    {
-        if (event.target === ELEMENTs.fileButton())
         {
-                ELEMENTs.formFile().click();
-                ELEMENTs.formFile().addEventListener('change', (event) => {
-                    profilePhoto = event.target.files[0];
-                    
-                    if (profilePhoto) 
-                    {
-                        console.log("profilePhoto: ", profilePhoto);
-                        document.getElementById('dynamicPopover')?.remove();
-                    } else 
-                    {
-                        console.error('No file selected');
-                        document.getElementById('dynamicPopover')?.remove();
-                    }
-                });
+            if (event.target === ELEMENTs.fileButton()){
+            console.log("event dans ma fonction ta capte: ");
+            ELEMENTs.formFile().click();
+            ELEMENTs.formFile().addEventListener('change', (event) => {
+                profilePhoto = event.target.files[0];
+                changePicture(profilePhoto);
+                document.getElementById('dynamicPopover')?.remove();
+            });
         }
     }
     if (event.target === document.getElementById("profilPhotoInProfilePage"))
+        {
+            togglePopover({ target: ELEMENTs.changeProfilePhotoButton() });
+        }
+        if (!ELEMENTs.changeProfilePhotoButton().contains(event.target) && !document.getElementById('dynamicPopover')?.contains(event.target)) {
+            document.getElementById('dynamicPopover')?.remove();
+        }
+    });
+    
+async function changePicture(params) {
+    const data = new FormData();
+    data.append("picture", params);
+    const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
+    if (response.status === 'success') {
+        alert('Profile photo updated');
+    }
+    else if (response.status === 'error') 
     {
-        togglePopover({ target: ELEMENTs.changeProfilePhotoButton() });
+        if (typeof response.errors === 'object') {
+            let errorMessages = '';
+            for (let key in response.errors) {
+                if (response.errors.hasOwnProperty(key)) {
+                    errorMessages += `${key}: ${response.errors[key]}\n`;
+                }
+            }
+            const tmp = errorMessages.substring(0, 7);
+            if (strcmp(tmp, "__all__")) {
+                errorMessages = errorMessages.substring(9);
+            }
+            alert(errorMessages);
+        } else {
+            alert(response.message);
+            console.log("Errors:", response.message);
+        }
     }
-    if (!ELEMENTs.changeProfilePhotoButton().contains(event.target) && !document.getElementById('dynamicPopover')?.contains(event.target)) {
-        document.getElementById('dynamicPopover')?.remove();
-    }
-});
+}

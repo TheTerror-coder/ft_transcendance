@@ -18,10 +18,8 @@ async function addFriend()
     
     const usernameAddValue = document.getElementById("usernameAddFriend").value;
     const data = {"username": usernameAddValue};
-    console.log('add friend: ', data);
     
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
-    console.log(" ALORS RESPONSE ???", response);
     if (response.status === 'success') {
         alert('Friend request sent at ', usernameAddValue);
         if (socket) {

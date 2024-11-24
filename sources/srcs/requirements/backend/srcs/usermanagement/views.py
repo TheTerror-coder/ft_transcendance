@@ -113,27 +113,30 @@ def update_profile(request):
 @login_required
 @csrf_protect
 def update_photo(request):
-    if 'photo' not in request.FILES:
-        return Response({'status': 'error', 'message': 'Aucun fichier reçu'}, status=400)
+    print("update_photo", file=sys.stderr)
+    if 'picture' not in request.FILES:
+        return Response({
+            'status': 'error',
+            'message': 'No file received.',
+        }, status=400)
 
-    file = request.FILES['photo']
+    file = request.FILES['picture']
     if len(file.name) > 100:
         file_extension = os.path.splitext(file.name)[1]
         file.name = f"{get_random_string(10)}{file_extension}"
     form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
     if form.is_valid():
         form.save()
-        response = {
+        return Response({
             'status': 'success',
-            'message': 'Photo de profil mise à jour avec succès.'
-        }
-        return Response(response)
+            'message': 'Profile picture updated successfully.',
+        }, status=200)
     else:
-        response = {
+        error_messages = {field: error_list for field, error_list in form.errors.items()}
+        return Response({
             'status': 'error',
-            'message': 'Erreur lors de la mise à jour de la photo de profil.',
-        }
-        return Response(response)
+            'errors': error_messages,
+        }, status=400)
 
 
 @require_http_methods(["GET", "POST"])
