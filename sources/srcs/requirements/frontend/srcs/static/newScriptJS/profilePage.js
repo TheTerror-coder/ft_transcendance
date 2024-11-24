@@ -44,7 +44,7 @@ friends.forEach(friend => {
 
 // Change Username
 
-const popUpUsernameVAR = `<input type="text" id="usernameChange">`;
+const popUpUsernameVAR = `<input type="text" id="usernameChange" place-holder="Change Username">`;
 
 // Change Picture
 
@@ -144,10 +144,11 @@ document.addEventListener('click', async (event) =>
                 popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
                 popoverContainer.style.zIndex = 1;
                 popoverContainer.style.width = '233px';
+                popoverContainer.style.height = '30px';
                 ELEMENTs.changeUsernameButton().appendChild(popoverContainer);
             }
         }
-        else if (event.target === usernameChange)
+        else if (document.getElementById('usernameChange') && event.target === usernameChange)
         {
             console.log("ecrire en legende ?? SVP ?");
             usernameChange.addEventListener('keypress', async (event) =>
@@ -158,6 +159,7 @@ document.addEventListener('click', async (event) =>
                     event.preventDefault();
                     const newUsername = document.getElementById('usernameChange').value;
                     console.log("newUsername: ", newUsername);
+                    ELEMENTs.changeUsernamePopOver().remove();
                 }
             });
         }
