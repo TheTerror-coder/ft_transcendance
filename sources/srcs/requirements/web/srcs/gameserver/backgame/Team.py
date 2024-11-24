@@ -76,6 +76,7 @@ class Team:
         logger.info(f"Team {self.TeamId} scored a point")
         self.score += 1
         logger.info(f"Team {self.TeamId} score: {self.score}")
+        
 
     def getScore(self):
         return self.score

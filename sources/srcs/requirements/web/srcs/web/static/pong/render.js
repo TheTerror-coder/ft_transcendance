@@ -25,7 +25,39 @@ export async function initScene() {
     return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball };
 }
 
+function initBoundaryLines() {
+    const material = new THREE.LineBasicMaterial({ color: 0xFF69B4 }); // Rose
+    const lines = new THREE.Group();
+
+    // Lignes verticales (x = ±80)
+    const verticalGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-80, -55, 0),
+        new THREE.Vector3(-80, 55, 0)
+    ]);
+    const verticalLine1 = new THREE.Line(verticalGeometry, material);
+    const verticalLine2 = new THREE.Line(verticalGeometry.clone(), material);
+    verticalLine2.position.x = 160; // Pour positionner à x = 80
+
+    // Lignes horizontales (y = ±55)
+    const horizontalGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-80, -55, 0),
+        new THREE.Vector3(80, -55, 0)
+    ]);
+    const horizontalLine1 = new THREE.Line(horizontalGeometry, material);
+    const horizontalLine2 = new THREE.Line(horizontalGeometry.clone(), material);
+    horizontalLine2.position.y = 110; // Pour positionner à y = 55
+
+    lines.add(verticalLine1);
+    lines.add(verticalLine2);
+    lines.add(horizontalLine1);
+    lines.add(horizontalLine2);
+
+    return lines;
+}
+
 function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
+    const boundaryLines = initBoundaryLines();
+    
     scene.add(ball);
     scene.add(ocean);
     scene.add(ambientLight);
@@ -33,6 +65,7 @@ function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directio
     scene.add(directionalLight2);
     scene.add(bateau1);
     scene.add(bateau2);
+    scene.add(boundaryLines); // Ajouter les lignes de délimitation
 }
 
 async function initObject(scene)
@@ -228,11 +261,11 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
     
     // Positionner et orienter le canon
     if (teamId === 1) {
-        boatGroup.position.set(0, 20, -1);
+        boatGroup.position.set(0, 35, -1);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
     } else if (teamId === 2) {
-        boatGroup.position.set(0, -20, -1);
+        boatGroup.position.set(0, -35, -1);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
     }

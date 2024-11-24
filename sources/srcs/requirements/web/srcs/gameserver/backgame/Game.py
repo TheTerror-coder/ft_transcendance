@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 class Game:
     def __init__(self):
-        # self.ballPosition = {'x': 0, 'y': 0, 'z': 0}
-        # self.ballDirection = {'x': 0, 'y': 0, 'z': 0}
         self.gameInterval = None
         self.tickRate = 1000 / 60
         self.gameStarted = False
@@ -24,11 +22,13 @@ class Game:
         self.isPaused = False
         
         # Constantes pour la balle
-        self.BALL_SPEED = 0.2
+        self.BALL_SPEED = 0.3
         self.SPEED_INCREASE_FACTOR = 1.1
         self.BALL_UPDATE_INTERVAL = 50
-        self.FIELD_WIDTH = 60
-        self.FIELD_HEIGHT = 60
+        self.FIELD_WIDTH = 160
+        self.FIELD_HEIGHT = 110
+
+        self.WINNING_SCORE = 10
         
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
@@ -39,17 +39,37 @@ class Game:
 
     def initializeBallDirection(self):
         import random
+        import math
+        random_direction_x = 0
+        random_direction_y = 0
+        while random_direction_x == 0 and random_direction_y == 0:
+            random_direction_x = random.random() * 2 - 1
+            random_direction_y = random.random() * 2 - 1
+
+        length = math.sqrt(random_direction_x ** 2 + random_direction_y ** 2)
+        random_direction_x /= length
+        random_direction_y /= length
+
+        logger.info(f"random_direction_x: {random_direction_x} random_direction_y: {random_direction_y} length: {length}")
         return {
-            "x": random.random() * 2 - 1,
-            "y": random.random() * 2 - 1,
-            "z": 0
+            "x": random_direction_x,
+            "y": random_direction_y,
+            "z": 2
         }
 
     async def updateBallPosition(self):
-        self.ballPosition["x"] += self.ballDirection["x"] * self.BALL_SPEED
-        self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
+        if self.gameStarted:
+            self.ballPosition["x"] += self.ballDirection["x"] * self.BALL_SPEED
+            self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
         return self.ballPosition
 
+
+    # Vérifier si la balle touche le bateau
+    # Different retour en fonction de la collision
+    # -1 : Erreur
+    # 0 : Pas de collision
+    # 1 : Collision avec le haut du bateau
+    # 2 : Collision avec le bord du bateau
     async def isColliding(self, team):
         ballRadius = 0.5
         hitbox = team.getBoatHitbox()
@@ -57,7 +77,7 @@ class Game:
         
         if not hitbox or not boatPos:
             logger.debug("Hitbox ou position du bateau non disponible")
-            return False
+            return -1
         # logger.info(f"hitbox: {hitbox} boatPos: {boatPos}")
 
         # Calculer le déplacement du bateau
@@ -83,60 +103,87 @@ class Game:
         # Vérifier la collision avec la hitbox ajustée
         isInXRange = adjusted_hitbox['min']['x'] - ballRadius <= self.ballPosition['x'] <= adjusted_hitbox['max']['x'] + ballRadius
         isInYRange = adjusted_hitbox['min']['y'] - ballRadius <= self.ballPosition['y'] <= adjusted_hitbox['max']['y'] + ballRadius
-        # isInZRange = adjusted_hitbox['min']['z'] - ballRadius <= self.ballPosition['z'] <= adjusted_hitbox['max']['z'] + ballRadius
+
+        # Ajouter une condition pour verifier exactement le bord sur lequel la ball tape, il semble y avoir un bug quand la ball touche un des cotes droit ou gauche
+
         logger.info(f"isInXRange: adjusted_hitbox min x: {adjusted_hitbox['min']['x']}, ballRadius: {ballRadius}, ballPosition x: {self.ballPosition['x']}, adjusted_hitbox max x: {adjusted_hitbox['max']['x']}")
         logger.info(f"isInYRange: adjusted_hitbox min y: {adjusted_hitbox['min']['y']}, ballRadius: {ballRadius}, ballPosition y: {self.ballPosition['y']}, adjusted_hitbox max y: {adjusted_hitbox['max']['y']}")
         logger.info(f"isInXRange: {isInXRange} isInYRange: {isInYRange}")
         
         if isInXRange and isInYRange:
             logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Adjusted Hitbox: {adjusted_hitbox}")
-            return True
-            
-        return False
+            # Vérifier si la balle touche les bords droit ou gauche du bateau ou les bords haut ou bas
+            isOnLeftSide = self.ballPosition['x'] <= adjusted_hitbox['min']['x']
+            isOnRightSide = self.ballPosition['x'] >= adjusted_hitbox['max']['x']
+            # isOnTopSide = self.ballPosition['y'] >= adjusted_hitbox['max']['y']
+            isOnBottomSide = self.ballPosition['y'] <= adjusted_hitbox['min']['y']
+            if isOnRightSide and isOnBottomSide or isOnLeftSide and isOnBottomSide:
+                logger.info("Collision avec le bord du bateau")
+                return 2
+            return 1
+        return 0
 
     async def detectCollisionWithBoats(self):
+        logger.info("detectCollisionWithBoats")
         for key, team in self.teams.items():
             boat_pos = team.getBoat()
-            if boat_pos['x'] == 0 and boat_pos['y'] == 0 and boat_pos['z'] == 0:
+            if boat_pos['x'] == 0 and boat_pos['y'] == 0:
                 continue
-                
-            if await self.isColliding(team):
-                logger.info(f"Collision avec le bateau de l'équipe {key}")
-                return True
-        return False
+            collision = await self.isColliding(team)
+            if collision > 0:
+                logger.info(f"Collision avec le bateau de l'équipe {key} - Type de collision: {collision}")
+                return collision
+        return 0
 
     async def handleCollisions(self, sio, gameCode):
         # Collision avec les murs latéraux
         if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2 or self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
+            logger.info("Collision avec les murs latéraux")
             self.ballDirection["x"] = -self.ballDirection["x"]
             self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR
             logger.info(f"Nouvelle vitesse de la balle: {self.BALL_SPEED}")
 
         # Collision avec les bateaux
-        if await self.detectCollisionWithBoats():
+        collision = await self.detectCollisionWithBoats()
+        if collision <= 0:
+            logger.info(f"Pas de collision avec les bateaux - collision: {collision}")
+        elif collision == 1:
             self.ballDirection["y"] = -self.ballDirection["y"]
+            logger.info(f"Collision avec les bateaux - Nouvelle direction de la balle: {self.ballDirection}")
+        elif collision == 2:
+            self.ballDirection["x"] = -self.ballDirection["x"]
             logger.info(f"Collision avec les bateaux - Nouvelle direction de la balle: {self.ballDirection}")
             
         # Points marqués
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
+            logger.info("Ball out of bounds - Team 1 scores")
+            self.gameStarted = False
+            self.resetBall()
             self.teams[1].addPoint()
-            self.resetBall()
             await sio.emit('scoreUpdate', {
                 'team1': self.teams[1].getScore(),
                 'team2': self.teams[2].getScore()
             }, room=gameCode)
+            await self.checkWinner(sio, gameCode)
+            self.gameStarted = True
+            logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
         elif self.ballPosition["y"] >= self.FIELD_HEIGHT / 2:
-            self.teams[2].addPoint()
+            logger.info("Ball out of bounds - Team 2 scores")
+            self.gameStarted = False
             self.resetBall()
+            self.teams[2].addPoint()
             await sio.emit('scoreUpdate', {
                 'team1': self.teams[1].getScore(),
                 'team2': self.teams[2].getScore()
             }, room=gameCode)
-
+            await self.checkWinner(sio, gameCode)
+            self.gameStarted = True
+            logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
+            
     def resetBall(self):
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
-        self.BALL_SPEED = 0.2  # Réinitialiser la vitesse
+        # self.BALL_SPEED = 0.2  # Réinitialiser la vitesse
 
     def getBallPosition(self):
         return self.ballPosition
@@ -264,3 +311,11 @@ class Game:
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)
         await self.updateCannonPosition(teamId, cannonX, cannonY, cannonZ)
+
+    async def checkWinner(self, sio, gameCode):
+        if self.teams[1].getScore() >= self.WINNING_SCORE:
+            await sio.emit('winner', self.teams[1].name, room=gameCode)
+            self.gameStarted = False
+        elif self.teams[2].getScore() >= self.WINNING_SCORE:
+            await sio.emit('winner', self.teams[2].name, room=gameCode)
+            self.gameStarted = False

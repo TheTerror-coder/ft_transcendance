@@ -86,7 +86,7 @@ class Player
         console.log('crz : ', crz);
         if (this.role == 'captain')
         {
-            this.cameraPos = { x: 0, y: 0, z: 40 };
+            this.cameraPos = { x: 0, y: 0, z: 50 };
             this.cameraRotation = { x: 0, y: 0, z: s };
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);

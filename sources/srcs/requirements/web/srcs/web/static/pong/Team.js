@@ -10,6 +10,7 @@ class Team
         this.boat = null;
         this.cannon = null;
         this.isFull = false;
+        this.score = 0;
     }
 
     setCameraPosForAllPlayers(x, y, z)
@@ -20,6 +21,17 @@ class Team
             player.setCameraPos(x, y, z);
             console.log('Player camera pos : ', player.getCameraPos());
         }
+    }
+
+    setScore(score)
+    {
+        this.score = score;
+        // console.log('Team', this.TeamId, 'score : ', this.score);
+    }
+
+    getScore()
+    {
+        return (this.score);
     }
 
     setIsFull()

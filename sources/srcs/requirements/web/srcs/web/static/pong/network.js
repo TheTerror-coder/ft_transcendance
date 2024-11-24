@@ -47,9 +47,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball) 
 
     socket.on('winner', (winner) => {
         console.log(`Le joueur ${winner} a gagné !`);
-        waitingMessage.style.display = 'block';
-        waitingMessage.innerText = `Le joueur ${winner} a gagné !`;
-        window.location.href = '/lobby';
+        // gameStarted = false;
     });
 
     socket.on('cannonPosition', async (data) => {
@@ -72,6 +70,15 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball) 
         } else {
             console.error('Team, boat or cannon not found for team', teamID);
         }
+    });
+
+    socket.on('scoreUpdate', (data) => {
+        const {team1, team2} = data;
+        Team1.setScore(team1);
+        Team2.setScore(team2);
+        console.log('Score updated - Team 1: ', team1, 'Team 2: ', team2);
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        scoreDisplay.innerText = `Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`;
     });
 }
 

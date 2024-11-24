@@ -67,111 +67,10 @@ app.router.add_get('/', index)
 app.router.add_get('/start', index)
 app.router.add_get('/health', health_check)
 
-# Constantes
-# BALL_SPEED = 0.2
-# SPEED_INCREASE_FACTOR = 1.1  # Facteur d'augmentation de la vitesse
-# BALL_UPDATE_INTERVAL = 50
-# FIELD_WIDTH = 60
-# FIELD_HEIGHT = 60
-
 ChannelList = {}
 
 def generateGameCode():
     return str(random.randint(1000, 9999))
-
-# def initializeBallPosition():
-#     return {"x": 0, "y": 0, "z": 0}
-
-# def initializeBallDirection():
-#     return {
-#         "x": random.random() * 2 - 1,
-#         "y": random.random() * 2 - 1,
-#         "z": 0
-#     }
-
-# async def updateBallPosition(ballPosition, ballDirection):
-#     ballPosition["x"] += ballDirection["x"] * BALL_SPEED
-#     ballPosition["y"] += ballDirection["y"] * BALL_SPEED
-#     return ballPosition
-
-# async def isColliding(ballPosition, team):
-#     ballRadius = 0.5
-#     hitbox = team.getBoatHitbox()
-#     boatPos = team.getBoat()
-    
-#     if not hitbox or not boatPos:
-#         logger.debug("Hitbox ou position du bateau non disponible")
-#         return False
-        
-#     # Vérifier que la hitbox n'est pas juste des zéros
-#     if (hitbox['min']['x'] == 0 and hitbox['min']['y'] == 0 and 
-#         hitbox['max']['x'] == 0 and hitbox['max']['y'] == 0):
-#         logger.debug(f"Hitbox invalide pour l'équipe {team.getTeamId()}")
-#         return False
-        
-#     # Vérifier si la balle est dans la hitbox
-#     isInXRange = hitbox['min']['x'] - ballRadius <= ballPosition['x'] <= hitbox['max']['x'] + ballRadius
-#     isInYRange = hitbox['min']['y'] - ballRadius <= ballPosition['y'] <= hitbox['max']['y'] + ballRadius
-#     isInZRange = hitbox['min']['z'] - ballRadius <= ballPosition['z'] <= hitbox['max']['z'] + ballRadius
-    
-#     if isInXRange and isInYRange and isInZRange:
-#         logger.info(f"Collision détectée - Ball: {ballPosition}, Boat: {boatPos}, Hitbox: {hitbox}")
-#         return True
-        
-#     return False
-
-# async def detectCollisionWithBoats(ballPosition, teams):
-#     for key, team in teams.items():
-#         boat_pos = team.getBoat()
-#         if boat_pos['x'] == 0 and boat_pos['y'] == 0 and boat_pos['z'] == 0:
-#             logger.debug(f"Position du bateau non initialisée pour l'équipe {key}")
-#             continue
-            
-#         if await isColliding(ballPosition, team):
-#             logger.info(f"Collision avec le bateau de l'équipe {key}")
-#             return True
-#     return False
-
-# async def handleCollisions(ballPosition, ballDirection, game, gameCode):
-#     global BALL_SPEED  # Ajoutez cette ligne pour modifier la variable globale
-    
-#     # Collision avec les murs latéraux
-#     if ballPosition["x"] <= -FIELD_WIDTH / 2 or ballPosition["x"] >= FIELD_WIDTH / 2:
-#         ballDirection["x"] = -ballDirection["x"]
-#         logger.info("Collision avec un mur latéral")
-#         BALL_SPEED *= SPEED_INCREASE_FACTOR  # Augmentation de la vitesse
-#         logger.info(f"Nouvelle vitesse de la balle: {BALL_SPEED}")
-
-#     # Collision avec les bateaux
-#     if await detectCollisionWithBoats(ballPosition, game.teams):
-#         logger.info("Collision avec un bateau")
-#         ballDirection["y"] = -ballDirection["y"]  # Inverser la direction verticale
-        
-#     # Points marqués (collision avec les murs du haut/bas)
-#     if ballPosition["y"] <= -FIELD_HEIGHT / 2:
-#         # Point pour l'équipe 1
-#         game.teams[1].addPoint()
-#         logger.info(f"Point marqué par l'équipe 1 - Score: {game.teams[1].getScore()}")
-#         ballPosition = initializeBallPosition()
-#         ballDirection = initializeBallDirection()
-#         await sio.emit('scoreUpdate', {
-#             'team1': game.teams[1].getScore(),
-#             'team2': game.teams[2].getScore()
-#         }, room=gameCode)
-#         BALL_SPEED = 0.5  # Réinitialiser la vitesse
-#     elif ballPosition["y"] >= FIELD_HEIGHT / 2:
-#         # Point pour l'équipe 2
-#         game.teams[2].addPoint()
-#         logger.info(f"Point marqué par l'équipe 2 - Score: {game.teams[2].getScore()}")
-#         ballPosition = initializeBallPosition()
-#         ballDirection = initializeBallDirection()
-#         await sio.emit('scoreUpdate', {
-#             'team1': game.teams[1].getScore(),
-#             'team2': game.teams[2].getScore()
-#         }, room=gameCode)
-#         BALL_SPEED = 0.5  # Réinitialiser la vitesse
-
-#     return ballDirection
 
 @sio.event
 async def disconnect(sid):
@@ -381,10 +280,6 @@ async def startGame(gameCode, game):
             logger.info(f"team {i.TeamId} isFull: {i.getIsFull()}")
             j += 1
         logger.info(f"j: {j}")
-        if j == 2:
-            game.gameStarted = True
-        else:
-            game.gameStarted = False
         await asyncio.sleep(0.1)
     
     logger.info(f"Démarrage de la partie {gameCode} avec {game.nbPlayerConnected} joueurs")
@@ -392,6 +287,7 @@ async def startGame(gameCode, game):
     while game.gameStarted:
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
+        logger.info(f"game.gameStarted: {game.gameStarted}")
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     

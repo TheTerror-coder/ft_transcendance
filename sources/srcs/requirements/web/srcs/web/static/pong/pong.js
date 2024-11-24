@@ -8,7 +8,7 @@ import * as THREE from 'three'; // TODO : remove for production
 
 console.log("pong.js loaded");
 
-let BOAT_MOVE_SPEED = 0.5;
+let BOAT_MOVE_SPEED = 1.5;
 let CANNON_MOVE_SPEED = 0.1;
 let FRAME_RATE = 110;
 
@@ -60,6 +60,15 @@ export async function main(gameCode, socket) {
     ballPositionDisplay.style.left = '10px';
     ballPositionDisplay.style.color = 'white';
     document.body.appendChild(ballPositionDisplay);
+
+    // Cree un element pour afficher le score
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.id = 'scoreDisplay';
+    scoreDisplay.style.position = 'absolute';
+    scoreDisplay.style.top = '10px';
+    scoreDisplay.style.right = '10px';
+    scoreDisplay.style.color = 'white';
+    document.body.appendChild(scoreDisplay);
     
     // Créer une caméra contrôlable
     setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
@@ -107,9 +116,9 @@ export async function main(gameCode, socket) {
     // }, FRAME_RATE);
     // periodicGameStateUpdate(socket);
 
-    setInterval(() => {
-        network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball);
-    }, 16);
+    // setInterval(() => {
+    // }, 16);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball);
 
     function animate() {
         // if (!gameStarted) {
@@ -260,3 +269,7 @@ function displayBallPosition(ballPosition, displayElement) {
     displayElement.innerText = `Ball Position - X: ${ballPosition.x.toFixed(2)}, Y: ${ballPosition.y.toFixed(2)}, Z: ${ballPosition.z.toFixed(2)}`;
 }
 
+// Fonction pour afficher la direction de la balle
+function displayBallDirection(ballDirection, displayElement) {
+    displayElement.innerText = `Ball Direction - X: ${ballDirection.x.toFixed(2)}, Y: ${ballDirection.y.toFixed(2)}, Z: ${ballDirection.z.toFixed(2)}`;
+}

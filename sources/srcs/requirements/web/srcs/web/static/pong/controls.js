@@ -7,11 +7,13 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         let cannon = currentPlayerTeam.getCannon();
 
         if (cannon) {
-            if (keys && keys['d'] && cannon.position.x < 6) {
+            if (keys && keys['d'] && cannon.position.x < 6)
+            {
                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
-            if (keys && keys['a'] && cannon.position.x > -6) {
+            if (keys && keys['a'] && cannon.position.x > -6)
+            {
                 cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
                 emitCannonPosition(socket, gameCode, TeamID, cannon.position);
             }
@@ -27,11 +29,11 @@ export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayer
 
         let boatMoved = false;
 
-        if (keys && keys['d'] && boatGroup.position.x < 40) {
+        if (keys && keys['d'] && ((boatGroup.position.x > -55 && TeamID === 1) || (boatGroup.position.x < 55 && TeamID === 2))) {
             boatGroup.position.x += BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }
-        if (keys && keys['a'] && boatGroup.position.x > -40) {
+        if (keys && keys['a'] && ((boatGroup.position.x < 55 && TeamID === 1) || (boatGroup.position.x > -55 && TeamID === 2))) {
             boatGroup.position.x -= BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }
