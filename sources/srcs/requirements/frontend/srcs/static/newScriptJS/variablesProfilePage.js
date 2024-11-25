@@ -1,3 +1,5 @@
+{/*
+*/}
 
 
 
@@ -7,30 +9,24 @@ const profilePageDisplayVAR =
         <div class="bookProfile">
             <div class="sideBar">
             </div>
-            <div style="display:flex; flex-direction: column; width:180px;">
-                <h1 style="font-size: 30px; align-self: center;">Friends</h1>
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Friends List
+            <div class="profileFriendInBook">
+                <img src="/static/photos/picturePng/homePage/add_friend_button.png" alt="friendPage" style="width:230px; margin-top: -30px;">
+                <div class="dropdown" style="margin-top: -130px;">
+                    <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span>FRIEND LIST</span>
                     </button>
-                    <ul class="dropdown-menu" id="friendDropdownMenu" aria-labelledby="dropdownMenuButton">
+                    <ul class="dropdown-menu dropdown-menu-end overflow-auto p-0 dropDownMenuInProfileMenu" style="inset: 0px -20px auto auto" id="friendDropdownMenu">
                     </ul>
                 </div>
-                <h1 style="font-size: 30px; align-self: center;">waitingListFriend</h1>
-                <form style="width:170px;">
-                    <div class="form-group">
-                        <select multiple class="form-control" id="waitingListFriend">
-                        <option>Username</option>
-                        <option>Username</option>
-                        <option>Username</option>
-                        <option>Username</option>
-                        <option>Username</option>
-                        </select>
-                    </div>
-                </form>
+                <div class="dropdown" style="margin-bottom: -76px;">
+                    <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span>WAITING FRIEND LIST</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end overflow-auto p-0 dropDownMenuInProfileMenu" id="waitingFriendDropdownMenu">
+                    </ul>
+                </div>
             </div>
             <div class="cover">
-                <p>SOCIAL</p>
             </div>
         </div>
         <div class="wantedProfileInProfilePage">

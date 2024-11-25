@@ -11,6 +11,31 @@
     border-radius: 5px;
 } */
 
+
+.profileFriendInBook
+{
+    display:flex; 
+    flex-direction: column; 
+    width:180px; 
+    height: 405px; 
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: -150px;
+}
+
+.dropDownMenuInProfileMenu
+{
+    max-height: 122px; 
+    z-index: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.info-dropdownMenu
+{
+    color: azure;
+    font-weight: 800;
+}
+
 .profilePage
 {
     display: flex;
@@ -78,8 +103,8 @@
     position: relative;
     border-radius: 10px;
     width: 300px;
-    height: 285px;
-    background-color: whitesmoke;
+    height: 405px;
+    background-color: rgba(255,255,255,0.4);
     box-shadow: 1px 1px 12px #000;
     perspective: 2000px;
     display: -webkit-box;
@@ -90,7 +115,7 @@
     color: #000;
     margin-left: 10px;
     align-self: center;
-    margin-bottom: 100px;
+    margin-bottom: 20px;
 }
 
 .bookProfile:hover .cover {

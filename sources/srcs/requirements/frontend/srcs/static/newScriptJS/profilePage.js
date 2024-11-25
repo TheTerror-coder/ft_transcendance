@@ -1,18 +1,17 @@
 
-async function displayFriend()
+async function displayWaitingListFriend()
 {
 // Example list of friends (can be fetched from an API)
 const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
 // Reference the dropdown menu
-const dropdownMenu = document.getElementById('friendDropdownMenu');
-
+const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
+console.log("je suis dans displaywaitingList");
 // Populate the dropdown with list items
 friends.forEach(friend => {
   // Create a dropdown item (li)
-  console.log("in each of this things brroo, friend: ", friend);
   const listItem = document.createElement('li');
-  listItem.className = 'dropdown-item d-flex justify-content-between align-items-center';
+  listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
   // Add friend's name
   const nameSpan = document.createElement('span');
@@ -20,24 +19,64 @@ friends.forEach(friend => {
 
   // Add button
   const actionButton = document.createElement('button');
-  actionButton.className = 'btn btn-primary btn-sm';
+  console.log("button wairtin")
+  actionButton.className = 'btn-sm';
   actionButton.textContent = 'Interact';
-  console.log("le button");
   actionButton.addEventListener('click', () => {
     alert(`Interacting with ${friend}`);
   });
 
   // Append name and button to the list item
-  console.log("listItem BEFORE: ", listItem);
   listItem.appendChild(nameSpan);
-  console.log("nameSpan", nameSpan);
   listItem.appendChild(actionButton);
-    console.log("actionButton", actionButton);
-  console.log("listItem AFTER: ", listItem);
 
   // Add the list item to the dropdown menu
   dropdownMenu.appendChild(listItem);
-  console.log("dropdownMenu: ", dropdownMenu);
+});
+}
+
+
+
+
+
+
+async function displayFriend()
+{
+// Example list of friends (can be fetched from an API)
+    const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+
+    // Reference the dropdown menu
+    const dropdownMenu = document.getElementById('friendDropdownMenu');
+
+    // Populate the dropdown with list items
+    friends.forEach(friend => {
+    // Create a dropdown item (li)
+    const listItem = document.createElement('li');
+    listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+
+    // Add friend's name
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = friend;
+
+    // Add button
+    const actionButton = document.createElement('button');
+    actionButton.className = 'btn btn-primary btn-sm';
+    const imgButton = document.createElement("img");
+    imgButton.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+    imgButton.alt = "removeFriend";
+    imgButton.style.display = "flex";
+    imgButton.style.flexDirection = "flex-end";
+    actionButton.appendChild(imgButton);
+  actionButton.addEventListener('click', () => {
+    alert(`Interacting with ${friend}`);
+  });
+
+  // Append name and button to the list item
+  listItem.appendChild(nameSpan);
+  listItem.appendChild(actionButton);
+
+  // Add the list item to the dropdown menu
+  dropdownMenu.appendChild(listItem);
 });
 }
 
@@ -165,15 +204,12 @@ document.addEventListener('click', async (event) =>
         }
         else if (document.getElementById('usernameChange') && event.target === usernameChange)
         {
-            console.log("ecrire en legende ?? SVP ?");
             usernameChange.addEventListener('keypress', async (event) =>
             {
-                console.log("dans l'evenement des keypress");
                 if (event.key === 'Enter')
                 {
                     event.preventDefault();
                     const newUsername = document.getElementById('usernameChange').value;
-                    console.log("newUsername: ", newUsername);
                     ELEMENTs.changeUsernamePopOver().remove();
                     changeUsername(newUsername);
                 }
