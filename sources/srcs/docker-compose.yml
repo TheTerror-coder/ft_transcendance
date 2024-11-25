@@ -224,7 +224,7 @@ services:
         - BACKEND_HOME=${BACKEND_HOME}
         - BACKEND_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
         - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - BACKEND_MEDIA_DIR=${BACKEND_MEDIA_DIR}
         - HOST_IP=${HOST_IP}
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
@@ -238,6 +238,7 @@ services:
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+      - MEDIA_DIR=${BACKEND_MEDIA_DIR}
       - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
       - VAULT_CACERT=${BACKEND_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
@@ -247,6 +248,7 @@ services:
     volumes:
       # - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
+      - mediafiles:${BACKEND_MEDIA_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
       - backend_certs:${BACKEND_SSL_DIR}
     healthcheck: #*file_healthcheck
@@ -473,6 +475,8 @@ volumes:
   nginx_logs:
     driver: local
   staticfiles:
+    driver: local
+  mediafiles:
     driver: local
   certs:
     driver: local

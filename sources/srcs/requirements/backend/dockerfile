@@ -13,6 +13,7 @@ ARG SHARED_GID=1010
 ARG BACKEND_HOME=/usr/share/backend
 ARG BACKEND_DIRS_TO_MAKE=.
 ARG STATICFILES_DIR=/usr/share/backend/volumes/www/static
+ARG BACKEND_MEDIA_DIR=/usr/share/backend/volumes/www/media
 
 USER 0
 
@@ -36,6 +37,7 @@ EOF
 # COPY ./srcs/ .
 COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=700 ./tools/script.sh ${BACKEND_HOME}/container-init.d
 COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./srcs/ ${BACKEND_HOME}/apps
+COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./media/ ${BACKEND_MEDIA_DIR}/
 # COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./tools/HOST_IP.sh ${BACKEND_HOME}/container-init.d
 
 WORKDIR ${BACKEND_HOME}/apps
