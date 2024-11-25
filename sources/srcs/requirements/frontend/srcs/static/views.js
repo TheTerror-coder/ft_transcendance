@@ -19,7 +19,6 @@ async function	homeView(title, description, data)
 
 
 async function	loginView(title, description, data) {
-	console.log('you are at login view');
 	// if (await isUserAuthenticated())
 	// 	window.location.replace(URLs.VIEWS.HOME);
 	document.title = title;
@@ -36,9 +35,8 @@ async function	profileView(title, description, data)
 	document.title = title;
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	console.log("je suis cense etre al avant display friend");
 	await displayFriend();
-	console.log("apres display friend");
+	await displayWaitingListFriend();
 
 }
 
