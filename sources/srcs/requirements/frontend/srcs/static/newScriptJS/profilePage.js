@@ -1,60 +1,68 @@
+// const response = await makeRequest(URLs.USERMANAGEMENT.PROFILE, 'GET');
+// console.log('profileView: ', response);
 
 
 
-async function displayWaitingListFriend() {
-    // Example list of friends (can be fetched from an API)
-    // const response = await makeRequest('GET', URLs.USERMANAGEMENT.FRIENDS);
-    // console.log("response Friends: ", response);
-    const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+async function displayWaitingListFriend(friends) {
 
     // Reference the dropdown menu
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    // Populate the dropdown with list items
-    friends.forEach(friend => {
-        // Create a dropdown item (li)
+    if (friends.length === 0)
+    {
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-
-        const actionAddButton = document.createElement('button');
-        const actionRemoveButton = document.createElement('button');
-
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = friend;
-
-        const divForButton = document.createElement('div');
-        divForButton.style.display = "flex";
-        divForButton.style.flexDirection = "flex-end";
-
-        const imgButtonAdd = document.createElement("img");
-        imgButtonAdd.src =  "/static/photos/picturePng/profilePage/approvebutton.png";
-        imgButtonAdd.alt = "Add Friend";
-
-        const imgButtonRemove = document.createElement("img");
-        imgButtonRemove.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
-        imgButtonRemove.alt = "Remove Friend";
-
-
-        actionAddButton.appendChild(imgButtonAdd);
-        actionRemoveButton.appendChild(imgButtonRemove);
-        divForButton.appendChild(actionAddButton);
-        divForButton.appendChild(actionRemoveButton);
-
-
-        actionAddButton.addEventListener('click', () => {
-            alert(`add ${friend}`);
-        });
-
-        actionRemoveButton.addEventListener('click', () => {
-            alert(`remove ${friend}`);
-        });
-
-        // Append name and button to the list item
+        nameSpan.textContent = "No friends invite";
         listItem.appendChild(nameSpan);
-        listItem.appendChild(divForButton);
-
-        // Add the list item to the dropdown menu
         dropdownMenu.appendChild(listItem);
-    });
+    }
+    else
+    {
+        for(var i = 0; i < friends.length; i++)
+        {
+            console.log("J'SUIS ALALAALALALLALA", friends[i].from_user);
+            const listItem = document.createElement('li');
+            listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+
+            const actionAddButton = document.createElement('button');
+            const actionRemoveButton = document.createElement('button');
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = friends[i].from_user;
+
+            const divForButton = document.createElement('div');
+            divForButton.style.display = "flex";
+            divForButton.style.flexDirection = "flex-end";
+
+            const imgButtonAdd = document.createElement("img");
+            imgButtonAdd.src =  "/static/photos/picturePng/profilePage/approvebutton.png";
+            imgButtonAdd.alt = "Add Friend";
+
+            const imgButtonRemove = document.createElement("img");
+            imgButtonRemove.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+            imgButtonRemove.alt = "Remove Friend";
+
+
+            actionAddButton.appendChild(imgButtonAdd);
+            actionRemoveButton.appendChild(imgButtonRemove);
+            divForButton.appendChild(actionAddButton);
+            divForButton.appendChild(actionRemoveButton);
+
+
+            actionAddButton.addEventListener('click', () => {
+                alert(`add ${friends[i].from_user}`);
+            });
+
+            actionRemoveButton.addEventListener('click', () => {
+                alert(`remove ${friends[i].from_user}`);
+            });
+
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(divForButton);
+
+            dropdownMenu.appendChild(listItem);
+        }
+    }
 }
 
 
@@ -62,43 +70,48 @@ async function displayWaitingListFriend() {
 
 
 
-async function displayFriend()
+async function displayFriend(friends)
 {
 // Example list of friends (can be fetched from an API)
-    const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
     // Reference the dropdown menu
     const dropdownMenu = document.getElementById('friendDropdownMenu');
-
-    // Populate the dropdown with list items
-    friends.forEach(friend => {
-        // Create a dropdown item (li)
+    if (friends.length === 0)
+    {
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-
-        // Add friend's name
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = friend;
-
-        // Add button
-        const actionButton = document.createElement('button');
-        const imgButton = document.createElement("img");
-        imgButton.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
-        imgButton.alt = "removeFriend";
-        imgButton.style.display = "flex";
-        imgButton.style.flexDirection = "flex-end";
-        actionButton.appendChild(imgButton);
-        actionButton.addEventListener('click', () => {
-            alert(`Interacting with ${friend}`);
-        });
-
-    // Append name and button to the list item
+        nameSpan.textContent = "No friends";
         listItem.appendChild(nameSpan);
-        listItem.appendChild(actionButton);
-
-        // Add the list item to the dropdown menu
         dropdownMenu.appendChild(listItem);
-    });
+    }
+    else {
+        for (var i = 0; i < friends.length; i++)
+        {
+            console.log("alors peut etre que ca va marcher: ", friends[i].username);
+            const listItem = document.createElement('li');
+            listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = friends[i].username;
+
+            const actionButton = document.createElement('button');
+            const imgButton = document.createElement("img");
+            imgButton.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+            imgButton.alt = "removeFriend";
+            imgButton.style.display = "flex";
+            imgButton.style.flexDirection = "flex-end";
+            actionButton.appendChild(imgButton);
+            actionButton.addEventListener('click', () => {
+                alert(`Interacting with ${friends[i].username}`);
+            });
+
+            listItem.appendChild(nameSpan);
+            listItem.appendChild(actionButton);
+
+            dropdownMenu.appendChild(listItem);
+        }
+    }
 }
 
 
