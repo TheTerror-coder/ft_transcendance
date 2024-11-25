@@ -38,6 +38,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
 		event.preventDefault();
 		await skipTotpActivation();
+		return;
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
@@ -214,8 +215,9 @@ const handleLocation = async () => {
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
-		if (!await doPendingFlows({}, _storage.flows))
-			window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		// if (!await doPendingFlows({}, _storage.flows))
+		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
 	await postAuthMiddlewareJob(undefined, routeMatched, _storage);

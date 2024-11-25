@@ -13,6 +13,8 @@ run :
 	docker run $(ENV) -it --rm --name $(BACKEND_CONTAINER) $(PORTS) $(BACKEND_IMAGE) 
 exec :
 	docker exec -it  $(BACKEND_CONTAINER) sh
+restart :
+	docker restart  $(BACKEND_CONTAINER)
 clean :
 	docker image rm $(BACKEND_IMAGE)
 fclean : stop

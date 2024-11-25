@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 import requests
 from . import tools
@@ -29,7 +30,7 @@ SECRET_KEY = 'django-insecure-nubwiuho4c4%@3fk9yo54_^#l11s0_+4zl%^$7r3b4-4hknx5_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', 'frontend_waf' ]
+ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', 'frontend' ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -62,7 +63,13 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
-    # 'channels',
+	'rest_framework_simplejwt.token_blacklist',
+    'channels',
+	
+	'ultimapi',
+    # 'oauth',
+    'oauth',
+    'usermanagement',
 
 	# allauth
 	'allauth',
@@ -71,9 +78,6 @@ INSTALLED_APPS = [
 	'allauth.socialaccount',
 	'allauth.mfa',
     'allauth.usersessions',
-	
-	'ultimapi',
-    'oauth',
 
 ]
 
@@ -224,6 +228,25 @@ CHANNEL_LAYERS = {
     },
 }
 
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
+	),
+	# 'DEFAULT_PERMISSION_CLASSES': [
+	# 	'rest_framework.permissions.IsAuthenticated',
+	# ],
+}
+SIMPLE_JWT = {
+	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+	# It will work instead of the default serializer(TokenObtainPairSerializer).
+	"TOKEN_OBTAIN_SERIALIZER": "oauth.serializers.MyTokenObtainPairSerializer",
+	"ACCESS_TOKEN_CLASS": "oauth.tokens.CustomAccessToken",
+}
+
+
 HEADLESS_ONLY = True
 
 MFA_TOTP_ISSUER = 'OnePong'
@@ -239,6 +262,7 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USERNAME_REQUIRED = True
+# ACCOUNT_SESSION_REMEMBER = False
 # ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 # SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 # SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
@@ -246,11 +270,11 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 # ACCOUNT_REAUTHENTICATION_TIMEOUT = 5000
 
 AUTHENTICATION_BACKENDS = [
-	#default
-	'django.contrib.auth.backends.ModelBackend',
-    'usermanagement.authentication_backends.EmailBackend',
 	# `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
+
+	#default
+	'django.contrib.auth.backends.ModelBackend',
 ]
 
 
@@ -261,6 +285,7 @@ HEADLESS_FRONTEND_URLS = {
     # "account_signup": "/frontpong/account/signup",
     # "socialaccount_login_error": parameters.CALLBACK_URL,
 }
+# HEADLESS_TOKEN_STRATEGY = 'oauth.views.onePongTokenStrategy'
 
 
 LOGIN_REDIRECT_URL = '/'

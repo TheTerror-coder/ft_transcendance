@@ -122,7 +122,7 @@ async function getDeactivateTotp(code) {
 }
 
 async function getAuthenticationStatus() {
-	const response = await makeRequest('GET', URLs.ALLAUTH.CURRENT_SESSION);
+	const response = await makeRequest('GET', URLs.ALLAUTH.AUTH_STATUS);
 	if (response.status === 200){
 		return ([
 			'200',
@@ -224,8 +224,23 @@ async function getQrCodeGenerated(totp_url) {
 	}
 }
 
+async function getJwtToken(url) {
+	const response = await makeRequest('GET', url);
+	if (response.status === 200){
+		return ([
+			'200',
+			'jwt-credentials',
+		]);
+	}
+	else {
+		return ([
+			'error-occured',
+		]);
+	}
+}
+
 async function logout() {
-	await makeRequest('DELETE', URLs.ALLAUTH.CURRENT_SESSION);
+	await makeRequest('DELETE', URLs.ALLAUTH.AUTH_STATUS);
 	window.sessionStorage.clear();
 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 }

@@ -1,4 +1,6 @@
 from io import BytesIO
+import json
+import sys
 from qrcode import make
 from qrcode.image.svg import SvgPathImage
 
@@ -9,16 +11,49 @@ from django.views.decorators.csrf import csrf_protect
 from backend import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from typing import Any, Dict, Optional
+from allauth.headless.tokens.base import AbstractTokenStrategy
+from django.http import HttpRequest
+from rest_framework_simplejwt.tokens import RefreshToken
+from allauth.socialaccount.models import SocialLogin
+from allauth.headless.account.views import SessionView
 
+class CustomSessionView(SessionView):
+	def get(self, request, *args, **kwargs):
+		# return super().get(request=request, args=args, kwargs=kwargs)
+		jwt = {}
+		access_token = request.session.get('jwt_access_token')
+		refresh_token = request.session.get('jwt_refresh_token')
+		# clear tokens from the session
+		if access_token:
+			del request.session['jwt_access_token']
+		if refresh_token:
+			del request.session['jwt_refresh_token']
+		
+		response = super().get(
+			request=request, args=args, kwargs=kwargs
+			)
+		
+		sys.stderr.write("*******DEBUG******* CustomSessionView access token: " + (access_token or 'null') + '\n')
+		sys.stderr.write("*******DEBUG******* CustomSessionView refresh token: " + (refresh_token or 'null') + '\n')
+		
+		if not access_token or not refresh_token:
+			return response
+		
+		# sys.stderr.write("*******DEBUG******* CustomSessionView current content: " + str(response.content) + '\n')
+		current_content = json.loads(response.content.decode('utf-8'))
+		# sys.stderr.write("*******DEBUG******* CustomSessionView current content: " + str(current_content) + '\n')
+		status = current_content['status']
+		if status != 200 and status != 401 :
+			# sys.stderr.write("*******DEBUG******* CustomSessionView exited with current content status=" + str(current_content['status']) + '\n')
+			return response
+		jwt['access_token'] = access_token
+		jwt['refresh_token'] = refresh_token
+		current_content['jwt'] = jwt
 
-# @api_view(['GET'])
-# def getIsAuthenticated(request):
-# 	res = {}
-# 	user = request.user
-# 	res['is_authenticated'] = 'false'
-# 	if user.is_authenticated:
-# 		res['is_authenticated'] = 'true'
-# 	return (Response(res))
+		response.content = json.dumps(current_content)
+
+		return response
 
 @csrf_protect
 @api_view(['GET','POST'])
@@ -36,6 +71,28 @@ def getUserProfile(request):
 		return (Response(res))
 	res['status'] = 'disconnected'
 	return (Response(res))
+
+# @csrf_protect
+# @api_view(['POST'])
+# def jwtToken(request):
+# 	sys.stderr.write("************ display" + str(request.user.is_authenticated) + '\n')
+# 	sociallogin = SocialLogin.objects.get(user=request.user)  # Assuming user is authenticated
+# 	refresh = RefreshToken.for_user(sociallogin.user)
+# 	access_token = str(refresh.access_token)
+# 	return Response({
+# 		'access_token': access_token,
+# 		'refresh_token': str(refresh),
+# 	})
+	# res = {}
+	# refresh = RefreshToken.for_user(request.user)
+	# if not refresh:
+	# 	res['status'] = 400
+	# 	return Response(res)
+	
+	# res['status'] = 200
+	# res['access'] = str(refresh.access_token)
+	# res['refresh'] = str(refresh)
+	# return (Response(res))
 
 @csrf_protect
 @api_view(['POST'])

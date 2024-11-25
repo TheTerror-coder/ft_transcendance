@@ -69,13 +69,15 @@ const URLs = Object.freeze({
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
+		JWT_TOKEN : BACKEND_BASE_URL + '/oauth' + '/jwt/token/',
+		AUTH_STATUS : BACKEND_BASE_URL + '/oauth' + '/auth/session/',
 	}),
 	// allauth \\
 	ALLAUTH : Object.freeze({
 		// Oauth2 authentication
 		REDIRECT_TO_PROVIDER : ALLAUTH_BASE_URL + '/auth/provider/redirect',
 		// user session
-		CURRENT_SESSION : ALLAUTH_BASE_URL + '/auth/session',
+		AUTH_STATUS : ALLAUTH_BASE_URL + '/auth/session',
 		// email verification
 		VERIFY_EMAIL : ALLAUTH_BASE_URL + '/auth/email/verify',
 		// Mutli Factor Authentication
@@ -130,6 +132,7 @@ const ELEMENTs = Object.freeze({
 	totp_value_input : () => document.getElementById("totp-value-input"),
 	two_fa_value_input : () => document.getElementById("2fa-value-input"),
 
+	oauth_modal : () => document.getElementById("oauth-modal"),
 	oauth_modal_content : () => document.getElementById("oauth-modal-content"),
 
 	loginPage : () => document.getElementById("loginPage"),

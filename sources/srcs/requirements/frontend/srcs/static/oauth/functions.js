@@ -44,22 +44,28 @@ async function makeRequest(method, path, data, headers) {
 		}
 	}
 
-  if (data) {
-	if (data instanceof FormData) {
+	if (data) {
+		if (data instanceof FormData) {
 		options.body = data;
 	} else {
 		options.body = JSON.stringify(data)
-		options.headers['Content-Type'] = 'application/json'
+			options.headers['Content-Type'] = 'application/json'
 	}
-  }
-  const resp = await fetch(path, options)
-  const msg = await resp.json()
-  if (msg.status === 410) {
-    window.sessionStorage.removeItem('sessionToken');
-  }
-  if (msg.meta?.session_token) {
-    window.sessionStorage.setItem('sessionToken', msg.meta.session_token)
-  }
+	}
+
+	const resp = await fetch(path, options)
+	const msg = await resp.json()
+
+	if (msg.jwt) {
+		window.localStorage.setItem('jwt_access_token', msg.jwt.access_token);
+		window.localStorage.setItem('jwt_refresh_token', msg.jwt.refresh_token);
+	}
+//   if (msg.status === 410) {
+//     window.sessionStorage.removeItem('sessionToken');
+//   }
+//   if (msg.meta?.session_token) {
+//     window.sessionStorage.setItem('sessionToken', msg.meta.session_token)
+//   }
 //   if ([401, 410].includes(msg.status)) {
 //     const event = new CustomEvent('auth-change', { details: msg });
 //     document.dispatchEvent(event);
@@ -156,25 +162,42 @@ async function isTotpEnabled(params) {
 	return (false);
 }
 
+async function jwt_authenticate(params) {
+	try {
+		const response = await getJwtToken(URLs.OAUTH.AUTH_STATUS)
+		if (response.find(data => data === 'jwt-credentials')){
+			console.log("****DEBUG**** jwt_authenticate() -> jwt-credentials")
+			return (true);
+		}
+		// onePongAlerter(ALERT_CLASSEs.WARNING, 'Warning', 'jwt credentials missing');
+		return (false);
+	} catch(error){
+		console.log("****DEBUG**** Exception catch() in jwt_authenticate(): " + error)
+		return (false);
+	}
+}
+
 async function isUserAuthenticated(params) {
 	try {
-
-		console.log("In function isUserAuthenticated()", '***pass***');
 		const response = await getAuthenticationStatus();
 		if (response.find(data => data === 'user-is-authenticated')){
-			console.log('user is authenticated!')
+			console.log("****DEBUG**** isUserAuthenticated() -> user is authenticated")
 			return (true);
 		}
 		else if (response.find(data => data === 'not-authenticated')){
+			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
 			params.flows = response[2].flows;
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
+			console.log("****DEBUG**** isUserAuthenticated() -> invalid-session")
 			window.sessionStorage.clear();
 			window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 			return (false);
 		}
+		console.log("****DEBUG**** isUserAuthenticated() -> else")
 		return (false);
+	
 	} catch(error){
 		console.log("Catched ERROR: In function isUserAuthenticated()", error);
 		// window.alert('an error occured: ' + error);
@@ -218,16 +241,19 @@ async function askRefreshSession(params) {
 	const _modal = new bootstrap.Modal('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
-// async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:1443/hello/');
-// 	if (response.status === 200)
-// 		console.log('request succeeded!!');
-// 	console.log('request failed!!');
-// }
+// returns token payload
+async function parseJwt(token) {
+	let base64Url = token.split('.')[1];
+	let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+	let jsonpayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+	}).join(''));
 
+	return JSON.parse(jsonpayload);
+}
 function strcmp(str1, str2) {
     return str1 === str2;
 }

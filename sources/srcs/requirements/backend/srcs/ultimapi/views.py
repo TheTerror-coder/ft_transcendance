@@ -1,3 +1,4 @@
+import sys
 from allauth.socialaccount import app_settings
 from allauth.socialaccount.adapter import get_adapter
 from allauth.socialaccount.providers.oauth2.views import (
@@ -20,6 +21,7 @@ class UltimApiOAuth2Adapter(OAuth2Adapter):
 	profile_url = parameters.OAUTH2_PROFILE_URL
 
 	def complete_login(self, request, app, token, **kwargs):
+		sys.stderr.write("*******DEBUG******* In UltimApiOAuth2Adapter.complete_login() " + '\n')
 		headers = {"Authorization": "Bearer {}".format(token.token)}
 		resp = (
 			get_adapter().get_requests_session().get(self.profile_url, headers=headers)

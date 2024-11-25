@@ -245,7 +245,7 @@ services:
       - MAIL_CONTAINER=${MAIL_CONTAINER}
       - MAIL_PORT=${MAIL_PORT}
     volumes:
-      # - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
+      - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
       - backend_certs:${BACKEND_SSL_DIR}
@@ -295,8 +295,8 @@ services:
       - FRONTEND_HTTP_PORT=${FRONTEND_HTTP_PORT}
       - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
     volumes:
-      # - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
-      # - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
+      - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
+      - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
       # - frontend_logs:${FRONTEND_LOG_FILES_DIR}
       - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
       - vault_certs:${FRONTEND_HOME}/volumes/vault/certs

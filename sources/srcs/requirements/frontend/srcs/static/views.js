@@ -129,7 +129,7 @@ async function	emailStatusView(title, description, data) {
 	const _modal = new bootstrap.Modal('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
 async function	error404View(title, description, data) {

@@ -20,6 +20,11 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from django.conf import settings
 from . import health, views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
     
@@ -38,5 +43,7 @@ urlpatterns = [
 	path('backpong/csrf/', views.csrf, name='csrf'),
 	path('backpong/user-management/', include('usermanagement.urls')),
     path('backpong/oauth/', include('oauth.urls')),
+    path('backpong/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('backpong/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
