@@ -3,35 +3,54 @@
 
 async function displayWaitingListFriend() {
     // Example list of friends (can be fetched from an API)
-    const response = await makeRequest('GET', URLs.USERMANAGEMENT.FRIENDS);
-    console.log("response Friends: ", response);
+    // const response = await makeRequest('GET', URLs.USERMANAGEMENT.FRIENDS);
+    // console.log("response Friends: ", response);
     const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
     // Reference the dropdown menu
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    console.log("je suis dans displaywaitingList");
     // Populate the dropdown with list items
     friends.forEach(friend => {
         // Create a dropdown item (li)
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
-        // Add friend's name
+        const actionAddButton = document.createElement('button');
+        const actionRemoveButton = document.createElement('button');
+
         const nameSpan = document.createElement('span');
         nameSpan.textContent = friend;
 
-        // Add button
-        const actionButton = document.createElement('button');
-        console.log("button wairtin")
-        actionButton.className = 'btn-sm';
-        actionButton.textContent = 'Interact';
-        actionButton.addEventListener('click', () => {
-            alert(`Interacting with ${friend}`);
+        const divForButton = document.createElement('div');
+        divForButton.style.display = "flex";
+        divForButton.style.flexDirection = "flex-end";
+
+        const imgButtonAdd = document.createElement("img");
+        imgButtonAdd.src =  "/static/photos/picturePng/profilePage/approvebutton.png";
+        imgButtonAdd.alt = "Add Friend";
+
+        const imgButtonRemove = document.createElement("img");
+        imgButtonRemove.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+        imgButtonRemove.alt = "Remove Friend";
+
+
+        actionAddButton.appendChild(imgButtonAdd);
+        actionRemoveButton.appendChild(imgButtonRemove);
+        divForButton.appendChild(actionAddButton);
+        divForButton.appendChild(actionRemoveButton);
+
+
+        actionAddButton.addEventListener('click', () => {
+            alert(`add ${friend}`);
+        });
+
+        actionRemoveButton.addEventListener('click', () => {
+            alert(`remove ${friend}`);
         });
 
         // Append name and button to the list item
         listItem.appendChild(nameSpan);
-        listItem.appendChild(actionButton);
+        listItem.appendChild(divForButton);
 
         // Add the list item to the dropdown menu
         dropdownMenu.appendChild(listItem);
@@ -63,7 +82,6 @@ async function displayFriend()
 
         // Add button
         const actionButton = document.createElement('button');
-        actionButton.className = 'btn btn-primary btn-sm';
         const imgButton = document.createElement("img");
         imgButton.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
         imgButton.alt = "removeFriend";
@@ -72,10 +90,9 @@ async function displayFriend()
         actionButton.appendChild(imgButton);
         actionButton.addEventListener('click', () => {
             alert(`Interacting with ${friend}`);
-            //views-remouvefirend.py
         });
 
-        // Append name and button to the list item
+    // Append name and button to the list item
         listItem.appendChild(nameSpan);
         listItem.appendChild(actionButton);
 
