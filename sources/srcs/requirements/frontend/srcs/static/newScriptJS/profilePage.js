@@ -11,7 +11,7 @@ console.log("je suis dans displaywaitingList");
 friends.forEach(friend => {
   // Create a dropdown item (li)
   const listItem = document.createElement('li');
-  listItem.className = 'dropdown-item d-flex justify-content-between align-items-center';
+  listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
   // Add friend's name
   const nameSpan = document.createElement('span');
@@ -20,7 +20,7 @@ friends.forEach(friend => {
   // Add button
   const actionButton = document.createElement('button');
   console.log("button wairtin")
-  actionButton.className = 'btn btn-primary btn-sm';
+  actionButton.className = 'btn-sm';
   actionButton.textContent = 'Interact';
   actionButton.addEventListener('click', () => {
     alert(`Interacting with ${friend}`);
@@ -43,25 +43,30 @@ friends.forEach(friend => {
 async function displayFriend()
 {
 // Example list of friends (can be fetched from an API)
-const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+    const friends = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
-// Reference the dropdown menu
-const dropdownMenu = document.getElementById('friendDropdownMenu');
+    // Reference the dropdown menu
+    const dropdownMenu = document.getElementById('friendDropdownMenu');
 
-// Populate the dropdown with list items
-friends.forEach(friend => {
-  // Create a dropdown item (li)
-  const listItem = document.createElement('li');
-  listItem.className = 'dropdown-item d-flex justify-content-between align-items-center';
+    // Populate the dropdown with list items
+    friends.forEach(friend => {
+    // Create a dropdown item (li)
+    const listItem = document.createElement('li');
+    listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
-  // Add friend's name
-  const nameSpan = document.createElement('span');
-  nameSpan.textContent = friend;
+    // Add friend's name
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = friend;
 
-  // Add button
-  const actionButton = document.createElement('button');
-  actionButton.className = 'btn btn-primary btn-sm';
-  actionButton.textContent = 'Interact';
+    // Add button
+    const actionButton = document.createElement('button');
+    actionButton.className = 'btn btn-primary btn-sm';
+    const imgButton = document.createElement("img");
+    imgButton.src =  "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+    imgButton.alt = "removeFriend";
+    imgButton.style.display = "flex";
+    imgButton.style.flexDirection = "flex-end";
+    actionButton.appendChild(imgButton);
   actionButton.addEventListener('click', () => {
     alert(`Interacting with ${friend}`);
   });
