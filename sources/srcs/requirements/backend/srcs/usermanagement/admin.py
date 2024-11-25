@@ -12,5 +12,3 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('photo',)}),
     )
-
-admin.site.register(CustomUser, UserAdmin)
