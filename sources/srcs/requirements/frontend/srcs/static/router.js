@@ -70,10 +70,10 @@ const eventManager = async (event) => {
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	// else if (target.id === ELEMENTs.wantedProfile()?.id){
-	// 	event.preventDefault();
-	// 	profileView();
-	// }
+	else if (target.id === ELEMENTs.wantedProfile()?.id){
+		event.preventDefault();
+		profileView();
+	}
 	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
 	// {
 	// 	event.preventDefault();
@@ -87,11 +87,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		CreateLobbyDisplay();
 	}
-	// else if (target.id === ELEMENTs.addFriendButton()?.id)
-	// {
-	// 	event.preventDefault();
-	// 	await addFriend();
-	// }
+	else if (target.id === ELEMENTs.addFriendButton()?.id)
+	{
+		event.preventDefault();
+		await addFriend();
+	}
 	 
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();

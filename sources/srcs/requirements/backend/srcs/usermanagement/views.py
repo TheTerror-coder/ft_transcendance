@@ -134,7 +134,7 @@ def update_photo(request):
 
 
 
-@require_http_methods(["GET", "POST"])
+@api_view(['GET'])
 @login_required
 @csrf_protect
 def profile(request):

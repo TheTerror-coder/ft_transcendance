@@ -216,6 +216,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ##############################
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('MEDIA_DIR')
+
+
 AUTH_USER_MODEL = 'usermanagement.CustomUser'
 
 CHANNEL_LAYERS = {
