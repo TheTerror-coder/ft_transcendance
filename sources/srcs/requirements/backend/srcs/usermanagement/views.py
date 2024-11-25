@@ -132,6 +132,8 @@ def update_photo(request):
         }, status=400)
 
 
+
+
 @require_http_methods(["GET", "POST"])
 @login_required
 @csrf_protect
@@ -269,9 +271,9 @@ def remove_friend(request):
         return Response(response)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def users(request):
-    print('users', file=sys.stderr)
-    user = request.user
-    return Response({'user': user.username, 'email': user.email, 'picture': user.photo.url})
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def users(request):
+#     print('users', file=sys.stderr)
+#     user = request.user
+#     return Response({'user': user.username, 'email': user.email, 'picture': user.photo.url})
