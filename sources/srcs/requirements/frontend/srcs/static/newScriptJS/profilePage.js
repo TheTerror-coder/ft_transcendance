@@ -43,11 +43,9 @@ friends.forEach(friend => {
 
 
 // Change Username
-
 const popUpUsernameVAR = `<input type="text" id="usernameChange" place-holder="Change Username">`;
 
 // Change Picture
-
 const popUpProfilPictureVAR = 
 `<div class="popover">
     <input type="file" id="formFile" hidden>
@@ -85,8 +83,7 @@ const togglePopover = (event) =>
 };
 
 
-//profilePicture
-
+//changePicture
 document.addEventListener('click', (event) => 
 {
     let profilePhoto;
@@ -142,9 +139,7 @@ async function changePicture(picture) {
     }
 }
 
-
 // Change Username
-
 document.addEventListener('click', async (event) => 
 {
     if (ELEMENTs.changeUsernameButton() !== null)

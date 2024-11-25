@@ -1,10 +1,14 @@
 
-# Register your models here.
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser  # Importe ton modèle utilisateur personnalisé
+from .models import CustomUser
 
-# Enregistrement de CustomUser dans l'admin avec UserAdmin
+
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    pass
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'photo_tag')
+    readonly_fields = ('photo_tag',)
+
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('photo',)}),
+    )

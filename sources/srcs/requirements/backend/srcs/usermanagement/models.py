@@ -1,8 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .validators import validate_image_extension
-import os
-import sys
+from django.utils.html import mark_safe
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
@@ -22,6 +21,12 @@ class CustomUser(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+
+    def photo_tag(self):
+        if self.photo:
+            return mark_safe(f'<img src="{self.photo.url}" width="50" height="50" />')
+        return "No Image"
+    photo_tag.short_description = 'Photo'
 
 
 class Game(models.Model):

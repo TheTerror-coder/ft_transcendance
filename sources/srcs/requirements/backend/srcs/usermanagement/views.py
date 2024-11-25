@@ -116,12 +116,15 @@ def update_photo(request):
         file.name = f"{get_random_string(10)}{file_extension}"
     form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
     if form.is_valid():
+        user = request.user
+        user.photo = form.cleaned_data['photo']
         form.save()
         return Response({
             'status': 'success',
             'message': 'Profile picture updated successfully.',
         }, status=200)
     else:
+        form = UpdatePhotoForm()
         error_messages = {field: error_list for field, error_list in form.errors.items()}
         return Response({
             'status': 'error',

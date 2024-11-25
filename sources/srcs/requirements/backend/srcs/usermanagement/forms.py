@@ -1,8 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser
-from django.core.validators import FileExtensionValidator
 from django.contrib.auth import authenticate
 from .validators import validate_image_extension
 
