@@ -34,8 +34,8 @@ find ${FRONTEND_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
 find ${FRONTEND_LOGS_ROOT} -mindepth 1 -type d -exec chown ${FRONTEND_UID}:${SHARED_GID} \{\} \;
 EOF
 
-# COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/templates/base.html ${FRONTEND_HOME}/html/
-# COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/static/ ${FRONTEND_HOME}/volumes/www/static/
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/templates/base.html ${FRONTEND_HOME}/html/
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/static/ ${FRONTEND_HOME}/volumes/www/static/
 COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/nginx.conf /etc/nginx/nginx.conf
 COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/frontend.conf /etc/nginx/templates/default.conf.template
 COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/location_common.conf /etc/nginx/location_common.conf

@@ -33,9 +33,8 @@ pip install -r ./requirements.txt
 pip install django-cors-headers
 EOF
 
-# COPY ./srcs/ .
 COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=700 ./tools/script.sh ${BACKEND_HOME}/container-init.d
-# COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./srcs/ ${BACKEND_HOME}/apps
+COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./srcs/ ${BACKEND_HOME}/apps
 # COPY --chown=${BACKEND_UID}:${BACKEND_GID} --chmod=770 ./tools/HOST_IP.sh ${BACKEND_HOME}/container-init.d
 
 WORKDIR ${BACKEND_HOME}/apps
