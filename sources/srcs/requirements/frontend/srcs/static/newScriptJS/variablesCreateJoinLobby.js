@@ -53,7 +53,7 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div class="cross">
+            <div >
                 <button id="crossButton"><img id="cross" src="/static/photos/picturePng/cross.png" alt="quit Button"></button>
             </div>
             <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 600px;">

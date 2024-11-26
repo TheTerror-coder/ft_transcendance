@@ -9,8 +9,6 @@ function createLobbyDisplay()
     {
         createLobbyforTwoPlayer();
     }
-    const crossButton = document.getElementById("crossButton");
-    crossButton.onclick = () => refreshHomePage();
 }
 
 function createLobbyforTwoPlayer()
@@ -21,9 +19,7 @@ function createLobbyforTwoPlayer()
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
     
         ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
-        const crossButton = document.getElementById("crossButton");
-        crossButton.onclick = () => refreshHomePage();
-    }, 40);
+    }, 60);
 }
 
 
@@ -37,11 +33,9 @@ function lobbyTwoPlayer()
     ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
 
     setTimeout(() => {
-        const crossButton = document.getElementById("crossButton");
-        crossButton.onclick = () => refreshHomePage();
         ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
-    }, 70);
+    }, 60);
 
 }
 
@@ -50,16 +44,18 @@ function switchRole()
 {
     if (ELEMENTs.chooseRoleSwitch().checked == true)
     {
-        ELEMENTs.helmsmanRoleDisplay().style.transition = "filter 0.5s ease";
-        ELEMENTs.helmsmanRoleDisplay().style.filter = "blur(2px)";
-        ELEMENTs.gunnerRoleDisplay().style.filter = "none";
+        ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.3";
+        ELEMENTs.gunnerRoleDisplay().style.opacity = "0.9";
     }
     else
     {
         
-        ELEMENTs.helmsmanRoleDisplay().style.filter = "none";
-        ELEMENTs.gunnerRoleDisplay().style.transition = "filter 0.5s ease";
-        ELEMENTs.gunnerRoleDisplay().style.filter = "blur(2px)";
+        ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.9";
+        ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.gunnerRoleDisplay().style.opacity = "0.3";
     }
 }
 
@@ -67,15 +63,17 @@ function switchTeam()
 {
     if (ELEMENTs.chooseTeamSwitch().checked == true)
     {
-        ELEMENTs.KurohigeTeamDisplay().style.transition = "filter 0.5s";
-        ELEMENTs.KurohigeTeamDisplay().style.filter = "blur(2px)";
-        ELEMENTs.ShirohigeTeamDisplay().style.filter = "none";
+        ELEMENTs.KurohigeTeamDisplay().style.opacity = "0.3";
+        ELEMENTs.KurohigeTeamDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.9";
+
     }
     else
     {
-        
-        ELEMENTs.KurohigeTeamDisplay().style.filter = "none";
-        ELEMENTs.ShirohigeTeamDisplay().style.transition = "filter 0.5s";
-        ELEMENTs.ShirohigeTeamDisplay().style.filter = "blur(2px)";
+        ELEMENTs.KurohigeTeamDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.KurohigeTeamDisplay().style.opacity = "0.9";
+        ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
+        ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.3";
     }
 }

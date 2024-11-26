@@ -6,8 +6,7 @@
   background-position: center;
   width: -webkit-fill-available;
   border-radius: 20%;
-  filter:blur(2px);
-  opacity: 0.9;
+  opacity: 0.3;
 }
 
 #helmsmanRoleDisplay
@@ -29,8 +28,7 @@
 #ShirohigeTeamDisplay
 {
   height: 180px;
-  opacity: 0.9;
-  filter:blur(2px);
+  opacity: 0.3;
 }
 
 .teamChooseFont

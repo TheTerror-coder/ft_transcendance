@@ -176,6 +176,7 @@ const ELEMENTs = Object.freeze({
 	thirdElement : () => document.getElementById("thirdElement"),
 
 	addFriendButton : () => document.getElementById("addFriendButton"),
+	rapidPlayButton : () => document.getElementById("rapidPlayButton"),
 	
 	// profilePage
 
@@ -213,7 +214,6 @@ const ELEMENTs = Object.freeze({
 
 
 	// LOBBY
-	crossButton : () => document.getElementById("crossButton"),
 });
 
 let N_ALERT = 0;

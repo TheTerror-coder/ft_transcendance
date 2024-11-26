@@ -6,8 +6,11 @@ const lobbyTwoPlayerDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div class="cross" id="cross">
-                <button id="crossButton"><img src="/photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+            <div style="display:flex; justify-content: space-between;">
+                <div>
+                    <button id="crossButton"><img src="/photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
+                </div>
+            <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerOne" id="lobbyDisplayRapidPlayPlayerOne">
@@ -66,8 +69,11 @@ const lobbyPageDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div class="cross" id="cross">
-                <button id="crossButton"><img src="../photos/picturePng/lobbyPage/cross.png" alt="quitButton"></button>
+            <div style="display:flex; justify-content: space-between;">
+                <div>
+                    <button id="crossButton"><img src="../photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
+                </div>
+                <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerOne" id="lobbyDisplayRapidPlayPlayerOne">

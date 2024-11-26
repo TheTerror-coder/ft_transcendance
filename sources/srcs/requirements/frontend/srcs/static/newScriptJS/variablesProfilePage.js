@@ -39,6 +39,9 @@ const profilePageDisplayVAR =
             <span>10.000</span>
         </div>
     </div>
+    <div style="width: -webkit-fill-available;justify-content: end;display:flex;">
+        <button style="align-self:baseline;"><img src="/static/photos/picturePng/cross.png" id="cross"></button>
+    </div>
 </div>`;
 
 {/* <div style="display: flex; flex-direction: column;">

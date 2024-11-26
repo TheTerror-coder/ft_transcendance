@@ -72,7 +72,7 @@ const homePageDisplayVAR =
         </div>
     </div>
     <div class="wantedFriendHomePageDisplay">
-        <button class="wantedProfile" id="wantedProfile">
+        <button class="wantedProfile" id="wantedProfile" onclick="profileView();">
             <img id="pictureOfWanted" alt="profile picture" class="profilePicture">
             <p id="usernameOfWanted"></p>
             <span>10.000</span>

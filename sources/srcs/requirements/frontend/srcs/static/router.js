@@ -70,10 +70,16 @@ const eventManager = async (event) => {
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	else if (target.id === ELEMENTs.wantedProfile()?.id){
+	else if (target.id === ELEMENTs.cross()?.id)
+	{
 		event.preventDefault();
-		profileView();
+		refreshHomePage();
 	}
+
+	// else if (target.id === ELEMENTs.wantedProfile()?.id){
+	// 	event.preventDefault();
+	// 	profileView();
+	// }
 	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
 	// {
 	// 	event.preventDefault();
