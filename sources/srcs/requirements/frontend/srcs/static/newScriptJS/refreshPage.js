@@ -57,7 +57,7 @@ const handleLocation = async () => {
     if (path == "/createLobby")
     {
         const lobby = new CreateJoinLobbyClass();
-        lobby.buttonCreateLobby.onclick = () => CreateLobbyDisplay(lobby);
+        lobby.buttonCreateLobby.onclick = () => createLobbyDisplay(lobby);
         // verifier si le frere est connecte
         // const lobbyPage = new lobbyPageClass();
         // lobbyPage.crossButton.onclick = () => handleLocation();

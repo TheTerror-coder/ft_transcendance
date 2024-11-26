@@ -51,6 +51,9 @@ function createLobbyPlay()
 {   
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
+    setTimeout(() => {
+        ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
+    }, 70);
 }
 
 function navigationPlayMenu()

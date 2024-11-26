@@ -191,16 +191,27 @@ const ELEMENTs = Object.freeze({
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
 	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	chooseRoleSwitch : () => document.getElementById("chooseRoleSwitch"),
 	teamFontOne : () => document.getElementById("teamFontOne"),
 	teamFontTwo : () => document.getElementById("teamFontTwo"),
 	luffyChibi : () => document.getElementById("luffyChibi"),
 	zoroSanjiChibi : () => document.getElementById("zoroSanjiChibi"),
-	buttonCreateLobby : () => document.getElementById("buttonCreate"),
+	buttonCreate : () => document.getElementById("buttonCreate"),
 	cross : () => document.getElementById("cross"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
 	contentCreateLobby : () => document.getElementById("contentCreateLobby"),
 
+	
+	helmsmanRoleDisplay : () => document.getElementById("helmsmanRoleDisplay"),
+	gunnerRoleDisplay : () => document.getElementById("gunnerRoleDisplay"),
+	KurohigeTeamDisplay : () => document.getElementById("KurohigeTeamDisplay"),
+	ShirohigeTeamDisplay : () => document.getElementById("ShirohigeTeamDisplay"),
+
+
+
 	centerLobbyDisplay : () => document.getElementById("centerLobbyDisplay"),
+
+
 	// LOBBY
 	crossButton : () => document.getElementById("crossButton"),
 });

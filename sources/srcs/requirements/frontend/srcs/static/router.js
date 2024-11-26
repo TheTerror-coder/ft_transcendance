@@ -83,10 +83,10 @@ const eventManager = async (event) => {
 		// event.preventDefault();
 		playDisplayHomepage();
 	}
-	else if (target.id === ELEMENTs.buttonCreateLobby()?.id){
-		event.preventDefault();
-		CreateLobbyDisplay();
-	}
+	// else if (target.id === ELEMENTs.buttonCreate()?.id){
+	// 	event.preventDefault();
+	// 	createLobbyDisplay();
+	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
