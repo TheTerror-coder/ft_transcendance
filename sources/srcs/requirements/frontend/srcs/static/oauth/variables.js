@@ -186,6 +186,7 @@ const ELEMENTs = Object.freeze({
 	fileButton : () => document.getElementById("photoSimulateClickInput"),
 	formFile : () => document.getElementById("formFile"),
 	changeUsernamePopOver : () => document.getElementById("changeUsernamePopOver"),
+	historicMatch : () => document.getElementById("historicMatch"),
 	
 
 	// createLobby

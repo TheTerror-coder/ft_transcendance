@@ -1,15 +1,3 @@
-async function profileDisplay() 
-{
-    // window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-    // handleLocation();
-    // ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-    // console.log("PROFILE DISPLAY LOOOOL");
-	// const response = await makeRequest(URLs.USERMANAGEMENT.PROFILE, 'GET');
-	// console.log('profileView: ', response);
-    // await displayFriend();
-    // await displayWaitingListFriend();
-}
-
 
 function refreshHomePage()
 {

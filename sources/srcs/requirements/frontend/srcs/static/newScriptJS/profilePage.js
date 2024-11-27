@@ -2,6 +2,78 @@
 // console.log('profileView: ', response);
 
 
+async function statsInProfilePage()
+{
+    //ici fetch des bails gang pour le pencentage gang
+    let percentage = 60;
+    const circularProgress = document.querySelector('.circular-progress');
+    const progressValue = document.querySelector('.progress-value');
+    
+    // Function to set the progress percentage
+    // Clamp percentage to a valid range (0 to 100)
+
+    percentage = Math.min(Math.max(percentage, 0), 100);
+
+    // Update the conic-gradient based on the percentage
+    circularProgress.style.background = `conic-gradient(
+        #4caf50 0% ${percentage}%, 
+        #e0e0e0 ${percentage}% 100%
+    )`;
+
+    // Update the displayed percentage value
+    progressValue.textContent = `${percentage}%`;
+}
+
+
+
+
+async function getHistoric(game)
+{
+    // const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
+    // console.log('profileView: ', response);
+    game = {username: "toto", resultUser: "1", resultAdvUser: "2", advUsername: "tata", length: 0};
+
+    console.log("game.length: ", game.length);
+    if (game.length === 0)
+    {
+        const match = document.createElement('div');
+        match.className = 'matchDisplayHistoric';
+        const result = document.createElement('span');
+        result.style.alignSelf = 'center';
+        result.textContent = "No game played";
+        match.appendChild(result);
+        ELEMENTs.historicMatch().appendChild(match);
+        return ;
+    }
+    else
+    {
+        //if () game 1 v 1
+        for (let i = 0; i < game.length; i++)
+        {
+            const match = document.createElement('div');
+            match.className = 'matchDisplayHistoric';
+            const username = document.createElement('span');
+            const advUsername = document.createElement('span');
+            const resultUser = document.createElement('span');
+            const resultAdvUser = document.createElement('span');
+
+            resultUser.className = 'resultDisplayHistoric';
+            resultUser.textContent = game[i].resultUser;
+            resultAdvUser.textContent = game[i].resultAdvUser;
+            username.textContent = game[i].username;
+            advUsername.textContent = game[i].advUsername;
+            match.appendChild(username);
+            match.appendChild(resultUser);
+            match.appendChild(resultAdvUser);
+            match.appendChild(advUsername);
+        }
+        //else game 2 v 2
+
+    }
+
+}
+
+
 
 async function displayWaitingListFriend(friends) {
 

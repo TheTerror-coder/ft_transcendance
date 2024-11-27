@@ -1,6 +1,3 @@
-{/*
-*/}
-
 
 
 const profilePageDisplayVAR = 
@@ -39,20 +36,41 @@ const profilePageDisplayVAR =
             <span>10.000</span>
         </div>
     </div>
-    <div style="width: -webkit-fill-available;justify-content: end;display:flex;">
+    <div style="display:flex; flex-direction: column; width: -webkit-fill-available;">
+        <div id="statistique" style="height: 350px; ">
+            <p style="display:flex; justify-content: center; font-size: 50px;">Statistic</p>
+            <div style="display:flex; justify-content: space-between; margin-left: 60px;">
+                <div style="display:flex; flex-direction: column;">
+                    <p>Percentage Of Victory !</p>
+                    <div class="progress-container">
+                        <div class="circular-progress">
+                            <span class="progress-value">75%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="first-content">
+                        <span>Number of game Played: </span>
+                        <span id="numberOfGamePlayedProfileDisplay"></span>
+                    </div>
+                    <div class="second-content">
+                        <span>Number of win:</span>
+                        <span id="numberOfGameWinProfileDisplay"></span>
+                        <span>Number of loses:</span>
+                        <span id="numberOfGameLosesProfileDisplay"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; width: -webkit-fill-available; justify-content: center;">
+            <div class="historicBanner">
+                <p style="font-size: 70px;">HISTORIC</p>
+                <div id="historicMatch" class="historicMatch"></div>
+            </div>
+        </div>
+    </div>
+    <div style="justify-content: end; display: flex;">
         <button style="align-self:baseline;"><img src="/static/photos/picturePng/cross.png" id="cross"></button>
     </div>
+    <div class="bottomProfilePage"></div>
 </div>`;
-
-{/* <div style="display: flex; flex-direction: column;">
-</div> */}
-
-
-{/* <input style="width: 170px; margin-top: 20px;"></input>
-<div style="display:flex; justify-content: center; margin-top: 20px;">
-    <button class="buttonCreate type="submit"">ADD</button>
-</div> */}
-
-
-{/* <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm">Small modal</button> */}
-

@@ -75,24 +75,10 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		refreshHomePage();
 	}
-
-	// else if (target.id === ELEMENTs.wantedProfile()?.id){
-	// 	event.preventDefault();
-	// 	profileView();
-	// }
-	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
-	// {
-	// 	event.preventDefault();
-	// 	changeProfilePhoto();
-	// }
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
 		// event.preventDefault();
 		playDisplayHomepage();
 	}
-	// else if (target.id === ELEMENTs.buttonCreate()?.id){
-	// 	event.preventDefault();
-	// 	createLobbyDisplay();
-	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();

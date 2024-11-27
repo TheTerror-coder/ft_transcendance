@@ -13,7 +13,7 @@ async function	homeView(title, description, data)
 	englandFlag.style.marginRight = "-0.01px";
 
 	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
-	// ELEMENTs.wantedProfile().onclick = () => profileView();
+	ELEMENTs.wantedProfile().onclick = () => profileView();
 	console.log('homeView: ');
 }
 
@@ -34,14 +34,16 @@ async function	profileView(title, description, data)
 {
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
 	console.log("profile view");
-	document.title = title;
+	document.title = "Profile | " + PAGE_TITLE;
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log('profileView: ', response);
-	await displayFriend(response.friends);
-	await displayWaitingListFriend(response.pending_requests);
+	// const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
+	console.log('profileView: response.history');
+	// await displayFriend();
+	// await displayWaitingListFriend();
+	await getHistoric();
+	await statsInProfilePage();
 }
 
 async function	createLobbyView(title, description, data) 
