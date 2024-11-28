@@ -28,6 +28,10 @@ class UltimApiOAuth2Adapter(OAuth2Adapter):
 		)
 		resp.raise_for_status()
 		extra_data = resp.json()
+		# print("*******DEBUG******* self: " + str(self), file=sys.stderr)
+		# print("*******DEBUG******* user: " + str(request.user), file=sys.stderr)
+		# print("*******DEBUG******* token: " + str(token), file=sys.stderr)
+		# print("*******DEBUG******* extra data: " + str(extra_data), file=sys.stderr)
 		return self.get_provider().sociallogin_from_response(request, extra_data)
 
 

@@ -18,7 +18,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from allauth.socialaccount.models import SocialLogin
 from allauth.headless.account.views import SessionView
 
-class CustomSessionView(SessionView):
+
+class socilaJwtToken(SessionView):
 	def get(self, request, *args, **kwargs):
 		# return super().get(request=request, args=args, kwargs=kwargs)
 		jwt = {}
@@ -33,19 +34,21 @@ class CustomSessionView(SessionView):
 		response = super().get(
 			request=request, args=args, kwargs=kwargs
 			)
-		
-		sys.stderr.write("*******DEBUG******* CustomSessionView access token: " + (access_token or 'null') + '\n')
-		sys.stderr.write("*******DEBUG******* CustomSessionView refresh token: " + (refresh_token or 'null') + '\n')
+		# sys.stderr.write("*******DEBUG******* sociallogin: " + '\n')
+		# sys.stderr.write(str(request))
+		# sys.stderr.write(str(self))
+		sys.stderr.write("*******DEBUG******* socilaJwtToken access token: " + (access_token or 'null') + '\n')
+		sys.stderr.write("*******DEBUG******* socilaJwtToken refresh token: " + (refresh_token or 'null') + '\n')
 		
 		if not access_token or not refresh_token:
 			return response
 		
-		# sys.stderr.write("*******DEBUG******* CustomSessionView current content: " + str(response.content) + '\n')
+		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(response.content) + '\n')
 		current_content = json.loads(response.content.decode('utf-8'))
-		# sys.stderr.write("*******DEBUG******* CustomSessionView current content: " + str(current_content) + '\n')
+		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(current_content) + '\n')
 		status = current_content['status']
 		if status != 200 and status != 401 :
-			# sys.stderr.write("*******DEBUG******* CustomSessionView exited with current content status=" + str(current_content['status']) + '\n')
+			# sys.stderr.write("*******DEBUG******* socilaJwtToken exited with current content status=" + str(current_content['status']) + '\n')
 			return response
 		jwt['access_token'] = access_token
 		jwt['refresh_token'] = refresh_token
