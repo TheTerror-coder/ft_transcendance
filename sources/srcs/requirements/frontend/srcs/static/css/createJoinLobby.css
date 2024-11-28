@@ -1,0 +1,346 @@
+
+#gunnerRoleDisplay
+{
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundGunner.jpeg');
+  background-size: cover;
+  background-position: center;
+  width: -webkit-fill-available;
+  border-radius: 20%;
+  opacity: 0.3;
+}
+
+#helmsmanRoleDisplay
+{
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundHelmsman.jpg');
+  background-position: center;
+  background-size: cover;
+  width: -webkit-fill-available;
+  border-radius: 20%;
+  opacity: 0.9;
+}
+
+#KurohigeTeamDisplay
+{
+  height: 180px;
+  opacity: 0.9;
+}
+
+#ShirohigeTeamDisplay
+{
+  height: 180px;
+  opacity: 0.3;
+}
+
+.teamChooseFont
+{
+    font-size: 40px;
+    font-weight: bold;
+    color: #dc2700;
+    align-self: center;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8;
+    opacity: 0.85;
+}
+
+
+/* From Uiverse.io by zjssun */ 
+.buttonCreate 
+{
+  position: relative;
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  background-color: #dc2700;
+  transition: all 0.2s ease;
+}
+
+.buttonCreate:active 
+{
+  transform: scale(0.96);
+}
+
+.buttonCreate:before,
+.buttonCreate:after 
+{
+  position: absolute;
+  content: "";
+  width: 150%;
+  left: 50%;
+  height: 100%;
+  transform: translateX(-50%);
+  background-repeat: no-repeat;
+}
+
+.buttonCreate:hover:before {
+  top: -70%;
+  background-image: 
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, transparent 20%, #dc2700 20%, transparent 30%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, transparent 10%, #dc2700 15%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%);
+  background-size: 
+    10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%,
+    10% 10%, 18% 18%;
+  background-position: 50% 120%;
+  animation: greentopBubbles 0.6s ease;
+}
+
+@keyframes greentopBubbles 
+{
+  0% 
+  {
+    background-position: 
+      5% 90%, 10% 90%, 10% 90%, 15% 90%, 25% 90%, 25% 90%,
+      40% 90%, 55% 90%, 70% 90%;
+  }
+
+  50% 
+  {
+    background-position: 
+      0% 80%, 0% 20%, 10% 40%, 20% 0%, 30% 30%, 22% 50%,
+      50% 50%, 65% 20%, 90% 30%;
+  }
+
+  100% 
+  {
+    background-position:
+      0% 70%, 0% 10%, 10% 30%, 20% -10%, 30% 20%, 22% 40%,
+      50% 40%, 65% 10%, 90% 20%;
+    background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+  }
+}
+
+.buttonCreate:hover::after {
+  bottom: -70%;
+  background-image: 
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, transparent 10%, #dc2700 15%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%),
+    radial-gradient(circle, #dc2700 20%, transparent 20%);
+  background-size: 
+    15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 20% 20%, 18% 18%;
+  background-position: 50% 0%;
+  animation: greenbottomBubbles 0.6s ease;
+}
+
+@keyframes greenbottomBubbles 
+{
+  0% 
+  {
+    background-position: 
+      10% -10%, 30% 10%, 55% -10%, 70% -10%, 85% -10%,
+      70% -10%, 70% 0%;
+  }
+
+  50% 
+  {
+    background-position: 
+      0% 80%, 20% 80%, 45% 60%, 60% 100%, 75% 70%, 95% 60%,
+      105% 0%;
+  }
+
+  100% 
+  {
+    background-position: 
+      0% 90%, 20% 90%, 45% 70%, 60% 110%, 75% 80%, 95% 70%,
+      110% 10%;
+    background-size: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+  }
+}
+
+.radioInput
+{
+    align-self: center;
+    min-width: 160px;
+}
+
+#zoroSanjiChibi
+{
+    opacity: 0.4;
+    margin-right: 140px;
+}
+
+#luffyChibi
+{
+    margin-left: 280px;
+}
+
+
+.createLobbySwitch
+{
+    display: flex; 
+    justify-content: space-evenly;
+    margin-top: 30px;
+}
+
+
+/* From Uiverse.io by Shoh2008 */ 
+/* .input {
+    -webkit-appearance: none;
+    display: block;
+    margin: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    vertical-align: middle;
+    box-shadow: hsla(0,0%,100%,.15) 0 1px 1px, inset hsla(0,0%,0%,.5) 0 0 0 1px;
+    background-color: hsla(0,0%,0%,.2);
+    background-image: -webkit-radial-gradient( hsla(200,100%,90%,1) 0%, hsla(200,100%,70%,1) 15%, hsla(200,100%,60%,.3) 28%, hsla(200,100%,30%,0) 70% );
+    background-repeat: no-repeat;
+    -webkit-transition: background-position .15s cubic-bezier(.8, 0, 1, 1),
+    -webkit-transform .25s cubic-bezier(.8, 0, 1, 1);
+    outline: none;
+}
+
+.input:checked 
+{
+    -webkit-transition: background-position .2s .15s cubic-bezier(0, 0, .2, 1),
+    -webkit-transform .25s cubic-bezier(0, 0, .2, 1);
+}
+
+.input:active 
+{
+    -webkit-transform: scale(1.5);
+    -webkit-transition: -webkit-transform .1s cubic-bezier(0, 0, .2, 1);
+} */
+
+
+
+/* The up/down direction logic */
+
+/* .input,
+.input:active 
+{
+    background-position: 0 24px;
+}
+
+.input:checked 
+{
+    background-position: 0 0;
+}
+
+.input:checked ~ .input,
+.input:checked ~ .input:active 
+{
+    background-position: 0 -24px;
+} */
+
+
+/* From Uiverse.io by Yaya12085 */ 
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.label {
+  height: 60px;
+  width: 120px;
+  background-color: #ffffff;
+  border-radius: 30px;
+  -webkit-box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  -webkit-transition: -webkit-transform 0.4s;
+  transition: -webkit-transform 0.4s;
+  transition: transform 0.4s;
+}
+
+.label:hover {
+  -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+  transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#switchNumbersOfPlayers:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#switchNumbersOfPlayers {
+  display: none;
+}
+
+#switchNumbersOfPlayers:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+#chooseTeamSwitch:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseTeamSwitch {
+  display: none;
+}
+
+#chooseTeamSwitch:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+#chooseRoleSwitch:checked ~ .label:hover {
+  -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+  transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseRoleSwitch {
+  display: none;
+}
+
+#chooseRoleSwitch:checked ~ .label::before {
+  left: 70px;
+  background-color: #000000;
+  background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+.label::before {
+  position: absolute;
+  content: "";
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #000000;
+  background-image: linear-gradient(
+    130deg,
+    #757272 10%,
+    #ffffff 11%,
+    #726f6f 62%
+  );
+  left: 10px;
+  -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    10px 10px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
