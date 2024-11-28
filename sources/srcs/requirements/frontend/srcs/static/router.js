@@ -99,15 +99,15 @@ const eventManager = async (event) => {
 	console.log('event listener: ', target.id);
 };
 
-const auth_change = async (event) => {
-	const flows = event.detail.flows;
-	const pendingFlows = flows.length;
+// const auth_change = async (event) => {
+// 	const flows = event.detail.flows;
+// 	const pendingFlows = flows.length;
 
-	if (pendingFlows !== 0){
-		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
-	}
-	window.location.assign(URLs.VIEWS.LOGIN_VIEW);
-}
+// 	if (pendingFlows !== 0){
+// 		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+// 	}
+// 	window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+// }
 
 document.addEventListener("click", eventManager); 
 document.addEventListener("auth-change", eventManager); 
@@ -212,11 +212,11 @@ const handleLocation = async () => {
 	}
 	if (!(await isUserAuthenticated(_storage))){
 		// if (!await doPendingFlows({}, _storage.flows))
-		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
-	await postAuthMiddlewareJob(undefined, routeMatched, _storage);
+	await render_next(undefined, routeMatched, _storage);
 };
 
 async function onePongAlerter(type, title, message) {

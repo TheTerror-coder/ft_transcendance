@@ -1,30 +1,35 @@
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
-	console.log("post auth middleware job")
-	// if (!skip_mfa){
-	// 	await mfaJob();
-	// 	return;
-	// }
+	console.log("****DEBUG**** post auth middleware job")
 	try {
 		await jwt_authenticate();
-		// const modalelement = ELEMENTs.oauth_modal()
-		// if (modalelement){
-		// 	const __modal = await bootstrap.Modal.getInstance('#oauth-modal');
-		// 	if (__modal)
-		// 		await __modal.dispose();
-		// }
 		
+		if (routeMatched){
+			await render_next(params, routeMatched, _storage);
+			return ;
+		}
+		else {
+			window.location.replace(URLs.VIEWS.HOME);
+			return ;
+		}
+	} catch (error) {
+		console.log("****DEBUG**** Exception catch() in postAuthMiddlewareJob(): " + error);
+	}
+}
+
+async function render_next(params, routeMatched, _storage) {
+	console.log("****DEBUG**** render_next()");
+
+	try {
 		if (routeMatched){
 			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 			return ;
 		}
 		else {
-			console.log("****DEBUG**** before home redirect ");
 			window.location.replace(URLs.VIEWS.HOME);
 			return ;
 		}
-
 	} catch (error) {
-		console.log("****DEBUG**** Exception catch() in postAuthMiddlewareJob(): " + error);
+		console.log("****DEBUG**** render_next() Exception: " + error);
 	}
 }
 
