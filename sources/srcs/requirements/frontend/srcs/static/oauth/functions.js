@@ -237,16 +237,59 @@ async function askRefreshSession(params) {
 	await _modal.show();
 }
 
-// returns token payload
-async function parseJwt(token) {
-	let base64Url = token.split('.')[1];
-	let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-	let jsonpayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-	}).join(''));
+async function callWebSockets(params) {
+	socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
+	socket.onopen = function() {
+		console.log("WebSocket connection established.", socket);
+	};
+	socket.onerror = function(error) {
+		console.error("WebSocket error observed:", error);
+	};
 
-	return JSON.parse(jsonpayload);
+	socket.onclose = function(event) {
+		console.log("WebSocket connection closed:", event);
+	};
+	socket.onmessage = function(event) {
+		console.log("Received invitation:");
+		var data = JSON.parse(event.data);
+		if (data.type === 'invitation') {
+			console.log("Received invitation:", data);
+			Swal.fire({
+				title: 'Friend Invitation',
+				text: `You have received a friend invitation from ${data.from}.`,
+				icon: 'info',
+				showCancelButton: true,
+				confirmButtonText: 'Accept',
+				cancelButtonText: 'Reject',
+				confirmButtonColor: 'green',
+				cancelButtonColor: 'red',
+			}).then((result) => {
+				if (result.isConfirmed) {
+					socket.send(JSON.stringify({
+						type: 'response.invitation',
+						response: 'accept',
+						friend_request_id: data.friend_request_id
+					}));
+				} else if (result.dismiss === Swal.DismissReason.cancel) {
+					socket.send(JSON.stringify({
+						type: 'response.invitation',
+						response: 'reject',
+						friend_request_id: data.friend_request_id
+					}));
+				}
+			});
+		}
+	};
 }
+
+
+// async function testRequest() {
+// 	const response = await request('GET', 'https://localhost:1443/hello/');
+// 	if (response.status === 200)
+// 		console.log('request succeeded!!');
+// 	console.log('request failed!!');
+// }
+
 function strcmp(str1, str2) {
     return str1 === str2;
 }

@@ -10,12 +10,12 @@ async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;
     const data = {"username": usernameAddValue};
-    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    console.log('user:', user);
-    const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-    if (resp.status === 'error') {
-        socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
-    }
+    // const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    // console.log('user:', user);
+    // const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+    // if (resp.status === 'error') {
+    //     socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
+    // }
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
     if (response.status === 'success') {
         alert('Friend request sent at ', usernameAddValue);
@@ -33,37 +33,38 @@ async function addFriend()
                 console.error('WebSocket connection is not open. readyState:', socket.readyState);
             }
             // faire une vrai belle fonction
-            socket.onmessage = function(event) {
-                console.log("Received invitation:");
-                var data = JSON.parse(event.data);
-                if (data.type === 'invitation') {
-                    console.log("Received invitation:", data);
-                    Swal.fire({
-                        title: 'Friend Invitation',
-                        text: `You have received a friend invitation from ${data.from}.`,
-                        icon: 'info',
-                        showCancelButton: true,
-                        confirmButtonText: 'Accept',
-                        cancelButtonText: 'Reject',
-                        confirmButtonColor: 'green',
-                        cancelButtonColor: 'red',
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            socket.send(JSON.stringify({
-                                type: 'response.invitation',
-                                response: 'accept',
-                                friend_request_id: data.friend_request_id
-                            }));
-                        } else if (result.dismiss === Swal.DismissReason.cancel) {
-                            socket.send(JSON.stringify({
-                                type: 'response.invitation',
-                                response: 'reject',
-                                friend_request_id: data.friend_request_id
-                            }));
-                        }
-                    });
-                }
-            };
+
+            // socket.onmessage = function(event) {
+            //     console.log("Received invitation:");
+            //     var data = JSON.parse(event.data);
+            //     if (data.type === 'invitation') {
+            //         console.log("Received invitation:", data);
+            //         Swal.fire({
+            //             title: 'Friend Invitation',
+            //             text: `You have received a friend invitation from ${data.from}.`,
+            //             icon: 'info',
+            //             showCancelButton: true,
+            //             confirmButtonText: 'Accept',
+            //             cancelButtonText: 'Reject',
+            //             confirmButtonColor: 'green',
+            //             cancelButtonColor: 'red',
+            //         }).then((result) => {
+            //             if (result.isConfirmed) {
+            //                 socket.send(JSON.stringify({
+            //                     type: 'response.invitation',
+            //                     response: 'accept',
+            //                     friend_request_id: data.friend_request_id
+            //                 }));
+            //             } else if (result.dismiss === Swal.DismissReason.cancel) {
+            //                 socket.send(JSON.stringify({
+            //                     type: 'response.invitation',
+            //                     response: 'reject',
+            //                     friend_request_id: data.friend_request_id
+            //                 }));
+            //             }
+            //         });
+            //     }
+            // };
         } else {
             console.error('WebSocket is not defined');
         }
