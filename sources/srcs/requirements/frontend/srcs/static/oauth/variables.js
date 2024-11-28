@@ -132,6 +132,7 @@ const ELEMENTs = Object.freeze({
 	totp_value_input : () => document.getElementById("totp-value-input"),
 	two_fa_value_input : () => document.getElementById("2fa-value-input"),
 
+	oauth_modal : () => document.getElementById("oauth-modal"),
 	oauth_modal_content : () => document.getElementById("oauth-modal-content"),
 
 	loginPage : () => document.getElementById("loginPage"),
@@ -175,6 +176,7 @@ const ELEMENTs = Object.freeze({
 	thirdElement : () => document.getElementById("thirdElement"),
 
 	addFriendButton : () => document.getElementById("addFriendButton"),
+	rapidPlayButton : () => document.getElementById("rapidPlayButton"),
 	
 	// profilePage
 
@@ -184,24 +186,35 @@ const ELEMENTs = Object.freeze({
 	fileButton : () => document.getElementById("photoSimulateClickInput"),
 	formFile : () => document.getElementById("formFile"),
 	changeUsernamePopOver : () => document.getElementById("changeUsernamePopOver"),
+	historicMatch : () => document.getElementById("historicMatch"),
 	
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
 	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
+	chooseRoleSwitch : () => document.getElementById("chooseRoleSwitch"),
 	teamFontOne : () => document.getElementById("teamFontOne"),
 	teamFontTwo : () => document.getElementById("teamFontTwo"),
 	luffyChibi : () => document.getElementById("luffyChibi"),
 	zoroSanjiChibi : () => document.getElementById("zoroSanjiChibi"),
-	buttonCreateLobby : () => document.getElementById("buttonCreate"),
+	buttonCreate : () => document.getElementById("buttonCreate"),
 	cross : () => document.getElementById("cross"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
 	contentCreateLobby : () => document.getElementById("contentCreateLobby"),
 
+	
+	helmsmanRoleDisplay : () => document.getElementById("helmsmanRoleDisplay"),
+	gunnerRoleDisplay : () => document.getElementById("gunnerRoleDisplay"),
+	KurohigeTeamDisplay : () => document.getElementById("KurohigeTeamDisplay"),
+	ShirohigeTeamDisplay : () => document.getElementById("ShirohigeTeamDisplay"),
+
+
+
 	centerLobbyDisplay : () => document.getElementById("centerLobbyDisplay"),
+
+
 	// LOBBY
-	crossButton : () => document.getElementById("crossButton"),
 });
 
 let N_ALERT = 0;

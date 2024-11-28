@@ -11,9 +11,8 @@ async function	homeView(title, description, data)
 	let englandFlagImg = document.getElementById("englandFlagImg");
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
-
-	// ELEMENTs.playButtonImg.onclick = () => playDisplayHomepage();  TO DO: A FAIRE
-	// ELEMENTs.wantedProfile().onclick = () => profileView();
+	
+	ELEMENTs.wantedProfile().onclick = () => profileView();
 	console.log('homeView: ');
 }
 
@@ -34,14 +33,17 @@ async function	profileView(title, description, data)
 {
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
 	console.log("profile view");
-	document.title = title;
+	document.title = "Profile | " + PAGE_TITLE;
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
+	console.log('Just BEFOREEEEEE response la fraude sa mere : URLs.USERMANAGEMENT.PROFILE', URLs.USERMANAGEMENT.PROFILE);
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log('profileView: ', response);
+	console.log('APRES LA FRAUDE MAKE REQUEST CASSE LA TETE response.history');
 	await displayFriend(response.friends);
 	await displayWaitingListFriend(response.pending_requests);
+	await getHistoric();
+	await statsInProfilePage();
 }
 
 async function	createLobbyView(title, description, data) 
@@ -133,7 +135,7 @@ async function	emailStatusView(title, description, data) {
 	const _modal = new bootstrap.Modal('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
 async function	error404View(title, description, data) {

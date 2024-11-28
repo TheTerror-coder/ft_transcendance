@@ -1,24 +1,11 @@
 
-function CreateLobbyDisplay() 
-{
-    if (ELEMENTs.switchNumbersOfPlayers().checked == false)
-        ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
-    else
-    {
-        ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
-    }
-    const crossButton = document.getElementById("crossButton");
-    crossButton.onclick = () => refreshHomePage();
-    const playButtonInLobby = document.getElementById("playButtonInLobby");
-}
-
 
 const TeamAndRoleTwoPlayerLobbyVAR =
 `
 <div style="height: 493px; margin-left: 200px; margin-right: 200px;">
     <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
         <div style="align-self: center;">
-            <p>Choose Your Team !</p>
+            <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
         </div>
         <div>
             <div style="display:flex; justify-content: space-between; height:246px;">
@@ -39,18 +26,18 @@ const TeamAndRoleTwoPlayerLobbyVAR =
     </div>
     <div id="chooseRoleDisplay" style="display: flex; flex-direction: column;margin-left: 140px; margin-right: 140px;">
         <div style="align-self: center;">
-            <p> Choose Your Role ! </p>
+            <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;"> Choose Your Role ! </p>
         </div>
         <div style="display:flex; justify-content: space-between; height:246px;">
             <div id="helmsmanRoleDisplay">
-                <p class="teamChooseFont"> Helmsman </p>
+                <p class="teamChooseFont" style="margin-left: 12px;"> Helmsman </p>
             </div>
                 <div class="container">
                     <input type="checkbox" name="chooseRoleSwitch" id="chooseRoleSwitch" />
                     <label for="chooseRoleSwitch" class="label"> </label>
                 </div>
             <div id="gunnerRoleDisplay">
-                <p class="teamChooseFont"> Gunner </p>
+                <p class="teamChooseFont" style="display:flex; justify-content: center;"> Gunner </p>
             </div>
         </div>
     </div>
@@ -66,10 +53,10 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div class="cross">
+            <div >
                 <button id="crossButton"><img id="cross" src="/static/photos/picturePng/cross.png" alt="quit Button"></button>
             </div>
-            <div id="contentCreateLobby" style="display: flex; flex-direction: column;">
+            <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 600px;">
                 <div style="display: flex; justify-content: center;">
                     <p style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>

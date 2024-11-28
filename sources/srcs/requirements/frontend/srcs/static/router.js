@@ -38,6 +38,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
 		event.preventDefault();
 		await skipTotpActivation();
+		return;
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
@@ -69,29 +70,25 @@ const eventManager = async (event) => {
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	else if (target.id === ELEMENTs.wantedProfile()?.id){
+	else if (target.id === ELEMENTs.cross()?.id)
+	{
 		event.preventDefault();
-		profileView();
+		refreshHomePage();
 	}
-	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
-	// {
-	// 	event.preventDefault();
-	// 	changeProfilePhoto();
-	// }
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
 		// event.preventDefault();
 		playDisplayHomepage();
-	}
-	else if (target.id === ELEMENTs.buttonCreateLobby()?.id){
-		event.preventDefault();
-		CreateLobbyDisplay();
 	}
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
 		await addFriend();
 	}
-	 
+	// else if (target.id === ELEMENTs.wantedProfile()?.id)
+	// {
+	// 	event.preventDefault();
+	// 	await profileView();
+	// }
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
 	// }
@@ -214,8 +211,9 @@ const handleLocation = async () => {
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
-		if (!await doPendingFlows({}, _storage.flows))
-			window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		// if (!await doPendingFlows({}, _storage.flows))
+		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
 	await postAuthMiddlewareJob(undefined, routeMatched, _storage);
@@ -268,5 +266,3 @@ window.onpopstate = handleLocation;
 // window.route = urlRoute;
 
 handleLocation();
-
-

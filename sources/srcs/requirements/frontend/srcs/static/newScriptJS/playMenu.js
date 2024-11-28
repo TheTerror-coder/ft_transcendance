@@ -12,8 +12,7 @@ function playDisplayHomepage()
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
-    const rapidPlayButton = document.getElementById("rapidPlayButton");
-    rapidPlayButton.onclick = () => rapidPlayLobbyDisplay();
+    ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
 }
 
 function rapidPlayLobbyDisplay()
@@ -51,6 +50,9 @@ function createLobbyPlay()
 {   
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
+    setTimeout(() => {
+        ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
+    }, 70);
 }
 
 function navigationPlayMenu()
@@ -72,8 +74,8 @@ function navigationPlayMenu()
         {
             console.log("here in nav == 2");
             ELEMENTs.playButtonImg().click();
-            rapidPlayButton.click();
+            ELEMENTs.rapidPlayButton().click();
         }
-    }, 40);
+    }, 70);
 
 }
