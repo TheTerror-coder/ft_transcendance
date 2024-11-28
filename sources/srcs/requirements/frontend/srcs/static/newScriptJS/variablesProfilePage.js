@@ -39,7 +39,7 @@ const profilePageDisplayVAR =
     <div style="display:flex; flex-direction: column; width: -webkit-fill-available;">
         <div id="statistique" style="height: 350px; ">
             <p style="display:flex; justify-content: center; font-size: 50px;">Statistic</p>
-            <div style="display:flex; justify-content: space-between; margin-left: 60px;">
+            <div style="display:flex; justify-content: space-between; margin-left: 360px; margin-right: 360px;">
                 <div style="display:flex; flex-direction: column;">
                     <p>Percentage Of Victory !</p>
                     <div class="progress-container">
@@ -50,13 +50,13 @@ const profilePageDisplayVAR =
                 </div>
                 <div class="card">
                     <div class="first-content">
-                        <span>Number of game Played: </span>
+                        <span>Game Played:</span>
                         <span id="numberOfGamePlayedProfileDisplay"></span>
                     </div>
                     <div class="second-content">
-                        <span>Number of win:</span>
+                        <span>Game win:</span>
                         <span id="numberOfGameWinProfileDisplay"></span>
-                        <span>Number of loses:</span>
+                        <span>Game loses:</span>
                         <span id="numberOfGameLosesProfileDisplay"></span>
                     </div>
                 </div>
