@@ -51,6 +51,9 @@ async function connect()
         //         });
         //     }
         // };
+// jm custom beginning //
+		await jwt_authenticate();
+// jm custom end //
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
     }

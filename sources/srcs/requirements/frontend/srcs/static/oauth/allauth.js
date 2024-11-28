@@ -235,6 +235,7 @@ async function getJwtToken(url) {
 	else {
 		return ([
 			'error-occured',
+			response.msg,
 		]);
 	}
 }

@@ -206,8 +206,8 @@ const handleLocation = async () => {
 	}
 	
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
-	if (routeMatched.title === urlRoutes["404"]){
-		await postAuthMiddlewareJob(undefined, routeMatched, _storage);
+	if (routeMatched === urlRoutes["404"]){
+		// call directly 404 error view
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
