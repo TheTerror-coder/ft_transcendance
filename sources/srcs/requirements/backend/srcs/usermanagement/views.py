@@ -156,6 +156,7 @@ def profile(request):
 
     response_data = {
         'friends': friend_list,
+        'user_socket': user_sockets,
         'pending_requests': pending_request_list,
         'username': request.user.username,
         'recent_games': recent_games_data,
