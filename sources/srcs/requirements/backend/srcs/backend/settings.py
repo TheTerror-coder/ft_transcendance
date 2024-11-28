@@ -289,7 +289,6 @@ HEADLESS_FRONTEND_URLS = {
     # "account_signup": "/frontpong/account/signup",
     # "socialaccount_login_error": parameters.CALLBACK_URL,
 }
-# HEADLESS_TOKEN_STRATEGY = 'oauth.views.onePongTokenStrategy'
 
 
 LOGIN_REDIRECT_URL = '/'
