@@ -79,6 +79,7 @@ async function displayWaitingListFriend(friends) {
 
     // Reference the dropdown menu
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
+    console.log("friends: ", friends);
     if (friends.length === 0)
     {
         const listItem = document.createElement('li');
@@ -90,9 +91,8 @@ async function displayWaitingListFriend(friends) {
     }
     else
     {
-        for(var i = 0; i < friends.length; i++)
+        for(let i = 0; i < friends.length; i++)
         {
-            console.log("J'SUIS ALALAALALALLALA", friends[i].from_user);
             const listItem = document.createElement('li');
             listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
@@ -120,13 +120,25 @@ async function displayWaitingListFriend(friends) {
             divForButton.appendChild(actionAddButton);
             divForButton.appendChild(actionRemoveButton);
 
-
+// si j'actualise, la websocket ne fonctionne plus donc socket.send ne fonctionne plus
             actionAddButton.addEventListener('click', () => {
                 alert(`add ${friends[i].from_user}`);
+                console.log("data.friend_request_id: ", friends[i].friend_request_id);
+                socket.send(JSON.stringify({
+                    type: 'response.invitation',
+                    response: 'accept',
+                    friend_request_id: friends[i].friend_request_id
+                }));
             });
 
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
+                console.log("data.friend_request_id: ", friends[i].friend_request_id);
+                socket.send(JSON.stringify({
+                    type: 'response.invitation',
+                    response: 'reject',
+                    friend_request_id: friends[i].friend_request_id
+                }));
             });
 
             listItem.appendChild(nameSpan);
@@ -158,7 +170,7 @@ async function displayFriend(friends)
         dropdownMenu.appendChild(listItem);
     }
     else {
-        for (var i = 0; i < friends.length; i++)
+        for (let i = 0; i < friends.length; i++)
         {
             console.log("alors peut etre que ca va marcher: ", friends[i].username);
             const listItem = document.createElement('li');
@@ -176,6 +188,9 @@ async function displayFriend(friends)
             actionButton.appendChild(imgButton);
             actionButton.addEventListener('click', () => {
                 alert(`Interacting with ${friends[i].username}`);
+                const response = makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, {username: friends[i].username});
+                console.log("response-couille: ", response);
+                alert(response.message);
             });
 
             listItem.appendChild(nameSpan);

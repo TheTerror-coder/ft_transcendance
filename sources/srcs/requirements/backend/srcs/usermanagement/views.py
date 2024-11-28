@@ -2,19 +2,14 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
-from django.views.decorators.http import require_http_methods
-import json
-import os
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
+import os
 import sys
 
 # accept multiple username
@@ -147,7 +142,7 @@ def profile(request):
             "opponent": game.opponent.username,
             "player_score": game.player_score,
             "opponent_score": game.opponent_score,
-            "date": game.date.strftime("%Y-%m-%d %H:%M:%S"),  # Formater la date en chaîne de caractères
+            "date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
         }
         for game in last_three_games
     ]
@@ -179,46 +174,38 @@ def send_friend_request(request):
     if request.method == 'POST':
         username = request.data.get('username')
         try:
-            print("Données reçues : LOL", username, file=sys.stderr)
             to_user = User.objects.get(username=username)
-            # print("Données reçues : LOL", username, file=sys.stderr)
             if to_user == request.user:
-                response = {
+                return Response({
                     'status': 'error',
                     'message': "Vous ne pouvez pas vous ajouter vous-même comme ami."
-                }
-                return Response(response)
+                }, status=400)
             elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
-                response = {
+                return Response({
                     'status': 'error',
                     'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
-                }
-                return Response(response)
+                }, status=400)
             elif to_user in request.user.friend_list.all():
-                response = {
+                return Response({
                     'status': 'error',
                     'message': "Cet utilisateur est déjà votre ami."
-                }
-                return Response(response)
+                }, status=400)
             else:
-                response = {
+                return Response({
                     'status': 'success',
                     'username': to_user.username,
                     'message': f"Demande d'ami envoyée à {to_user.username}.",
-                }
-                return Response(response)
+                }, status=200)
         except User.DoesNotExist:
-            response = {
+            return Response({
                 'status': 'error',
                 'message': "Cet utilisateur n'existe pas."
-            }
-            return Response(response)
+            }, status=400)
     else:
-        response = {
+        return Response({
             'status': 'error',
             'message': "Invalid request method."
-        }
-        return Response(response)
+        }, status=400)
 
 
 @api_view(['POST'])
@@ -226,7 +213,7 @@ def send_friend_request(request):
 @csrf_protect
 def remove_friend(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.data.get('username')
         if not username:
             response = {
                 'status': 'error',
@@ -258,9 +245,10 @@ def remove_friend(request):
             return Response(response)
 
         request.user.friend_list.remove(friend)
+        friend.friend_list.remove(request.user)
         response = {
             'status': 'success',
-            'message': f"{friend.username} a été retiré avec succès."
+            'message': f"{username} a été retiré avec succès."
         }
         return Response(response)
     else:
@@ -270,10 +258,27 @@ def remove_friend(request):
         }
         return Response(response)
 
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def users(request):
-#     print('users', file=sys.stderr)
-#     user = request.user
-#     return Response({'user': user.username, 'email': user.email, 'picture': user.photo.url})
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def get_user_sockets(request):
+    print("get_user_sockets", request.data, file=sys.stderr)
+    if request.data.get('username') in user_sockets:
+        return Response({
+            'status': 'success',
+            'sockets': user_sockets[request.data.get('username')]
+        }, status=200)
+    else:
+        return Response({
+            'status': 'error',
+            'message': 'User not connected'
+        }, status=400)
+    
+@api_view(['GET'])
+@login_required
+@csrf_protect
+def get_user(request):
+    return Response({
+        'status': 'success',
+        'username': request.user.username,
+    }, status=200)

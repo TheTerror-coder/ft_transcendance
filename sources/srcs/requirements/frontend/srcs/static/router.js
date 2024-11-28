@@ -84,7 +84,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
-	 
+	// else if (target.id === ELEMENTs.wantedProfile()?.id)
+	// {
+	// 	event.preventDefault();
+	// 	await profileView();
+	// }
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
 	// }
