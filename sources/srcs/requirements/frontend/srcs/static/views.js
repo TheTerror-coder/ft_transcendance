@@ -37,10 +37,9 @@ async function	profileView(title, description, data)
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	console.log('Just BEFOREEEEEE response la fraude sa mere : URLs.USERMANAGEMENT.PROFILE', URLs.USERMANAGEMENT.PROFILE);
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log('APRES LA FRAUDE MAKE REQUEST CASSE LA TETE response.history');
-	await displayFriend(response.friends);
+	console.log("response: ", response);
+	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric();
 	await statsInProfilePage();

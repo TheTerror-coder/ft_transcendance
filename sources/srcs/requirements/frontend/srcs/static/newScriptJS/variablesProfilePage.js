@@ -26,6 +26,10 @@ const profilePageDisplayVAR =
             <div class="cover">
             </div>
         </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="switch2FA">
+            <label class="form-check-label" for="switch2FA">2FA</label>
+        </div>
         <div class="wantedProfileInProfilePage">
             <button id="changeProfilePhotoButton" type="button">
                 <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">

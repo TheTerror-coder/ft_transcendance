@@ -1,5 +1,13 @@
 
 
+
+.circleIsConnect
+{
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+}
+
 .resultDisplayHistoric
 {
     font-size: 30px;
@@ -200,10 +208,8 @@
     transition: all 0.4s;
     border-radius: 10px;
     box-shadow: 0px 0px 10px 5px  rgba(0, 0, 0, 0.705);
-    font-size: 30px;
+    font-size: 20px;
     font-weight: 900;
-    display: flex;
-    justify-content: center;
   }
   
   .card:hover {
@@ -247,7 +253,7 @@
   .card:hover .second-content {
     opacity: 1;
     height: 100%;
-    font-size: 1.8rem;
+    font-size: 20px;
     transform: rotate(0deg);
   }
   

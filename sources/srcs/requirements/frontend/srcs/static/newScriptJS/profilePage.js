@@ -154,11 +154,12 @@ async function displayWaitingListFriend(friends) {
 
 
 
-async function displayFriend(friends)
+async function displayFriend(friends, user_socket)
 {
 // Example list of friends (can be fetched from an API)
 
     // Reference the dropdown menu
+    console.log("user_socket dans displayFriend", user_socket);
     const dropdownMenu = document.getElementById('friendDropdownMenu');
     if (friends.length === 0)
     {
@@ -185,6 +186,18 @@ async function displayFriend(friends)
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
+            const circleIsConnect = document.createElement('div');
+            circleIsConnect.className = 'circleIsConnect';
+            if (friends[i].username in user_socket)
+            {
+                circleIsConnect.style.backgroundColor = 'green';
+                circleIsConnect.style.border = '1px solid white';
+            }
+            else
+            {
+                circleIsConnect.style.backgroundColor = 'red';
+                circleIsConnect.style.border = '1px solid white';
+            }
             actionButton.appendChild(imgButton);
             actionButton.addEventListener('click', () => {
                 alert(`Interacting with ${friends[i].username}`);
@@ -192,6 +205,7 @@ async function displayFriend(friends)
                 console.log("response-couille: ", response);
                 alert(response.message);
             });
+            listItem.appendChild(circleIsConnect);
 
             listItem.appendChild(nameSpan);
             listItem.appendChild(actionButton);
