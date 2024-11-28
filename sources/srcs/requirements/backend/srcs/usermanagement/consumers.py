@@ -5,9 +5,9 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from .models import FriendRequest
 from asgiref.sync import sync_to_async
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
+# from django.http import JsonResponse
+# from django.shortcuts import get_object_or_404
+# from django.db.models import Q
 import sys
 
 user_sockets = {}
@@ -61,6 +61,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def send_invitation(self, username):
+        sys.stderr.write("*****************send_invitation " + username + "\n")
         user = await self.get_user_by_username(username)
         if user is not None:
             friend_request = FriendRequest(from_user=self.user, to_user=user, status='PENDING')

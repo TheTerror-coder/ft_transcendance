@@ -28,6 +28,10 @@ class CustomUser(AbstractUser):
         return "No Image"
     photo_tag.short_description = 'Photo'
 
+    def friends_list(self):
+        return ", ".join([friend.username for friend in self.friend_list.all()])
+    friends_list.short_description = 'Friends'
+
 
 class Game(models.Model):
     player = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="games_as_player")

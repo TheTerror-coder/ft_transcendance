@@ -63,6 +63,8 @@ const URLs = Object.freeze({
 		REMOVEFRIEND : BACKEND_BASE_URL + '/user-management/remove-friend/',
 		PROFILE : BACKEND_BASE_URL + '/user-management/profile/',
 		USERNAME : BACKEND_BASE_URL + '/user-management/users/',
+		USERSOCKET : BACKEND_BASE_URL + '/user-management/user-socket/',
+		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
 	}),
 
 
