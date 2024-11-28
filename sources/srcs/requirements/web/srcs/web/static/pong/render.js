@@ -229,6 +229,18 @@ async function initCannons(scene) {
         cannon1_tube_group.add(cannonTube1);
         cannon2_tube_group.add(cannonTube2);
 
+        let x = 24;
+        let y = 0;
+        let z = 50;
+
+        // Ajuste la position du groupe de tubes de canon
+        cannon1_tube_group.position.set(x, y, z);
+        cannon2_tube_group.position.set(x, y, z);
+
+        // Ajuste la position du tube de canon
+        cannonTube1.position.set(-x, y, -z);
+        cannonTube2.position.set(-x, y, -z);
+
         // Ajouter les groupes de tubes de canon aux groupes de canons
         cannonTeam1.add(cannon1_tube_group);
         cannonTeam2.add(cannon2_tube_group);
@@ -269,6 +281,7 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
         boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
     }
+    console.log('cannonTeam : ', boatGroup.getObjectByName(`cannonTeam${teamId}`).position);
     
     // Créer la hitbox pour les collisions
     const boundingBox = new THREE.Box3().setFromObject(bateau);

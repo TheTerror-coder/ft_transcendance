@@ -108,23 +108,24 @@ class Game:
 
         logger.info(f"isInXRange: adjusted_hitbox min x: {adjusted_hitbox['min']['x']}, ballRadius: {ballRadius}, ballPosition x: {self.ballPosition['x']}, adjusted_hitbox max x: {adjusted_hitbox['max']['x']}")
         logger.info(f"isInYRange: adjusted_hitbox min y: {adjusted_hitbox['min']['y']}, ballRadius: {ballRadius}, ballPosition y: {self.ballPosition['y']}, adjusted_hitbox max y: {adjusted_hitbox['max']['y']}")
-        logger.info(f"isInXRange: {isInXRange} isInYRange: {isInYRange}")
+        # logger.info(f"isInXRange: {isInXRange} isInYRange: {isInYRange}")
         
         if isInXRange and isInYRange:
             logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Adjusted Hitbox: {adjusted_hitbox}")
             # Vérifier si la balle touche les bords droit ou gauche du bateau ou les bords haut ou bas
             isOnLeftSide = self.ballPosition['x'] <= adjusted_hitbox['min']['x']
             isOnRightSide = self.ballPosition['x'] >= adjusted_hitbox['max']['x']
-            # isOnTopSide = self.ballPosition['y'] >= adjusted_hitbox['max']['y']
+            isOnTopSide = self.ballPosition['y'] >= adjusted_hitbox['max']['y']
             isOnBottomSide = self.ballPosition['y'] <= adjusted_hitbox['min']['y']
-            if isOnRightSide and isOnBottomSide or isOnLeftSide and isOnBottomSide:
+            logger.info(f"isOnLeftSide: {isOnLeftSide} isOnRightSide: {isOnRightSide} isOnTopSide: {isOnTopSide} isOnBottomSide: {isOnBottomSide}")
+            if isOnRightSide or isOnLeftSide:
                 logger.info("Collision avec le bord du bateau")
                 return 2
+            logger.info("Collision avec le haut du bateau")
             return 1
         return 0
 
     async def detectCollisionWithBoats(self):
-        logger.info("detectCollisionWithBoats")
         for key, team in self.teams.items():
             boat_pos = team.getBoat()
             if boat_pos['x'] == 0 and boat_pos['y'] == 0:
@@ -152,11 +153,11 @@ class Game:
             logger.info(f"Collision avec les bateaux - Nouvelle direction de la balle: {self.ballDirection}")
         elif collision == 2:
             self.ballDirection["x"] = -self.ballDirection["x"]
-            logger.info(f"Collision avec les bateaux - Nouvelle direction de la balle: {self.ballDirection}")
+            self.ballDirection["y"] = -self.ballDirection["y"]
+            logger.info(f"Collision avec le bord du bateau - Nouvelle direction de la balle: {self.ballDirection}")
             
         # Points marqués
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
-            logger.info("Ball out of bounds - Team 1 scores")
             self.gameStarted = False
             self.resetBall()
             self.teams[1].addPoint()
@@ -168,7 +169,6 @@ class Game:
             self.gameStarted = True
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
         elif self.ballPosition["y"] >= self.FIELD_HEIGHT / 2:
-            logger.info("Ball out of bounds - Team 2 scores")
             self.gameStarted = False
             self.resetBall()
             self.teams[2].addPoint()

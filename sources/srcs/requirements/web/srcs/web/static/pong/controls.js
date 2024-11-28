@@ -5,17 +5,45 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
         let TeamID = currentPlayerTeam.getTeamId();
         let cannon = currentPlayerTeam.getCannon();
+        let cannonTubeMoved = false;
 
         if (cannon) {
-            if (keys && keys['d'] && cannon.position.x < 6)
+            if (keys && keys['d'] && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 6 && TeamID === 2)))
             {
                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
-                emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+                // emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+                cannonTubeMoved = true;
             }
-            if (keys && keys['a'] && cannon.position.x > -6)
+            if (keys && keys['a'] && ((cannon.position.x < 6 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
             {
                 cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
-                emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+                // emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+                cannonTubeMoved = true;
+            }
+        }
+        if (cannonTubeMoved) {
+            emitCannonPosition(socket, gameCode, TeamID, cannon.position);
+        }
+    }
+}
+
+export function updateAndEmitCannonRotation(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED)
+{
+    if (currentPlayer.getRole() === 'Cannoneer') {
+        let directionRotation = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
+        let TeamID = currentPlayerTeam.getTeamId();
+        let cannon = currentPlayerTeam.getCannon();
+        let cannonTube = currentPlayerTeam.getCannonTube();
+        let boatGroup = currentPlayerTeam.getBoatGroup();
+
+        if (cannon && cannonTube) {
+            if (keys && keys['w'] && cannonTube.rotation.y > -Math.PI / 2) {
+                cannonTube.rotation.y += CANNON_ROTATION_SPEED * directionRotation;
+                emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID);
+            }
+            if (keys && keys['s'] && cannonTube.rotation.y < 0) {
+                cannonTube.rotation.y -= CANNON_ROTATION_SPEED * directionRotation;
+                emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID);
             }
         }
     }
@@ -63,6 +91,8 @@ function emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID) {
     // let cannonGlobalPosition = new THREE.Vector3();
     // boatGroup.getObjectByName(`cannonTeam${TeamID}`).getWorldPosition(cannonGlobalPosition);
 
+    const cannonRotation = boatGroup.getObjectByName(`cannonTeam${TeamID}`).rotation;
+
     socket.emit('boatPosition', {
         gameCode: gameCode,
         team: TeamID,
@@ -71,6 +101,11 @@ function emitBoatAndCannonPosition(socket, gameCode, boatGroup, TeamID) {
             y: boatGroup.position.y,
             z: boatGroup.position.z
         },
+        cannonRotation: {
+            x: cannonRotation.x,
+            y: cannonRotation.y,
+            z: cannonRotation.z
+        }
         // cannonPosition: {
         //     x: cannonGlobalPosition.x,
         //     y: cannonGlobalPosition.y,

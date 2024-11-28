@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 class Team
 {
     constructor(name, nbPlayer, TeamId)
@@ -106,6 +108,61 @@ class Team
             console.error('Cannon not found for team', this.TeamId);
         }
         return cannon;
+    }
+
+    getCannonTubePosition()
+    {
+        const worldTubePos = new THREE.Vector3();
+        const cannon = this.getCannon();
+        const cannonTube = this.getCannonTube();
+        
+        // Obtenir la position de base du canon dans le monde
+        cannon.getWorldPosition(worldTubePos);
+        
+        const box = new THREE.Box3().setFromObject(cannonTube);
+
+        // Longueur du tube du canon
+        const tubeLength = box.max.y - box.min.y;
+        const tubeHeight = box.max.z - box.min.z;
+
+        console.log('tubeLength : ', tubeLength);
+        console.log('tubeHeight : ', tubeHeight);
+        
+        // Obtenir l'angle de rotation sur l'axe Y
+        const angleY = Math.atan(tubeHeight / tubeLength);
+        // const angleY = -cannonTube.rotation.y;
+        
+        // Calculer les nouvelles coordonnées en fonction de la rotation sur Y
+        const offsetY = Math.cos(angleY) * tubeLength;
+        const offsetZ = Math.sin(angleY) * tubeLength;
+        
+        // Appliquer les offsets en fonction de l'équipe
+        if (this.TeamId === 1) {
+            worldTubePos.y -= offsetY;
+        } else {
+            worldTubePos.y += offsetY;
+        }
+        worldTubePos.z += offsetZ;
+        
+        return worldTubePos;
+    }
+    
+    getCannonPosInTheWorld()
+    {
+        const worldCannonPos = new THREE.Vector3();
+        const cannon = this.getCannon();
+        cannon.getWorldPosition(worldCannonPos);
+        return worldCannonPos;
+    }
+
+    getCannonTubeRotation()
+    {
+        return (this.getCannonTube().rotation);
+    }
+
+    getCannonTube()
+    {
+        return (this.getCannon().getObjectByName(`cannon${this.TeamId}_tube_group`));
     }
 
     getNbPlayer()

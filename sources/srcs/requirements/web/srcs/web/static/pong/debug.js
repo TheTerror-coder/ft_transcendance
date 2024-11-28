@@ -23,79 +23,79 @@ export function initDebug(boatMoveSpeed, cannonMoveSpeed, frameRate, gameCode, s
     currentPlayerGlobal = currentPlayer;
 }
 
-// Fonction pour afficher les valeurs actuelles
-function displayCurrentValues() {
-    console.log(`BOAT_MOVE_SPEED: ${BOAT_MOVE_SPEED}, CANNON_MOVE_SPEED: ${CANNON_MOVE_SPEED}, FRAME_RATE: ${FRAME_RATE}`);
-}
+// // Fonction pour afficher les valeurs actuelles
+// function displayCurrentValues() {
+//     console.log(`BOAT_MOVE_SPEED: ${BOAT_MOVE_SPEED}, CANNON_MOVE_SPEED: ${CANNON_MOVE_SPEED}, FRAME_RATE: ${FRAME_RATE}`);
+// }
 
-// Fonction pour ajuster les valeurs
-function adjustValues(key) {
-    switch (key) {
-        case 'ArrowUp':
-            BOAT_MOVE_SPEED += 0.1;
-            break;
-        case 'ArrowDown':
-            BOAT_MOVE_SPEED = Math.max(0, BOAT_MOVE_SPEED - 0.1);
-            break;
-        case 'ArrowRight':
-            CANNON_MOVE_SPEED += 0.01;
-            break;
-        case 'ArrowLeft':
-            CANNON_MOVE_SPEED = Math.max(0, CANNON_MOVE_SPEED - 0.01);
-            break;
-        case '+':
-            FRAME_RATE += 10;
-            break;
-        case '-':
-            FRAME_RATE = Math.max(10, FRAME_RATE - 10);
-            break;
-        case 'p':
-            restartInterval();
-            break;
-        default:
-            return;
-    }
-    displayCurrentValues();
-}
+// // Fonction pour ajuster les valeurs
+// function adjustValues(key) {
+//     switch (key) {
+//         case 'ArrowUp':
+//             BOAT_MOVE_SPEED += 0.1;
+//             break;
+//         case 'ArrowDown':
+//             BOAT_MOVE_SPEED = Math.max(0, BOAT_MOVE_SPEED - 0.1);
+//             break;
+//         case 'ArrowRight':
+//             CANNON_MOVE_SPEED += 0.01;
+//             break;
+//         case 'ArrowLeft':
+//             CANNON_MOVE_SPEED = Math.max(0, CANNON_MOVE_SPEED - 0.01);
+//             break;
+//         case '+':
+//             FRAME_RATE += 10;
+//             break;
+//         case '-':
+//             FRAME_RATE = Math.max(10, FRAME_RATE - 10);
+//             break;
+//         case 'p':
+//             restartInterval();
+//             break;
+//         default:
+//             return;
+//     }
+//     displayCurrentValues();
+// }
 
-// Fonction pour redémarrer l'intervalle avec la nouvelle FRAME_RATE
-function restartInterval() {
-    if (intervalId) {
-        clearInterval(intervalId);
-    }
-    console.log('restartInterval : ', FRAME_RATE);
-    intervalId = setInterval(() => {
-        updateAndEmitBoatPositions(
-            gameCodeGlobal, 
-            socketGlobal, 
-            keysGlobal, 
-            currentPlayerTeamGlobal, 
-            currentPlayerGlobal,
-            BOAT_MOVE_SPEED
-        );
-        updateAndEmitCannonPositions(
-            gameCodeGlobal, 
-            socketGlobal, 
-            keysGlobal, 
-            currentPlayerTeamGlobal, 
-            currentPlayerGlobal,
-            CANNON_MOVE_SPEED
-        );
-    }, FRAME_RATE);
-}
+// // Fonction pour redémarrer l'intervalle avec la nouvelle FRAME_RATE
+// function restartInterval() {
+//     if (intervalId) {
+//         clearInterval(intervalId);
+//     }
+//     console.log('restartInterval : ', FRAME_RATE);
+//     intervalId = setInterval(() => {
+//         updateAndEmitBoatPositions(
+//             gameCodeGlobal, 
+//             socketGlobal, 
+//             keysGlobal, 
+//             currentPlayerTeamGlobal, 
+//             currentPlayerGlobal,
+//             BOAT_MOVE_SPEED
+//         );
+//         updateAndEmitCannonPositions(
+//             gameCodeGlobal, 
+//             socketGlobal, 
+//             keysGlobal, 
+//             currentPlayerTeamGlobal, 
+//             currentPlayerGlobal,
+//             CANNON_MOVE_SPEED
+//         );
+//     }, FRAME_RATE);
+// }
 
-// Écouteur d'événements pour ajuster les valeurs en continu
-window.addEventListener('keydown', (event) => {
-    if (!intervalId) {
-        adjustValues(event.key);
-        intervalId = setInterval(() => adjustValues(event.key), 100);
-    }
-});
+// // Écouteur d'événements pour ajuster les valeurs en continu
+// window.addEventListener('keydown', (event) => {
+//     if (!intervalId) {
+//         adjustValues(event.key);
+//         intervalId = setInterval(() => adjustValues(event.key), 100);
+//     }
+// });
 
-window.addEventListener('keyup', () => {
-    clearInterval(intervalId);
-    intervalId = null;
-});
+// window.addEventListener('keyup', () => {
+//     clearInterval(intervalId);
+//     intervalId = null;
+// });
 
 export function setupCameraControls(cameraPlayer, displayInfo) {
     const keys = {};
@@ -171,4 +171,4 @@ export function setupCameraControls(cameraPlayer, displayInfo) {
     setInterval(updateCameraPosition, 16); // Mettre à jour la position de la caméra à chaque intervalle
 }
 
-export { restartInterval };
+// export { restartInterval };
