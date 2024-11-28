@@ -25,11 +25,6 @@ class socilaJwtToken(SessionView):
 		jwt = {}
 		access_token = request.session.get('jwt_access_token')
 		refresh_token = request.session.get('jwt_refresh_token')
-		# clear tokens from the session
-		if access_token:
-			del request.session['jwt_access_token']
-		if refresh_token:
-			del request.session['jwt_refresh_token']
 		
 		response = super().get(
 			request=request, args=args, kwargs=kwargs
@@ -40,15 +35,17 @@ class socilaJwtToken(SessionView):
 		sys.stderr.write("*******DEBUG******* socilaJwtToken access token: " + (access_token or 'null') + '\n')
 		sys.stderr.write("*******DEBUG******* socilaJwtToken refresh token: " + (refresh_token or 'null') + '\n')
 		
-		if not access_token or not refresh_token:
+		if not (access_token and refresh_token):
+			sys.stderr.write("*******DEBUG******* socilaJwtToken exited!!" + '\n')
 			return response
 		
 		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(response.content) + '\n')
 		current_content = json.loads(response.content.decode('utf-8'))
 		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(current_content) + '\n')
+		
 		status = current_content['status']
 		if status != 200 and status != 401 :
-			# sys.stderr.write("*******DEBUG******* socilaJwtToken exited with current content status=" + str(current_content['status']) + '\n')
+			sys.stderr.write("*******DEBUG******* socilaJwtToken exited with current content status=" + str(current_content['status']) + '\n')
 			return response
 		jwt['access_token'] = access_token
 		jwt['refresh_token'] = refresh_token
@@ -56,6 +53,13 @@ class socilaJwtToken(SessionView):
 
 		response.content = json.dumps(current_content)
 
+		# clear tokens from the session
+		if access_token:
+			del request.session['jwt_access_token']
+		if refresh_token:
+			del request.session['jwt_refresh_token']
+		
+		sys.stderr.write("*******DEBUG******* socilaJwtToken succeeded" + '\n')
 		return response
 
 @csrf_protect

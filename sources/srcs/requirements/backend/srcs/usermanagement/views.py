@@ -144,15 +144,15 @@ def profile(request):
 	friend_list = [{'username': friend.username} for friend in friends]
 	last_three_games = request.user.recent_games()
 
-    recent_games_data = [
-        {
-            "opponent": game.opponent.username,
-            "player_score": game.player_score,
-            "opponent_score": game.opponent_score,
-            "date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-        for game in last_three_games
-    ]
+	recent_games_data = [
+		{
+			"opponent": game.opponent.username,
+			"player_score": game.player_score,
+			"opponent_score": game.opponent_score,
+			"date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
+		}
+		for game in last_three_games
+	]
 
 
 	pending_requests = FriendRequest.objects.filter(
@@ -161,14 +161,14 @@ def profile(request):
 	)
 	pending_request_list = [{'from_user': request.from_user.username, 'friend_request_id': request.id} for request in pending_requests]
 
-    response_data = {
-        'friends': friend_list,
-        'user_socket': user_sockets,
-        'pending_requests': pending_request_list,
-        'username': request.user.username,
-        'recent_games': recent_games_data,
-    }
-    return Response(response_data)
+	response_data = {
+		'friends': friend_list,
+		'user_socket': user_sockets,
+		'pending_requests': pending_request_list,
+		'username': request.user.username,
+		'recent_games': recent_games_data,
+	}
+	return Response(response_data)
 
 
 
@@ -179,55 +179,55 @@ User = get_user_model()
 @login_required
 @csrf_protect
 def send_friend_request(request):
-    if request.method == 'POST':
-        username = request.data.get('username')
-        try:
-            to_user = User.objects.get(username=username)
-            if to_user == request.user:
-                return Response({
-                    'status': 'error',
-                    'message': "Vous ne pouvez pas vous ajouter vous-même comme ami."
-                }, status=400)
-            elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
-                return Response({
-                    'status': 'error',
-                    'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
-                }, status=400)
-            elif to_user in request.user.friend_list.all():
-                return Response({
-                    'status': 'error',
-                    'message': "Cet utilisateur est déjà votre ami."
-                }, status=400)
-            else:
-                return Response({
-                    'status': 'success',
-                    'username': to_user.username,
-                    'message': f"Demande d'ami envoyée à {to_user.username}.",
-                }, status=200)
-        except User.DoesNotExist:
-            return Response({
-                'status': 'error',
-                'message': "Cet utilisateur n'existe pas."
-            }, status=400)
-    else:
-        return Response({
-            'status': 'error',
-            'message': "Invalid request method."
-        }, status=400)
+	if request.method == 'POST':
+		username = request.data.get('username')
+		try:
+			to_user = User.objects.get(username=username)
+			if to_user == request.user:
+				return Response({
+					'status': 'error',
+					'message': "Vous ne pouvez pas vous ajouter vous-même comme ami."
+				}, status=400)
+			elif FriendRequest.objects.filter(from_user=request.user, to_user=to_user).exists():
+				return Response({
+					'status': 'error',
+					'message': "Vous avez déjà envoyé une demande d'ami à cet utilisateur."
+				}, status=400)
+			elif to_user in request.user.friend_list.all():
+				return Response({
+					'status': 'error',
+					'message': "Cet utilisateur est déjà votre ami."
+				}, status=400)
+			else:
+				return Response({
+					'status': 'success',
+					'username': to_user.username,
+					'message': f"Demande d'ami envoyée à {to_user.username}.",
+				}, status=200)
+		except User.DoesNotExist:
+			return Response({
+				'status': 'error',
+				'message': "Cet utilisateur n'existe pas."
+			}, status=400)
+	else:
+		return Response({
+			'status': 'error',
+			'message': "Invalid request method."
+		}, status=400)
 
 
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def remove_friend(request):
-    if request.method == 'POST':
-        username = request.data.get('username')
-        if not username:
-            response = {
-                'status': 'error',
-                'message': "Le nom d'utilisateur est requis."
-            }
-            return Response(response)
+	if request.method == 'POST':
+		username = request.data.get('username')
+		if not username:
+			response = {
+				'status': 'error',
+				'message': "Le nom d'utilisateur est requis."
+			}
+			return Response(response)
 
 		try:
 			friend = User.objects.get(username=username)
@@ -252,41 +252,41 @@ def remove_friend(request):
 			}
 			return Response(response)
 
-        request.user.friend_list.remove(friend)
-        friend.friend_list.remove(request.user)
-        response = {
-            'status': 'success',
-            'message': f"{username} a été retiré avec succès."
-        }
-        return Response(response)
-    else:
-        response = {
-            'status': 'error',
-            'message': "Invalid request method."
-        }
-        return Response(response)
+		request.user.friend_list.remove(friend)
+		friend.friend_list.remove(request.user)
+		response = {
+			'status': 'success',
+			'message': f"{username} a été retiré avec succès."
+		}
+		return Response(response)
+	else:
+		response = {
+			'status': 'error',
+			'message': "Invalid request method."
+		}
+		return Response(response)
 
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def get_user_sockets(request):
-    print("get_user_sockets", request.data, file=sys.stderr)
-    if request.data.get('username') in user_sockets:
-        return Response({
-            'status': 'success',
-            'sockets': user_sockets[request.data.get('username')]
-        }, status=200)
-    else:
-        return Response({
-            'status': 'error',
-            'message': 'User not connected'
-        }, status=400)
-    
+	print("get_user_sockets", request.data, file=sys.stderr)
+	if request.data.get('username') in user_sockets:
+		return Response({
+			'status': 'success',
+			'sockets': user_sockets[request.data.get('username')]
+		}, status=200)
+	else:
+		return Response({
+			'status': 'error',
+			'message': 'User not connected'
+		}, status=400)
+	
 @api_view(['GET'])
 @login_required
 @csrf_protect
 def get_user(request):
-    return Response({
-        'status': 'success',
-        'username': request.user.username,
-    }, status=200)
+	return Response({
+		'status': 'success',
+		'username': request.user.username,
+	}, status=200)

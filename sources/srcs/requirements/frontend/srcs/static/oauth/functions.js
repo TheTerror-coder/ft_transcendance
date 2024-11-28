@@ -35,37 +35,34 @@ async function getCsrfToken()
 }
 
 async function makeRequest(method, path, data, headers) {
-    const options = {
-        method,
-        headers: {
-            ...ACCEPT_JSON,
-            ...headers,
-            'X-CSRFToken' : await getCsrfToken(),
-        }
-    }
+	const options = {
+		method,
+		headers: {
+			...ACCEPT_JSON,
+			...headers,
+			'X-CSRFToken' : await getCsrfToken(),
+		}
+	}
 
-  if (data) {
-    if (data instanceof FormData) {
-        options.body = data;
-    } else {
-        options.body = JSON.stringify(data)
-        options.headers['Content-Type'] = 'application/json'
-    }
-  }
-  const resp = await fetch(path, options)
-  const msg = await resp.json()
-  if (msg.status === 410) {
-    window.sessionStorage.removeItem('sessionToken');
-  }
-  if (msg.meta?.session_token) {
-    window.sessionStorage.setItem('sessionToken', msg.meta.session_token)
-  }
-//   if ([401, 410].includes(msg.status)) {
-//     const event = new CustomEvent('auth-change', { details: msg });
-//     document.dispatchEvent(event);
-//   }
+	if (data) {
+		if (data instanceof FormData) {
+		options.body = data;
+	} else {
+		options.body = JSON.stringify(data)
+			options.headers['Content-Type'] = 'application/json'
+	}
+	}
+
+	const resp = await fetch(path, options)
+	const msg = await resp.json()
+
+	if (msg.jwt) {
+		window.localStorage.setItem('jwt_access_token', msg.jwt.access_token);
+		window.localStorage.setItem('jwt_refresh_token', msg.jwt.refresh_token);
+	}
   return (msg);
 }
+
 
 
 async function redirectToProvider()
@@ -237,6 +234,20 @@ async function askRefreshSession(params) {
 	await _modal.show();
 }
 
+// returns token payload
+async function parseJwt(token) {
+	let base64Url = token.split('.')[1];
+	let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+	let jsonpayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+	}).join(''));
+
+	return JSON.parse(jsonpayload);
+}
+function strcmp(str1, str2) {
+    return str1 === str2;
+}
+
 async function callWebSockets(params) {
 	socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
 	socket.onopen = function() {
@@ -281,14 +292,6 @@ async function callWebSockets(params) {
 		}
 	};
 }
-
-
-// async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:1443/hello/');
-// 	if (response.status === 200)
-// 		console.log('request succeeded!!');
-// 	console.log('request failed!!');
-// }
 
 function strcmp(str1, str2) {
     return str1 === str2;
