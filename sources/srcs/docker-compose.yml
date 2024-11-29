@@ -28,7 +28,6 @@ services:
       - ALT_NAMES=${ALT_NAMES}
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
       - WEB_ALT_NAMES=${WEB_ALT_NAMES}
-      - NODE_ALT_NAMES=${NODE_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
@@ -40,7 +39,6 @@ services:
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
       - web_certs:${VAULT_HOME}/volumes/web/certs
-      - node_certs:${VAULT_HOME}/volumes/node/certs
     networks:
       - transcendance
     healthcheck:
@@ -254,47 +252,6 @@ services:
       - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
       - 3000:3000
     restart: on-failure
-  
-  # node:
-  #   depends_on:
-  #     db_postgres:
-  #       condition: service_healthy
-  #       restart: true
-  #   image: ${NODE_IMAGE}
-  #   container_name: ${NODE_CONTAINER}
-  #   pull_policy: never
-  #   build:
-  #     context: ./requirements/node/
-  #     args:
-  #       - NODE_TAG=${NODE_TAG}
-  #       - NODE_UID=${NODE_UID}
-  #       - NODE_GID=${NODE_GID}
-  #       - SHARED_GID=${SHARED_GID}
-  #       - NODE_HOME=${NODE_HOME}
-  #       - NODE_DIRS_TO_MAKE=${NODE_DIRS_TO_MAKE}
-  #   environment:
-  #     - HOST_IP=${HOST_IP}
-  #   volumes:
-  #     - node_certs:${NODE_SSL_DIR}
-  #     - web_certs:${NODE_HOME}/volumes/web/certs
-  #   expose:
-  #     - ${NODE_PORT}
-  #   networks:
-  #     - ${NETWORK_NAME}
-  #   ports:
-  #     - ${NODE_PORT}:${NODE_PORT}
-  #   # healthcheck: #*file_healthcheck
-  #   #   test:
-  #   #     [
-  #   #       "CMD-SHELL",
-  #   #       "curl -s http://localhost:${WEB_PORT} | grep -q ''",
-  #   #       # "curl -s --cacert $WEB_ROOT_CA https://localhost:${WEB_PORT} | grep -q ''", # In production
-  #   #     ]
-  #   #   start_period: 10s
-  #   #   interval: 10s
-  #   #   timeout: 5s
-  #   #   retries: 1
-  #   # restart: on-failure
 
   web_waf:
     depends_on:
@@ -414,66 +371,6 @@ services:
       timeout: 5s
       retries: 1
     restart: on-failure
-  
-  node_waf:
-    depends_on:
-      node:
-        condition: service_healthy
-        restart: true
-    image: ${NODEWAF_IMAGE}
-    container_name: ${NODEWAF_CONTAINER}
-    pull_policy: never
-    build:
-      context: ./requirements/waf/
-      args:
-        - MODSECURITY_TAG=${MODSECURITY_TAG}
-        - NGINX_UID=${NGINX_UID}
-        - NGINX_GID=${NGINX_GID}
-        - MODSEC_HOME=${MODSEC_HOME}
-        - SHARED_GID=${SHARED_GID}
-        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
-        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
-        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
-        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
-        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
-        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
-        - REVERSEPROXY_CONF_FILE=./node_waf/conf/node.conf.template
-    environment:
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_HOME=${MODSEC_HOME}
-      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
-      - NODEWAF_HTTP_PORT=${NODEWAF_HTTP_PORT}
-      - NODEWAF_HTTPS_PORT=${NODEWAF_HTTPS_PORT}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
-      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
-      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
-    volumes:
-      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
-      # - staticfiles:${NGINX_STATICFILES_DIR}
-      - modsec_data:${MODSEC_DATA_DIR}
-      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
-      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
-      # - nginx_logs:${NGINX_LOG_FILES_DIR}
-      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
-      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
-    ports:
-      - ${NODEWAF_HTTP_PORT}:${NODEWAF_HTTP_PORT}
-      - ${NODEWAF_HTTPS_PORT}:${NODEWAF_HTTPS_PORT}
-    networks:
-      - ${NETWORK_NAME}
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${NODEWAF_HTTPS_PORT} > /dev/null",
-        ]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 1
-    # restart: on-failure
 
   ready:
     depends_on:
@@ -525,6 +422,4 @@ volumes:
   web_certs:
     driver: local
   gameserver_certs:
-    driver: local
-  node_certs:
     driver: local
