@@ -123,26 +123,26 @@ class Team
 
         // Longueur du tube du canon
         const tubeLength = box.max.y - box.min.y;
-        const tubeHeight = box.max.z - box.min.z;
+        // const tubeHeight = box.max.z - box.min.z;
 
-        console.log('tubeLength : ', tubeLength);
-        console.log('tubeHeight : ', tubeHeight);
+        // console.log('tubeLength : ', tubeLength);
+        // console.log('tubeHeight : ', tubeHeight);
         
         // Obtenir l'angle de rotation sur l'axe Y
-        const angleY = Math.atan(tubeHeight / tubeLength);
-        // const angleY = -cannonTube.rotation.y;
+        // const angleY = Math.atan(tubeHeight / tubeLength);
+        const angleY = -cannonTube.rotation.y;
         
         // Calculer les nouvelles coordonnées en fonction de la rotation sur Y
-        const offsetY = Math.cos(angleY) * tubeLength;
-        const offsetZ = Math.sin(angleY) * tubeLength;
+        // const offsetY = Math.cos(angleY) * tubeLength;
+        // const offsetZ = Math.sin(angleY) * tubeLength;
         
         // Appliquer les offsets en fonction de l'équipe
         if (this.TeamId === 1) {
-            worldTubePos.y -= offsetY;
+            worldTubePos.y -= tubeLength - 1.66;
         } else {
-            worldTubePos.y += offsetY;
+            worldTubePos.y += tubeLength - 1.66;
         }
-        worldTubePos.z += offsetZ;
+        // worldTubePos.z += 1.66;
         
         return worldTubePos;
     }
@@ -157,6 +157,20 @@ class Team
 
     getCannonTubeRotation()
     {
+        // const cannonTube = this.getCannonTube();
+        // const box = new THREE.Box3().setFromObject(cannonTube);
+        
+        // // Calculer les côtés du triangle rectangle
+        // const adjacent = (box.max.y - box.min.y) / 2;  // Distance verticale (y)
+        // const oppose = (box.max.z - box.min.z) / 2;    // Distance horizontale (z)
+        
+        // // Utiliser le théorème de Thalès pour calculer l'angle
+        // // tan(θ) = opposé / adjacent
+        // const angleY = Math.atan2(oppose, adjacent);
+
+        // console.log('angleY : ', angleY * 180 / Math.PI);
+        
+        // return angleY;
         return (this.getCannonTube().rotation);
     }
 

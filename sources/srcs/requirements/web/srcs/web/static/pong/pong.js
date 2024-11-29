@@ -99,7 +99,7 @@ export async function main(gameCode, socket) {
     
     // Paramètres
     const v0 = 27;  // Vitesse initiale en m/s
-    let angle = currentPlayerTeam.getCannonTubeRotation().y + 5;  // Angle de tir en degrés
+    let angle = -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI);  // Angle de tir en degrés
 
     // Calculer et dessiner la trajectoire
     const cannonPos = currentPlayerTeam.getCannonTubePosition();
@@ -145,12 +145,13 @@ export async function main(gameCode, socket) {
                         //     trajectoryLine.geometry.setFromPoints(trajectory);
                         // }
                         const newCannonPos = currentPlayerTeam.getCannonTubePosition();
+                        let newAngle = -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI);  // Angle de tir en degrés
                         // Vérifiez si la position du canon a changé
-                        if (!cannonPos.equals(newCannonPos)) {
-                            angle = -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI);  // Angle de tir en degrés
-                            console.log('currentPlayerTeam.getCannonTubeRotation().y : ', -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI));
+                        if (!cannonPos.equals(newCannonPos) || angle != newAngle) {
+                            console.log('currentPlayerTeam.getCannonTubeRotation().y : ', newAngle);
                             console.log('angle : ', angle);
                             cannonPos.copy(newCannonPos);
+                            angle = newAngle;
                             const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
                             trajectoryLine.geometry.setFromPoints(trajectory);
                         }
