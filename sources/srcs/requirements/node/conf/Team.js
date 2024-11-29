@@ -10,6 +10,39 @@ class Team
         this.boat = { x: 0, y: 0, z: 0 };
         this.cannon = { x: 0, y: 0, z: 0 };
         this.isFull = false;
+        this.score = 0;
+        this.hitbox = null;
+    }
+
+    setBoatHitbox(position, dimensions)
+    {
+        this.hitbox = {
+            min: {
+                x: position.x - dimensions.width/2,
+                y: position.y - dimensions.height/2,
+                z: position.z - dimensions.depth/2
+            },
+            max: {
+                x: position.x + dimensions.width/2,
+                y: position.y + dimensions.height/2,
+                z: position.z + dimensions.depth/2
+            }
+        };
+    }
+
+    getBoatHitbox()
+    {
+        return (this.hitbox);
+    }
+
+    addPoint()
+    {
+        this.score++;
+    }
+
+    getScore()
+    {
+        return (this.score);
     }
 
     setIsFull()
@@ -49,6 +82,7 @@ class Team
         this.boat.x = x;
         this.boat.y = y;
         this.boat.z = z;
+        console.log("Boat position set to: ", this.boat, " for team ", this.TeamId, "in Team.js");
     }
 
     setCannon(cannon)

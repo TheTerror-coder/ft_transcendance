@@ -46,14 +46,14 @@ class Player
         this.TeamID = TeamID;
     }
 
-    setCameraPos(boat, cannon)
+    setCameraPos(boat, cannon, cannonPosInTheWorld)
     {
         if (!boat || !cannon) {
             console.error('Boat or cannon is undefined in setCameraPos');
             return;
         }
         console.log('setCameraPos : ', boat.position.x, boat.position.y, boat.position.z);
-        console.log('cannon : ', cannon.position.x, cannon.position.y, cannon.position.z);
+        console.log('cannonPosInTheWorld : ', cannonPosInTheWorld.x, cannonPosInTheWorld.y, cannonPosInTheWorld.z);
         console.log('this.TeamID : ', this.TeamID);
         console.log('this.role : ', this.role);
         var p = 0;
@@ -86,14 +86,14 @@ class Player
         console.log('crz : ', crz);
         if (this.role == 'captain')
         {
-            this.cameraPos = { x: boat.position.x, y: a, z: 40 };
+            this.cameraPos = { x: 0, y: 0, z: 50 };
             this.cameraRotation = { x: 0, y: 0, z: s };
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);
         }
         else if (this.role == 'Cannoneer')
         {
-            this.cameraPos = { x: cannon.position.x, y: cannon.position.y + p, z: cannon.position.z + 3.5 };
+            this.cameraPos = { x: cannonPosInTheWorld.x, y: cannonPosInTheWorld.y + p, z: cannonPosInTheWorld.z + 3.8 };
             this.cameraRotation = { x: crx, y: cry, z: crz };
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);

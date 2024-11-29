@@ -10,6 +10,8 @@ class Game
         this.teams = new Map();
         this.nbPlayerPerTeam = 0;
         this.nbPlayerConnected = 0;
+        this.isPaused = false;
+        // this.boatHitboxes = new Map();
     }
 
     addNbPlayerConnected()
@@ -57,16 +59,15 @@ class Game
     }
 
     async updateBoatPosition(teamId, x, y, z) {
+        console.log("updateBoatPosition x: ", x, " y: ", y, " z: ", z, " for team ", teamId, "in Game.js");
         const team = this.getTeam(teamId);
         if (team) {
             const boat = team.getBoat();
-            const cannon = team.getCannon();
-            if (boat && cannon) {
-                boat.x = x;
-                boat.y = y;
-                boat.z = z;
+            if (boat) {
+                team.setBoatPosition(x, y, z);
+                console.log("Boat position set to: ", boat, " for team ", teamId, "in Game.js");
             } else {
-                console.error(`Boat or cannon not found for team ${teamId}`);
+                console.error(`Boat not found for team ${teamId}`);
             }
         } else {
             console.error(`Team ${teamId} not found`);
@@ -74,13 +75,13 @@ class Game
     }
 
     async updateCannonPosition(teamId, x, y, z) {
+        console.log("updateCannonPosition");
         const team = this.getTeam(teamId);
         if (team) {
             const cannon = team.getCannon();
             if (cannon) {
-                cannon.x = x;
-                cannon.y = y;
-                cannon.z = z;
+                team.setCannonPosition(x, y, z);
+                console.log("cannon: ", cannon);
             } else {
                 console.error(`Cannon not found for team ${teamId}`);
             }
@@ -93,6 +94,16 @@ class Game
     {
         this.updateBoatPosition(team.TeamID, team.boat.x, team.boat.y, team.boat.z);
         this.updateCannonPosition(team.TeamID, team.cannon.x, team.cannon.y, team.cannon.z);
+        this.updateBoatHitbox(team.TeamID, team.boat, team.boatDimensions);
+    }
+
+    updateBoatHitbox(teamId, position, dimensions) {
+        const team = this.getTeam(teamId);
+        if (team) {
+            team.setBoatHitbox(position, dimensions);
+        } else {
+            console.error(`Team ${teamId} not found`);
+        }
     }
 
     sendGameData(io, gameCode)
@@ -130,18 +141,21 @@ class Game
         io.to(gameCode).emit('gameData', teamsArray);
     }
 
-    // async updateBoatAndCannonPosition(team, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
-    //     let teamObj = this.getTeam(team);
-    //     if (teamObj) {
-    //         teamObj.getBoat().position.set(boatX, boatY, boatZ);
-    //         teamObj.getCannon().position.set(cannonX, cannonY, cannonZ);
-    //     }
-    // }
-
     async updateBoatAndCannonPosition(teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ) {
         this.updateBoatPosition(teamId, boatX, boatY, boatZ);
         this.updateCannonPosition(teamId, cannonX, cannonY, cannonZ);
     }
+
+    // // This is for debug
+    // async pauseForLogs() {
+    //     console.log("Pause du jeu pour lecture des logs...");
+    //     this.isPaused = true;
+        
+    //     // Création d'une boucle de pause infinie
+    //     while (this.isPaused) {
+    //         await new Promise(resolve => setTimeout(resolve, 1000));
+    //     }
+    // }
 }
 
 module.exports = Game;

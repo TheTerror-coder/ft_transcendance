@@ -1,0 +1,28 @@
+<!-- {% extends "base.html" %}
+
+{% block content %}
+    <h2>Mettre à jour la photo de profile</h2>
+    <form method="post" action="{% url 'update_photo' %}" enctype="multipart/form-data" onsubmit="return validateFile()">
+        {% csrf_token %}
+        <label for="photo">Nouvelle photo de profil :</label>
+        <input type="file" name="photo" id="photo" accept=".png">
+        <button type="submit">Mettre à jour la photo</button>
+    </form>
+
+    <script>
+        function validateFile() {
+            const fileInput = document.getElementById('photo');
+            const errorMessage = document.getElementById('error-message');
+            const filePath = fileInput.value;
+            const allowedExtensions = /(\.png)$/i;
+
+            if (!allowedExtensions.exec(filePath)) {
+                errorMessage.textContent = 'Veuillez télécharger un fichier au format .png uniquement.';
+                fileInput.value = '';
+                return false;
+            }
+            errorMessage.textContent = '';
+            return true;
+        }
+    </script>
+{% endblock %} -->
