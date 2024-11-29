@@ -1,5 +1,19 @@
 
+#usernameChange
+{
+    width: 236px;
+    margin-left: 5px;
+    height: 40px;
+    font-size: 25px;
+}
 
+
+.statHistoTitle
+{
+    font-size: 70px; 
+    font-family: 'wantedFont';
+    color: black;
+}
 
 .circleIsConnect
 {
@@ -161,7 +175,7 @@
     color: #000;
     margin-left: 10px;
     align-self: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 .bookProfile:hover .cover {
@@ -227,6 +241,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     opacity: 1;
     border-radius: 15px;
   }

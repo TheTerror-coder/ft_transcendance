@@ -245,9 +245,9 @@ const togglePopover = (event) =>
         popoverContainer.innerHTML = popUpProfilPictureVAR;
         // Style and position the popover
         const rect = ELEMENTs.changeProfilePhotoButton().getBoundingClientRect();
-        popoverContainer.style.position = 'absolute';
         popoverContainer.style.top = `${rect.bottom + window.scrollY}px`;
-        popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
+        popoverContainer.style.position = 'absolute';
+        popoverContainer.style.left = `45px`;
         popoverContainer.style.zIndex = 1;
         popoverContainer.style.width = '233px';
         
@@ -332,8 +332,8 @@ document.addEventListener('click', async (event) =>
                 popoverContainer.style.top = `${rect.top + window.scrollY}px`;
                 popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
                 popoverContainer.style.zIndex = 1;
-                popoverContainer.style.width = '233px';
-                popoverContainer.style.height = '30px';
+                popoverContainer.style.width = '150px';
+                popoverContainer.style.height = '20px';
                 ELEMENTs.changeUsernameButton().appendChild(popoverContainer);
             }
         }
