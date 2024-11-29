@@ -23,12 +23,14 @@
 {
   height: 180px;
   opacity: 0.9;
+  user-select: none;
 }
 
 #ShirohigeTeamDisplay
 {
   height: 180px;
   opacity: 0.3;
+  user-select: none;
 }
 
 .teamChooseFont
@@ -169,11 +171,13 @@
 {
     opacity: 0.4;
     margin-right: 140px;
+    user-select: none;
 }
 
 #luffyChibi
 {
     margin-left: 280px;
+    user-select: none;
 }
 
 

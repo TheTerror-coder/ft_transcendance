@@ -154,11 +154,12 @@ async function displayWaitingListFriend(friends) {
 
 
 
-async function displayFriend(friends)
+async function displayFriend(friends, user_socket)
 {
 // Example list of friends (can be fetched from an API)
 
     // Reference the dropdown menu
+    console.log("user_socket dans displayFriend", user_socket);
     const dropdownMenu = document.getElementById('friendDropdownMenu');
     if (friends.length === 0)
     {
@@ -185,6 +186,18 @@ async function displayFriend(friends)
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
+            const circleIsConnect = document.createElement('div');
+            circleIsConnect.className = 'circleIsConnect';
+            if (friends[i].username in user_socket)
+            {
+                circleIsConnect.style.backgroundColor = 'green';
+                circleIsConnect.style.border = '1px solid white';
+            }
+            else
+            {
+                circleIsConnect.style.backgroundColor = 'red';
+                circleIsConnect.style.border = '1px solid white';
+            }
             actionButton.appendChild(imgButton);
             actionButton.addEventListener('click', () => {
                 alert(`Interacting with ${friends[i].username}`);
@@ -192,6 +205,7 @@ async function displayFriend(friends)
                 console.log("response-couille: ", response);
                 alert(response.message);
             });
+            listItem.appendChild(circleIsConnect);
 
             listItem.appendChild(nameSpan);
             listItem.appendChild(actionButton);
@@ -231,9 +245,9 @@ const togglePopover = (event) =>
         popoverContainer.innerHTML = popUpProfilPictureVAR;
         // Style and position the popover
         const rect = ELEMENTs.changeProfilePhotoButton().getBoundingClientRect();
-        popoverContainer.style.position = 'absolute';
         popoverContainer.style.top = `${rect.bottom + window.scrollY}px`;
-        popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
+        popoverContainer.style.position = 'absolute';
+        popoverContainer.style.left = `45px`;
         popoverContainer.style.zIndex = 1;
         popoverContainer.style.width = '233px';
         
@@ -318,8 +332,8 @@ document.addEventListener('click', async (event) =>
                 popoverContainer.style.top = `${rect.top + window.scrollY}px`;
                 popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
                 popoverContainer.style.zIndex = 1;
-                popoverContainer.style.width = '233px';
-                popoverContainer.style.height = '30px';
+                popoverContainer.style.width = '150px';
+                popoverContainer.style.height = '20px';
                 ELEMENTs.changeUsernameButton().appendChild(popoverContainer);
             }
         }

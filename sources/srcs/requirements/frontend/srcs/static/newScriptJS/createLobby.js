@@ -61,18 +61,19 @@ function switchRole()
 
 function switchTeam()
 {
+    const kurohige = document.getElementById("KurohigeTeam");
     if (ELEMENTs.chooseTeamSwitch().checked == true)
     {
-        ELEMENTs.KurohigeTeamDisplay().style.opacity = "0.3";
-        ELEMENTs.KurohigeTeamDisplay().style.transition = "opacity 0.5s ease";
+        kurohige.style.opacity = "0.3";
+        kurohige.style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.9";
 
     }
     else
     {
-        ELEMENTs.KurohigeTeamDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.KurohigeTeamDisplay().style.opacity = "0.9";
+        kurohige.style.transition = "opacity 0.5s ease";
+        kurohige.style.opacity = "0.9";
         ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.3";
     }

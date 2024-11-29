@@ -9,7 +9,7 @@ const TeamAndRoleTwoPlayerLobbyVAR =
         </div>
         <div>
             <div style="display:flex; justify-content: space-between; height:246px;">
-                <div style="display:flex; flex-direction: column;">
+                <div style="display:flex; flex-direction: column;" id="KurohigeTeam">
                     <p class="teamChooseFont"> Black Beard </p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
                 </div>
@@ -17,7 +17,7 @@ const TeamAndRoleTwoPlayerLobbyVAR =
                     <input type="checkbox" name="chooseTeamSwitch" id="chooseTeamSwitch" />
                     <label for="chooseTeamSwitch" class="label"> </label>
                 </div>
-                <div style="display:flex; flex-direction: column;">
+                <div style="display:flex; flex-direction: column;" id="ShirohigeTeam">
                     <p class="teamChooseFont"> White Beard </p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
                 </div>

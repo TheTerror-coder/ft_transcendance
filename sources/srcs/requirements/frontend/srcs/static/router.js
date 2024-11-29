@@ -84,6 +84,13 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
+	else if (target.id === ELEMENTs.exitLuffy()?.id)
+	{
+		event.preventDefault();
+		// TO DO: exitLuffy(); (logout function)
+		// await exitLuffy();
+	}
+
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
 	// {
 	// 	event.preventDefault();
@@ -266,5 +273,3 @@ window.onpopstate = handleLocation;
 // window.route = urlRoute;
 
 handleLocation();
-
-

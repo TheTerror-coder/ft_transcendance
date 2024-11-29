@@ -1,4 +1,26 @@
 
+#usernameChange
+{
+    width: 236px;
+    margin-left: 5px;
+    height: 40px;
+    font-size: 25px;
+}
+
+
+.statHistoTitle
+{
+    font-size: 70px; 
+    font-family: 'wantedFont';
+    color: black;
+}
+
+.circleIsConnect
+{
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+}
 
 .resultDisplayHistoric
 {
@@ -153,7 +175,7 @@
     color: #000;
     margin-left: 10px;
     align-self: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 .bookProfile:hover .cover {
@@ -200,10 +222,8 @@
     transition: all 0.4s;
     border-radius: 10px;
     box-shadow: 0px 0px 10px 5px  rgba(0, 0, 0, 0.705);
-    font-size: 30px;
+    font-size: 20px;
     font-weight: 900;
-    display: flex;
-    justify-content: center;
   }
   
   .card:hover {
@@ -221,6 +241,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     opacity: 1;
     border-radius: 15px;
   }
@@ -247,7 +268,7 @@
   .card:hover .second-content {
     opacity: 1;
     height: 100%;
-    font-size: 1.8rem;
+    font-size: 20px;
     transform: rotate(0deg);
   }
   

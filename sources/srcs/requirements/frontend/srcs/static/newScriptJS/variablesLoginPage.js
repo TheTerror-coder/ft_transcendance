@@ -63,4 +63,3 @@ const loginPageDisplayVAR =
             </form>
         </div>
 </div>`;
-

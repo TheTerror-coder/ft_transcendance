@@ -103,4 +103,3 @@ const lobbyPageDisplayVAR =
         </div>
     </div>
 </div>`;
-
