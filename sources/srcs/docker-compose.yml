@@ -22,12 +22,12 @@ services:
       - VAULT_HOME=${VAULT_HOME}
       - VAULT_UID=${VAULT_UID}
       - VAULT_GID=${VAULT_GID}
-      - WEB_UID=${WEB_UID}
-      - WEB_GID=${WEB_GID}
+      - BACKEND_UID=${BACKEND_UID}
+      - BACKEND_GID=${BACKEND_GID}
       - SHARED_GID=${SHARED_GID}
       - ALT_NAMES=${ALT_NAMES}
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
-      - WEB_ALT_NAMES=${WEB_ALT_NAMES}
+      - BACKEND_ALT_NAMES=${BACKEND_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
@@ -38,7 +38,7 @@ services:
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
-      - web_certs:${VAULT_HOME}/volumes/web/certs
+      - backend_certs:${VAULT_HOME}/volumes/backend/certs
     networks:
       - transcendance
     healthcheck:
@@ -89,7 +89,7 @@ services:
       start_period: 10s
       interval: 10s
       timeout: 5s
-      retries: 2
+      retries: 3
     restart: on-failure
 
   db_postgres:
@@ -115,9 +115,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
+      - PGDATA=${POSTGRES_DATA}
       - VAULT_CACERT=${POSTGRES_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
+      - db_data:${POSTGRES_DATA}
       - vault_certs:${POSTGRES_HOME}/volumes/vault/certs
     healthcheck: #&file_healthcheck
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
@@ -129,137 +131,205 @@ services:
       - ${POSTGRES_PORT}
     networks:
       - ${NETWORK_NAME}
+    # restart: on-failure
+
+
+  redis:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: redis:${REDIS_TAG}
+    container_name: ${REDIS_CONTAINER}
+    expose:
+      - 16379
+    networks:
+      - ${NETWORK_NAME}
+    entrypoint: ["redis-server", "--port", "16379", "--loglevel", "debug"]
+    # restart: on-failure
+
+
+  # redis:
+  #   depends_on:
+  #     vault:
+  #       condition: service_healthy
+  #       restart: true
+  #   image: ${REDIS_IMAGE}
+  #   container_name: ${REDIS_CONTAINER}
+  #   pull_policy: never
+  #   build:
+  #     context: ./requirements/redis/
+  #     args:
+  #       - REDIS_TAG=${REDIS_TAG}
+  #       - REDIS_HOME=${REDIS_HOME}
+  #       - REDIS_UID=${REDIS_UID}
+  #       - REDIS_GID=${REDIS_GID}
+  #       - SHARED_GID=${SHARED_GID}
+  #       - REDIS_DIRS_TO_MAKE=${REDIS_DIRS_TO_MAKE}
+  #   environment:
+  #     - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+  #     - REDIS_HOME=${REDIS_HOME}
+  #     - REDIS_USER=${REDIS_USER}
+  #     - REDIS_DB=${REDIS_DB}
+  #     - REDIS_PORT=${REDIS_PORT}
+  #     - REDIS_DATA=${REDIS_DATA}
+  #     - VAULT_CACERT=${REDIS_VAULT_CACERT}
+  #     - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+  #   volumes:
+  #     # - db_data:${REDIS_DATA}
+  #     - vault_certs:${REDIS_HOME}/volumes/vault/certs
+  #   healthcheck: #&file_healthcheck
+  #     test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+  #     start_period: 10s
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 1
+  #   expose:
+  #     - ${REDIS_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   # restart: on-failure
+
+  mail:
+    image: ${MAIL_IMAGE}
+    container_name: ${MAIL_CONTAINER}
+    expose:
+      - ${MAIL_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
     restart: on-failure
 
-  web:
+  backend:
     depends_on:
+      mail:
+        condition: service_started
+        restart: true
       db_postgres:
         condition: service_healthy
         restart: true
-    image: ${WEB_IMAGE}
-    container_name: ${WEB_CONTAINER}
+      redis:
+        condition: service_started
+        restart: true
+    image: ${BACKEND_IMAGE}
+    container_name: ${BACKEND_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/web/
+      context: ./requirements/backend/
       args:
-        - PYTHON_TAG=${WEB_TAG}
-        - PYTHON_UID=${WEB_UID}
-        - PYTHON_USER=${WEB_USER}
-        - PYTHON_GID=${WEB_GID}
-        - PYTHON_SRCS=${WEB_SRCS}
+        - BACKEND_TAG=${BACKEND_TAG}
+        - BACKEND_UID=${BACKEND_UID}
+        - BACKEND_GID=${BACKEND_GID}
         - SHARED_GID=${SHARED_GID}
-        - PYTHON_HOME=${WEB_HOME}
-        - PYTHON_DIRS_TO_MAKE=${WEB_DIRS_TO_MAKE}
-        - STATICFILES_DIR=${WEB_STATICFILES_DIR}
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - BACKEND_HOME=${BACKEND_HOME}
+        - BACKEND_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+        - BACKEND_MEDIA_DIR=${BACKEND_MEDIA_DIR}
         - HOST_IP=${HOST_IP}
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-      - PYTHON_HOME=${WEB_HOME}
-      - PYTHON_ENTRYPOINT=${WEB_ENTRYPOINT}
+      - BACKEND_HOME=${BACKEND_HOME}
+      - BACKEND_ENTRYPOINT=${BACKEND_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_CONTAINER=${REDIS_CONTAINER}
+      - REDIS_PORT=${REDIS_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${WEB_STATICFILES_DIR}
-      - WEB_ROOT_CA=${WEB_ROOT_CA}
-      - VAULT_CACERT=${WEB_VAULT_CACERT}
+      - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+      - MEDIA_DIR=${BACKEND_MEDIA_DIR}
+      - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
+      - VAULT_CACERT=${BACKEND_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
-      - WEB_PORT=${WEB_PORT}
+      - MAIL_CONTAINER=${MAIL_CONTAINER}
+      - MAIL_PORT=${MAIL_PORT}
     volumes:
-      - webapps:${WEB_HOME}/apps
-      - staticfiles:${WEB_STATICFILES_DIR}
-      - vault_certs:${WEB_HOME}/volumes/vault/certs
-      - web_certs:${WEB_SSL_DIR}
+      # - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
+      - staticfiles:${BACKEND_STATICFILES_DIR}
+      - mediafiles:${BACKEND_MEDIA_DIR}
+      - vault_certs:${BACKEND_HOME}/volumes/vault/certs
+      - backend_certs:${BACKEND_SSL_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:$WEB_PORT/healthcheck/ | grep -q 'healthy'",
-          # "curl -s --cacert $WEB_ROOT_CA https://localhost:$WEB_PORT/healthcheck/ | grep -q 'healthy'", # In production
+          "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
+          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # In production
         ]
       start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 1
     expose:
-      - ${WEB_PORT}
+      - ${BACKEND_PORT}
     networks:
       - ${NETWORK_NAME}
     ports:
-      - 8888:${WEB_PORT}
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     restart: on-failure
-  
-  gameserver:
+
+  frontend:
     depends_on:
-      db_postgres:
+      backend:
         condition: service_healthy
         restart: true
-    image: ${GAMESERVER_IMAGE}
-    container_name: ${GAMESERVER_CONTAINER}
+    image: ${FRONTEND_IMAGE}
+    container_name: ${FRONTEND_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/web/
+      context: ./requirements/frontend/
       args:
-        - PYTHON_TAG=${GAMESERVER_TAG}
-        - PYTHON_UID=${GAMESERVER_UID}
-        - PYTHON_GID=${GAMESERVER_GID}
-        - PYTHON_USER=${GAMESERVER_USER}
-        - PYTHON_SRCS=${GAMESERVER_SRCS}
+        - FRONTEND_TAG=${FRONTEND_TAG}
+        - FRONTEND_UID=${FRONTEND_UID}
+        - FRONTEND_GID=${FRONTEND_GID}
+        - FRONTEND_USER=${FRONTEND_USER}
+        - FRONTEND_HOME=${FRONTEND_HOME}
         - SHARED_GID=${SHARED_GID}
-        - PYTHON_HOME=${GAMESERVER_HOME}
-        - PYTHON_DIRS_TO_MAKE=${GAMESERVER_DIRS_TO_MAKE}
-        - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
-        - STATICFILES_DIR=${STATICFILES_DIR}
-        - HOST_IP=${HOST_IP}
+        - FRONTEND_DIRS_TO_MAKE=${FRONTEND_DIRS_TO_MAKE}
+        - FRONTEND_LOGS_ROOT=${FRONTEND_LOGS_ROOT}
+        - FRONTEND_STATICFILES_DIR=${FRONTEND_STATICFILES_DIR}
+        - FRONTEND_LOG_FILES=${FRONTEND_LOG_FILES}
     environment:
-      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-      - PYTHON_HOME=${GAMESERVER_HOME}
-      - PYTHON_ENTRYPOINT=${GAMESERVER_ENTRYPOINT}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
-      - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
-      - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
-      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
-      - HOST_IP=${HOST_IP}
-      - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - FRONTEND_HOME=${FRONTEND_HOME}
+      - FRONTEND_ROOT_CA=${FRONTEND_ROOT_CA}
+      - FRONTEND_HTTP_PORT=${FRONTEND_HTTP_PORT}
+      - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
     volumes:
-      - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
-      - gameserver_certs:${GAMESERVER_SSL_DIR}
-    healthcheck: #*file_healthcheck
+      # - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
+      # - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
+      # - frontend_logs:${FRONTEND_LOG_FILES_DIR}
+      - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
+      - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
+    ports:
+      - ${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}
+      - ${FRONTEND_HTTPS_PORT}:${FRONTEND_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
       test:
         [
           "CMD-SHELL",
-          # "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
-          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+          "curl -s --cacert $FRONTEND_ROOT_CA https://localhost:${FRONTEND_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 1
-    expose:
-      - ${GAMESERVER_PORT}
-      - 3000
-    networks:
-      - ${NETWORK_NAME}
-    ports:
-      - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
-      - 3000:3000
-    restart: on-failure
+    # restart: on-failure
 
-  web_waf:
+  proxy_waf:
     depends_on:
-      web:
+      backend:
         condition: service_healthy
         restart: true
-    image: ${WEBWAF_IMAGE}
-    container_name: ${WEBWAF_CONTAINER}
+      frontend:
+        condition: service_healthy
+        restart: true
+    image: ${PROXYWAF_IMAGE}
+    container_name: ${PROXYWAF_CONTAINER}
     pull_policy: never
     build:
       context: ./requirements/waf/
@@ -275,13 +345,14 @@ services:
         - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
         - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
         - NGINX_LOG_FILES=${NGINX_LOG_FILES}
-        - REVERSEPROXY_CONF_FILE=./web_waf/conf/web.conf.template
+        - REVERSEPROXY_CONF_FILE=./proxy_waf/conf/proxy.conf.template
     environment:
+      - ALLOWED_METHODS=${MODSEC_ALLOWED_METHODS}
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_HOME=${MODSEC_HOME}
       - NGINX_ROOT_CA=${NGINX_ROOT_CA}
-      - WEBWAF_HTTP_PORT=${WEBWAF_HTTP_PORT}
-      - WEBWAF_HTTPS_PORT=${WEBWAF_HTTPS_PORT}
+      - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
@@ -297,22 +368,22 @@ services:
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
     ports:
-      - ${WEBWAF_HTTP_PORT}:${WEBWAF_HTTP_PORT}
-      - ${WEBWAF_HTTPS_PORT}:${WEBWAF_HTTPS_PORT}
+      - ${PROXYWAF_HTTP_PORT}:${PROXYWAF_HTTP_PORT}
+      - ${PROXYWAF_HTTPS_PORT}:${PROXYWAF_HTTPS_PORT}
     networks:
       - ${NETWORK_NAME}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${WEBWAF_HTTPS_PORT} > /dev/null",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${PROXYWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 1
     # restart: on-failure
-
+  
   vault_waf:
     depends_on:
       vault:
@@ -364,20 +435,17 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${VAULTWAF_HTTPS_PORT} > /dev/null",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${VAULTWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
       start_period: 10s
       interval: 10s
       timeout: 5s
-      retries: 1
+      retries: 3
     restart: on-failure
 
   ready:
     depends_on:
-      gameserver:
-        condition: service_healthy
-        restart: true
-      web_waf:
+      proxy_waf:
         condition: service_healthy
         restart: true
       vault_waf:
@@ -387,13 +455,15 @@ services:
     container_name: ready_c
     command: echo "Microservices Infrastructure is ready and healthy!"
     restart: on-failure
-  
+
 networks:
   transcendance:
     driver: bridge
 
 volumes:
   vault_data:
+    driver: local
+  db_data:
     driver: local
   vault_healthiness:
     driver: local
@@ -405,13 +475,9 @@ volumes:
     driver: local
   nginx_logs:
     driver: local
-  webapps:
-    driver: local
-    # driver_opts:
-    #   type: none
-    #   o: bind
-    #   device: ${WEBAPPS_VOLUME}
   staticfiles:
+    driver: local
+  mediafiles:
     driver: local
   certs:
     driver: local
@@ -419,7 +485,5 @@ volumes:
     driver: local
   nginx_certs:
     driver: local
-  web_certs:
-    driver: local
-  gameserver_certs:
+  backend_certs:
     driver: local

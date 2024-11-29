@@ -1,0 +1,178 @@
+@font-face {
+    font-family: wantedFont;
+    src: url(/static/wantedFont.ttf);
+}
+
+/* il est partout lui lol */
+.headPage
+{
+    display: flex;
+    justify-content: space-between;
+}
+
+.wantedFriendHomePageDisplay
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: -webkit-fill-available;
+}
+
+.profilePicture
+{
+    min-width: 243px;
+    min-height: 182px;
+    max-width: 243px;
+    max-height: 182px;
+    margin-right: -5px;
+    margin-top: 50px;
+}
+
+.wantedProfile
+{
+    display: block;
+    background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
+    width: 302px;
+    height: 442px;
+    opacity: 90%;
+    align-self: end;
+}
+
+.wantedProfile:hover
+{
+    opacity: 100%;
+}
+
+.wantedProfile p
+{
+    font-family: wantedFont;
+    font-size: 200%;
+    margin-top: 32px;
+    margin-bottom: -2px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    color: #493B3A;
+    font-weight: 700;
+    opacity: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wantedProfile span
+{
+    font-family: wantedFont;
+    font-size: 165%;
+    opacity: 85%;
+    color: #493B3A;
+}
+
+
+.centerHomepage
+{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center; /* Center vertically */
+    z-index: 2;
+    margin-top: 150px;
+}
+
+.homepageFlag
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+#homepageFlag button
+{
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+}
+
+#homepageFlag button img
+{
+    height: 100%;
+    width: auto;
+}
+
+.englandFlag
+{
+    transform: scale(1.2);
+}
+
+.profileDisplay
+{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+
+/* From Uiverse.io by eslam-hany */ 
+.book 
+{
+    position: relative;
+    border-radius: 10px;
+    width: 220px;
+    height: 300px;
+    background-color: whitesmoke;
+    box-shadow: 1px 1px 12px #000;
+    -webkit-perspective: 2000px;
+    perspective: 2000px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-box-pack: center;
+    color: #000;
+    margin-left: 10px;
+}
+/* .book p
+{
+    font-size: 20px;
+} */
+.cover p
+{
+    font-size: 50px;
+    font-weight: 10;
+}
+  
+  .cover {
+    top: 0;
+    position: absolute;
+    background-image: url('/photos/picturePng/homePage/socialBackground.png');
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.5s;
+    transform-origin: 0;
+    box-shadow: 1px 1px 12px #000;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+  }
+  
+  .book:hover .cover {
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    -webkit-transform: rotatey(-80deg);
+    -ms-transform: rotatey(-80deg);
+    transform: rotatey(-80deg);
+  }
+  
+  p {
+    font-size: 20px;
+    font-weight: bolder;
+  }
+
+
+.sideBar {
+    height: 100%; /* Full height */
+    width: 40px;
+}

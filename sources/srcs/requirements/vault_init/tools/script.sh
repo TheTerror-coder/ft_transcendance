@@ -6,7 +6,7 @@ echo "************beginning of the program**********"
 
 source $VAULT_HOME/container-init.d/create-root-ca.sh
 source $VAULT_HOME/container-init.d/generate-nginx-ssl-certs.sh
-source $VAULT_HOME/container-init.d/generate-web-ssl-certs.sh
+source $VAULT_HOME/container-init.d/generate-backend-ssl-certs.sh
 source $VAULT_HOME/container-init.d/generate-gameserver-ssl-certs.sh
 source $VAULT_HOME/container-init.d/vault-ssl.sh
 
@@ -116,11 +116,11 @@ set_tls_volumes_permissions(){
 	chown -R $VAULT_UID:$SHARED_GID $VAULT_HOME/volumes/nginx/certs;
 	echo "Nginx's TLS files permissions Done!"
 	
-	echo "Setting Web's TLS files permissions..."
-	find $VAULT_HOME/volumes/web/certs -type d -exec chmod 750 \{\} \;;
-	find $VAULT_HOME/volumes/web/certs -type f -exec chmod 640 \{\} \;;
-	chown -R $VAULT_UID:$SHARED_GID $VAULT_HOME/volumes/web/certs;
-	echo "Web's TLS files permissions Done!"
+	echo "Setting Backend's TLS files permissions..."
+	find $VAULT_HOME/volumes/backend/certs -type d -exec chmod 750 \{\} \;;
+	find $VAULT_HOME/volumes/backend/certs -type f -exec chmod 640 \{\} \;;
+	chown -R $VAULT_UID:$SHARED_GID $VAULT_HOME/volumes/backend/certs;
+	echo "Backend's TLS files permissions Done!"
 
 	echo "Setting GameServer's TLS files permissions..."
 	find $VAULT_HOME/volumes/gameserver/certs -type d -exec chmod 750 \{\} \;;
@@ -137,14 +137,14 @@ create_tls_certs () {
 	generate_nginx_intermediate_ca
 	request_nginx_certificate
 	
-	enable_web_pki_engine
-	generate_web_intermediate_ca
-	request_web_certificate
+	enable_backend_pki_engine
+	generate_backend_intermediate_ca
+	request_backend_certificate
 	
 	enable_gameserver_pki_engine
 	generate_gameserver_intermediate_ca
 	request_gameserver_certificate
-
+	
 	set_tls_volumes_permissions
 }
 
