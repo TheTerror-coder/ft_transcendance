@@ -8,7 +8,7 @@ create_gameserver_intermediate_ca_role () {
 	echo -e "\nGameServer Intermediate CA - Creating a role"
 	vault write gameserver/roles/gameserver_intermediate_ca_role \
 		issuer_ref="$(vault read -field=default gameserver/config/issuers)" \
-		allowed_domains="$MODSEC_ALT_NAMES" \
+		allowed_domains="$GAMESERVER_ALT_NAMES" \
 		allow_subdomains=true \
 		allow_bare_domains=true \
 		organization="42 Lyon Ft_transcendance Group" \
@@ -33,8 +33,8 @@ generate_gameserver_intermediate_ca () {
 		/gameserver/ \
 		common_name="Transcendance Intermediate Authority" \
 		exclude_cn_from_sans=true \
-		alt_names="$MODSEC_ALT_NAMES" \
-		permitted_dns_domains="$MODSEC_ALT_NAMES" \
+		alt_names="$GAMESERVER_ALT_NAMES" \
+		permitted_dns_domains="$GAMESERVER_ALT_NAMES" \
 		ip_sans="127.0.0.1" \
 		issuer_name="Root-Certificate-Authority" \
 		key_name="ca-key" \
@@ -67,8 +67,8 @@ request_gameserver_certificate () {
 	echo -e "\nGameServer SSL Certificate - creating..."
 	curl -s --cacert $VAULT_CACERT $VAULT_ADDR/v1/root-ca/ca/pem --output $VAULT_HOME/volumes/gameserver/certs/ca/root_ca.crt
 	vault write -format=json gameserver/issue/gameserver_intermediate_ca_role \
-		common_name="transcendance.fr" \
-		alt_names="$MODSEC_ALT_NAMES" \
+		common_name="gameserver" \
+		alt_names="$GAMESERVER_ALT_NAMES" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \

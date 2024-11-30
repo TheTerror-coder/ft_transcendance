@@ -1,2 +1,4 @@
 sources/srcs/requirements/web/srcs/.env/*
-sources/srcs/requirements/backend/srcs/.env/*
+sources/srcs/requirements/backpong/srcs/.env/*
+sources/srcs/requirements/backpong/srcs/backend/.env/*
+sources/srcs/requirements/backpong/srcs/gameserver/.env/*
