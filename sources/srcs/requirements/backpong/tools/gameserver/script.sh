@@ -14,4 +14,4 @@ fi
 
 python3 /usr/share/gameserver/apps/backgame/index.py &
 
-$PYTHON_ENTRYPOINT
+$CONTAINER_ENTRYPOINT

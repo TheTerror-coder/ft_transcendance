@@ -13,7 +13,7 @@ then
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
 
-$PYTHON_ENTRYPOINT
+$CONTAINER_ENTRYPOINT
 # export DJANGO_SETTINGS_MODULE=backend.settings
 # daphne -b 0.0.0.0 -p 8001 backend.asgi:application &
 # tail -f /dev/null
