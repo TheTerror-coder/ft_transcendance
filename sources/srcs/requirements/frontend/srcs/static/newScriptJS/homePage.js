@@ -45,40 +45,9 @@ async function addFriend()
                 console.error('WebSocket connection is not open. readyState:', socket.readyState);
             }
             // faire une vrai belle fonction
-
-            // socket.onmessage = function(event) {
-            //     console.log("Received invitation:");
-            //     var data = JSON.parse(event.data);
-            //     if (data.type === 'invitation') {
-            //         console.log("Received invitation:", data);
-            //         Swal.fire({
-            //             title: 'Friend Invitation',
-            //             text: `You have received a friend invitation from ${data.from}.`,
-            //             icon: 'info',
-            //             showCancelButton: true,
-            //             confirmButtonText: 'Accept',
-            //             cancelButtonText: 'Reject',
-            //             confirmButtonColor: 'green',
-            //             cancelButtonColor: 'red',
-            //         }).then((result) => {
-            //             if (result.isConfirmed) {
-            //                 socket.send(JSON.stringify({
-            //                     type: 'response.invitation',
-            //                     response: 'accept',
-            //                     friend_request_id: data.friend_request_id
-            //                 }));
-            //             } else if (result.dismiss === Swal.DismissReason.cancel) {
-            //                 socket.send(JSON.stringify({
-            //                     type: 'response.invitation',
-            //                     response: 'reject',
-            //                     friend_request_id: data.friend_request_id
-            //                 }));
-            //             }
-            //         });
-            //     }
-            // };
-        } else {
-            console.error('WebSocket is not defined');
+            socket.onmessage = function(event) {
+                handleFriendInvitation(socket, event);
+            };
         }
     } else {
         alert(response.message);
@@ -100,7 +69,6 @@ function sendInvitation(username) {
         var data = JSON.parse(event.data);
         if (data.type === 'invitation') {
             console.log("Received invitation:", data);
-            // Créez les boutons d'acceptation et de rejet
             var acceptButton = document.createElement('button');
             acceptButton.textContent = 'Accept';
             acceptButton.onclick = function() {

@@ -221,6 +221,10 @@ async function askRefreshSession(params) {
 	_modal.show();
 }
 
+/**************************/
+/*		 WEBSOKETS		  */
+/**************************/
+
 async function callWebSockets(params) {
 	socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
 	socket.onopen = function() {
@@ -265,6 +269,37 @@ async function callWebSockets(params) {
 		}
 	};
 }
+
+
+function handleFriendInvitation(socket, event) {
+    console.log("Received invitation:");
+    var data = JSON.parse(event.data);
+    
+    if (data.type === 'invitation') {
+        console.log("Received invitation:", data);
+        
+        // Afficher la boîte de dialogue SweetAlert
+        Swal.fire({
+            title: 'Friend Invitation',
+            text: `You have received a friend invitation from ${data.from}.`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Accept',
+            cancelButtonText: 'Reject',
+            confirmButtonColor: 'green',
+            cancelButtonColor: 'red',
+        }).then((result) => {
+            let response = result.isConfirmed ? 'accept' : 'reject';
+            
+            socket.send(JSON.stringify({
+                type: 'response.invitation',
+                response: response,
+                friend_request_id: data.friend_request_id
+            }));
+        });
+    }
+}
+
 
 
 // async function testRequest() {

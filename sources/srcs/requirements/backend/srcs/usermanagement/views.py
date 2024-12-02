@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
 from django.contrib.auth.decorators import login_required
@@ -11,6 +11,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import os
 import sys
+
+
+
+User = get_user_model()
+list_users = User.objects.all()
 
 # accept multiple username
 @api_view(['POST'])
@@ -77,6 +82,7 @@ def logout_view(request):
 @login_required
 @csrf_protect
 def update_profile(request):
+    print("update-profile", list_users, file=sys.stderr)
     print("update-profile", request.data, file=sys.stderr)
     username = request.data.get('username')
     form = UpdateUsernameForm({'username': username}, instance=request.user)
@@ -147,7 +153,6 @@ def profile(request):
         for game in last_three_games
     ]
 
-
     pending_requests = FriendRequest.objects.filter(
         to_user=request.user,
         status='PENDING'
@@ -165,7 +170,6 @@ def profile(request):
 
 
 
-User = get_user_model()
 
 
 @api_view(['POST'])
