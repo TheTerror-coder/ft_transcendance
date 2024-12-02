@@ -2,9 +2,10 @@
 // console.log('profileView: ', response);
 
 
+
+// mettre en parametre son pourcentage de victoire
 async function statsInProfilePage()
 {
-    //ici fetch des bails gang pour le pencentage gang
     let percentage = 60;
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
@@ -57,11 +58,16 @@ async function getHistoric(game)
             const resultUser = document.createElement('span');
             const resultAdvUser = document.createElement('span');
 
+
+            console.log("game: ", game);
+            console.log("result i: ", i);
             resultUser.className = 'resultDisplayHistoric';
-            resultUser.textContent = game[i].resultUser;
-            resultAdvUser.textContent = game[i].resultAdvUser;
-            username.textContent = game[i].username;
-            advUsername.textContent = game[i].advUsername;
+
+
+            resultUser.textContent = game.resultUser;
+            resultAdvUser.textContent = game.resultAdvUser;
+            username.textContent = game.username;
+            advUsername.textContent = game.advUsername;
             match.appendChild(username);
             match.appendChild(resultUser);
             match.appendChild(resultAdvUser);
@@ -177,6 +183,7 @@ async function displayFriend(friends, user_socket)
             const listItem = document.createElement('li');
             listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
+            const buttonDisplayFriend = document.createElement('button');
             const nameSpan = document.createElement('span');
             nameSpan.textContent = friends[i].username;
 
@@ -205,9 +212,12 @@ async function displayFriend(friends, user_socket)
                 console.log("response-couille: ", response);
                 alert(response.message);
             });
+
+            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
+            buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
 
-            listItem.appendChild(nameSpan);
+            listItem.appendChild(buttonDisplayFriend);
             listItem.appendChild(actionButton);
 
             dropdownMenu.appendChild(listItem);

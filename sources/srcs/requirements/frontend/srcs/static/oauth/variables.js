@@ -181,7 +181,14 @@ const ELEMENTs = Object.freeze({
 
 	addFriendButton : () => document.getElementById("addFriendButton"),
 	rapidPlayButton : () => document.getElementById("rapidPlayButton"),
+
+	usernameOfWanted : () => document.getElementById("usernameOfWanted"),
+	primeAmount : () => document.getElementById("primeAmount"),
 	
+	//userPage
+	nameUser : () => document.getElementById("nameUser"),
+
+
 	// profilePage
 
 	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),

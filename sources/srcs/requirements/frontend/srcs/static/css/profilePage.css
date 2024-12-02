@@ -224,6 +224,7 @@
     box-shadow: 0px 0px 10px 5px  rgba(0, 0, 0, 0.705);
     font-size: 20px;
     font-weight: 900;
+    min-width: 150px;
   }
   
   .card:hover {

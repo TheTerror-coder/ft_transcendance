@@ -75,7 +75,7 @@ const homePageDisplayVAR =
         <button class="wantedProfile" id="wantedProfile">
             <img id="pictureOfWanted" alt="profile picture" class="profilePicture">
             <p id="usernameOfWanted"></p>
-            <span>10.000</span>
+            <span id="primeAmount">10.000</span>
         </button>
     </div>
 </div>`;

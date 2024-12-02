@@ -1,9 +1,33 @@
 
 
+
+
+async function UserProfileView(username, description, data)
+{
+	ELEMENTs.mainPage().innerHTML = usersProfilePage;
+	ELEMENTs.mainPage().style.display = "flex";
+	document.title = username +  " | " + PAGE_TITLE;
+	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
+
+
+	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
+
+
+	ELEMENTs.nameUser().innerHTML = username;
+	// update berry gang
+
+	// mettre en parametre les donnees du frero
+	await getHistoric();
+	await statsInProfilePage();
+
+}
+
+
 async function	homeView(title, description, data) 
 {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
+	const response = await getAuthenticationStatus();
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	flag.className = "homepageFlag";
@@ -12,6 +36,10 @@ async function	homeView(title, description, data)
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
 	
+	ELEMENTs.usernameOfWanted().innerHTML = response[2].user.display;
+	ELEMENTs.primeAmount().innerHTML = "1 000 000 000";
+
+
 	ELEMENTs.wantedProfile().onclick = () => profileView();
 	console.log('homeView: ');
 }
@@ -40,6 +68,11 @@ async function	profileView(title, description, data)
 	console.log('Just BEFOREEEEEE response la fraude sa mere : URLs.USERMANAGEMENT.PROFILE', URLs.USERMANAGEMENT.PROFILE);
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response);
+
+	const responseJWT = await getAuthenticationStatus();
+	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
+	ELEMENTs.primeAmount().innerHTML = "10 000 000 000";
+
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric();
