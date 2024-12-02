@@ -1,5 +1,5 @@
 
-
+// import { initializeSocket } from './socketPong.js';
 
 function playDisplayHomepage()
 {
@@ -14,6 +14,7 @@ function playDisplayHomepage()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
 }
+
 
 function rapidPlayLobbyDisplay()
 {
@@ -48,17 +49,20 @@ function joinLobbyPlay()
 }
 
 
-function joinTwoPlayersDisplay()
-{
-    ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
-}
+// function joinTwoPlayersDisplay()
+// {
+//     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
+// }
 
 
 function createLobbyPlay()
 {   
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
-    setTimeout(() => {
+    setTimeout(async() => {
+        console.log("JE SUIS DANS CREATE LOBBY");
+        const socket = await initializeSocket();
+        console.log("SOCKET LOOOOL: ", socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
     }, 70);
 }

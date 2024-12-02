@@ -1,5 +1,9 @@
+// import socketIOClient from 'socket.io-client';
 
-
+let savedGameCode = null;
+let gameStarted = false;
+let ip;
+let socket;
 
 function createLobbyDisplay() 
 {

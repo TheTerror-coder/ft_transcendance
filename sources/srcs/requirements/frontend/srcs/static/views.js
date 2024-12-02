@@ -1,27 +1,4 @@
-
-
-
-
-async function UserProfileView(username, description, data)
-{
-	ELEMENTs.mainPage().innerHTML = usersProfilePage;
-	ELEMENTs.mainPage().style.display = "flex";
-	document.title = username +  " | " + PAGE_TITLE;
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
-
-
-	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
-
-
-	ELEMENTs.nameUser().innerHTML = username;
-	// update berry gang
-
-	// mettre en parametre les donnees du frero
-	await getHistoric();
-	await statsInProfilePage();
-
-}
-
+// import { playDisplayHomepage } from './newScriptJS/playMenu.js';
 
 async function	homeView(title, description, data) 
 {
@@ -41,6 +18,7 @@ async function	homeView(title, description, data)
 
 
 	ELEMENTs.wantedProfile().onclick = () => profileView();
+	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	console.log('homeView: ');
 }
 

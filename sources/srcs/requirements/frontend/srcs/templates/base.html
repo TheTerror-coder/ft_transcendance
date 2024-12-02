@@ -9,7 +9,15 @@
         <link href="/static/css/profilePage.css" rel="stylesheet">
         <link href="/static/css/playMenu.css" rel="stylesheet">
         <link href="/static/css/createJoinLobby.css" rel="stylesheet">
-		
+        <script type="importmap">
+            {
+              "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.129.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.129.0/examples/jsm/",
+              }
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.4.0/dist/socket.io.esm.min.js"> </script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 		<script src="/static/oauth/variables.js"></script>
 
@@ -31,6 +39,7 @@
         <div id="mainPage" style="flex: 1;">
         </div>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 pour le popup de l'invit, voir avec bootstrap-->
+        <script src="/static/newScriptJS/socketPong.js"></script>
         <script src="/static/newScriptJS/variablesLoginPage.js"></script>
         <script src="/static/newScriptJS/createLobby.js"></script>
         <script src="/static/newScriptJS/variablesHomePage.js"></script>
@@ -44,8 +53,8 @@
         <script src="/static/newScriptJS/lobbyPage.js"></script>
         <script src="/static/newScriptJS/404Page.js"></script>
         <script src="/static/newScriptJS/profilePage.js"></script>
-        <!-- <script src="/static/newScriptJS/refreshPage.js"></script> -->
-
+        
+        <script src="/static/oauth/alerter.js"></script>
 		<script src="/static/oauth/fragments/mfa.js"></script>
 		<script src="/static/oauth/fragments/email-verification.js"></script>
 		<script src="/static/oauth/fragments/modal.js"></script>

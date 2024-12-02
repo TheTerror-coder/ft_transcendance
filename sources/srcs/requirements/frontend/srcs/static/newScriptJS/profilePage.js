@@ -156,7 +156,25 @@ async function displayWaitingListFriend(friends) {
 }
 
 
+async function userProfileDisplay(username)
+{
+	ELEMENTs.mainPage().innerHTML = usersProfilePage;
+	ELEMENTs.mainPage().style.display = "flex";
+	document.title = username +  " | " + PAGE_TITLE;
+	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 
+
+	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
+
+
+	ELEMENTs.nameUser().innerHTML = username;
+	// update berry gang
+
+	// mettre en parametre les donnees du frero
+	await getHistoric();
+	await statsInProfilePage();
+
+}
 
 
 
@@ -213,7 +231,7 @@ async function displayFriend(friends, user_socket)
                 alert(response.message);
             });
 
-            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
+            buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
             buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
 
