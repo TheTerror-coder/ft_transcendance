@@ -42,8 +42,16 @@ function joinLobbyPlay()
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+    const joinButton = document.getElementById("joinButton");
+    // TO DO: faire condition en fonction de ce que je vais recevoir comme info de Ben
+    // joinButton.onclick = () => joinTwoPlayersDisplay();
 }
 
+
+function joinTwoPlayersDisplay()
+{
+    ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
+}
 
 
 function createLobbyPlay()
