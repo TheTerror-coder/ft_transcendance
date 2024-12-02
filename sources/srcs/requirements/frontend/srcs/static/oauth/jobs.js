@@ -18,8 +18,13 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 
 async function render_next(params, routeMatched, _storage) {
 	console.log("****DEBUG**** render_next()");
-
+	
 	try {
+		
+		if (!window.localStorage.getItem('jwt_access_token')){
+			console.log("****DEBUG**** jwt credentials missing, calling once again jwt_authenticate()");
+			await jwt_authenticate();
+		}
 		if (routeMatched){
 			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 			return ;

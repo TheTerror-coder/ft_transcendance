@@ -8,8 +8,8 @@ from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import permission_classes
 from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
@@ -19,6 +19,7 @@ import sys
 # accept multiple username
 @api_view(['POST'])
 @csrf_protect
+@permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
 		form = CustomUserCreationForm(request.data, request.FILES)
@@ -41,6 +42,7 @@ def connect(request):
 
 @api_view(['POST'])
 @csrf_protect
+@permission_classes([AllowAny])
 def login_view(request):
 	if request.method == 'POST':
 		form = CustomAuthenticationForm(data=request.data)
@@ -75,14 +77,15 @@ def login_view(request):
 			}, status=400)
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
+@permission_classes([AllowAny])
 def logout_view(request):
 	logout(request)
 	return Response({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
 
 # check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def update_profile(request):
 	print("update-profile", request.data, file=sys.stderr)
 	username = request.data.get('username')
@@ -102,8 +105,8 @@ def update_profile(request):
 
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def update_photo(request):
 	print("update_photo", file=sys.stderr)
 	if 'picture' not in request.FILES:
@@ -137,8 +140,8 @@ def update_photo(request):
 
 
 @api_view(['GET'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
@@ -176,8 +179,8 @@ User = get_user_model()
 
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def send_friend_request(request):
 	if request.method == 'POST':
 		username = request.data.get('username')
@@ -217,8 +220,8 @@ def send_friend_request(request):
 
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def remove_friend(request):
 	if request.method == 'POST':
 		username = request.data.get('username')
@@ -267,8 +270,8 @@ def remove_friend(request):
 		return Response(response)
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def get_user_sockets(request):
 	print("get_user_sockets", request.data, file=sys.stderr)
 	if request.data.get('username') in user_sockets:

@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: TODO keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-nubwiuho4c4%@3fk9yo54_^#l11s0_+4zl%^$7r3b4-4hknx5_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -231,14 +231,14 @@ CHANNEL_LAYERS = {
     },
 }
 
-# REST_FRAMEWORK = {
-# 	'DEFAULT_AUTHENTICATION_CLASSES': (
-# 		'rest_framework_simplejwt.authentication.JWTAuthentication',
-# 	),
-# 	# 'DEFAULT_PERMISSION_CLASSES': [
-# 	# 	'rest_framework.permissions.IsAuthenticated',
-# 	# ],
-# }
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
+	),
+	'DEFAULT_PERMISSION_CLASSES': [
+		'rest_framework.permissions.IsAuthenticated',
+	],
+}
 SIMPLE_JWT = {
 	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),

@@ -44,12 +44,17 @@ async function makeRequest(method, path, data, headers) {
 		}
 	}
 
+	access_token = window.localStorage.getItem('jwt_access_token');
+	if (access_token) {
+		options.headers['Authorization'] = 'Bearer ' + access_token;
+	}
+
 	if (data) {
 		if (data instanceof FormData) {
 		options.body = data;
 	} else {
 		options.body = JSON.stringify(data)
-			options.headers['Content-Type'] = 'application/json'
+		options.headers['Content-Type'] = 'application/json'
 	}
 	}
 
