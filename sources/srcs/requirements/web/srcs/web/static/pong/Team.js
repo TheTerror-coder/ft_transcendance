@@ -110,39 +110,13 @@ class Team
         return cannon;
     }
 
-    getCannonTubePosition()
+    getCannonTubeGroupPosition()
     {
         const worldTubePos = new THREE.Vector3();
-        const cannon = this.getCannon();
-        const cannonTube = this.getCannonTube();
+        const cannonTube = this.getCannonTubeGroup();
         
         // Obtenir la position de base du canon dans le monde
-        cannon.getWorldPosition(worldTubePos);
-        
-        const box = new THREE.Box3().setFromObject(cannonTube);
-
-        // Longueur du tube du canon
-        const tubeLength = box.max.y - box.min.y;
-        // const tubeHeight = box.max.z - box.min.z;
-
-        // console.log('tubeLength : ', tubeLength);
-        // console.log('tubeHeight : ', tubeHeight);
-        
-        // Obtenir l'angle de rotation sur l'axe Y
-        // const angleY = Math.atan(tubeHeight / tubeLength);
-        const angleY = -cannonTube.rotation.y;
-        
-        // Calculer les nouvelles coordonnées en fonction de la rotation sur Y
-        // const offsetY = Math.cos(angleY) * tubeLength;
-        // const offsetZ = Math.sin(angleY) * tubeLength;
-        
-        // Appliquer les offsets en fonction de l'équipe
-        if (this.TeamId === 1) {
-            worldTubePos.y -= tubeLength - 1.66;
-        } else {
-            worldTubePos.y += tubeLength - 1.66;
-        }
-        // worldTubePos.z += 1.66;
+        cannonTube.getWorldPosition(worldTubePos);
         
         return worldTubePos;
     }
@@ -155,13 +129,98 @@ class Team
         return worldCannonPos;
     }
 
-    getCannonTubeRotation()
+    getCannonTubeLengthFromPivot()
     {
-        // const cannonTube = this.getCannonTube();
+        const cannonTubeGroup = this.getCannonTubeGroup();
+        if (!cannonTubeGroup) {
+            console.error('Cannon tube group not found for team', this.TeamId);
+            return 0;
+        }
+    
+        const tube = this.getCannonTube();
+        if (!tube) {
+            console.error('Cannon tube not found for team', this.TeamId);
+            return 0;
+        }
+    
+        // Obtenir la boîte englobante du tube
+        const tubeBoundingBox = new THREE.Box3().setFromObject(tube);
+        const tubeLength = tubeBoundingBox.max.y - tubeBoundingBox.min.y;
+    
+        // Position du pivot du groupe
+        const groupPivotPosition = new THREE.Vector3();
+        cannonTubeGroup.getWorldPosition(groupPivotPosition);
+    
+        // Position du centre du tube
+        const tubeCenterPosition = new THREE.Vector3();
+        tube.getWorldPosition(tubeCenterPosition);
+    
+        // Calculer le décalage entre le pivot du groupe et le centre du tube
+        const offset = new THREE.Vector3();
+        tube.localToWorld(offset.set(0, 0, 0));
+        const pivotToCenterOffset = tubeCenterPosition.clone().sub(offset);
+    
+        // Position du bout du tube (en ajoutant la moitié de la longueur dans la direction appropriée)
+        const tubeEndPosition = tubeCenterPosition.clone();
+        if (this.TeamId === 1) {
+            tubeEndPosition.y -= tubeLength / 2;
+        } else {
+            tubeEndPosition.y += tubeLength / 2;
+        }
+    
+        // Ajuster la position du bout du tube en fonction du décalage
+        tubeEndPosition.add(pivotToCenterOffset);
+    
+        // Calculer la distance entre le pivot du groupe et l'extrémité du tube
+        const totalLength = groupPivotPosition.distanceTo(tubeEndPosition);
+
+        console.log('totalLength : ', totalLength);
+    
+        return totalLength;
+    }
+
+    createTubeLengthLine() {
+        const cannonTubeGroup = this.getCannonTubeGroup();
+        if (!cannonTubeGroup) {
+            console.error('Cannon tube group not found for team', this.TeamId);
+            return null;
+        }
+    
+        // Position du point de pivot
+        const pivotPosition = new THREE.Vector3();
+        cannonTubeGroup.getWorldPosition(pivotPosition);
+    
+        // Créer le point d'arrivée en utilisant la rotation du groupe et la longueur calculée
+        const tubeLength = this.getCannonTubeLengthFromPivot();
+        const rotation = cannonTubeGroup.rotation;
+    
+        // Calculer le point d'arrivée
+        const endPoint = new THREE.Vector3();
+        endPoint.copy(pivotPosition);
+        
+        // Ajuster la position en fonction de la rotation et de la longueur
+        const directionY = this.TeamId === 1 ? -1 : 1;
+        endPoint.y += tubeLength * Math.cos(rotation.z) * directionY;
+        endPoint.z += tubeLength * Math.sin(rotation.z);
+    
+        // Créer la ligne
+        const points = [pivotPosition, endPoint];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ 
+            color: 0x00ff00,
+            linewidth: 2
+        });
+    
+        return new THREE.Line(geometry, material);
+    }
+
+    getCannonTubeGroupRotation()
+    {
+        const cannonTube = this.getCannonTubeGroup();
         // const box = new THREE.Box3().setFromObject(cannonTube);
         
         // // Calculer les côtés du triangle rectangle
-        // const adjacent = (box.max.y - box.min.y) / 2;  // Distance verticale (y)
+        // const adjacent = this.getCannonTubeLengthFromPivot();  // Distance verticale (y)
         // const oppose = (box.max.z - box.min.z) / 2;    // Distance horizontale (z)
         
         // // Utiliser le théorème de Thalès pour calculer l'angle
@@ -171,12 +230,17 @@ class Team
         // console.log('angleY : ', angleY * 180 / Math.PI);
         
         // return angleY;
-        return (this.getCannonTube().rotation);
+        return (cannonTube.rotation);
+    }
+
+    getCannonTubeGroup()
+    {
+        return (this.getCannon().getObjectByName(`cannon${this.TeamId}_tube_group`));
     }
 
     getCannonTube()
     {
-        return (this.getCannon().getObjectByName(`cannon${this.TeamId}_tube_group`));
+        return (this.getCannonTubeGroup().getObjectByName(`cannonTubeTeam${this.TeamId}`));
     }
 
     getNbPlayer()
