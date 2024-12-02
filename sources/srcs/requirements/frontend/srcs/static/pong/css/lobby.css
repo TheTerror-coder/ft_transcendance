@@ -90,7 +90,7 @@ body, html {
     
 }
 
-/* Rebecca Newspapers Chat
+/* Rebecca Newspapers Chat */
 #rebecca_newspapers_chat {
     position: absolute;
     width: 40vw;
@@ -98,8 +98,8 @@ body, html {
     left: 0vw;
     top: 0px;
     background: url(/static/pong/css/images/rebecca_newspapers_chat.png) no-repeat center center;
-    background-size: contain; /* Maintient les proportions tout en s'adaptant à la taille de l'élément
-} */
+    background-size: contain; /* Maintient les proportions tout en s'adaptant à la taille de l'élément */
+}
 
 /* Wanted Profile */
 #wanted_profile {
