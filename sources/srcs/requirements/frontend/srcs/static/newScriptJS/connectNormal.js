@@ -16,7 +16,7 @@ async function connect()
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
     }
-    else if (response.status === 'error') 
+    else if (response.status === 'error')
     {
         if (typeof response.errors === 'object') {
             let errorMessages = '';

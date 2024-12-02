@@ -9,10 +9,10 @@ async function UserProfileView(username, description, data)
 	document.title = username +  " | " + PAGE_TITLE;
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 
-
-	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
-
-
+	console.log("usernam in userprofile :  ", username);
+	// document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
+	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
+	const response = await makeRequest('GET', URLs.USERMANAGEMENT.)
 	ELEMENTs.nameUser().innerHTML = username;
 	// update berry gang
 

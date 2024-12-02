@@ -32,7 +32,6 @@ async function addFriend()
             else {
                 console.error('WebSocket connection is not open. readyState:', socket.readyState);
             }
-            // faire une vrai belle fonction
             socket.onmessage = function(event) {
                 handleFriendInvitation(socket, event);
             };
