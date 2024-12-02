@@ -1,9 +1,12 @@
 
 #gunnerRoleDisplay
 {
-  background-image: url('/photos/picturePng/lobbyPage/BackgroundGunner.jpg');
+  background-image: url('/photos/picturePng/lobbyPage/BackgroundGunner.jpeg');
   background-size: cover;
   background-position: center;
+  width: -webkit-fill-available;
+  border-radius: 20%;
+  opacity: 0.3;
 }
 
 #helmsmanRoleDisplay
@@ -11,18 +14,23 @@
   background-image: url('/photos/picturePng/lobbyPage/BackgroundHelmsman.jpg');
   background-position: center;
   background-size: cover;
+  width: -webkit-fill-available;
+  border-radius: 20%;
+  opacity: 0.9;
 }
 
 #KurohigeTeamDisplay
 {
   height: 180px;
   opacity: 0.9;
+  user-select: none;
 }
 
 #ShirohigeTeamDisplay
 {
   height: 180px;
-  opacity: 0.9;
+  opacity: 0.3;
+  user-select: none;
 }
 
 .teamChooseFont
@@ -32,6 +40,9 @@
     color: #dc2700;
     align-self: center;
     margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8;
+    opacity: 0.85;
 }
 
 
@@ -160,11 +171,13 @@
 {
     opacity: 0.4;
     margin-right: 140px;
+    user-select: none;
 }
 
 #luffyChibi
 {
     margin-left: 280px;
+    user-select: none;
 }
 
 

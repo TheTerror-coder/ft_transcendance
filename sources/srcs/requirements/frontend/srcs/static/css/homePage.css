@@ -3,6 +3,13 @@
     src: url(/static/wantedFont.ttf);
 }
 
+/* il est partout lui lol */
+.headPage
+{
+    display: flex;
+    justify-content: space-between;
+}
+
 .wantedFriendHomePageDisplay
 {
     display: flex;

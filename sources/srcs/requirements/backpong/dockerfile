@@ -1,0 +1,48 @@
+# ARG default values are overriden at build time
+
+ARG IMAGE_TAG=3.10.15-alpine3.20
+
+FROM python:${IMAGE_TAG}
+
+ARG IMAGE_UID=xxxx
+ARG IMAGE_GID=xxxx
+ARG IMAGE_USER=xxxx
+ARG IMAGE_SRCS=.
+ARG SHARED_GID=1010
+ARG IMAGE_HOME=/usr/share/xxx
+ARG IMAGE_DIRS_TO_MAKE=.
+ARG STATICFILES_DIR=.
+ARG IMAGE_MEDIA_DIR=.
+ARG SCRIPT_SH=script.sh
+
+USER 0
+
+WORKDIR ${IMAGE_HOME}
+
+RUN --mount=type=bind,source=./tools/requirements.txt,target=./requirements.txt <<EOF
+apk add --update --no-cache dumb-init curl shadow
+useradd --uid ${IMAGE_UID} --user-group -m --no-log-init --home-dir ${IMAGE_HOME} --shell /bin/sh --comment "container's rootless user" ${IMAGE_USER}
+addgroup -g ${SHARED_GID} transcendance
+addgroup ${IMAGE_USER} transcendance
+mkdir -p ${IMAGE_DIRS_TO_MAKE}
+chmod 0700 ${IMAGE_HOME} ${IMAGE_HOME}/container-init.d ${IMAGE_HOME}/volumes
+chmod 0770 ${STATICFILES_DIR}
+chmod 1500 ${IMAGE_HOME}/secrets
+chown -R ${IMAGE_UID}:${SHARED_GID} ${IMAGE_HOME}
+chown ${IMAGE_UID}:${IMAGE_GID} ${IMAGE_HOME}/secrets
+pip install -r ./requirements.txt
+EOF
+
+COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=770 ./tools/HOST_IP.sh ${IMAGE_HOME}/container-init.d
+COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=700 ./${SCRIPT_SH} ${IMAGE_HOME}/container-init.d
+COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=770 ./${IMAGE_SRCS}/ ${IMAGE_HOME}/apps
+COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=770 ./media/ ${IMAGE_MEDIA_DIR}/
+
+WORKDIR ${IMAGE_HOME}/apps
+
+USER ${IMAGE_UID}
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "sh", "-c", "${CONTAINER_HOME}/container-init.d/script.sh" ]
+
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

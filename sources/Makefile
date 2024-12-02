@@ -4,7 +4,7 @@ export HOST_IP=$(shell hostname -I | awk '{print $$1}')
 
 include $(ENV)
 
-all : build up
+all dit_moi : build up
 
 build b : # Build or rebuild services
 	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) build

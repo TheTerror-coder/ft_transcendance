@@ -1,5 +1,14 @@
 
-
+.lobbyCode
+{
+  margin-bottom: 0px;
+  margin-right: 50px;
+  font-size: 60px;
+  font-family: serif;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 
 
 .createLobbySwitch label
@@ -40,12 +49,6 @@
     margin-right: 232px;
     margin-top: 50px;
     margin-bottom: -50px;
-}
-
-.cross
-{
-    display: flex;
-    justify-content: flex-end;
 }
 
 .fireBackground

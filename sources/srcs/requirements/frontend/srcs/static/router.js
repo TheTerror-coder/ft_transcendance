@@ -38,6 +38,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
 		event.preventDefault();
 		await skipTotpActivation();
+		return;
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
@@ -69,29 +70,32 @@ const eventManager = async (event) => {
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	else if (target.id === ELEMENTs.wantedProfile()?.id){
+	else if (target.id === ELEMENTs.cross()?.id)
+	{
 		event.preventDefault();
-		profileView();
+		refreshHomePage();
 	}
-	// else if (target.id  === ELEMENTs.profilPhotoInProfilePage()?.id)
-	// {
-	// 	event.preventDefault();
-	// 	changeProfilePhoto();
-	// }
 	else if (target.id === ELEMENTs.playButtonImg()?.id){
 		// event.preventDefault();
 		playDisplayHomepage();
-	}
-	else if (target.id === ELEMENTs.buttonCreateLobby()?.id){
-		event.preventDefault();
-		CreateLobbyDisplay();
 	}
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
 		await addFriend();
 	}
-	 
+	else if (target.id === ELEMENTs.exitLuffy()?.id)
+	{
+		event.preventDefault();
+		// TO DO: exitLuffy(); (logout function)
+		// await exitLuffy();
+	}
+
+	// else if (target.id === ELEMENTs.wantedProfile()?.id)
+	// {
+	// 	event.preventDefault();
+	// 	await profileView();
+	// }
 	// else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
 	// 	handleLocation();
 	// }
@@ -102,15 +106,15 @@ const eventManager = async (event) => {
 	console.log('event listener: ', target.id);
 };
 
-const auth_change = async (event) => {
-	const flows = event.detail.flows;
-	const pendingFlows = flows.length;
+// const auth_change = async (event) => {
+// 	const flows = event.detail.flows;
+// 	const pendingFlows = flows.length;
 
-	if (pendingFlows !== 0){
-		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
-	}
-	window.location.assign(URLs.VIEWS.LOGIN_VIEW);
-}
+// 	if (pendingFlows !== 0){
+// 		window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+// 	}
+// 	window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+// }
 
 document.addEventListener("click", eventManager); 
 document.addEventListener("auth-change", eventManager); 
@@ -209,16 +213,17 @@ const handleLocation = async () => {
 	}
 	
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
-	if (routeMatched.title === urlRoutes["404"]){
-		await postAuthMiddlewareJob(undefined, routeMatched, _storage);
+	if (routeMatched === urlRoutes["404"]){
+		// call directly 404 error view
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
-		if (!await doPendingFlows({}, _storage.flows))
-			window.location.assign(URLs.VIEWS.LOGIN_VIEW);
+		// if (!await doPendingFlows({}, _storage.flows))
+		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
-	await postAuthMiddlewareJob(undefined, routeMatched, _storage);
+	await render_next(undefined, routeMatched, _storage);
 };
 
 async function onePongAlerter(type, title, message) {
@@ -297,5 +302,3 @@ window.onpopstate = handleLocation;
 // window.route = urlRoute;
 
 handleLocation();
-
-

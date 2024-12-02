@@ -1,19 +1,35 @@
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
-	console.log("post auth middleware job")
-	// if (!skip_mfa){
-	// 	await mfaJob();
-	// 	return;
-	// }
-	const __modal = bootstrap.Modal.getInstance('#oauth-modal');
-	if (__modal)
-		__modal.dispose();
-	if (routeMatched){
-		await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
-		return ;
+	console.log("****DEBUG**** post auth middleware job")
+	try {
+		await jwt_authenticate();
+		
+		if (routeMatched){
+			await render_next(params, routeMatched, _storage);
+			return ;
+		}
+		else {
+			window.location.replace(URLs.VIEWS.HOME);
+			return ;
+		}
+	} catch (error) {
+		console.log("****DEBUG**** Exception catch() in postAuthMiddlewareJob(): " + error);
 	}
-	else {
-		window.location.replace(URLs.VIEWS.HOME);
-		return ;
+}
+
+async function render_next(params, routeMatched, _storage) {
+	console.log("****DEBUG**** render_next()");
+
+	try {
+		if (routeMatched){
+			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
+			return ;
+		}
+		else {
+			window.location.replace(URLs.VIEWS.HOME);
+			return ;
+		}
+	} catch (error) {
+		console.log("****DEBUG**** render_next() Exception: " + error);
 	}
 }
 
@@ -21,10 +37,10 @@ async function	requireEmailVerifyJob(params) {
 	await fragment_loadModalTemplate();
 	const html = await fragment_requireEmailVerify();
 	ELEMENTs.oauth_modal_content().innerHTML = html;
-	const _modal = bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
 async function	verifyEmailJob(params) {
@@ -75,10 +91,10 @@ async function	verifyEmailJob(params) {
 	await fragment_loadModalTemplate();
 	const html = await fragment_isEmailVerified(_params);
 	ELEMENTs.oauth_modal_content().innerHTML = html;
-	const _modal = bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
 async function mfaJob(params, totp_active) {
@@ -90,10 +106,10 @@ async function mfaJob(params, totp_active) {
 	await fragment_loadModalTemplate();
 	const html = await fragment_mfaOverview(_params);
 	ELEMENTs.oauth_modal_content().innerHTML = html;
-	const _modal = bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 		keyboard: false,
 	});
-	_modal.show();
+	await _modal.show();
 }
 
 async function	activateTotpJob(params) {
@@ -113,10 +129,10 @@ async function	activateTotpJob(params) {
 		await fragment_loadModalTemplate();
 		const html = await fragment_activateTotp(_params);
 		ELEMENTs.oauth_modal_content().innerHTML = html;
-		const _modal = bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
+		const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 			keyboard: false,
 		});
-		_modal.show();
+		await _modal.show();
 	} else if (response.find(data => data === 'totp-authenticator-set-yet')){
 		await mfaJob(undefined, totp_active=(await isTotpEnabled()));
 		return ;

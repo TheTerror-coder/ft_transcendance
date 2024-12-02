@@ -28,6 +28,7 @@ services:
       - ALT_NAMES=${ALT_NAMES}
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
       - BACKEND_ALT_NAMES=${BACKEND_ALT_NAMES}
+      - GAMESERVER_ALT_NAMES=${GAMESERVER_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     cap_add:
@@ -38,6 +39,7 @@ services:
       - vault_certs:${VAULT_HOME}/volumes/vault/certs
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - backend_certs:${VAULT_HOME}/volumes/backend/certs
+      - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
     networks:
       - transcendance
     healthcheck:
@@ -215,38 +217,42 @@ services:
     container_name: ${BACKEND_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/backend/
+      context: ./requirements/backpong/
       args:
-        - BACKEND_TAG=${BACKEND_TAG}
-        - BACKEND_UID=${BACKEND_UID}
-        - BACKEND_GID=${BACKEND_GID}
+        - IMAGE_TAG=${BACKEND_TAG}
+        - IMAGE_UID=${BACKEND_UID}
+        - IMAGE_USER=${BACKEND_USER}
+        - IMAGE_GID=${BACKEND_GID}
+        - IMAGE_SRCS=${BACKEND_SRCS}
         - SHARED_GID=${SHARED_GID}
-        - BACKEND_HOME=${BACKEND_HOME}
-        - BACKEND_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
+        - IMAGE_HOME=${BACKEND_HOME}
+        - IMAGE_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
         - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
-        - BACKEND_MEDIA_DIR=${BACKEND_MEDIA_DIR}
+        - IMAGE_MEDIA_DIR=${BACKEND_MEDIA_DIR}
         - HOST_IP=${HOST_IP}
+        - SCRIPT_SH=./tools/backend/script.sh
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-      - BACKEND_HOME=${BACKEND_HOME}
-      - BACKEND_ENTRYPOINT=${BACKEND_ENTRYPOINT}
+      - CONTAINER_HOME=${BACKEND_HOME}
+      - CONTAINER_ENTRYPOINT=${BACKEND_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
-      - REDIS_CONTAINER=${REDIS_CONTAINER}
-      - REDIS_PORT=${REDIS_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
       - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
-      - MEDIA_DIR=${BACKEND_MEDIA_DIR}
       - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
       - VAULT_CACERT=${BACKEND_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - REDIS_CONTAINER=${REDIS_CONTAINER}
+      - REDIS_PORT=${REDIS_PORT}
+      - MEDIA_DIR=${BACKEND_MEDIA_DIR}
       - MAIL_CONTAINER=${MAIL_CONTAINER}
       - MAIL_PORT=${MAIL_PORT}
     volumes:
-      # - ./requirements/backend/srcs/:${BACKEND_HOME}/apps/
+      # - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
       - mediafiles:${BACKEND_MEDIA_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
@@ -270,9 +276,73 @@ services:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     restart: on-failure
 
+  gameserver:
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+        restart: true
+    image: ${GAMESERVER_IMAGE}
+    container_name: ${GAMESERVER_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/backpong/
+      args:
+        - IMAGE_TAG=${GAMESERVER_TAG}
+        - IMAGE_UID=${GAMESERVER_UID}
+        - IMAGE_GID=${GAMESERVER_GID}
+        - IMAGE_USER=${GAMESERVER_USER}
+        - IMAGE_SRCS=${GAMESERVER_SRCS}
+        - SHARED_GID=${SHARED_GID}
+        - IMAGE_HOME=${GAMESERVER_HOME}
+        - IMAGE_DIRS_TO_MAKE=${GAMESERVER_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
+        - SCRIPT_SH=./tools/gameserver/script.sh
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - CONTAINER_HOME=${GAMESERVER_HOME}
+      - CONTAINER_ENTRYPOINT=${GAMESERVER_ENTRYPOINT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
+      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+      - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
+      - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
+    volumes:
+      - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
+      - gameserver_certs:${GAMESERVER_SSL_DIR}
+    healthcheck: #*file_healthcheck
+      test:
+        [
+          "CMD-SHELL",
+          # "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
+          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    expose:
+      - ${GAMESERVER_PORT}
+      - 3000
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
+      - 3000:3000
+    restart: on-failure
+
   frontend:
     depends_on:
       backend:
+        condition: service_healthy
+        restart: true
+      gameserver:
         condition: service_healthy
         restart: true
     image: ${FRONTEND_IMAGE}
@@ -322,6 +392,9 @@ services:
   proxy_waf:
     depends_on:
       backend:
+        condition: service_healthy
+        restart: true
+      gameserver:
         condition: service_healthy
         restart: true
       frontend:
@@ -485,4 +558,6 @@ volumes:
   nginx_certs:
     driver: local
   backend_certs:
+    driver: local
+  gameserver_certs:
     driver: local

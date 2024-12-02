@@ -54,19 +54,18 @@ class Team
         this.boat = boat;
     }
 
-    setCannon(cannon)
-    {
-        this.cannon = cannon;
-        if (this.TeamId == 1)
-        {
-            this.cannon.position.set(this.boat.position.x - (this.boat.scale.x / 2) + 2, this.boat.position.y - 2.18, this.boat.position.z * this.boat.scale.z + 8.1);
-            this.cannon.rotation.set(0, 0, -Math.PI / 2);
+    // setCannon(cannon)
+    // {
+    //     this.cannon = cannon;
+    // }
+
+    setCannon(cannon) {
+        if (!this.boat) {
+            console.error('Boat is not set for team', this.TeamId);
+            return;
         }
-        else if (this.TeamId == 2)
-        {
-            this.cannon.position.set(this.boat.position.x - (this.boat.scale.x / 2) + 2, this.boat.position.y + 3.98, this.boat.position.z * this.boat.scale.z + 8.1);
-            this.cannon.rotation.set(0, 0, Math.PI / 2);
-        }
+        cannon.name = `cannonTeam${this.TeamId}`;
+        this.boat.add(cannon);
     }
 
     removePlayer(id)
@@ -82,12 +81,32 @@ class Team
 
     getBoat()
     {
-        return (this.boat);
+        if (!this.boat) {
+            console.error('Boat is not set for team', this.TeamId);
+            return null;
+        }
+        return this.boat;
     }
 
-    getCannon()
-    {
-        return (this.cannon);
+    // getCannon()
+    // {
+    //     if (!this.cannon) {
+    //         console.error('Cannon not found for team', this.TeamId);
+    //         return null;
+    //     }
+    //     return this.cannon;
+    // }
+
+    getCannon() {
+        if (!this.boat) {
+            console.error('Boat is not set for team', this.TeamId);
+            return null;
+        }
+        const cannon = this.boat.getObjectByName(`cannonTeam${this.TeamId}`);
+        if (!cannon) {
+            console.error('Cannon not found for team', this.TeamId);
+        }
+        return cannon;
     }
 
     getNbPlayer()

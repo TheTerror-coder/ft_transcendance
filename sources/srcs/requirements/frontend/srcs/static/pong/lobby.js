@@ -14,18 +14,39 @@ const initializeSocket = async () => {
         if (!response.ok) {
             console.error('Erreur réseau : ' + response.statusText);
             ip = 'localhost';
-            socket = socketIOClient('http://' + ip + ':3000');
-            console.log("Socket initialized: ", socket);
-            return socket; // Retourner la socket
+        } else {
+            const data = await response.json();
+            ip = data.HOST_IP;
         }
-        const data = await response.json(); // Attendre que les données soient disponibles
-        ip = data.HOST_IP;
-        socket = socketIOClient('http://' + ip + ':3000');
-        console.log("Socket initialized: ", socket);
-        return socket; // Retourner la socket
+        
+        // Configuration de la socket avec des options pour éviter les reconnexions inutiles
+        socket = socketIOClient('http://' + ip + ':3000', {
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000,
+            transports: ['websocket'],
+            forceNew: false
+        });
+
+        // Gestion des événements de connexion
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+        });
+
+        socket.on('connect', () => {
+            console.log('Connecté au serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
+        });
+    
+        socket.on('disconnect', () => {
+            console.log('Déconnecté du serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
+        });
+
+        return socket;
     } catch (error) {
         console.error('Erreur lors de l\'initialisation de la socket:', error);
-        return null; // Retourner null en cas d'erreur
+        return null;
     }
 };
 
@@ -39,10 +60,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     console.log('socket in lobby.js: ', socket);
-
-    socket.on('connect', () => {
-        console.log('Connecté au serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
-    });
 
     const createGameButton = document.getElementById('createGame');
     if (createGameButton) {
@@ -193,6 +210,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     socket.on('updatePlayerLists', (teamsInfo) => {
+        console.log("teamsInfo: ", teamsInfo);
         const team1ListElement = document.getElementById('team1List');
         const team2ListElement = document.getElementById('team2List');
 
