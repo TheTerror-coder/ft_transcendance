@@ -15,6 +15,8 @@ async function UserProfileView(username, description, data)
 	console.log("user :  ", response);
 	console.log("game played :  ", response.user_info['game played']);
 	console.log("victory :  ", response.user_info.victorie);
+	console.log("photo :  ", response.user_info.photo);
+	console.log("prime :  ", response.user_info.prime);
 	ELEMENTs.nameUser().innerHTML = username;
 	// update berry gang
 
@@ -27,8 +29,8 @@ async function	homeView(title, description, data)
 {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
-	const response = await getAuthenticationStatus();
-
+	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
+	
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	flag.className = "homepageFlag";
 	flag.id = 'homepageFlag';
@@ -36,8 +38,11 @@ async function	homeView(title, description, data)
 	englandFlagImg.className = "englandFlag";
 	englandFlag.style.marginRight = "-0.01px";
 	
-	ELEMENTs.usernameOfWanted().innerHTML = response[2].user.display;
-	ELEMENTs.primeAmount().innerHTML = "1 000 000 000";
+	ELEMENTs.usernameOfWanted().innerHTML = response.username;
+	console.log("response user: ", response.username);
+	console.log("response user: ", response.photo);
+	// ELEMENTs.pictureOfWanted().src = response.photo;
+	ELEMENTs.primeAmount().innerHTML = response.prime;
 
 
 	ELEMENTs.wantedProfile().onclick = () => profileView();
@@ -65,17 +70,16 @@ async function	profileView(title, description, data)
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	console.log('Just BEFOREEEEEE response la fraude sa mere : URLs.USERMANAGEMENT.PROFILE', URLs.USERMANAGEMENT.PROFILE);
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
-	ELEMENTs.primeAmount().innerHTML = "10 000 000 000";
+	ELEMENTs.primeAmount().innerHTML = response.prime;
 
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
-	await getHistoric();
+	await getHistoric(response.recent_games);
 	await statsInProfilePage();
 }
 

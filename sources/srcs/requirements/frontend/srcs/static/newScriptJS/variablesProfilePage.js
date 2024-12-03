@@ -89,7 +89,7 @@ const profilePageDisplayVAR =
         </div>
         <div class="wantedProfileInProfilePage">
             <button id="changeProfilePhotoButton" type="button">
-                <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">
+                <img src="/frontpong/media/photos/default.png" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">
             </button>
             <button>
                 <p id="changeUsernameButton">USERNAME</p>

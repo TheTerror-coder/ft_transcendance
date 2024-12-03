@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import permission_classes
 from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
+from django.core.files.storage import FileSystemStorage
 import os
 import sys
 
@@ -109,47 +110,60 @@ def update_profile(request):
 			'message': form.errors.get('username', ['Erreur inconnue'])[0],
 		}, status=400)
 
+User = get_user_model()
 
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def update_photo(request):
-	print("update_photo", file=sys.stderr)
 	if 'picture' not in request.FILES:
 		return Response({
 			'status': 'error',
 			'message': 'No file received.',
 		}, status=400)
 
-	file = request.FILES['picture']
-	if len(file.name) > 100:
-		file_extension = os.path.splitext(file.name)[1]
-		file.name = f"{get_random_string(10)}{file_extension}"
-	form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
-	if form.is_valid():
-		user = request.user
-		user.photo = form.cleaned_data['photo']
-		form.save()
-		return Response({
-			'status': 'success',
-			'message': 'Profile picture updated successfully.',
-		}, status=200)
-	else:
-		form = UpdatePhotoForm()
-		error_messages = {field: error_list for field, error_list in form.errors.items()}
-		return Response({
-			'status': 'error',
-			'errors': error_messages,
-		}, status=400)
+	uploaded_file = request.FILES['picture']
+	fs = FileSystemStorage()  # Utilisation de FileSystemStorage pour enregistrer les fichiers
+	print("*******DEBUG********uploaded_file.name: ", uploaded_file.name, file=sys.stderr)
+	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
+	file_url = fs.url(filename)
+	print("*******DEBUG********file_url", file_url, file=sys.stderr)
 
-User = get_user_model()
+	# Sauvegarde du fichier dans le modèle
+	user = request.user
+	user.photo = filename
+	print("*******DEBUG********user.photo: ", user.photo, file=sys.stderr)
+	# user.photo = form.cleaned_data['photo']
+	user.save()
+	# if len(file.name) > 100:
+	# 	file_extension = os.path.splitext(file.name)[1]
+	# 	file.name = f"{get_random_string(10)}{file_extension}"
+	# form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
+	# if form.is_valid():
+	# 	user = request.user
+	# 	user.photo = form.cleaned_data['photo']
+	# 	form.save()
+	print("update_photo", user.photo ,file=sys.stderr)
+	return Response({
+		'status': 'success',
+		'photo': user.photo.url,
+		'message': 'Profile picture updated successfully.',
+	}, status=200)
+	# else:
+	# 	form = UpdatePhotoForm()
+	# 	error_messages = {field: error_list for field, error_list in form.errors.items()}
+	# 	return Response({
+	# 		'status': 'error',
+	# 		'errors': error_messages,
+	# 	}, status=400)
+
 
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def get_user_profile(request):
     username = request.data.get('username')
-    
+    prime = request.data.get('prime')
     try:
         to_user = User.objects.get(username=username)
         # Exemple d'accès aux attributs de l'utilisateur
@@ -162,6 +176,8 @@ def get_user_profile(request):
             'date_joined': to_user.date_joined,
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
+			'photo': to_user.photo.url if to_user.photo else None,
+			'prime': prime,
         }
         
         print("User profile info:", user_info, file=sys.stderr)
@@ -176,18 +192,6 @@ def get_user_profile(request):
             'message': 'User not found',
         }, status=404)
 
-    # last_three_games = to_user.recent_games()
-	
-	# recent_games_data = [
-	# 	{
-	# 		"opponent": game.opponent.username,
-	# 		"player_score": game.player_score,
-	# 		"opponent_score": game.opponent_score,
-	# 		"date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
-	# 	}
-	# 	for game in last_three_games
-	# ]
-
 
 @api_view(['GET'])
 @login_required
@@ -196,6 +200,8 @@ def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
 	last_three_games = request.user.recent_games()
+	photo = request.user.photo.url if request.user.photo else None
+	prime = request.user.prime
 
 	recent_games_data = [
 		{
@@ -216,10 +222,12 @@ def profile(request):
 
 	response_data = {
 		'friends': friend_list,
+		'photo': photo,
 		'user_socket': user_sockets,
 		'pending_requests': pending_request_list,
 		'username': request.user.username,
 		'recent_games': recent_games_data,
+		'prime': prime,
 	}
 	return Response(response_data)
 

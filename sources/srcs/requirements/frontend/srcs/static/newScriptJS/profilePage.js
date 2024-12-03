@@ -256,7 +256,7 @@ const togglePopover = (event) =>
 };
 
 
-//changePicture
+///changePicture
 document.addEventListener('click', (event) => 
 {
     let profilePhoto;
@@ -290,6 +290,7 @@ async function changePicture(picture) {
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
     if (response.status === 'success') {
         alert('Profile photo updated');
+        console.log("response.photo: ", response.photo);
     }
     else if (response.status === 'error') 
     {

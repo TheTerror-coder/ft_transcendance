@@ -14,6 +14,7 @@ class CustomUser(AbstractUser):
     )
     friend_list = models.ManyToManyField('self', symmetrical=False, blank=True)
     victories = models.IntegerField(default=0)
+    prime = models.IntegerField(default=0)
     games_played = models.IntegerField(default=0)
 
     def recent_games(self):
