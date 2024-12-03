@@ -75,9 +75,18 @@ def login_view(request):
 			}, status=400)
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
+@api_view(['GET'])
+@login_required
+@csrf_protect
 def logout_view(request):
-	logout(request)
-	return Response({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
+    logout(request)
+    
+    return Response({
+        'status': 'success',
+        'redirect': True,
+        'redirect_url': reverse('login')
+    })
+    
 
 # check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
@@ -133,7 +142,51 @@ def update_photo(request):
 			'errors': error_messages,
 		}, status=400)
 
+User = get_user_model()
 
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def get_user_profile(request):
+    username = request.data.get('username')
+    
+    try:
+        to_user = User.objects.get(username=username)
+        # Exemple d'accès aux attributs de l'utilisateur
+        user_info = {
+            'username': to_user.username,
+            'email': to_user.email,
+            'first_name': to_user.first_name,
+            'last_name': to_user.last_name,
+            'is_active': to_user.is_active,
+            'date_joined': to_user.date_joined,
+            'game played': to_user.recent_games(),
+            'victorie': to_user.victories,
+        }
+        
+        print("User profile info:", user_info, file=sys.stderr)
+        return Response({
+            'status': 'success',
+            'user_info': user_info,
+        }, status=200)
+
+    except User.DoesNotExist:
+        return Response({
+            'status': 'error',
+            'message': 'User not found',
+        }, status=404)
+
+    # last_three_games = to_user.recent_games()
+	
+	# recent_games_data = [
+	# 	{
+	# 		"opponent": game.opponent.username,
+	# 		"player_score": game.player_score,
+	# 		"opponent_score": game.opponent_score,
+	# 		"date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
+	# 	}
+	# 	for game in last_three_games
+	# ]
 
 
 @api_view(['GET'])
@@ -170,9 +223,6 @@ def profile(request):
 	}
 	return Response(response_data)
 
-
-
-User = get_user_model()
 
 
 @api_view(['POST'])

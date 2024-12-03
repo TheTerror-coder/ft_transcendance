@@ -1,39 +1,28 @@
-// const response = await makeRequest(URLs.USERMANAGEMENT.PROFILE, 'GET');
-// console.log('profileView: ', response);
 
-
-
-// mettre en parametre son pourcentage de victoire
-async function statsInProfilePage()
+async function statsInProfilePage(game_played, victories)
 {
-    let percentage = 60;
+    let percentage = 0;
+    
+    if (game_played > 0) {
+        percentage = (victories / game_played) * 100;
+    }
+    
+    percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
-    
-    // Function to set the progress percentage
-    // Clamp percentage to a valid range (0 to 100)
 
     percentage = Math.min(Math.max(percentage, 0), 100);
 
-    // Update the conic-gradient based on the percentage
     circularProgress.style.background = `conic-gradient(
         #4caf50 0% ${percentage}%, 
         #e0e0e0 ${percentage}% 100%
     )`;
 
-    // Update the displayed percentage value
     progressValue.textContent = `${percentage}%`;
 }
 
-
-
-
 async function getHistoric(game)
 {
-    // const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-    // console.log('profileView: ', response);
-    game = {username: "toto", resultUser: "1", resultAdvUser: "2", advUsername: "tata", length: 0};
-
     console.log("game.length: ", game.length);
     if (game.length === 0)
     {

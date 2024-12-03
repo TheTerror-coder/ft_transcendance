@@ -87,6 +87,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.exitLuffy()?.id)
 	{
 		event.preventDefault();
+		await logout();
 		// TO DO: exitLuffy(); (logout function)
 		// await exitLuffy();
 	}

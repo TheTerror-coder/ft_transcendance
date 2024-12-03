@@ -65,6 +65,8 @@ const URLs = Object.freeze({
 		USERNAME : BACKEND_BASE_URL + '/user-management/users/',
 		USERSOCKET : BACKEND_BASE_URL + '/user-management/user-socket/',
 		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
+		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
+		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
 	}),
 
 

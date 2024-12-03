@@ -134,7 +134,6 @@ def update_photo(request):
 
 
 
-
 @api_view(['GET'])
 @login_required
 @csrf_protect

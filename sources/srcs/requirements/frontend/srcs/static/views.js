@@ -1,25 +1,25 @@
 
 
-
-
+//metre a joue les infos, si le user change de nom
 async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
 	ELEMENTs.mainPage().style.display = "flex";
 	document.title = username +  " | " + PAGE_TITLE;
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
-
-	console.log("usernam in userprofile :  ", username);
+	const user = {"username": username};
+	console.log("usernam in userprofile :  ", user);
 	// document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
-	const response = await makeRequest('GET', URLs.USERMANAGEMENT.)
+	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
+	console.log("user :  ", response);
+	console.log("game played :  ", response.user_info['game played']);
+	console.log("victory :  ", response.user_info.victorie);
 	ELEMENTs.nameUser().innerHTML = username;
 	// update berry gang
 
-	// mettre en parametre les donnees du frero
-	await getHistoric();
+	await getHistoric(response.user_info['game played']);
 	await statsInProfilePage();
-
 }
 
 
