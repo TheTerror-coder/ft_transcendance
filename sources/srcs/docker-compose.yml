@@ -361,11 +361,13 @@ services:
         - FRONTEND_LOGS_ROOT=${FRONTEND_LOGS_ROOT}
         - FRONTEND_STATICFILES_DIR=${FRONTEND_STATICFILES_DIR}
         - FRONTEND_LOG_FILES=${FRONTEND_LOG_FILES}
+        - HOST_IP=${HOST_IP}
     environment:
       - FRONTEND_HOME=${FRONTEND_HOME}
       - FRONTEND_ROOT_CA=${FRONTEND_ROOT_CA}
       - FRONTEND_HTTP_PORT=${FRONTEND_HTTP_PORT}
       - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
+      - HOST_IP=${HOST_IP}
     volumes:
       # - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
       # - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/

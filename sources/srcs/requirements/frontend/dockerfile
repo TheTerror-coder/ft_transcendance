@@ -13,6 +13,7 @@ ARG FRONTEND_USER=nginx
 ARG SHARED_GID=1010
 ARG FRONTEND_DIRS_TO_MAKE=.
 ARG FRONTEND_LOGS_ROOT=/var/log
+ARG HOST_IP=${HOST_IP}
 
 USER 0
 
@@ -43,7 +44,7 @@ COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/location_common.
 
 USER ${FRONTEND_UID}
 
-RUN ${FRONTEND_HOME}/volumes/www/static/HOST_IP.sh
+RUN sh -c ${FRONTEND_HOME}/volumes/www/static/HOST_IP.sh
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]

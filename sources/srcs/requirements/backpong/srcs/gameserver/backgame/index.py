@@ -9,6 +9,7 @@ from Team import Team
 from Channel import Channel
 import logging
 import sys
+import ssl
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -26,13 +27,11 @@ host_ip = os.getenv("HOST_IP", "localhost")
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
     cors_allowed_origins=[
-        f'http://{host_ip}:8888',
-        f'http://{host_ip}:8001',
-        f'http://{host_ip}:3000',
+        f'https://{host_ip}:1443',
+        f'wss://{host_ip}:1443',
         'https://admin.socket.io',
-        'http://localhost:8888',
-        'http://localhost:8001',
-        'http://localhost:3000'
+        'https://localhost:1443',
+        'wss://localhost:1443'
     ],
     async_mode='aiohttp',
     # logger=True,
@@ -42,7 +41,8 @@ sio = socketio.AsyncServer(
     # max_http_buffer_size=1e8,
     # allow_upgrades=True,
     # http_compression=True,
-    transports=['websocket', 'polling']
+    transports=['websocket'],
+    secure=True
 )
 
 sio.instrument(auth={
@@ -294,6 +294,10 @@ async def startGame(gameCode, game):
     logger.info(f"Partie {gameCode} terminée")
 
 if __name__ == '__main__':
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain(certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt", keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key")
+    ssl_context.load_verify_locations(cafile="/usr/share/frontend/volumes/nginx/certs/ca/ca.crt")
+
     # Attendre un peu que l'adresse IP soit disponible
     import time
     time.sleep(2)  # Attendre 2 secondes
@@ -301,17 +305,20 @@ if __name__ == '__main__':
     try:
         web.run_app(app, 
                     host="0.0.0.0",  # Écouter sur toutes les interfaces d'abord
-                    port=3000)
+                    port=1443,
+                    ssl_context=ssl_context)
     except OSError as e:
         print(f"Première tentative échouée: {e}")
         # Deuxième tentative avec l'IP spécifique
         try:
             web.run_app(app, 
                         host=host_ip,
-                        port=3000)
+                        port=1443,
+                        ssl_context=ssl_context)
         except OSError as e:
             print(f"Deuxième tentative échouée: {e}")
             # Dernière tentative sur localhost
             web.run_app(app, 
                         host="localhost",
-                        port=3000)
+                        port=1443,
+                        ssl_context=ssl_context)

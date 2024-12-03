@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sh -c $PYTHON_HOME/container-init.d/HOST_IP.sh
+sh -c $CONTAINER_HOME/container-init.d/HOST_IP.sh
 
 # tail -f /dev/null
 if	! test -e $HEALTHFLAG_FILE
@@ -12,6 +12,6 @@ then
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
 
-python3 /usr/share/gameserver/apps/backgame/index.py &
+python3 $CONTAINER_HOME/apps/backgame/index.py &
 
 $CONTAINER_ENTRYPOINT
