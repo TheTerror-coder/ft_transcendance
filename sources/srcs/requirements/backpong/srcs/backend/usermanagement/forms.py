@@ -3,7 +3,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.contrib.auth import authenticate
-from .validators import validate_image_extension
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -50,21 +49,3 @@ class UpdateUsernameForm(forms.ModelForm):
         if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         return username
-
-
-class UpdatePhotoForm(forms.ModelForm):
-    photo = forms.ImageField(
-        validators=[validate_image_extension]
-    )
-
-    class Meta:
-        model = CustomUser
-        fields = ['photo']
-
-    def clean_photo(self):
-        photo = self.cleaned_data.get('photo')
-        if photo:
-            extension = photo.name.split('.')[-1].lower()
-            if extension not in ['png', 'jpg', 'jpeg', 'webp']:
-                raise ValidationError("Extension de fichier non supportée. Veuillez télécharger un fichier avec une extension PNG, JPG, JPEG, ou WEBP.")
-        return photo

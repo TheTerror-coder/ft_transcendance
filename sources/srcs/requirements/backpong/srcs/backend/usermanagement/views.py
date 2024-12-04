@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import FriendRequest
@@ -121,41 +121,36 @@ def update_photo(request):
 			'status': 'error',
 			'message': 'No file received.',
 		}, status=400)
-
 	uploaded_file = request.FILES['picture']
-	fs = FileSystemStorage()  # Utilisation de FileSystemStorage pour enregistrer les fichiers
+	check_file = uploaded_file.name.split('.')[-1].lower()
+	valid_extensions = ['png', 'jpg', 'jpeg', 'webp']
+	if check_file not in valid_extensions:
+		return Response({
+			'status': 'error',
+			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
+		}, status=400)
+	fs = FileSystemStorage()
 	print("*******DEBUG********uploaded_file.name: ", uploaded_file.name, file=sys.stderr)
 	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
 	file_url = fs.url(filename)
 	print("*******DEBUG********file_url", file_url, file=sys.stderr)
-
-	# Sauvegarde du fichier dans le modèle
 	user = request.user
 	user.photo = filename
 	print("*******DEBUG********user.photo: ", user.photo, file=sys.stderr)
-	# user.photo = form.cleaned_data['photo']
 	user.save()
-	# if len(file.name) > 100:
-	# 	file_extension = os.path.splitext(file.name)[1]
-	# 	file.name = f"{get_random_string(10)}{file_extension}"
-	# form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
-	# if form.is_valid():
-	# 	user = request.user
-	# 	user.photo = form.cleaned_data['photo']
-	# 	form.save()
-	print("update_photo", user.photo ,file=sys.stderr)
-	return Response({
-		'status': 'success',
-		'photo': user.photo.url,
-		'message': 'Profile picture updated successfully.',
-	}, status=200)
-	# else:
-	# 	form = UpdatePhotoForm()
-	# 	error_messages = {field: error_list for field, error_list in form.errors.items()}
-	# 	return Response({
-	# 		'status': 'error',
-	# 		'errors': error_messages,
-	# 	}, status=400)
+	if user.photo.url:
+		return Response({
+			'status': 'success',
+			'photo': user.photo.url,
+			'message': 'Profile picture updated successfully.',
+		}, status=200)
+	else:
+		form = UpdatePhotoForm()
+		error_messages = {field: error_list for field, error_list in form.errors.items()}
+		return Response({
+			'status': 'error',
+			'errors': error_messages,
+		}, status=400)
 
 
 @api_view(['POST'])
@@ -166,7 +161,6 @@ def get_user_profile(request):
     prime = request.data.get('prime')
     try:
         to_user = User.objects.get(username=username)
-        # Exemple d'accès aux attributs de l'utilisateur
         user_info = {
             'username': to_user.username,
             'email': to_user.email,
@@ -348,3 +342,30 @@ def get_user(request):
 		'status': 'success',
 		'username': request.user.username,
 	}, status=200)
+
+# def calculate_score(player_game_played, player_victory, opponent_game_played, opponent_vicotry, player_won):
+#     player_score = (player_victory / player_game_played) * 100 if player_game_played > 0 else 0
+#     opponent_score = (opponent_vicotry / opponent_game_played) * 100 if opponent_game_played > 0 else 0
+
+#     if player_won:
+#         if player_score < opponent_score:
+#             player_cote_change = (opponent_score - player_score) * 1.5
+#             opponent_cote_change = -(opponent_score - player_score) * 1.2
+#         else:
+#             player_cote_change = (opponent_score - player_score) * 1.2
+#             opponent_cote_change = -(opponent_score - player_score) * 1.1
+#     else:
+#         if opponent_score < player_score:
+#             opponent_cote_change = (player_score - opponent_score) * 1.5
+#             player_cote_change = -(player_score - opponent_score) * 1.2
+#         else:
+#             opponent_cote_change = (player_score - opponent_score) * 1.2
+#             player_cote_change = -(player_score - opponent_score) * 1.1
+
+#     player_score += player_cote_change
+#     opponent_score += opponent_cote_change
+
+#     player_score = max(player_score, 0)
+#     opponent_score = max(opponent_score, 0)
+
+#     return player_score, opponent_score

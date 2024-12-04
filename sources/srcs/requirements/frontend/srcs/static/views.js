@@ -8,8 +8,6 @@ async function UserProfileView(username, description, data)
 	document.title = username +  " | " + PAGE_TITLE;
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
-	console.log("usernam in userprofile :  ", user);
-	// document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 	console.log("user :  ", response);
@@ -17,9 +15,11 @@ async function UserProfileView(username, description, data)
 	console.log("victory :  ", response.user_info.victorie);
 	console.log("photo :  ", response.user_info.photo);
 	console.log("prime :  ", response.user_info.prime);
+	const photoUrl = BASE_URL + response.user_info.photo;
+	const imgElement = ELEMENTs.photoUser ();
+	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
-	// update berry gang
-
+	ELEMENTs.prime().innerHTML = response.user_info.prime;
 	await getHistoric(response.user_info['game played']);
 	await statsInProfilePage();
 }
@@ -39,20 +39,14 @@ async function	homeView(title, description, data)
 	englandFlag.style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
-	console.log("response user: ", response.username);
-	console.log("response user: ", response.photo);
-	// ELEMENTs.pictureOfWanted().src = response.photo;
+	const photoUrl = BASE_URL + response.photo;
+	const imgElement = ELEMENTs.pictureOfWanted();
+	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-
-
 	ELEMENTs.wantedProfile().onclick = () => profileView();
-	console.log('homeView: ');
 }
 
-
 async function	loginView(title, description, data) {
-	// if (await isUserAuthenticated())
-	// 	window.location.replace(URLs.VIEWS.HOME);
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
@@ -62,21 +56,25 @@ async function	loginView(title, description, data) {
 		//   })
 		//   myModal.show();
 }
+
 async function	profileView(title, description, data)
 {
+	const resp = await getAuthenticationStatus();
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-	console.log("profile view");
+	console.log("profile view", resp);
 	document.title = "Profile | " + PAGE_TITLE;
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: ", response);
+	console.log("response: ", response.photo);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-
+	const photoUrl = BASE_URL + response.photo;
+	const imgElement = ELEMENTs.profilPhotoInProfilePage();
+	imgElement.src = photoUrl;
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);

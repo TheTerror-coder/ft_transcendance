@@ -186,12 +186,12 @@ const ELEMENTs = Object.freeze({
 
 	usernameOfWanted : () => document.getElementById("usernameOfWanted"),
 	primeAmount : () => document.getElementById("primeAmount"),
-	phototOfWanted : () => document.getElementById("pictureOfWanted"),
+	pictureOfWanted : () => document.getElementById("pictureOfWanted"),
 	
 	//userPage
 	nameUser : () => document.getElementById("nameUser"),
 	photoUser : () => document.getElementById("profilPhotoInProfilePage"),
-
+	prime : () => document.getElementById("prime"),
 
 	// profilePage
 

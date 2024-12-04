@@ -7,12 +7,12 @@ const usersProfilePage =
     <div style="display:flex; justify-content: center; align-items: center;">
         <div class="wantedProfileInProfilePage">
             <button id="pictureUser" type="button">
-                <img src="/photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">
+                <img src="" alt="profile picture" class="profileProfilePagePicture" id="profilPhotoInProfilePage">
             </button>
             <button>
                 <p id="nameUser"></p>
             </button>
-            <span id="primeAmount"></span>
+            <span id="prime"></span>
         </div>
     </div>
     <div style="display:flex; flex-direction: column; width: -webkit-fill-available;">
