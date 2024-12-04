@@ -14,43 +14,56 @@ async function initializeSocket()
     }
     console.log("IP: ", ip);
 
-    const caCert = await fetch('/usr/share/frontend/volumes/nginx/certs/ca/ca.crt');
-    const clientCert = await fetch('/usr/share/frontend/volumes/nginx/certs/nginx.crt');
-    const clientKey = await fetch('/usr/share/frontend/volumes/nginx/certs/nginx.key');
-    if (!caCert.ok || !clientCert.ok || !clientKey.ok)
-    {
-        console.error('Erreur réseau : ' + caCert.statusText + ' ' + clientCert.statusText + ' ' + clientKey.statusText);
-        return null;
-    }
-    else
-    {
-        const caCertData = await caCert.text();
-        const clientCertData = await clientCert.text();
-        const clientKeyData = await clientKey.text();
-        console.log("CA CERT: ", caCertData);
-        console.log("CLIENT CERT: ", clientCertData);
-        console.log("CLIENT KEY: ", clientKeyData);
-    }
+    // const caCert = await fetch('/usr/share/frontend/volumes/nginx/certs/ca/root_ca.crt');
+    // const clientCert = await fetch('/usr/share/frontend/volumes/nginx/certs/nginx.crt');
 
-    // Configuration de la socket avec des options pour éviter les reconnexions inutiles
-    socket = io('wss://' + ip + ':1443', {
+
+    // let caCertData = null;
+    // let clientCertData = null;
+    // if (!caCert.ok || !clientCert.ok)
+    // {
+    //     console.error('Erreur réseau : ' + caCert.statusText + ' ' + clientCert.statusText + ' ' + clientKey.statusText);
+    //     return null;
+    // }
+    // else
+    // {
+    //     caCertData = await caCert.text();
+    //     clientCertData = await clientCert.text();
+    // }
+
+    ip = 'localhost';
+
+    // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
+    socket = io('wss://' + ip + ':1443/socket.io/', {
+        path: '/socket.io',
+        transports: ['websocket'],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         timeout: 20000,
-        transports: ['websocket'],
-        forceNew: false,
+        forceNew: true,
+        rejectUnauthorized: false,
         secure: true,
-        ca: caCertData,
-        cert: clientCertData,
-        key: clientKeyData,
-        rejectUnauthorized: false
+        autoConnect: true,
+        withCredentials: true
     });
 
     // Gestion des événements de connexion
     socket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
+        console.error('Erreur de connexion détaillée:', {
+            message: error.message,
+            description: error.description,
+            stack: error.stack,
+            type: error.type
+        });
+        
+        console.log("URL de connexion:", socket.io.uri);
+        console.log("Options de transport actuelles:", socket.io.opts);
+        console.log("État de la connexion:", socket.connected);
+        
+        // Ne forcez pas le polling si la connexion échoue
+        // Laissez Socket.IO gérer automatiquement le fallback
     });
 
     socket.on('connect', () => {
@@ -59,6 +72,10 @@ async function initializeSocket()
 
     socket.on('disconnect', () => {
         console.log('Déconnecté du serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
+    });
+
+    socket.on('error', (error) => {
+        console.error('Erreur socket:', error);
     });
 
     return socket;
