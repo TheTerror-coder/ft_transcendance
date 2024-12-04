@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
         default='photos/default.png',
         validators=[validate_image_extension]
     )
+    photo_link = models.CharField("42 user photo link", max_length=200, blank=True)
     friend_list = models.ManyToManyField('self', symmetrical=False, blank=True)
     victories = models.IntegerField(default=0)
     prime = models.IntegerField(default=0)

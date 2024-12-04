@@ -170,10 +170,16 @@ def get_user_profile(request):
             'date_joined': to_user.date_joined,
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
-			'photo': to_user.photo.url if to_user.photo else None,
-			'prime': prime,
+            'prime': prime,
         }
-        
+        if to_user.photo_link:
+            print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
+            user_info['photo'] = to_user.photo_link 
+        elif to_user.photo:
+            user_info['photo'] = to_user.photo.url 
+        else:
+            user_info['photo'] = None
+
         print("User profile info:", user_info, file=sys.stderr)
         return Response({
             'status': 'success',
@@ -194,7 +200,14 @@ def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
 	last_three_games = request.user.recent_games()
-	photo = request.user.photo.url if request.user.photo else None
+	# photo = request.user.photo.url if request.user.photo else None
+	if request.user.photo_link:
+		print("***********DEBUG*********: profile(): photo_link is not empty: ", file=sys.stderr)
+		photo = request.user.photo_link 
+	elif request.user.photo:
+		photo = request.user.photo.url 
+	else:
+		photo = None
 	prime = request.user.prime
 
 	recent_games_data = [
