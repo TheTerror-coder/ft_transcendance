@@ -3,7 +3,7 @@
 async function initializeSocket()
 {
     console.log("JE SUIS DANS INITIALIZE SOCKET");
-    const response = await fetch('/static/config.json');
+    const response = await fetch('/static/gameserver/config.json');
     console.log(response);
     if (!response.ok) {
         console.error('Erreur réseau : ' + response.statusText);
@@ -34,19 +34,19 @@ async function initializeSocket()
     ip = 'localhost';
 
     // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
-    socket = io('wss://' + ip + ':1443/socket.io/', {
-        path: '/socket.io',
+    socket = io('wss://' + ip + ':1443', {
+        // path: '/socket.io',
         transports: ['websocket'],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
-        forceNew: true,
-        rejectUnauthorized: false,
-        secure: true,
-        autoConnect: true,
-        withCredentials: true
+        // reconnection: true,
+        // reconnectionAttempts: 5,
+        // reconnectionDelay: 1000,
+        // reconnectionDelayMax: 5000,
+        // timeout: 20000,
+        // forceNew: true,
+        // rejectUnauthorized: false,
+        // secure: true,
+        // autoConnect: true,
+        // withCredentials: true
     });
 
     // Gestion des événements de connexion

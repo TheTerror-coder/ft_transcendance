@@ -12,6 +12,4 @@ then
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
 
-python3 $CONTAINER_HOME/apps/backgame/index.py &
-
 $CONTAINER_ENTRYPOINT

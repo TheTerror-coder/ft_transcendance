@@ -54,7 +54,8 @@ server {
 	set $frontend_upstream https://frontendmediator; # TODO: uncomment at production
 	set $backend_upstream http://backendmediator;
 	# set $backend_upstream https://backendmediator; # TODO: uncomment at production
-	set $gameserver_upstream https://gameservermediator;
+	set $gameserver_upstream http://gameservermediator;
+	# set $gameserver_upstream https://gameservermediator;
 
 	access_log /dev/stdout;
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
@@ -132,19 +133,19 @@ server {
 		include includes/backendshared_conf.conf;
 	}
 
-	### Socket.io ###
+
+	##################################
+	###     Gameserver routing     ###
+	##################################
+    location /backgame/ {
+		include includes/gameservershared_conf.conf;
+	}
+    location /gameserver/ {
+		include includes/gameservershared_conf.conf;
+	}
+	### websockets ###
     location /socket.io/ {
 		include includes/gameservershared_conf.conf;
-
-		# Ajouter ces lignes spécifiques pour Socket.IO
-		# proxy_read_timeout 300s;
-		proxy_send_timeout 300s;
-		# proxy_connect_timeout 300s;
-		
-		# Forcer le WebSocket
-		proxy_http_version 1.1;
-		proxy_set_header Upgrade $http_upgrade;
-		proxy_set_header Connection $connection_upgrade;
 	}
 
 	include includes/location_common.conf;

@@ -234,6 +234,7 @@ services:
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
       - CONTAINER_HOME=${BACKEND_HOME}
+      - BACKEND_HOME=${BACKEND_HOME}
       - CONTAINER_ENTRYPOINT=${BACKEND_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -278,7 +279,7 @@ services:
 
   gameserver:
     depends_on:
-      db_postgres:
+      backend:
         condition: service_healthy
         restart: true
     image: ${GAMESERVER_IMAGE}
@@ -301,6 +302,7 @@ services:
     environment:
       - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
       - CONTAINER_HOME=${GAMESERVER_HOME}
+      - GAMESERVER_HOME=${GAMESERVER_HOME}
       - CONTAINER_ENTRYPOINT=${GAMESERVER_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
@@ -314,14 +316,17 @@ services:
       - HOST_IP=${HOST_IP}
       - GAMESERVER_PORT=${GAMESERVER_PORT}
     volumes:
+      # - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
       - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
       - gameserver_certs:${GAMESERVER_SSL_DIR}
+      - gameserver_staticfiles:${GAMESERVER_STATICFILES_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          # "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
-          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+        #   "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
+          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
         ]
       start_period: 10s
       interval: 10s
@@ -339,9 +344,9 @@ services:
 
   frontend:
     depends_on:
-      backend:
-        condition: service_healthy
-        restart: true
+    #   backend:
+    #     condition: service_healthy
+    #     restart: true
       gameserver:
         condition: service_healthy
         restart: true
@@ -374,6 +379,7 @@ services:
       # - frontend_logs:${FRONTEND_LOG_FILES_DIR}
       - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
       - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
+      - gameserver_staticfiles:${FRONTEND_HOME}/volumes/www/gameserver
     ports:
       - ${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}
       - ${FRONTEND_HTTPS_PORT}:${FRONTEND_HTTPS_PORT}
@@ -393,12 +399,12 @@ services:
 
   proxy_waf:
     depends_on:
-      backend:
-        condition: service_healthy
-        restart: true
-      gameserver:
-        condition: service_healthy
-        restart: true
+      # backend:
+      #   condition: service_healthy
+      #   restart: true
+      # gameserver:
+      #   condition: service_healthy
+      #   restart: true
       frontend:
         condition: service_healthy
         restart: true
@@ -562,4 +568,6 @@ volumes:
   backend_certs:
     driver: local
   gameserver_certs:
+    driver: local
+  gameserver_staticfiles:
     driver: local

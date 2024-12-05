@@ -3,13 +3,11 @@ import asyncio
 import os
 import random
 import math
-from aiohttp import web
-from Player import Player
-from Team import Team
-from Channel import Channel
+from .Player import Player
+from .Team import Team
+from .Channel import Channel
 import logging
 import sys
-import ssl
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -17,14 +15,14 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    # stream=sys.stdout
+    stream=sys.stderr
 )
 logger = logging.getLogger(__name__)
 
 # Au début du fichier, après les imports
-host_ip = os.getenv("HOST_IP", "localhost")
+# host_ip = os.getenv("HOST_IP", "localhost")
 
-host_ip = 'localhost'
+# host_ip = 'localhost'
 
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
@@ -37,27 +35,27 @@ sio = socketio.AsyncServer(
     #     'https://localhost:8001'
     # ],
     cors_allowed_origins='*',
-    async_mode='aiohttp',
-    logger=True,
-    engineio_logger=True,
-    async_handlers=True,
+    async_mode='asgi',
+    # logger=True,
+    # engineio_logger=True,
+    # async_handlers=True,
     ping_timeout=60000,
     ping_interval=25000,
-    transports=['websocket', 'polling'],
-    allow_upgrades=True,
-    engineio_path='/socket.io'
+    transports=['websocket'],
+    # allow_upgrades=True,
+    # engineio_path='/socket.io'
 )
 
-sio.instrument(auth={
-    'username': 'admin',
-    'password': 'admin',
-})
+# sio.instrument(auth={
+#     'username': 'admin',
+#     'password': 'admin',
+# })
 
 # Création de l'application aiohttp
-app = web.Application()
-sio.attach(app)
+# app = web.Application()
+# sio.attach(app)
 
-logger.info("Server started")
+# logger.info("**********Server started***********")
 
 # Routes HTTP
 # async def index(request):
@@ -296,20 +294,20 @@ async def startGame(gameCode, game):
     
     logger.info(f"Partie {gameCode} terminée")
 
-if __name__ == '__main__':
-    try:
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain(
-            certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt",
-            keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key"
-        )
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-    except Exception as e:
-        logger.error(f"Erreur lors de la configuration SSL: {e}")
-        ssl_context = None
+# if __name__ == '__main__':
+#     try:
+#         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+#         ssl_context.load_cert_chain(
+#             certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt",
+#             keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key"
+#         )
+#         ssl_context.check_hostname = False
+#         ssl_context.verify_mode = ssl.CERT_NONE
+#     except Exception as e:
+#         logger.error(f"Erreur lors de la configuration SSL: {e}")
+#         ssl_context = None
 
-    web.run_app(app, 
-                host=host_ip,
-                port=8001,
-                ssl_context=ssl_context)
+    # web.run_app(app, 
+    #             host=host_ip,
+    #             port=8002,
+    #             ssl_context=ssl_context)
