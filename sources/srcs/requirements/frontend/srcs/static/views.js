@@ -15,7 +15,7 @@ async function UserProfileView(username, description, data)
 	console.log("victory :  ", response.user_info.victorie);
 	console.log("photo :  ", response.user_info.photo);
 	console.log("prime :  ", response.user_info.prime);
-	const photoUrl = BASE_URL + response.user_info.photo;
+	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser ();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
@@ -39,7 +39,7 @@ async function	homeView(title, description, data)
 	englandFlag.style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
-	const photoUrl = BASE_URL + response.photo;
+	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
@@ -72,7 +72,7 @@ async function	profileView(title, description, data)
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	const photoUrl = BASE_URL + response.photo;
+	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
 	await displayFriend(response.friends, response.user_socket);
