@@ -17,14 +17,18 @@ from django.core.files.storage import FileSystemStorage
 import os
 import sys
 
-# accept multiple username
 @api_view(['POST'])
 @csrf_protect
 def register(request):
 	if request.method == 'POST':
+		print("register", request.data, file=sys.stderr)
 		form = CustomUserCreationForm(request.data, request.FILES)
 		if form.is_valid():
 			form.save()
+			user = authenticate(email=request.data['email'], password=request.data['password1'])
+			if user is not None:
+				login(request, user)
+				customObtainJwtTokenPair(request, user)
 			return Response({'status': 'success'})
 		else:
 			error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -186,6 +190,19 @@ def get_user_profile(request):
             'message': 'User not found',
         }, status=404)
 
+
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def set_info_game(request):
+	prime = request.data.get('prime')
+	user = request.user
+	user.prime = prime
+	user.save()
+	return Response({
+		'status': 'success',
+		'message': 'Prime status updated successfully.',
+	}, status=200)
 
 @api_view(['GET'])
 @login_required

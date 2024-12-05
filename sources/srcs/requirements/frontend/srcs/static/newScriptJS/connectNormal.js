@@ -3,6 +3,11 @@ async function connect()
 {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const bad_input = /^[^<>]+$/;
+    if (!bad_input.test(email) || !bad_input.test(password)) {
+        alert("Invalid input.");
+        return;
+    }
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
     console.log(response);

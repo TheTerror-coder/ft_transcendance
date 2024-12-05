@@ -16,4 +16,5 @@ urlpatterns = [
     path('get-user/', views.get_user, name='get_user'),
     path('get-user-profile/', views.get_user_profile, name='get_user_profile'),
     path('logout/', views.logout_view, name='logout'),
+    path('set-info-game/', views.set_info_game, name='setInfoGame'),
 ]

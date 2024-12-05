@@ -9,13 +9,18 @@ function refreshHomePage()
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;
+    const bad_input = /^[^<>]+$/;
+    if (!bad_input.test(usernameAddValue)) {
+        alert("Invalid input.");
+        return;
+    }
     const data = {"username": usernameAddValue};
-    // const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    // console.log('user:', user);
-    // const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-    // if (resp.status === 'error') {
-    //     socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
-    // }
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    console.log('user:', user);
+    const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+    if (resp.status === 'error') {
+        socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
+    }
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
     if (response.status === 'success') {
         alert('Friend request sent at ', usernameAddValue);
