@@ -1,6 +1,8 @@
 
 // import { initializeSocket } from './socketPong.js';
 
+// let globalSocket;
+
 function playDisplayHomepage()
 {
     ELEMENTs.playButton().style.display = 'none';
@@ -45,14 +47,16 @@ function joinLobbyPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
     // TO DO: faire condition en fonction de ce que je vais recevoir comme info de Ben
-    // joinButton.onclick = () => joinTwoPlayersDisplay();
+    joinButton.onclick = () => joinTwoPlayersDisplay();
 }
 
 
-// function joinTwoPlayersDisplay()
-// {
-//     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
-// }
+function joinTwoPlayersDisplay()
+{
+    ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
+    // les donnees envoyees avec le flag joinGame sont : gameCode, teamID, role, userName
+
+}
 
 
 function createLobbyPlay()
@@ -62,7 +66,7 @@ function createLobbyPlay()
     setTimeout(async() => {
         console.log("JE SUIS DANS CREATE LOBBY");
         const socket = await initializeSocket();
-        console.log("SOCKET LOOOOL: ", socket);
+        initializeGlobalSocket(socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
     }, 70);
 }

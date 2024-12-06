@@ -51,22 +51,7 @@ sio = socketio.AsyncServer(
 #     'password': 'admin',
 # })
 
-# Création de l'application aiohttp
-# app = web.Application()
-# sio.attach(app)
-
-# logger.info("**********Server started***********")
-
-# Routes HTTP
-# async def index(request):
-#     return web.Response(text="Hello", content_type='text/html')
-
-# async def health_check(request):
-#     return web.Response(text="OK", content_type='text/plain')
-
-# app.router.add_get('/', index)
-# app.router.add_get('/start', index)
-# app.router.add_get('/health', health_check)
+logger.info("**********Server started***********")
 
 ChannelList = {}
 
@@ -94,6 +79,7 @@ async def connect(sid, environ):
 
     @sio.event
     async def createGame(sid, data):
+        logger.info(f"createGame {sid}, {data}")
         numPlayersPerTeam = data.get('numPlayersPerTeam')
         gameCode = generateGameCode()
         while gameCode in ChannelList:
@@ -114,6 +100,7 @@ async def connect(sid, environ):
         # Définir un gestionnaire d'événements imbriqué
         @sio.event
         async def confirmChoices(sid, choices):
+            logger.info(f"confirmChoices {sid}, {choices}")
             logger.info(f"Player {sid}, {choices['userName']} has chosen {choices['teamID']} as their team and {choices['role']} as their role.")
             team = game.getTeam(int(choices['teamID']))
             if team:

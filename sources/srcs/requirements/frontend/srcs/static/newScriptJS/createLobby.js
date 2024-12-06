@@ -3,12 +3,50 @@
 let savedGameCode = null;
 let gameStarted = false;
 let ip;
-let socket;
+let globalSocket;
 
-function createLobbyDisplay() 
+function initializeGlobalSocket(socket)
+{
+    globalSocket = socket;
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    globalSocket.on('gameCreated', (data) => {
+        console.log('Partie créée avec le code:', data.gameCode);
+        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        console.log("savedGameCode: ", savedGameCode);
+    });
+    globalSocket.on('gameJoined', (data) => {
+        console.log('Rejoint la partie:', data.gameCode);
+        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        console.log("savedGameCode: ", savedGameCode);
+    });
+    globalSocket.on('AvailableOptions', (data) => {
+        console.log("Réception des options disponibles :", data);
+    });
+    globalSocket.on('updatePlayerLists', (data) => {
+        console.log("Réception des listes des joueurs :", data);
+    });
+    globalSocket.on('startGame', (data) => {
+        console.log("Début de la partie :", data);
+    });
+}
+
+// function initializeGameEvent()
+// {
+//     globalSocket.on('gameCreated', (data) => {
+//         console.log('Partie créée avec le code:', data.gameCode);
+//         savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+//         console.log("savedGameCode: ", savedGameCode);
+//     });
+// }
+
+function createLobbyDisplay()
 {
     if (ELEMENTs.switchNumbersOfPlayers().checked == false)
+    {
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
+        globalSocket.emit('createGame', { numPlayersPerTeam: 1 });
+        globalSocket.emit('confirmChoices', { teamID: 1, role: "captain", userName: "USER NAME HERE" }); // TODO: get user name from database
+    }
     else
     {
         createLobbyforTwoPlayer();
@@ -17,6 +55,9 @@ function createLobbyDisplay()
 
 function createLobbyforTwoPlayer()
 {
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    globalSocket.emit('createGame', { numPlayersPerTeam: 2 });
+    // initializeGameEvent();
     ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
     setTimeout(() => {
         ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
@@ -29,18 +70,27 @@ function createLobbyforTwoPlayer()
 
 function lobbyTwoPlayer()
 {
-    const teamChosen = ELEMENTs.chooseTeamSwitch().value;
-    const roleChosen = ELEMENTs.chooseRoleSwitch().value;
-
+    const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
+    const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
+    
     console.log("team chosen: ", teamChosen);
     console.log("role chosen: ", roleChosen);
+    console.log("GLOBAL SOCKET: ", globalSocket);
+
+    const teamID = teamChosen ? 1 : 2;
+    const role = roleChosen ? "captain" : "Cannoneer";
+    console.log("teamID: ", teamID);
+    console.log("role: ", role);
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    globalSocket.emit('confirmChoices', { teamID, role, userName: "USER NAME HERE" }); // TODO: get user name from database
     ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
+    console.log("savedGameCode in lobbyTwoPlayer: ", savedGameCode);
+    document.getElementById("lobbyCode").innerHTML = savedGameCode;
 
     setTimeout(() => {
         ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }, 60);
-
 }
 
 

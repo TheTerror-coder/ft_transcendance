@@ -14,23 +14,6 @@ async function initializeSocket()
     }
     console.log("IP: ", ip);
 
-    // const caCert = await fetch('/usr/share/frontend/volumes/nginx/certs/ca/root_ca.crt');
-    // const clientCert = await fetch('/usr/share/frontend/volumes/nginx/certs/nginx.crt');
-
-
-    // let caCertData = null;
-    // let clientCertData = null;
-    // if (!caCert.ok || !clientCert.ok)
-    // {
-    //     console.error('Erreur réseau : ' + caCert.statusText + ' ' + clientCert.statusText + ' ' + clientKey.statusText);
-    //     return null;
-    // }
-    // else
-    // {
-    //     caCertData = await caCert.text();
-    //     clientCertData = await clientCert.text();
-    // }
-
     ip = 'localhost';
 
     // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
