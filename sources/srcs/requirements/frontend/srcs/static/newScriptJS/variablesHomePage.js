@@ -45,7 +45,7 @@ const joinTwoPlayersVAR =
             </div>
         </div>
     </div>
-        <button id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
+        <button data-translate="joinButton" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
     </div>
 </div>`;
 
@@ -57,34 +57,21 @@ const joinCodeDisplay =
 <div style="display:flex; justify-content: center; align-item: center;">
     <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px; margin-bottom: 200px;">
         <p class="fontConnexion">
-            <input id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
+            <input data-translate="placeholderJoinCode" id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
         </p>
-        <button id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
+        <button data-translate="join" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
     </div>
 </div>`;
 
-const joinCreateLobbyHTML = `<button class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>`;
+const joinCreateLobbyHTML = `<button data-translate="JoinLobby" class="joinLobbyButton fontTextPlay" id="joinLobbyButton">JOIN LOBBY</button>`;
 
-const createLobbyButtonHTML =  `<button class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>`;
+const createLobbyButtonHTML =  `<button data-translate="CreateLobby" class="createLobbyButton fontTextPlay" id="createLobbyButton">CREATE LOBBY</button>`;
 
-const localPlayButtonHTML = `<button class="localPlayButton fontTextPlay" id="localPlayButton">LOCAL PLAY</button>`;
+const localPlayButtonHTML = `<button data-translate="localPlay" class="localPlayButton fontTextPlay" id="localPlayButton">LOCAL PLAY</button>`;
 
-const rapidPlayHTML = `<button class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
+const rapidPlayHTML = `<button data-translate="rapidPlay" class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
 
-const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-
-{/* <form style="width:170px;">
-<div class="form-group">
-    <select multiple class="form-control" id="exampleFormControlSelect2">
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    </select>
-</div>
-</form> */}
-
+const TournamentButtonHTML =`<button data-translate="Tournament" id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
 
 
 const homePageDisplayVAR = 
@@ -94,18 +81,17 @@ const homePageDisplayVAR =
             <div class="sideBar">
             </div>
             <div style="display:flex; flex-direction: column; width:180px;">
-            <h1 style="font-size: 30px; align-self: center;">Friends</h1>
+            <h1 data-translate="Friends" style="font-size: 30px; align-self: center;">Friends</h1>
                 <input style="width: 170px; margin-top: 20px;" id="usernameAddFriend"></input>
                 <div style="display:flex; justify-content: center; margin-top: 20px;">
-                    <button class="buttonCreate type="submit" id="addFriendButton">ADD</button>
+                    <button data-translate="AddFriend" class="buttonCreate type="submit" id="addFriendButton">ADD</button>
                 </div>
             </div>
             <div class="cover">
-
             </div>
         </div>
     <div class="playButton" id="playButton">
-        <button class="playImg fontTextPlay" id="playButtonImg">PLAY</button>
+        <button data-translate="Play" class="playImg fontTextPlay" id="playButtonImg"></button>
     </div>
     <div class="centerPlayDisplay" id="centerPlayDisplay">
         <div class="playDisplay" id="playDisplay">

@@ -2,21 +2,23 @@
 
 async function	homeView(title, description, data) 
 {
+	console.log("CHELOU???");
+	ELEMENTs.logoutButton().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await getAuthenticationStatus();
-
+	console.log("ca devrait pas etre la");
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
-	flag.className = "homepageFlag";
-	flag.id = 'homepageFlag';
-	let englandFlagImg = document.getElementById("englandFlagImg");
-	englandFlagImg.className = "englandFlag";
-	englandFlag.style.marginRight = "-0.01px";
+
+	ELEMENTs.flag().className = "homepageFlag";
+	ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
+	ELEMENTs.englandFlag().style.marginRight = "-0.01px";
 	
+	console.log("rend fou vraiment");
 	ELEMENTs.usernameOfWanted().innerHTML = response[2].user.display;
 	ELEMENTs.primeAmount().innerHTML = "1 000 000 000";
 
-
+	setLanguage(currentLanguage);
 	ELEMENTs.wantedProfile().onclick = () => profileView();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	console.log('homeView: ');
@@ -29,6 +31,8 @@ async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
+	setLanguage(currentLanguage);
+
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
 		// 	keyboard: false
@@ -37,6 +41,7 @@ async function	loginView(title, description, data) {
 }
 async function	profileView(title, description, data)
 {
+	ELEMENTs.logoutButton().style.display = 'flex';
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
 	console.log("profile view");
 	document.title = "Profile | " + PAGE_TITLE;
@@ -51,6 +56,9 @@ async function	profileView(title, description, data)
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
 	ELEMENTs.primeAmount().innerHTML = "10 000 000 000";
 
+	setLanguage(currentLanguage);
+
+
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric();
@@ -59,6 +67,7 @@ async function	profileView(title, description, data)
 
 async function	createLobbyView(title, description, data) 
 {
+	ELEMENTs.logoutButton().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = CreateJoinLobbyDisplayVAR;
 
@@ -76,6 +85,8 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
+	setLanguage(currentLanguage);
+
 }
 
 async function	providerCallbackView(title, description, data) {

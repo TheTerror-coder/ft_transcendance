@@ -4,6 +4,7 @@
 const eventManager = async (event) => {
 	const { target } = event;
 	
+	console.log('event listener: ', target.id);
 
 	if (target.matches('a')){
 		await urlRoute(event);
@@ -12,6 +13,21 @@ const eventManager = async (event) => {
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
 		event.preventDefault();
 		await redirectToProvider();
+	}
+	else if (target.id === ELEMENTs.franceFlag()?.id)
+	{
+		event.preventDefault();
+		setLanguage('fr');
+	}
+	else if (target.id === ELEMENTs.englandFlagImg()?.id)
+	{
+		event.preventDefault();
+		setLanguage('en');
+	}
+	else if (target.id === ELEMENTs.spainFlag()?.id)
+	{
+		event.preventDefault();
+		setLanguage('es');
 	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
@@ -78,7 +94,7 @@ const eventManager = async (event) => {
 		refreshHomePage();
 	}
 	// else if (target.id === ELEMENTs.playButtonImg()?.id){
-	// 	// event.preventDefault();
+	// 	event.preventDefault();
 	// 	playDisplayHomepage();
 	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
@@ -105,7 +121,6 @@ const eventManager = async (event) => {
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
 	// }
-	console.log('event listener: ', target.id);
 };
 
 // const auth_change = async (event) => {

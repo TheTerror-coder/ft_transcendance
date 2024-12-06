@@ -1,6 +1,12 @@
 @font-face {
     font-family: wantedFont;
     src: url(/static/wantedFont.ttf);
+
+}
+
+@font-face {
+    font-family: papyrusFont;
+    src: url(/static/papyrus.ttf);
 }
 
 /* il est partout lui lol */
@@ -8,6 +14,22 @@
 {
     display: flex;
     justify-content: space-between;
+}
+
+#logoutFont
+{
+    margin: 0;
+    font-size: 60px;
+    font-weight: 900;
+    color: firebrick;
+    -webkit-text-stroke: 1px black;
+    margin-top: -10px;
+    letter-spacing: 10px;
+    font-family: 'papyrusFont';
+}
+#logoutButton
+{
+    display: none;
 }
 
 .wantedFriendHomePageDisplay
@@ -86,22 +108,17 @@
     justify-content: flex-end;
 }
 
-#homepageFlag button
+.homepageFlag button
 {
     width: 70px;
     height: 70px;
     margin-right: 10px;
 }
 
-#homepageFlag button img
+.homepageFlag button img
 {
     height: 100%;
     width: auto;
-}
-
-.englandFlag
-{
-    transform: scale(1.2);
 }
 
 .profileDisplay

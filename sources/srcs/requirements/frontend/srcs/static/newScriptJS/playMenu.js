@@ -3,6 +3,7 @@
 
 function playDisplayHomepage()
 {
+    console.log("je suis cense etre al");
     ELEMENTs.playButton().style.display = 'none';
     ELEMENTs.centerPlayDisplay().style.display = 'flex';
     ELEMENTs.firstElement().innerHTML = rapidPlayHTML;
@@ -10,6 +11,7 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
     ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
+    setLanguage(currentLanguage);
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
@@ -28,6 +30,7 @@ function rapidPlayLobbyDisplay()
     ELEMENTs.firstElement().style.height = "109px";
     ELEMENTs.secondElement().style.height = "109px";
     ELEMENTs.thirdElement().style.height = "109px";
+    setLanguage(currentLanguage);
 
     const joinLobbyButton = document.getElementById("joinLobbyButton");
     joinLobbyButton.onclick = () => joinLobbyPlay();
@@ -41,6 +44,7 @@ function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
+    setLanguage(currentLanguage);
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
@@ -60,9 +64,9 @@ function createLobbyPlay()
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
     setTimeout(async() => {
-        console.log("JE SUIS DANS CREATE LOBBY");
-        const socket = await initializeSocket();
-        console.log("SOCKET LOOOOL: ", socket);
+        // const socket = await initializeSocket();
+        setLanguage(currentLanguage);
+        console.log("juste avant le onclick de buttoncreate pour un pelo solo");
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
     }, 70);
 }

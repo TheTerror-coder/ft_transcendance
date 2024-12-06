@@ -9,6 +9,7 @@
         <link href="/static/css/profilePage.css" rel="stylesheet">
         <link href="/static/css/playMenu.css" rel="stylesheet">
         <link href="/static/css/createJoinLobby.css" rel="stylesheet">
+        <script src="/static/newScriptJS/languages.js"></script>
         <script type="importmap">
             {
               "imports": {
@@ -27,13 +28,18 @@
     </head>
     <body class="background" id="background">
         <div class="headPage">
-            <button>
+            <button id="logoutButton">
+                <p id="logoutFont" data-translate="Logout">LOGOUT</p>
                 <img src="/static/photos/picturePng/exitLuffy.png" alt="Log Out" id="exitLuffy" style="height: 70px;">
             </button>
+            <div class="form-check form-switch" style="display: flex; justify-content: center;">
+                <input class="form-check-input" type="checkbox" role="switch" id="switch2FA">
+                <label class="form-check-label" for="switch2FA" style="font-size: 15px;"> disable/enable 2FA</label>
+            </div>
             <div class="flag" id="flag">
                 <button id="englandFlag"><img src="/static/photos/picturePng/loginPage/drapeau/angleterre.png" alt="England Flag" style="margin-right: -4px;" id="englandFlagImg"></button>
-                <button id="spainFlag"><img src="/static/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
-                <button id="franceFlag"><img src="/static/photos/picturePng/loginPage/drapeau/France.png" alt="France Flag"></button>
+                <button id="spainFlag"><img id="spainFlag" src="/static/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
+                <button id="franceFlag"><img id="franceFlag" src="/static/photos/picturePng/loginPage/drapeau/France.png" alt="France Flag"></button>
             </div>
         </div>
         <div id="mainPage" style="flex: 1;">

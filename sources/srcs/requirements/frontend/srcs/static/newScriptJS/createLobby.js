@@ -13,6 +13,7 @@ function createLobbyDisplay()
     {
         createLobbyforTwoPlayer();
     }
+    setLanguage(currentLanguage);
 }
 
 function createLobbyforTwoPlayer()
@@ -21,9 +22,10 @@ function createLobbyforTwoPlayer()
     setTimeout(() => {
         ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
-    
+        console.log("juste avant le onclick de buttoncreate");
         ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
     }, 60);
+    setLanguage(currentLanguage);
 }
 
 
@@ -40,6 +42,7 @@ function lobbyTwoPlayer()
         ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }, 60);
+    setLanguage(currentLanguage);
 
 }
 
