@@ -19,6 +19,7 @@ from allauth.socialaccount.models import SocialLogin
 from allauth.headless.account.views import SessionView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from backend import parameters
 
 class socilaJwtToken(SessionView):
 	permission_classes = [IsAuthenticated]

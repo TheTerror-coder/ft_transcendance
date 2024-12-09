@@ -23,7 +23,7 @@ upstream backendmediator {
 server {
 	listen 1880;
 
-	server_name localhost;
+	server_name localhost $HOST_IP;
 	set $always_redirect on;
 
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
@@ -45,7 +45,7 @@ server {
 	listen 1443 ssl;
 	listen [::]:1443 ssl;
 
-	server_name localhost;
+	server_name localhost $HOST_IP;
 	#set $proxy_upstream http://frontendmediator;
 	set $frontend_upstream https://frontendmediator; # TODO: uncomment at production
 	set $backend_upstream http://backendmediator;

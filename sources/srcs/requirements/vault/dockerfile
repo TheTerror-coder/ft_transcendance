@@ -17,16 +17,18 @@ WORKDIR ${VAULT_HOME}
 RUN <<EOF
 addgroup -g ${SHARED_GID} transcendance
 addgroup vault transcendance
-apk add --update --no-cache curl openssl
+apk add --update --no-cache curl openssl envsubst
 mkdir -p ${VAULT_DIRS_TO_MAKE}
-chmod 700 ${VAULT_HOME} ${VAULT_HOME}/healthiness
+chmod 700 ${VAULT_HOME} ${VAULT_HOME}/healthiness ${VAULT_HOME}/container-init.d
 chown -R ${VAULT_UID}:${SHARED_GID} ${VAULT_HOME}
 EOF
 
-COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 ./conf/vault.hcl ${VAULT_HOME}/config/vault.hcl
+COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 ./conf/vault.hcl ${VAULT_HOME}/config/vault.hcl.template
+COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 ./tools/script.sh ${VAULT_HOME}/container-init.d/
 
 USER ${VAULT_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "/usr/local/bin/docker-entrypoint.sh", "server" ]
+CMD [ "sh", "-c", "${VAULT_HOME}/container-init.d/script.sh" ]
+# CMD [ "/usr/local/bin/docker-entrypoint.sh", "server" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

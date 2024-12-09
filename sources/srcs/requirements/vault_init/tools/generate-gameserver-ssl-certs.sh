@@ -35,7 +35,7 @@ generate_gameserver_intermediate_ca () {
 		exclude_cn_from_sans=true \
 		alt_names="$GAMESERVER_ALT_NAMES" \
 		permitted_dns_domains="$GAMESERVER_ALT_NAMES" \
-		ip_sans="127.0.0.1" \
+		ip_sans="127.0.0.1,$HOST_IP" \
 		issuer_name="Root-Certificate-Authority" \
 		key_name="ca-key" \
 		organization="42 Lyon Ft_transcendance Group" \
@@ -69,6 +69,7 @@ request_gameserver_certificate () {
 	vault write -format=json gameserver/issue/gameserver_intermediate_ca_role \
 		common_name="gameserver" \
 		alt_names="$GAMESERVER_ALT_NAMES" \
+		ip_sans="$HOST_IP" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \

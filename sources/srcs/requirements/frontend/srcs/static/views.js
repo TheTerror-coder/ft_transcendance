@@ -37,6 +37,7 @@ async function	profileView(title, description, data)
 
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
+	await updateMfaBoxStatus();
 	console.log('Just BEFOREEEEEE response la fraude sa mere : URLs.USERMANAGEMENT.PROFILE', URLs.USERMANAGEMENT.PROFILE);
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response);

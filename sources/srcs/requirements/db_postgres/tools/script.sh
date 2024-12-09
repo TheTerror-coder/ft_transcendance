@@ -6,7 +6,7 @@ then
 	export POSTGRES_PASSWORD=$( \
 		curl -s --cacert $VAULT_CACERT \
 			-H "Authorization: Bearer $SECRET_ACCESS_TOKEN" \
-			https://vault_c:8200/v1/secret/data/postgres | \
+			https://vault_c:$VAULT_API_PORT/v1/secret/data/postgres | \
 			jq -r .data.data.password \
 	)
 	if [ "x$POSTGRES_PASSWORD" = "x" ] || [ "x$POSTGRES_PASSWORD" = "xnull" ]
