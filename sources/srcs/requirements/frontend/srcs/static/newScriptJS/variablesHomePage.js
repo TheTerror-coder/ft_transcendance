@@ -49,6 +49,18 @@ const joinTwoPlayersVAR =
     </div>
 </div>`;
 
+
+const localPlayDisplay = 
+`
+<div class="crossPlayMenu" id="cross">
+    <button id="returnButtonPlayMenu"><img src="/static/photos/picturePng/homePage/miniCross.png" alt="quitButton"></button>
+</div>
+<div style="display:flex; justify-content: center; align-item: center;">
+    <div style="display: flex;flex-direction: column; margin-left: 120px; margin-right: 120px; margin-bottom: 200px;">
+        <button data-translate="Ready" id="readyButton" class="fontConfirmCreateAccount" style="justify-content: center; margin-top: -20px; font-size: 400%;">Ready</button>
+    </div>
+</div>`;
+
 const joinCodeDisplay = 
 `
 <div class="crossPlayMenu" id="cross">

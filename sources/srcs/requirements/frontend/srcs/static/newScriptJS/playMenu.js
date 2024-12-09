@@ -36,6 +36,8 @@ function rapidPlayLobbyDisplay()
     joinLobbyButton.onclick = () => joinLobbyPlay();
     const createLobbyButton = document.getElementById("createLobbyButton");
     createLobbyButton.onclick = () => createLobbyPlay();
+    const localPlayButton = document.getElementById("localPlayButton");
+    localPlayButton.onclick = () => readyLocalPlay();
 }
 
 function joinLobbyPlay()
@@ -50,6 +52,21 @@ function joinLobbyPlay()
     const joinButton = document.getElementById("joinButton");
     // TO DO: faire condition en fonction de ce que je vais recevoir comme info de Ben
     // joinButton.onclick = () => joinTwoPlayersDisplay();
+}
+
+
+function readyLocalPlay()
+{
+    ELEMENTs.firstElement().style.display = "none"; 
+    ELEMENTs.secondElement().style.display = "none"; 
+    ELEMENTs.thirdElement().style.display = "none";
+    ELEMENTs.playDisplay().innerHTML = localPlayDisplay;
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+    const readyButton = document.getElementById("readyButton");
+    setLanguage(currentLanguage);
+
+    // rejoindre le gang
 }
 
 

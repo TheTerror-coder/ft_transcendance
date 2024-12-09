@@ -35,6 +35,7 @@
         "GameWin": "Games Win",
         "GameLose": "Games Lose",
         "Historic": "Historic",
+        "Ready": "READY ?",
 
 
         "NoFriends": "No Friends",
@@ -52,6 +53,7 @@
         "placeholderPassword": "Contraseña",
         "placeholderConfirmPassword": "Confirmar Contraseña",
         "Confirm": "CONFIRMAR",
+
         "Play": "JUGAR",
         "Friends": "AMIGOS",
         "AddFriend": "AÑADA",
@@ -61,6 +63,7 @@
         "rapidPlay": "JUEGO RAPIDO",
         "Tournament": "TORNEOS",
         "joinButton": "Unirse",
+        "Ready": "LISTO ?",
         "placeholderJoinCode": "Código de Unirse",
         "PlayersPerTeams": "Jugadores por Equipo",
         "CreateButton": "Crear",
@@ -116,6 +119,7 @@
         "Helmsman": "Timonier",
         "Gunner": "Cannonier",
 
+        "Ready": "PRET ?",
 
         "FriendList": "Liste d'Amis",
         "waitingFriendlist": "Liste d'Amis en Attente",

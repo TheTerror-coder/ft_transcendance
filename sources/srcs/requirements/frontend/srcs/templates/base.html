@@ -28,10 +28,19 @@
     </head>
     <body class="background" id="background">
         <div class="headPage">
-            <button id="logoutButton">
-                <p id="logoutFont" data-translate="Logout">LOGOUT</p>
-                <img src="/static/photos/picturePng/exitLuffy.png" alt="Log Out" id="exitLuffy" style="height: 70px;">
+            <button id="logoutButton" style="width: 100px;">
+                <div class="logoutDoor">
+                    <div class="sideBar">
+                    </div>
+                    <div style="display:flex; flex-direction: column; width:180px;">
+                        <!-- <div style="display:flex; justify-content: center; margin-top: 20px;">
+                        </div> -->
+                    </div>
+                    <div class="logoutDoorPng">
+                    </div>
+                </div>
             </button>
+
             <div class="form-check form-switch" style="display: flex; justify-content: center;">
                 <input class="form-check-input" type="checkbox" role="switch" id="switch2FA">
                 <label class="form-check-label" for="switch2FA" style="font-size: 15px;"> disable/enable 2FA</label>
