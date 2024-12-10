@@ -129,54 +129,45 @@ class Team
         return worldCannonPos;
     }
 
-    getCannonTubeLengthFromPivot()
-    {
+    getCannonTubeLengthFromPivot() {
         const cannonTubeGroup = this.getCannonTubeGroup();
-        if (!cannonTubeGroup) {
-            console.error('Cannon tube group not found for team', this.TeamId);
-            return 0;
-        }
-    
+        if (!cannonTubeGroup) return 0;
+
         const tube = this.getCannonTube();
-        if (!tube) {
-            console.error('Cannon tube not found for team', this.TeamId);
-            return 0;
-        }
-    
+        if (!tube) return 0;
+
+        // Mettre à jour la matrice monde
+        cannonTubeGroup.updateMatrixWorld(true);
+        tube.updateMatrixWorld(true);
+
         // Obtenir la boîte englobante du tube
         const tubeBoundingBox = new THREE.Box3().setFromObject(tube);
         const tubeLength = tubeBoundingBox.max.y - tubeBoundingBox.min.y;
-    
-        // Position du pivot du groupe
-        const groupPivotPosition = new THREE.Vector3();
-        cannonTubeGroup.getWorldPosition(groupPivotPosition);
-    
-        // Position du centre du tube
-        const tubeCenterPosition = new THREE.Vector3();
-        tube.getWorldPosition(tubeCenterPosition);
-    
-        // Calculer le décalage entre le pivot du groupe et le centre du tube
-        const offset = new THREE.Vector3();
-        tube.localToWorld(offset.set(0, 0, 0));
-        const pivotToCenterOffset = tubeCenterPosition.clone().sub(offset);
-    
-        // Position du bout du tube (en ajoutant la moitié de la longueur dans la direction appropriée)
-        const tubeEndPosition = tubeCenterPosition.clone();
-        if (this.TeamId === 1) {
-            tubeEndPosition.y -= tubeLength / 2;
-        } else {
-            tubeEndPosition.y += tubeLength / 2;
-        }
-    
-        // Ajuster la position du bout du tube en fonction du décalage
-        tubeEndPosition.add(pivotToCenterOffset);
-    
-        // Calculer la distance entre le pivot du groupe et l'extrémité du tube
-        const totalLength = groupPivotPosition.distanceTo(tubeEndPosition);
 
-        console.log('totalLength : ', totalLength);
-    
-        return totalLength;
+        // Créer un vecteur pour le bout du canon
+        const tipPosition = new THREE.Vector3(0, tubeLength * (this.TeamId === 1 ? -0.5 : 0.5), 0);
+        tipPosition.applyMatrix4(tube.matrixWorld);
+
+        return tipPosition;
+    }
+
+    // Nouvelle méthode pour obtenir la position exacte du bout du canon
+    getCannonTipPosition() {
+        const cannonTubeGroup = this.getCannonTubeGroup();
+        if (!cannonTubeGroup) return null;
+
+        // Mettre à jour la matrice monde
+        cannonTubeGroup.updateMatrixWorld(true);
+        const tube = this.getCannonTube();
+        if (!tube) return null;
+
+        // Calculer la position du bout du canon
+        const tubeLength = this.getCannonTubeLengthFromPivot();
+        const directionY = this.TeamId === 1 ? -1 : 1;
+        const tipOffset = new THREE.Vector3(0, tubeLength * directionY, 0);
+        tipOffset.applyMatrix4(tube.matrixWorld);
+
+        return tipOffset;
     }
 
     createTubeLengthLine() {
