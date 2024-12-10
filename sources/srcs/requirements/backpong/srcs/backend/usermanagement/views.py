@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdatePhotoForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import FriendRequest
@@ -13,18 +13,25 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.decorators import permission_classes
 from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
+from django.core.files.storage import FileSystemStorage
 import os
 import sys
 
-# accept multiple username
+
+
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
+		print("register", request.data, file=sys.stderr)
 		form = CustomUserCreationForm(request.data, request.FILES)
 		if form.is_valid():
 			form.save()
+			user = authenticate(email=request.data['email'], password=request.data['password1'])
+			if user is not None:
+				login(request, user)
+				customObtainJwtTokenPair(request, user)
 			return Response({'status': 'success'})
 		else:
 			error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -77,10 +84,18 @@ def login_view(request):
 			}, status=400)
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
+@api_view(['GET'])
+@csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
-	logout(request)
-	return Response({'status': 'success', 'redirect': True, 'redirect_url': reverse('base')})
+    logout(request)
+    
+    return Response({
+        'status': 'success',
+        'redirect': True,
+        'redirect_url': reverse('login')
+    })
+    
 
 # check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
@@ -103,29 +118,38 @@ def update_profile(request):
 			'message': form.errors.get('username', ['Erreur inconnue'])[0],
 		}, status=400)
 
+User = get_user_model()
 
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_photo(request):
-	print("update_photo", file=sys.stderr)
 	if 'picture' not in request.FILES:
 		return Response({
 			'status': 'error',
 			'message': 'No file received.',
 		}, status=400)
-
-	file = request.FILES['picture']
-	if len(file.name) > 100:
-		file_extension = os.path.splitext(file.name)[1]
-		file.name = f"{get_random_string(10)}{file_extension}"
-	form = UpdatePhotoForm(request.POST, {'photo': file}, instance=request.user)
-	if form.is_valid():
-		user = request.user
-		user.photo = form.cleaned_data['photo']
-		form.save()
+	uploaded_file = request.FILES['picture']
+	check_file = uploaded_file.name.split('.')[-1].lower()
+	valid_extensions = ['png', 'jpg', 'jpeg', 'webp']
+	if check_file not in valid_extensions:
+		return Response({
+			'status': 'error',
+			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
+		}, status=400)
+	fs = FileSystemStorage()
+	print("*******DEBUG********uploaded_file.name: ", uploaded_file.name, file=sys.stderr)
+	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
+	file_url = fs.url(filename)
+	print("*******DEBUG********file_url", file_url, file=sys.stderr)
+	user = request.user
+	user.photo = filename
+	print("*******DEBUG********user.photo: ", user.photo, file=sys.stderr)
+	user.save()
+	if user.photo.url:
 		return Response({
 			'status': 'success',
+			'photo': user.photo.url,
 			'message': 'Profile picture updated successfully.',
 		}, status=200)
 	else:
@@ -137,7 +161,76 @@ def update_photo(request):
 		}, status=400)
 
 
+@api_view(['POST'])
+@csrf_protect
+def set_language(request):
+	language = request.data.get('language')
+	form = UpdateUserLanguageForm({'language' : language}, instance=request.user)
+	if form.is_valid():
+		form.save()
+		return Response({
+			'status': 'success',
+			'message': 'la langue a ete changé',
+		}, status=200)
+	else:
+		return Response({
+			'status': 'error',
+			'message': form.errors.get('username', ['Erreur inconnue'])[0],
+		}, status=400)
 
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def get_user_profile(request):
+    username = request.data.get('username')
+    prime = request.data.get('prime')
+    try:
+        to_user = User.objects.get(username=username)
+        user_info = {
+            'username': to_user.username,
+            'email': to_user.email,
+            'first_name': to_user.first_name,
+            'last_name': to_user.last_name,
+            'is_active': to_user.is_active,
+            'date_joined': to_user.date_joined,
+            'game played': to_user.recent_games(),
+            'victorie': to_user.victories,
+            'prime': prime,
+            'language': to_user.language,
+        }
+        if to_user.photo_link:
+            print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
+            user_info['photo'] = to_user.photo_link 
+        elif to_user.photo:
+            user_info['photo'] = to_user.photo.url 
+        else:
+            user_info['photo'] = None
+
+        print("User profile info:", user_info, file=sys.stderr)
+        return Response({
+            'status': 'success',
+            'user_info': user_info,
+        }, status=200)
+
+    except User.DoesNotExist:
+        return Response({
+            'status': 'error',
+            'message': 'User not found',
+        }, status=404)
+
+
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def set_info_game(request):
+	prime = request.data.get('prime')
+	user = request.user
+	user.prime = prime
+	user.save()
+	return Response({
+		'status': 'success',
+		'message': 'Prime status updated successfully.',
+	}, status=200)
 
 @api_view(['GET'])
 @csrf_protect
@@ -146,6 +239,15 @@ def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
 	last_three_games = request.user.recent_games()
+	# photo = request.user.photo.url if request.user.photo else None
+	if request.user.photo_link:
+		print("***********DEBUG*********: profile(): photo_link is not empty: ", file=sys.stderr)
+		photo = request.user.photo_link 
+	elif request.user.photo:
+		photo = request.user.photo.url 
+	else:
+		photo = None
+	prime = request.user.prime
 
 	recent_games_data = [
 		{
@@ -166,16 +268,15 @@ def profile(request):
 
 	response_data = {
 		'friends': friend_list,
+		'photo': photo,
 		'user_socket': user_sockets,
 		'pending_requests': pending_request_list,
 		'username': request.user.username,
 		'recent_games': recent_games_data,
+		'prime': prime,
 	}
 	return Response(response_data)
 
-
-
-User = get_user_model()
 
 
 @api_view(['POST'])
@@ -292,4 +393,32 @@ def get_user(request):
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
+		'language': request.user.language,
 	}, status=200)
+
+# def calculate_score(player_game_played, player_victory, opponent_game_played, opponent_vicotry, player_won):
+#     player_score = (player_victory / player_game_played) * 100 if player_game_played > 0 else 0
+#     opponent_score = (opponent_vicotry / opponent_game_played) * 100 if opponent_game_played > 0 else 0
+
+#     if player_won:
+#         if player_score < opponent_score:
+#             player_cote_change = (opponent_score - player_score) * 1.5
+#             opponent_cote_change = -(opponent_score - player_score) * 1.2
+#         else:
+#             player_cote_change = (opponent_score - player_score) * 1.2
+#             opponent_cote_change = -(opponent_score - player_score) * 1.1
+#     else:
+#         if opponent_score < player_score:
+#             opponent_cote_change = (player_score - opponent_score) * 1.5
+#             player_cote_change = -(player_score - opponent_score) * 1.2
+#         else:
+#             opponent_cote_change = (player_score - opponent_score) * 1.2
+#             player_cote_change = -(player_score - opponent_score) * 1.1
+
+#     player_score += player_cote_change
+#     opponent_score += opponent_cote_change
+
+#     player_score = max(player_score, 0)
+#     opponent_score = max(opponent_score, 0)
+
+#     return player_score, opponent_score

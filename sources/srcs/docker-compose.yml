@@ -390,6 +390,7 @@ services:
       # - frontend_logs:${FRONTEND_LOG_FILES_DIR}
       - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
       - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
+      - mediafiles:${FRONTEND_HOME}/volumes/media
     ports:
       - ${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}
       - ${FRONTEND_HTTPS_PORT}:${FRONTEND_HTTPS_PORT}

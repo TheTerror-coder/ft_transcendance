@@ -247,6 +247,10 @@ function strcmp(str1, str2) {
     return str1 === str2;
 }
 
+/**************************/
+/*		 WEBSOKETS		  */
+/**************************/
+
 async function callWebSockets(params) {
 	socket = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 	socket.onopen = function() {
@@ -292,8 +296,80 @@ async function callWebSockets(params) {
 	};
 }
 
+
+function handleFriendInvitation(socket, event) {
+    console.log("Received invitation:");
+    var data = JSON.parse(event.data);
+    
+    if (data.type === 'invitation') {
+        console.log("Received invitation:", data);
+        
+        // Afficher la boîte de dialogue SweetAlert
+        Swal.fire({
+            title: 'Friend Invitation',
+            text: `You have received a friend invitation from ${data.from}.`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Accept',
+            cancelButtonText: 'Reject',
+            confirmButtonColor: 'green',
+            cancelButtonColor: 'red',
+        }).then((result) => {
+            let response = result.isConfirmed ? 'accept' : 'reject';
+            
+            socket.send(JSON.stringify({
+                type: 'response.invitation',
+                response: response,
+                friend_request_id: data.friend_request_id
+            }));
+        });
+    }
+}
+
+
+
+// async function testRequest() {
+// 	const response = await request('GET', 'https://localhost:1443/hello/');
+// 	if (response.status === 200)
+// 		console.log('request succeeded!!');
+// 	console.log('request failed!!');
+// }
+
 function strcmp(str1, str2) {
     return str1 === str2;
+}
+
+function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
+    let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
+    let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
+    let player_cote_change = 0;
+    let opponent_cote_change = 0;
+
+    if (player_won) {
+        if (player_score < opponent_score) {
+            player_cote_change = (opponent_score - player_score) * 1.5;
+            opponent_cote_change = -(opponent_score - player_score) * 1.2;
+        } else {
+            player_cote_change = (opponent_score - player_score) * 1.2;
+            opponent_cote_change = -(opponent_score - player_score) * 1.1;
+        }
+    } else {
+        if (opponent_score < player_score) {
+            opponent_cote_change = (player_score - opponent_score) * 1.5;
+            player_cote_change = -(player_score - opponent_score) * 1.2;
+        } else {
+            opponent_cote_change = (player_score - opponent_score) * 1.2;
+            player_cote_change = -(player_score - opponent_score) * 1.1;
+        }
+    }
+
+    player_score += player_cote_change;
+    opponent_score += opponent_cote_change;
+
+    player_score = Math.max(player_score, 0);
+    opponent_score = Math.max(opponent_score, 0);
+
+    return { player_score, opponent_score };
 }
 
 

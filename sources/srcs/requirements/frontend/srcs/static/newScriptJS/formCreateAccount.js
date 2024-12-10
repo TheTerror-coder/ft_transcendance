@@ -22,6 +22,11 @@ async function createAccount(instance) {
     const username = document.getElementById('createUser').value;
     const password = document.getElementById('createPassword').value;
     const confirmPassword = document.getElementById('createConfirmPassword').value;
+    const bad_input = /^[^<>]+$/;
+    if (!bad_input.test(email) || !bad_input.test(username) || !bad_input.test(password) || !bad_input.test(confirmPassword)) {
+        alert("Invalid input.");
+        return;
+    }
     console.log('createAccount() function: email: ', email,"\nusername: ", username, "\npassword: ",password, "\nconfirmPassword: ", confirmPassword);
     const data = {"username": username, "email": email, "password1": password, "password2": confirmPassword};
 
@@ -29,8 +34,14 @@ async function createAccount(instance) {
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REGISTER, data);
     if (response.status === 'success') {
         alert('Form is valid and passwords match! Submitting...');
-        window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
+        await callWebSockets();
+        socket.onmessage = function(event) {
+            handleFriendInvitation(socket, event);
+        };
+        window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
+        // window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
+        // handleLocation();
     }
     else if (response.status === 'error') {
         if (typeof response.errors === 'object') {

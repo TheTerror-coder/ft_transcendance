@@ -3,61 +3,28 @@ async function connect()
 {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const bad_input = /^[^<>]+$/;
+    if (!bad_input.test(email) || !bad_input.test(password)) {
+        alert("Invalid input.");
+        return;
+    }
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
     console.log(response);
     if (response.status == "success") {
         alert('connecting...');
         await callWebSockets();
-        // socket = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
-        // socket.onopen = function() {
-        //     console.log("WebSocket connection established.", socket);
-        // };
-        // socket.onerror = function(error) {
-        //     console.error("WebSocket error observed:", error);
-        // };
 
-        // socket.onclose = function(event) {
-        //     console.log("WebSocket connection closed:", event);
-        // };
-        // socket.onmessage = function(event) {
-        //     console.log("Received invitation:");
-        //     var data = JSON.parse(event.data);
-        //     if (data.type === 'invitation') {
-        //         console.log("Received invitation:", data);
-        //         Swal.fire({
-        //             title: 'Friend Invitation',
-        //             text: `You have received a friend invitation from ${data.from}.`,
-        //             icon: 'info',
-        //             showCancelButton: true,
-        //             confirmButtonText: 'Accept',
-        //             cancelButtonText: 'Reject',
-        //             confirmButtonColor: 'green',
-        //             cancelButtonColor: 'red',
-        //         }).then((result) => {
-        //             if (result.isConfirmed) {
-        //                 socket.send(JSON.stringify({
-        //                     type: 'response.invitation',
-        //                     response: 'accept',
-        //                     friend_request_id: data.friend_request_id
-        //                 }));
-        //             } else if (result.dismiss === Swal.DismissReason.cancel) {
-        //                 socket.send(JSON.stringify({
-        //                     type: 'response.invitation',
-        //                     response: 'reject',
-        //                     friend_request_id: data.friend_request_id
-        //                 }));
-        //             }
-        //         });
-        //     }
-        // };
+        socket.onmessage = function(event) {
+            handleFriendInvitation(socket, event);
+        };
 // jm custom beginning //
 		await jwt_authenticate();
 // jm custom end //
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
     }
-    else if (response.status === 'error') 
+    else if (response.status === 'error')
     {
         if (typeof response.errors === 'object') {
             let errorMessages = '';

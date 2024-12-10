@@ -64,6 +64,8 @@ class socilaJwtToken(SessionView):
 			del request.session['jwt_refresh_token']
 		
 		sys.stderr.write("*******DEBUG******* socilaJwtToken succeeded" + '\n')
+		print('*****DEBUG******: user photo link: ' + str(request.user.photo_link), file=sys.stderr)
+
 		return response
 
 @csrf_protect

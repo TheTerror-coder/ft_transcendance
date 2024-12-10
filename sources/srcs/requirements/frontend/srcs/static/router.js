@@ -287,6 +287,35 @@ async function onePongAlerter(type, title, message) {
 	);
 }
 
+
+window.addEventListener('load', async () => {
+    console.log('  La page a été actualisée.  ');
+    const urlActuelle = window.location.href;
+
+    if (!urlActuelle.includes('login')) {
+        const response = await getAuthenticationStatus();
+
+        if (response.find(data => data === 'user-is-authenticated')) {
+            const user = {"username" : response[2].user.display};
+            console.log('user ', user);
+            const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+            if (resp.status === 'error') {
+                console.log(" RECO WEB SOCKET")
+                await callWebSockets();
+            }
+            //tester la request email = mail OR 1=1 --
+        }
+        else if (response.find(data => data === 'not-authenticated')) {
+            console.log('not-authenticated');
+        }
+        else if (response.find(data => data === 'invalid-session')) {
+            console.log('invalid-session');
+            window.sessionStorage.clear();
+            window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+        }
+    }
+});
+
 window.onpopstate = handleLocation;
 // window.route = urlRoute;
 

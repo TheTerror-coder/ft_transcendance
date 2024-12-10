@@ -65,6 +65,10 @@ const URLs = Object.freeze({
 		USERNAME : BACKEND_BASE_URL + '/user-management/users/',
 		USERSOCKET : BACKEND_BASE_URL + '/user-management/user-socket/',
 		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
+		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
+		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
+		SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
+		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
 	}),
 
 
@@ -187,7 +191,16 @@ const ELEMENTs = Object.freeze({
 
 	addFriendButton : () => document.getElementById("addFriendButton"),
 	rapidPlayButton : () => document.getElementById("rapidPlayButton"),
+
+	usernameOfWanted : () => document.getElementById("usernameOfWanted"),
+	primeAmount : () => document.getElementById("primeAmount"),
+	pictureOfWanted : () => document.getElementById("pictureOfWanted"),
 	
+	//userPage
+	nameUser : () => document.getElementById("nameUser"),
+	photoUser : () => document.getElementById("profilPhotoInProfilePage"),
+	prime : () => document.getElementById("prime"),
+
 	// profilePage
 
 	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),
