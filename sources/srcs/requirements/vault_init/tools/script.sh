@@ -39,9 +39,9 @@ enable_secret_kv_engine () {
 
 create_policies () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/password_policy_json https://vault_c:8200/v1/sys/policies/password/password_policy >> /dev/null
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/secret_access_policy_json https://vault_c:8200/v1/sys/policy/secret_access_policy >> /dev/null
-	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/pki_access_policy_json https://vault_c:8200/v1/sys/policy/pki_access >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/password_policy_json https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/secret_access_policy_json https://vault_c:$VAULT_API_PORT/v1/sys/policy/secret_access_policy >> /dev/null
+	curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" --data @$VAULT_HOME/secrets/pki_access_policy_json https://vault_c:$VAULT_API_PORT/v1/sys/policy/pki_access >> /dev/null
 }
 
 #######################################
@@ -60,9 +60,9 @@ create_tokens () {
 
 create_postgres_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	postgres_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	postgres_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $postgres_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:8200/v1/secret/data/postgres >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/postgres >> /dev/null
 }
 
 #######################################
@@ -71,9 +71,9 @@ create_postgres_password () {
 
 create_elastic_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	elastic_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	elastic_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $elastic_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:8200/v1/secret/data/elastic >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/elastic >> /dev/null
 }
 
 #######################################
@@ -82,9 +82,9 @@ create_elastic_password () {
 
 create_kibana_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	kibana_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	kibana_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $kibana_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:8200/v1/secret/data/kibana >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/kibana >> /dev/null
 }
 
 #######################################
@@ -93,16 +93,16 @@ create_kibana_password () {
 
 create_logstash_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	logstash_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	logstash_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:8200/v1/secret/data/logstash >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash >> /dev/null
 }
 
 create_logstash_es_client_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
-	logstash_es_client_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:8200/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	logstash_es_client_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_es_client_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:8200/v1/secret/data/logstash_es_client >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash_es_client >> /dev/null
 }
 
 #######################################
@@ -162,7 +162,7 @@ fi
 touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 
 echo "Waiting for vault server starting up...";
-	until curl -s --cacert $VAULT_CACERT https://vault_c:8200 | grep 'Temporary Redirect'; do sleep 10; done;
+	until curl -s --cacert $VAULT_CACERT https://vault_c:$VAULT_API_PORT | grep 'Temporary Redirect'; do sleep 10; done;
 echo "Waiting Done!";
 
 if [ -s $VAULT_HOME/volumes/vault/file/keys ]; then

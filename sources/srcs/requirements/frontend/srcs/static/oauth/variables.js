@@ -1,9 +1,9 @@
 
 const PAGE_TITLE = 'One Pong';
-const BASE_URL = 'https://localhost:1443';
-const BACKEND_BASE_URL = 'https://localhost:1443/backpong';
-const ALLAUTH_BASE_URL = 'https://localhost:1443/_allauth/browser/v1';
-const OAUTH2_PRODIVIDER_ID = 'ultimapi';
+const BASE_URL = `https://${window.location.host}`;
+const BACKEND_BASE_URL = `${BASE_URL}/backpong`;
+const ALLAUTH_BASE_URL = `${BASE_URL}/_allauth/browser/v1`;
+const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
 
 const PATHs = Object.freeze({
 	
@@ -93,6 +93,7 @@ const URLs = Object.freeze({
 			// Time-based One Time Password
 			TOTP_AUTHENTICATOR : ALLAUTH_BASE_URL + '/account/authenticators/totp',
 			TWO_FA_AUTHENTICATE : ALLAUTH_BASE_URL + '/auth/2fa/authenticate',
+			MFA_REAUTHENTICATE : ALLAUTH_BASE_URL + '/auth/2fa/reauthenticate',
 		}),
 	}),
 	
@@ -135,13 +136,18 @@ const ELEMENTs = Object.freeze({
 	totp_deactivate_button : () => document.getElementById("totp-deactivate-button"),
 	totp_activate_button : () => document.getElementById("totp-activate-button"),
 	skip_activate_totp_button : () => document.getElementById("skip-activate-totp-button"),
+	close_mfa_reauth_modal : () => document.getElementById("close-mfa-reauth-modal"),
 	validate_totp_value_button : () => document.getElementById("validate-totp-value-button"),
 	validate_2fa_value_button : () => document.getElementById("validate-2fa-value-button"),
+	validate_2fa_reauth_value_button : () => document.getElementById("validate-2fa-reauth-value-button"),
 	totp_value_input : () => document.getElementById("totp-value-input"),
 	two_fa_value_input : () => document.getElementById("2fa-value-input"),
+	two_fa_reauth_value_input : () => document.getElementById("2fa-reauth-value-input"),
 
 	oauth_modal : () => document.getElementById("oauth-modal"),
+	oauth_modal2 : () => document.getElementById("oauth-modal2"),
 	oauth_modal_content : () => document.getElementById("oauth-modal-content"),
+	oauth_modal2_content : () => document.getElementById("oauth-modal2-content"),
 
 	loginPage : () => document.getElementById("loginPage"),
 	
@@ -204,6 +210,7 @@ const ELEMENTs = Object.freeze({
 	formFile : () => document.getElementById("formFile"),
 	changeUsernamePopOver : () => document.getElementById("changeUsernamePopOver"),
 	historicMatch : () => document.getElementById("historicMatch"),
+	switch2FA : () => document.getElementById("switch2FA"),
 	
 
 	// createLobby
@@ -235,6 +242,7 @@ const ELEMENTs = Object.freeze({
 });
 
 let N_ALERT = 0;
+
 const VARIABLEs = Object.freeze ({
 	VERIFY_EMAIL : Object.freeze({
 		INDEXES : Object.freeze({

@@ -16,6 +16,7 @@ import requests
 from . import tools
 from pathlib import Path
 from . import parameters
+from .parameters import EnvVariables, UltimApi
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,27 +25,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: TODO keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-nubwiuho4c4%@3fk9yo54_^#l11s0_+4zl%^$7r3b4-4hknx5_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', 'frontend' ]
+ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', f'{EnvVariables.HOST_IP}' ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-	'https://localhost:1443',
-	'http://localhost:8000',
+	f'https://localhost:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+	f'https://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+	f'http://localhost:{EnvVariables.BACKEND_PORT}',
+	f'http://{EnvVariables.HOST_IP}:{EnvVariables.BACKEND_PORT}',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-	'https://localhost:1443',
-	'http://localhost:1880',
-	'http://localhost:8000',
+	f'https://localhost:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+	f'https://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+	f'http://localhost:{EnvVariables.PROXYWAF_HTTP_PORT}',
+	f'http://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTP_PORT}',
+	f'http://localhost:{EnvVariables.BACKEND_PORT}',
+	f'http://{EnvVariables.HOST_IP}:{EnvVariables.BACKEND_PORT}',
 ]
 
 # Application definition
@@ -119,30 +125,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('POSTGRES_DB'),
-#         'USER': os.environ.get('POSTGRES_USER'),
-#         'PASSWORD': str(
-# 			requests.get("https://vault_c:8200/v1/secret/data/postgres",
-# 				verify=os.environ.get('VAULT_CACERT'),
-# 				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
-# 		),
-#         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-#         'PORT': os.environ.get('POSTGRES_PORT'),
-#     }
-# }
-
-
-#a effacer si make des docker
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': str(
-			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+			requests.get(f"https://vault_c:{EnvVariables.VAULT_API_PORT}/v1/secret/data/postgres",
 				verify=os.environ.get('VAULT_CACERT'),
 				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
 		),
@@ -153,12 +142,6 @@ DATABASES = {
     # 'default': {
     #         # 'ENGINE': 'django.db.backends.sqlite3',
     #         # 'NAME': BASE_DIR / 'db.sqlite3',
-    #     # 'ENGINE': 'django.db.backends.postgresql',
-    #     # 'NAME': os.environ.get('POSTGRES_DB'),
-    #     # 'USER': os.environ.get('POSTGRES_USER'),
-    #     # 'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-    #     # 'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
-    #     # 'PORT': os.environ.get('POSTGRES_PORT'),
     # }
 }
 
@@ -231,14 +214,14 @@ CHANNEL_LAYERS = {
     },
 }
 
-# REST_FRAMEWORK = {
-# 	'DEFAULT_AUTHENTICATION_CLASSES': (
-# 		'rest_framework_simplejwt.authentication.JWTAuthentication',
-# 	),
-# 	# 'DEFAULT_PERMISSION_CLASSES': [
-# 	# 	'rest_framework.permissions.IsAuthenticated',
-# 	# ],
-# }
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
+	),
+	'DEFAULT_PERMISSION_CLASSES': [
+		'rest_framework.permissions.IsAuthenticated',
+	],
+}
 SIMPLE_JWT = {
 	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
@@ -271,7 +254,7 @@ SOCIALACCOUNT_ADAPTER = "oauth.adapter.CustomAdapter"
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-# ACCOUNT_REAUTHENTICATION_TIMEOUT = 5000
+ACCOUNT_REAUTHENTICATION_TIMEOUT = 15 #default 300s (5min)
 
 AUTHENTICATION_BACKENDS = [
 	# `allauth` specific authentication methods, such as login by email
@@ -299,12 +282,12 @@ LOGOUT_REDIRECT_URL = '/frontpong/account/login/'
 SOCIALACCOUNT_PROVIDERS = {
     'ultimapi': {
         'APP': {
-            'client_id': parameters.OAUTH2_CLIENT_ID,
-            'secret': parameters.OAUTH2_CLIENT_SECRET,
+            'client_id': parameters.ULTIMAPI_CLIENT_ID,
+            'secret': parameters.ULTIMAPI_CLIENT_SECRET,
             'key': ''
         },
 		'AUTH_PARAMS': {
-			'redirect_uri': parameters.OAUTH2_AUTHORIZATION_REDIRECT_URL,
+			'redirect_uri': parameters.ULTIMAPI_AUTHORIZATION_REDIRECT_URL,
         },
     }
 }

@@ -31,6 +31,8 @@ services:
       - GAMESERVER_ALT_NAMES=${GAMESERVER_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - HOST_IP=${HOST_IP}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -67,12 +69,15 @@ services:
         - VAULT_HOME=${VAULT_HOME}
         - VAULT_DIRS_TO_MAKE=${VAULT_DIRS_TO_MAKE}
     environment:
+      - VAULT_HOME=${VAULT_HOME}
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_CACERT=${VAULT_CACERT}
       - VAULT_SKIP_VERIFY=true
       - SKIP_SETCAP=true
       - VAULT_HEALTHFLAG=${VAULT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - VAULT_CLUSTER_PORT=${VAULT_CLUSTER_PORT}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -119,6 +124,8 @@ services:
       - PGDATA=${POSTGRES_DATA}
       - VAULT_CACERT=${POSTGRES_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - HOST_IP=${HOST_IP}
     volumes:
       - db_data:${POSTGRES_DATA}
       - vault_certs:${POSTGRES_HOME}/volumes/vault/certs
@@ -176,6 +183,7 @@ services:
   #     - REDIS_DATA=${REDIS_DATA}
   #     - VAULT_CACERT=${REDIS_VAULT_CACERT}
   #     - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      # - HOST_IP=${HOST_IP}
   #   volumes:
   #     # - db_data:${REDIS_DATA}
   #     - vault_certs:${REDIS_HOME}/volumes/vault/certs
@@ -252,6 +260,12 @@ services:
       - MEDIA_DIR=${BACKEND_MEDIA_DIR}
       - MAIL_CONTAINER=${MAIL_CONTAINER}
       - MAIL_PORT=${MAIL_PORT}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - ULTIMAPI_UID=${ULTIMAPI_UID}
+      - ULTIMAPI_SECRET=${ULTIMAPI_SECRET}
+      - ULTIMAPI_REDIRECT_URI=${ULTIMAPI_REDIRECT_URI}
     volumes:
     #   - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
@@ -369,6 +383,7 @@ services:
       - FRONTEND_ROOT_CA=${FRONTEND_ROOT_CA}
       - FRONTEND_HTTP_PORT=${FRONTEND_HTTP_PORT}
       - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
+      - HOST_IP=${HOST_IP}
     volumes:
     #   - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
     #   - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
@@ -434,6 +449,9 @@ services:
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - HOST_IP=${HOST_IP}
+      - CONTAINER_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - CONTAINER_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
     volumes:
       # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${NGINX_STATICFILES_DIR}
@@ -494,6 +512,10 @@ services:
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - HOST_IP=${HOST_IP}
+      - CONTAINER_HTTP_PORT=${VAULTWAF_HTTP_PORT}
+      - CONTAINER_HTTPS_PORT=${VAULTWAF_HTTPS_PORT}
     volumes:
       # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - modsec_data:${MODSEC_DATA_DIR}

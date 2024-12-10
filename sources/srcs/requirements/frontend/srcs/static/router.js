@@ -35,6 +35,10 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await twoFaAuthenticateJob();
 	}
+	else if (target.id === ELEMENTs.validate_2fa_reauth_value_button()?.id){
+		event.preventDefault();
+		await mfaReauthenticateJob();
+	}
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
 		event.preventDefault();
 		await skipTotpActivation();
@@ -88,8 +92,23 @@ const eventManager = async (event) => {
 	{
 		event.preventDefault();
 		await logout();
-		// TO DO: exitLuffy(); (logout function)
-		// await exitLuffy();
+	}
+	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
+	{
+		ELEMENTs.switch2FA().click();
+	}
+	else if (target.id === ELEMENTs.switch2FA()?.id)
+	{
+		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
+			
+			if (await isTotpEnabled()) {
+				await deactivateTotpJob();
+			} else {
+				await activateTotpJob();
+			}
+			return ;
+		}
+		window.localStorage.removeItem('skip_switch2FA_flag');
 	}
 
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
@@ -104,7 +123,6 @@ const eventManager = async (event) => {
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
 	// }
-	console.log('event listener: ', target.id);
 };
 
 // const auth_change = async (event) => {
@@ -118,7 +136,6 @@ const eventManager = async (event) => {
 // }
 
 document.addEventListener("click", eventManager); 
-document.addEventListener("auth-change", eventManager); 
 
 const urlRoute = async (event) => {
 	event = event || window.event;

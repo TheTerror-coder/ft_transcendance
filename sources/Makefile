@@ -7,13 +7,14 @@ include $(ENV)
 all dit_moi : build up
 
 build b : # Build or rebuild services
-	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) build
+	-docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
-	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) create --remove-orphans
+	-docker compose -f $(COMPOSE_FILE) create --remove-orphans
 start : # Start services
 	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) start
 up : # Create and start containers
 	-HOST_IP=$(HOST_IP) docker compose -f $(COMPOSE_FILE) up -d
+	@-echo HOST IP : $(HOST_IP)
 exec : # Execute a command in a running container.
 	-docker compose -f $(COMPOSE_FILE) exec
 

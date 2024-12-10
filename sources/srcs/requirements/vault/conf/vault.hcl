@@ -1,5 +1,5 @@
-api_addr				= "https://localhost:8200"
-cluster_addr			= "https://localhost:8201"
+api_addr				= "https://localhost:$VAULT_API_PORT"
+cluster_addr			= "https://localhost:$VAULT_CLUSTER_PORT"
 cluster_name			= "transcendance-vault-cluster"
 disable_mlock			= true #TODO: disable if possible as the container should lock memory to prevent sensitive values from being swapped to disk
 ui						= true
@@ -7,7 +7,7 @@ default_lease_ttl		= "168h"
 max_lease_ttl			= "720h"
 
 listener "tcp" {
-	address			= "0.0.0.0:8200"
+	address			= "0.0.0.0:$VAULT_API_PORT"
 	tls_cert_file	= "/vault/certs/vault.crt"
 	tls_key_file	= "/vault/certs/vault.key"
 	### These two below lines comes to bolster the security wall of the vault server by rejecting unauthorized sources ###
