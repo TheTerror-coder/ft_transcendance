@@ -3,6 +3,7 @@
 # sh -c $BACKEND_HOME/container-init.d/HOST_IP.sh
 
 # tail -f /dev/null
+python manage.py makemigrations usermanagement
 python manage.py makemigrations
 python manage.py migrate
 
