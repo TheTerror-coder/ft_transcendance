@@ -17,6 +17,11 @@ class CustomUser(AbstractUser):
     victories = models.IntegerField(default=0)
     prime = models.IntegerField(default=0)
     games_played = models.IntegerField(default=0)
+    language = models.CharField(
+        blank=True,
+        default="FR",
+        max_length=10,
+    )
 
     def recent_games(self):
         return Game.objects.filter(player=self).order_by('-date')[:3]

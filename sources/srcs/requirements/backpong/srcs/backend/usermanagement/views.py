@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import FriendRequest
@@ -16,14 +16,7 @@ from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
 import sys
-# import random
 
-# def start_tournament():
-#     players = {"player1": "username1", "player2": "username2", "player3": "username3", "player4": "username4", "player5": "username5", "player6": "username6"}
-#     player_list = list(players.values())
-#     random.shuffle(player_list)
-#     pairs = [(player_list[i], player_list[i+1]) for i in range(0, len(player_list), 2)]
-#     print(pairs)
 
 
 @api_view(['POST'])
@@ -167,6 +160,23 @@ def update_photo(request):
 
 
 @api_view(['POST'])
+@csrf_protect
+def set_language(request):
+	language = request.data.get('language')
+	form = UpdateUserLanguageForm({'language' : language}, instance=request.user)
+	if form.is_valid():
+		form.save()
+		return Response({
+			'status': 'success',
+			'message': 'la langue a ete changé',
+		}, status=200)
+	else:
+		return Response({
+			'status': 'error',
+			'message': form.errors.get('username', ['Erreur inconnue'])[0],
+		}, status=400)
+
+@api_view(['POST'])
 @login_required
 @csrf_protect
 def get_user_profile(request):
@@ -184,6 +194,7 @@ def get_user_profile(request):
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
             'prime': prime,
+            'language': to_user.language,
         }
         if to_user.photo_link:
             print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
@@ -380,6 +391,7 @@ def get_user(request):
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
+		'language': request.user.language,
 	}, status=200)
 
 # def calculate_score(player_game_played, player_victory, opponent_game_played, opponent_vicotry, player_won):

@@ -68,6 +68,7 @@ const URLs = Object.freeze({
 		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
 		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
 		SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
+		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
 	}),
 
 
