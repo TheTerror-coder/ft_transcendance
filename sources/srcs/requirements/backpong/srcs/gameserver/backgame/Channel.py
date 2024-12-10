@@ -1,4 +1,4 @@
-from Game import Game
+from .Game import Game
 
 class Channel:
     def __init__(self, channelId, creator):

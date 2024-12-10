@@ -90,6 +90,11 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.cross()?.id)
 	{
+		if (globalSocket !== null)
+		{
+			globalSocket.disconnect();
+			globalSocket = null;
+		}
 		event.preventDefault();
 		refreshHomePage();
 	}

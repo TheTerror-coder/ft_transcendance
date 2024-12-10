@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from . import tools
+
+import requests
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,10 +83,25 @@ WSGI_APPLICATION = 'gameserver.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': str(
+			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+				verify=os.environ.get('VAULT_CACERT'),
+				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+		),
+        'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
     }
 }
 
@@ -126,9 +144,9 @@ STATIC_URL = 'static/'
 
 STATIC_ROOT = os.environ.get('STATICFILES_DIR')
 
-STATICFILES_DIRS = [
-	BASE_DIR / "./",
-]
+# STATICFILES_DIRS = [
+# 	BASE_DIR / "./",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
