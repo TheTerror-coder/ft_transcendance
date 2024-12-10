@@ -13,6 +13,8 @@ run :
 	docker run $(ENV) -it --rm --name $(GAMESERVER_CONTAINER) $(PORTS) $(GAMESERVER_IMAGE) 
 exec :
 	docker exec -it  $(GAMESERVER_CONTAINER) sh
+restart :
+	docker restart  $(GAMESERVER_CONTAINER)
 clean :
 	docker image rm $(GAMESERVER_IMAGE)
 fclean : stop
@@ -26,5 +28,7 @@ ls :
 	docker container ls
 logs :
 	docker logs $(GAMESERVER_CONTAINER)
+logsf :
+	docker logs -f $(GAMESERVER_CONTAINER)
 
 re : fclean all

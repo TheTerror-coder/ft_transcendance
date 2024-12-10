@@ -30,7 +30,13 @@ async function getHistoric(game)
         match.className = 'matchDisplayHistoric';
         const result = document.createElement('span');
         result.style.alignSelf = 'center';
-        result.textContent = "No game played";
+        if (currentLanguage === 'en')
+            result.textContent = "No game played";
+        else if (currentLanguage === 'fr')
+            result.textContent = "Pas de parties jouees";
+        else if (currentLanguage === 'es')
+            result.textContent = "No se ha jugado ningún juego";
+        result.dataset.translate = "NoGamePlayed";
         match.appendChild(result);
         ELEMENTs.historicMatch().appendChild(match);
         return ;
@@ -80,7 +86,13 @@ async function displayWaitingListFriend(friends) {
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = "No friends invite";
+        if (currentLanguage === 'en')
+            nameSpan.textContent = "No Invitations Waiting";
+        else if (currentLanguage === 'fr')
+            nameSpan.textContent = "Aucune Invitations en Attente";
+        else if (currentLanguage === 'es')
+            nameSpan.textContent = "No hay invitaciones en espera";
+        nameSpan.dataset.translate = "NoInvitationsWaiting";
         listItem.appendChild(nameSpan);
         dropdownMenu.appendChild(listItem);
     }
@@ -145,7 +157,25 @@ async function displayWaitingListFriend(friends) {
 }
 
 
+async function userProfileDisplay(username)
+{
+	ELEMENTs.mainPage().innerHTML = usersProfilePage;
+    ELEMENTs.profilePage().style.display = 'flex';
+	document.title = username +  " | " + PAGE_TITLE;
+	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 
+
+	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
+
+
+	ELEMENTs.nameUser().innerHTML = username;
+	// update berry gang
+
+	// mettre en parametre les donnees du frero
+	await getHistoric();
+	await statsInProfilePage();
+
+}
 
 
 
@@ -161,7 +191,13 @@ async function displayFriend(friends, user_socket)
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = "No friends";
+        if (currentLanguage === 'en')
+            nameSpan.textContent = "No friends";
+        else if (currentLanguage === 'fr')
+            nameSpan.textContent = "Pas d'amis";
+        else if (currentLanguage === 'es')
+            nameSpan.textContent = "No hay amigos";
+        nameSpan.dataset.translate = "NoFriends";
         listItem.appendChild(nameSpan);
         dropdownMenu.appendChild(listItem);
     }
@@ -202,7 +238,7 @@ async function displayFriend(friends, user_socket)
                 alert(response.message);
             });
 
-            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
+            buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
             buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
 

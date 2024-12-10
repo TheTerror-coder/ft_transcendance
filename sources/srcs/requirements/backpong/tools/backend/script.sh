@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# sh -c $BACKEND_HOME/container-init.d/HOST_IP.sh
+sh -c $BACKEND_HOME/container-init.d/HOST_IP.sh
 
 # tail -f /dev/null
 python manage.py makemigrations usermanagement
@@ -14,6 +14,8 @@ then
 
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
+
+# python3 /usr/share/backend/apps/backend/index.py &
 
 $CONTAINER_ENTRYPOINT
 # export DJANGO_SETTINGS_MODULE=backend.settings
