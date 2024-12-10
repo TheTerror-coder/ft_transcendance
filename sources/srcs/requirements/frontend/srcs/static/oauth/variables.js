@@ -125,7 +125,6 @@ const ELEMENTs = Object.freeze({
 
 
 	mainPage :  () => document.getElementById("mainPage"),
-	exitLuffy :  () => document.getElementById("exitLuffy"),
 	
 	loginPageButton :  () => document.getElementById("loginPageButton"),
 	statusDiv :  () => document.getElementById("status"),

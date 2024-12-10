@@ -111,7 +111,7 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
-	else if (target.id === ELEMENTs.exitLuffy()?.id)
+	else if (target.id === ELEMENTs.logoutButton()?.id)
 	{
 		event.preventDefault();
 		await logout();
@@ -206,11 +206,11 @@ urlRoutes[PATHs.VIEWS.CREATE_LOBBY] = {
 	title : "Create_lobby | " + PAGE_TITLE,
 	description : "",
 };
-// urlRoutes[PATHs.VIEWS.PROFILE] = {
-// 	view : profileView,
-// 	title : "Profile | " + PAGE_TITLE,
-// 	description : "",
-// };
+urlRoutes[PATHs.VIEWS.PROFILE] = {
+	view : profileView,
+	title : "Profile | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,

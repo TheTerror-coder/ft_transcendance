@@ -45,7 +45,10 @@ async function	homeView(title, description, data)
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
 	setLanguage(currentLanguage);
-	ELEMENTs.wantedProfile().onclick = () => profileView();
+	ELEMENTs.wantedProfile().onclick = () => {
+		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
+		handleLocation();
+ 	};
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	console.log('homeView: ');
 }
@@ -66,11 +69,6 @@ async function	loginView(title, description, data) {
 async function	profileView(title, description, data)
 {
 	ELEMENTs.logoutButton().style.display = 'flex';
-	const resp = await getAuthenticationStatus();
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-	console.log("profile view", resp);
-	document.title = "Profile | " + PAGE_TITLE;
-
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	await updateMfaBoxStatus();
