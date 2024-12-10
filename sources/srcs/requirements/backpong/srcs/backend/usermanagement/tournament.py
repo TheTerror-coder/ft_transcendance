@@ -110,18 +110,19 @@
 #     def print_tournament(self, node, level=0, prefix=""):
 #         if node is not None:
 #             display_name = node.username if node.username else "Empty"
-#             display_id = node.id if node.id else None
+#             # display_id = node.id if node.id else None
 #             print(" " * (level * 4) + prefix + display_name) # + " " + str(display_id)
 #             if node.left or node.right:
 #                 self.print_tournament(node.left, level + 1, "/ ")
 #                 self.print_tournament(node.right, level + 1, " \\ ")
 
 
+
 # # @api_view(['GET', 'POST'])
 # # @login_required
 # # @csrf_protect
 # def game_routing(request):
-#     # print("request: ", request.data['username'])
+#     # print(f"request: {request.data['username']} id: {request.data['id']}")
 #     global GLOBAL_TOURNAMENT
 #     username = request.user.username
 #     status = request.data.get('status')
@@ -147,11 +148,11 @@
 #             GLOBAL_TOURNAMENT['fight_list'] = game.get_players_pair()
 #             GLOBAL_TOURNAMENT['game'] = game
 #             GLOBAL_TOURNAMENT['status'] = "IN_GAME"
-#             game.print_tournament(game.root)      
+#             game.print_tournament(game.root)
 #             # print("len: ", len(GLOBAL_TOURNAMENT['players']))
 #         return ({
 #             'status': GLOBAL_TOURNAMENT['status'],
-#             'players': [(p["username"], p["id"]) for p in GLOBAL_TOURNAMENT['players']]
+#             'players': [(p["username"], p["id"]) for p in players]
 #         })
 
 #     elif status == 'IN_GAME' and GLOBAL_TOURNAMENT['status'] == "IN_GAME":
@@ -162,19 +163,17 @@
 #         game = GLOBAL_TOURNAMENT['game']
 #         #metre a jour GLOBAL_TOURNAMENT['players'] en fonction du resultat
 #         for p in GLOBAL_TOURNAMENT['fight_list']:
-#             # Si player_data['username'] est dans fight_list, on met à jour l'ID
-#             if player_data['username'] == p[0].username or player_data['username'] == p[1].username:
-#                 # On trouve l'ID en fonction de l'utilisateur qui correspond
-#                 if player_data['username'] == p[0].username:
-#                     player_data['id'] = p[0].id
-#                     GLOBAL_TOURNAMENT['players'] = [player for player in GLOBAL_TOURNAMENT['players'] if player['username'] != p[1].username]
-#                 elif player_data['username'] == p[1].username:
-#                     player_data['id'] = p[1].id
-#                     GLOBAL_TOURNAMENT['players'] = [player for player in GLOBAL_TOURNAMENT['players'] if player['username'] != p[0].username]
-#         print(f"len_players IN_GAME: {len(GLOBAL_TOURNAMENT['players'])}  len_people: {GLOBAL_TOURNAMENT['people']} ")
+#             print("players_data: ", p[0].username, p[1].username)
+#             if player_data['username'] == p[0].username:
+#                 GLOBAL_TOURNAMENT['players'] = [player for player in GLOBAL_TOURNAMENT['players'] if player['username'] != p[1].username]
+#             elif player_data['username'] == p[1].username:
+#                 GLOBAL_TOURNAMENT['players'] = [player for player in GLOBAL_TOURNAMENT['players'] if player['username'] != p[0].username]
+#         for p in GLOBAL_TOURNAMENT['players']:
+#             print(f"players: {p['username']} id: {p['id']}")
+#         print(f"len_players IN_GAME: {len(GLOBAL_TOURNAMENT['players'])}  len_people: {GLOBAL_TOURNAMENT['people']}")
 #         if len(GLOBAL_TOURNAMENT['players']) == GLOBAL_TOURNAMENT['people'] / 2:
-#             print(f"len_players IN_GAME2: {len(GLOBAL_TOURNAMENT['players'])}  len_people: {GLOBAL_TOURNAMENT['people']} ")
-#             GLOBAL_TOURNAMENT['fight_list'] = game.get_players_pair()
+#             print(f"len_players IN_GAME2: {len(GLOBAL_TOURNAMENT['players'])}  len_people: {GLOBAL_TOURNAMENT['people']}")
+#             GLOBAL_TOURNAMENT['fight_list'] = []
 #             GLOBAL_TOURNAMENT['status'] = "CONTINUE_GAME"
 #             GLOBAL_TOURNAMENT['people'] = GLOBAL_TOURNAMENT['people'] / 2
 #             return ({
@@ -191,7 +190,7 @@
 #                 GLOBAL_TOURNAMENT['status'] = "END_GAME"
 #             else:
 #                 GLOBAL_TOURNAMENT['status'] = "IN_GAME"
-#             GLOBAL_TOURNAMENT['people'] = GLOBAL_TOURNAMENT['people'] / 2
+#             GLOBAL_TOURNAMENT['fight_list'] = game.get_players_pair()
 #             return ({
 #                 'status': GLOBAL_TOURNAMENT['status'],
 #                 'players': [(p["username"], p["id"]) for p in GLOBAL_TOURNAMENT['players']]
@@ -253,24 +252,13 @@
 #             players = response['players']
 #             filtered_players = []
 #             for i in range(0, len(players), 2):
-#                 # Sélectionner aléatoirement un joueur dans la paire
 #                 pair = players[i:i+2]
 #                 if len(pair) == 2:
 #                     filtered_players.append(random.choice(pair))
 
-#             # Mettre à jour la liste des utilisateurs actifs
-#             for p in filtered_players:
-#                 print("usrnaaaame ", p[0])
 #             users = [user for user in users if any(user.data['username'] == player[0] for player in filtered_players)]
-#             for p in users:
-#                 print("usrnaaaametata ", p.data['username'])
 #             for user in users:
 #                 user.data['status'] = 'IN_GAME'
-#                 for player in players:
-#                     if player[0] == user.data['username']:  # Comparez avec le username
-#                         user.data['id'] = player[1]
-#                         break
-#                 # print(f"user: {user.data['username']} id: {user.data['id']} status: {user.data['status']}")
 #                 response = game_routing(user)
             
 #             print("rep3", response)
@@ -282,17 +270,17 @@
 #                 if len(pair) == 2:
 #                     filtered_players.append(random.choice(pair))
 
-#             for p in filtered_players:
-#                 print("usrnaaaame2 ", p[0])
+#             # for p in filtered_players:
+#             #     print("usrnaaaame2 ", p[0])
 #             users = [user for user in users if any(user.data['username'] == player[0] for player in filtered_players)]
 #             for p in users:
 #                 print("usrnaaaame2tata ", p.data['username'])
 #             for user in users:
 #                 user.data['status'] = 'IN_GAME'
-#                 for player in players:
-#                     if player[0] == user.data['username']:
-#                         user.data['id'] = player[1]
-#                         break
+#                 # for player in players:
+#                 #     if player[0] == user.data['username']:
+#                 #         user.data['id'] = player[1]
+#                 #         break
 #                 print(f"user: {user.data['username']} id: {user.data['id']} status: {user.data['status']}")
 #                 response = game_routing(user)
 #             print("rep4", response)
