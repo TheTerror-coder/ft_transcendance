@@ -99,12 +99,11 @@ export async function main(gameCode, socket) {
     
     // Paramètres
     const v0 = 27;  // Vitesse initiale en m/s
-    let angle = -(currentPlayerTeam.getCannonTubeGroupRotation().y * 180 / Math.PI);  // Angle de tir en degrés
+    let angle = -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI);  // Angle de tir en degrés
 
     // Calculer et dessiner la trajectoire
-    const cannonPos = currentPlayerTeam.getCannonTubeGroupPosition();
-    const tubeLength = currentPlayerTeam.getCannonTubeLengthFromPivot();
-    const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId(), tubeLength);
+    const cannonPos = currentPlayerTeam.getCannonTubePosition();
+    const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
     const trajectoryLine = await createTrajectoryLine(trajectory);
     scene.add(trajectoryLine);
     console.log('trajectory : ', trajectory);
@@ -145,16 +144,15 @@ export async function main(gameCode, socket) {
                         //     const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
                         //     trajectoryLine.geometry.setFromPoints(trajectory);
                         // }
-                        const newCannonPos = currentPlayerTeam.getCannonTubeGroupPosition();
-                        let newAngle = -(currentPlayerTeam.getCannonTubeGroupRotation().y * 180 / Math.PI);  // Angle de tir en degrés
+                        const newCannonPos = currentPlayerTeam.getCannonTubePosition();
+                        let newAngle = -(currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI);  // Angle de tir en degrés
                         // Vérifiez si la position du canon a changé
                         if (!cannonPos.equals(newCannonPos) || angle != newAngle) {
-                            console.log('currentPlayerTeam.getCannonTubeGroupRotation().y : ', newAngle);
+                            console.log('currentPlayerTeam.getCannonTubeRotation().y : ', newAngle);
                             console.log('angle : ', angle);
                             cannonPos.copy(newCannonPos);
                             angle = newAngle;
-                            const tubeLength = currentPlayerTeam.getCannonTubeLengthFromPivot();
-                            const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId(), tubeLength);
+                            const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
                             trajectoryLine.geometry.setFromPoints(trajectory);
                         }
                         

@@ -110,13 +110,39 @@ class Team
         return cannon;
     }
 
-    getCannonTubeGroupPosition()
+    getCannonTubePosition()
     {
         const worldTubePos = new THREE.Vector3();
-        const cannonTube = this.getCannonTubeGroup();
+        const cannon = this.getCannon();
+        const cannonTube = this.getCannonTube();
         
         // Obtenir la position de base du canon dans le monde
-        cannonTube.getWorldPosition(worldTubePos);
+        cannon.getWorldPosition(worldTubePos);
+        
+        const box = new THREE.Box3().setFromObject(cannonTube);
+
+        // Longueur du tube du canon
+        const tubeLength = box.max.y - box.min.y;
+        // const tubeHeight = box.max.z - box.min.z;
+
+        // console.log('tubeLength : ', tubeLength);
+        // console.log('tubeHeight : ', tubeHeight);
+        
+        // Obtenir l'angle de rotation sur l'axe Y
+        // const angleY = Math.atan(tubeHeight / tubeLength);
+        const angleY = -cannonTube.rotation.y;
+        
+        // Calculer les nouvelles coordonnées en fonction de la rotation sur Y
+        // const offsetY = Math.cos(angleY) * tubeLength;
+        // const offsetZ = Math.sin(angleY) * tubeLength;
+        
+        // Appliquer les offsets en fonction de l'équipe
+        if (this.TeamId === 1) {
+            worldTubePos.y -= tubeLength - 1.66;
+        } else {
+            worldTubePos.y += tubeLength - 1.66;
+        }
+        // worldTubePos.z += 1.66;
         
         return worldTubePos;
     }
@@ -129,89 +155,13 @@ class Team
         return worldCannonPos;
     }
 
-    getCannonTubeLengthFromPivot() {
-        const cannonTubeGroup = this.getCannonTubeGroup();
-        if (!cannonTubeGroup) return 0;
-
-        const tube = this.getCannonTube();
-        if (!tube) return 0;
-
-        // Mettre à jour la matrice monde
-        cannonTubeGroup.updateMatrixWorld(true);
-        tube.updateMatrixWorld(true);
-
-        // Obtenir la boîte englobante du tube
-        const tubeBoundingBox = new THREE.Box3().setFromObject(tube);
-        const tubeLength = tubeBoundingBox.max.y - tubeBoundingBox.min.y;
-
-        // Créer un vecteur pour le bout du canon
-        const tipPosition = new THREE.Vector3(0, tubeLength * (this.TeamId === 1 ? -0.5 : 0.5), 0);
-        tipPosition.applyMatrix4(tube.matrixWorld);
-
-        return tipPosition;
-    }
-
-    // Nouvelle méthode pour obtenir la position exacte du bout du canon
-    getCannonTipPosition() {
-        const cannonTubeGroup = this.getCannonTubeGroup();
-        if (!cannonTubeGroup) return null;
-
-        // Mettre à jour la matrice monde
-        cannonTubeGroup.updateMatrixWorld(true);
-        const tube = this.getCannonTube();
-        if (!tube) return null;
-
-        // Calculer la position du bout du canon
-        const tubeLength = this.getCannonTubeLengthFromPivot();
-        const directionY = this.TeamId === 1 ? -1 : 1;
-        const tipOffset = new THREE.Vector3(0, tubeLength * directionY, 0);
-        tipOffset.applyMatrix4(tube.matrixWorld);
-
-        return tipOffset;
-    }
-
-    createTubeLengthLine() {
-        const cannonTubeGroup = this.getCannonTubeGroup();
-        if (!cannonTubeGroup) {
-            console.error('Cannon tube group not found for team', this.TeamId);
-            return null;
-        }
-    
-        // Position du point de pivot
-        const pivotPosition = new THREE.Vector3();
-        cannonTubeGroup.getWorldPosition(pivotPosition);
-    
-        // Créer le point d'arrivée en utilisant la rotation du groupe et la longueur calculée
-        const tubeLength = this.getCannonTubeLengthFromPivot();
-        const rotation = cannonTubeGroup.rotation;
-    
-        // Calculer le point d'arrivée
-        const endPoint = new THREE.Vector3();
-        endPoint.copy(pivotPosition);
-        
-        // Ajuster la position en fonction de la rotation et de la longueur
-        const directionY = this.TeamId === 1 ? -1 : 1;
-        endPoint.y += tubeLength * Math.cos(rotation.z) * directionY;
-        endPoint.z += tubeLength * Math.sin(rotation.z);
-    
-        // Créer la ligne
-        const points = [pivotPosition, endPoint];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({ 
-            color: 0x00ff00,
-            linewidth: 2
-        });
-    
-        return new THREE.Line(geometry, material);
-    }
-
-    getCannonTubeGroupRotation()
+    getCannonTubeRotation()
     {
-        const cannonTube = this.getCannonTubeGroup();
+        // const cannonTube = this.getCannonTube();
         // const box = new THREE.Box3().setFromObject(cannonTube);
         
         // // Calculer les côtés du triangle rectangle
-        // const adjacent = this.getCannonTubeLengthFromPivot();  // Distance verticale (y)
+        // const adjacent = (box.max.y - box.min.y) / 2;  // Distance verticale (y)
         // const oppose = (box.max.z - box.min.z) / 2;    // Distance horizontale (z)
         
         // // Utiliser le théorème de Thalès pour calculer l'angle
@@ -221,17 +171,12 @@ class Team
         // console.log('angleY : ', angleY * 180 / Math.PI);
         
         // return angleY;
-        return (cannonTube.rotation);
-    }
-
-    getCannonTubeGroup()
-    {
-        return (this.getCannon().getObjectByName(`cannon${this.TeamId}_tube_group`));
+        return (this.getCannonTube().rotation);
     }
 
     getCannonTube()
     {
-        return (this.getCannonTubeGroup().getObjectByName(`cannonTubeTeam${this.TeamId}`));
+        return (this.getCannon().getObjectByName(`cannon${this.TeamId}_tube_group`));
     }
 
     getNbPlayer()

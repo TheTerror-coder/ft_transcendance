@@ -33,7 +33,7 @@ export function updateAndEmitCannonRotation(gameCode, socket, keys, currentPlaye
         let directionRotation = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
         let TeamID = currentPlayerTeam.getTeamId();
         let cannon = currentPlayerTeam.getCannon();
-        let cannonTube = currentPlayerTeam.getCannonTubeGroup();
+        let cannonTube = currentPlayerTeam.getCannonTube();
         let boatGroup = currentPlayerTeam.getBoatGroup();
 
         if (cannon && cannonTube) {
