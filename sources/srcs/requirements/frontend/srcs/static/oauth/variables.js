@@ -237,6 +237,7 @@ const ELEMENTs = Object.freeze({
 	gunnerRoleDisplay : () => document.getElementById("gunnerRoleDisplay"),
 	KurohigeTeamDisplay : () => document.getElementById("KurohigeTeamDisplay"),
 	ShirohigeTeamDisplay : () => document.getElementById("ShirohigeTeamDisplay"),
+	ShirohigeTeam : () => document.getElementById("ShirohigeTeam"),
 
 
 

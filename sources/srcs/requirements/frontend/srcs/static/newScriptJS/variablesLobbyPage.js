@@ -73,15 +73,20 @@ const lobbyPageDisplayVAR =
                 <div>
                     <button id="crossButton"><img src="../photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
                 </div>
-                <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
+                <div class="lobbyCode">
+                    <p class="lobbyCodeText">LOBBY: </p>
+                    <p id="lobbyCode" class="lobbyCodeText"></p>
+                </div>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerOne" id="lobbyDisplayRapidPlayPlayerOne">
-                    <button class="wantedProfile">
-                        <img src="../photos/picturePng/homePage/luffy_avatar.png" alt="profile picture" class="profilePicture">
-                        <p id="usernameDisplay">USERNAME</p>
-                        <span>10.000</span>
-                    </button>
+                    <div class="wantedFriendHomePageDisplay">
+                        <button class="wantedProfile" id="wantedProfile">
+                            <img id="pictureOfWanted" alt="profile picture" class="profilePicture">
+                            <p id="usernameOfWanted"></p>
+                            <span id="primeAmount"></span>
+                        </button>
+                    </div>
                 </div>
                 <div class="versus" id="versus">
                     <img src="../photos/picturePng/lobbyPage/versusLogo.png" alt="versus">

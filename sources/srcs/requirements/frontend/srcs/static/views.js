@@ -27,7 +27,6 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
-	console.log("CHELOU???");
 	ELEMENTs.logoutButton().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;

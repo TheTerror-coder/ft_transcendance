@@ -61,12 +61,11 @@ async function joinLobbyPlay()
         console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
-            console.log("nbPER TEAM PURAPINNN", nbPerTeam);
             if (nbPerTeam == 2)
                 joinTwoPlayersDisplay();
             else
-                console.log("on est al mon frere");
-        }, 500);
+                joinLobbyOnevsOne(gameCode);
+        }, 400);
     };
 }
 
@@ -98,7 +97,6 @@ function createLobbyPlay()
     handleLocation();
     setTimeout(async() => {
         setLanguage(currentLanguage);
-        console.log("JE SUIS DANS CREATE LOBBY");
         const socket = await initializeSocket();
         initializeGlobalSocket(socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
@@ -124,9 +122,7 @@ function navigationPlayMenu()
     refreshHomePage();
     setTimeout(() => {
         if (nav == 1)
-        {
             ELEMENTs.playButtonImg().click();
-        }
         if (nav == 2)
         {
             ELEMENTs.playButtonImg().click();

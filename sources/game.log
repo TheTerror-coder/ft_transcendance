@@ -1,51 +1,72 @@
-2024-12-10 17:00:36 - INFO - **********Server started***********
-2024-12-10 17:00:36 - INFO - HTTP/2 support not enabled (install the http2 and tls Twisted extras)
-2024-12-10 17:00:36 - INFO - Configuring endpoint tcp:port=8001:interface=0.0.0.0
-2024-12-10 17:00:36 - INFO - Listening on TCP address 0.0.0.0:8001
-2024-12-10 17:00:39 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:53410]
-2024-12-10 17:00:45 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:33756]
-2024-12-10 17:00:45 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:33756]
-2024-12-10 17:00:45 - INFO - Client connected: WTMpsRCpcc6b8kx6AAAB
-2024-12-10 17:00:46 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:33772]
-2024-12-10 17:00:46 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:33772]
-2024-12-10 17:00:46 - INFO - Client connected: 47pTldqZdl9TxpKcAAAD
-2024-12-10 17:00:49 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:51076]
-2024-12-10 17:00:59 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:35920]
-2024-12-10 17:01:09 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:50784]
-2024-12-10 17:01:19 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:53604]
-2024-12-10 17:01:19 - INFO - WebSocket DISCONNECT /socket.io/ [172.18.0.11:33772]
-2024-12-10 17:01:19 - INFO - Client disconnected: 47pTldqZdl9TxpKcAAAD
-2024-12-10 17:01:21 - INFO - WebSocket DISCONNECT /socket.io/ [172.18.0.11:33756]
-2024-12-10 17:01:21 - INFO - Client disconnected: WTMpsRCpcc6b8kx6AAAB
-2024-12-10 17:01:29 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:54414]
-2024-12-10 17:01:39 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:40128]
-2024-12-10 17:01:49 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:51688]
-2024-12-10 17:01:59 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:48440]
-2024-12-10 17:02:09 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:57686]
-2024-12-10 17:02:19 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:42310]
-2024-12-10 17:02:29 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:40592]
-2024-12-10 17:02:39 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:36414]
-2024-12-10 17:02:49 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:43162]
-2024-12-10 17:02:50 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:36028]
-2024-12-10 17:02:50 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:36028]
-2024-12-10 17:02:50 - INFO - Client connected: CpZ_DFcIDRoDdCrSAAAF
-2024-12-10 17:02:51 - INFO - createGame CpZ_DFcIDRoDdCrSAAAF, {'numPlayersPerTeam': 2}
-2024-12-10 17:02:51 - INFO - random_direction_x: -0.11232666365080257 random_direction_y: -0.9936713343118435 length: 0.5121909427397179
-2024-12-10 17:02:51 - INFO - setNbPlayerPerTeam
-2024-12-10 17:02:51 - INFO - size: 1
-2024-12-10 17:02:51 - INFO - size: 2
-2024-12-10 17:02:52 - INFO - confirmChoices CpZ_DFcIDRoDdCrSAAAF, {'teamID': 2, 'role': 'Cannoneer', 'userName': 'USER NAME HERE'}
-2024-12-10 17:02:52 - INFO - Player CpZ_DFcIDRoDdCrSAAAF, USER NAME HERE has chosen 2 as their team and Cannoneer as their role.
-2024-12-10 17:02:52 - INFO - sendPlayerLists
-2024-12-10 17:02:58 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:36042]
-2024-12-10 17:02:58 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:36042]
-2024-12-10 17:02:58 - INFO - Client connected: OoWyQzgHxVrQjayIAAAH
-2024-12-10 17:02:59 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:53920]
-2024-12-10 17:03:09 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:37902]
-2024-12-10 17:03:19 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:33882]
-2024-12-10 17:03:26 - INFO - Player OoWyQzgHxVrQjayIAAAH joined game 7049
-2024-12-10 17:03:26 - INFO - game.getNbPlayerPerTeam() dans joinGame dans index.py 2
-2024-12-10 17:03:29 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:40026]
-2024-12-10 17:03:39 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:58130]
-2024-12-10 17:03:49 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:55288]
-2024-12-10 17:03:59 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:39754]
+2024-12-11 14:49:48 - INFO - **********Server started***********
+2024-12-11 14:49:48 - INFO - HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2024-12-11 14:49:48 - INFO - Configuring endpoint tcp:port=8001:interface=0.0.0.0
+2024-12-11 14:49:48 - INFO - Listening on TCP address 0.0.0.0:8001
+2024-12-11 14:49:51 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:34268]
+2024-12-11 14:50:01 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:38134]
+2024-12-11 14:50:11 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:39942]
+2024-12-11 14:50:21 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:39740]
+2024-12-11 14:50:31 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:53740]
+2024-12-11 14:50:41 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:42724]
+2024-12-11 14:50:51 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:51662]
+2024-12-11 14:51:01 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:50898]
+2024-12-11 14:51:11 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:57020]
+2024-12-11 14:51:19 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:45920]
+2024-12-11 14:51:19 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:45920]
+2024-12-11 14:51:19 - INFO - Client connected: DaWadpvn-M6m5y9aAAAB
+2024-12-11 14:51:21 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:52668]
+2024-12-11 14:51:25 - INFO - createGame DaWadpvn-M6m5y9aAAAB, {'numPlayersPerTeam': 1}
+2024-12-11 14:51:25 - INFO - random_direction_x: 0.9812535207387452 random_direction_y: 0.1927213741073286 length: 0.4960769659222588
+2024-12-11 14:51:25 - INFO - setNbPlayerPerTeam
+2024-12-11 14:51:25 - INFO - size: 1
+2024-12-11 14:51:25 - INFO - size: 2
+2024-12-11 14:51:31 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:59022]
+2024-12-11 14:51:41 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:44432]
+2024-12-11 14:51:51 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:47326]
+2024-12-11 14:52:01 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:56288]
+2024-12-11 14:52:11 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:41420]
+2024-12-11 14:52:21 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:55108]
+2024-12-11 14:52:26 - INFO - WebSocket HANDSHAKING /socket.io/ [172.18.0.11:58058]
+2024-12-11 14:52:26 - INFO - WebSocket CONNECT /socket.io/ [172.18.0.11:58058]
+2024-12-11 14:52:26 - INFO - Client connected: uGm9_WC0WAe4aePwAAAD
+2024-12-11 14:52:31 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:49526]
+2024-12-11 14:52:33 - INFO - Player uGm9_WC0WAe4aePwAAAD joined game 2821
+2024-12-11 14:52:33 - INFO - game.getNbPlayerPerTeam() dans joinGame dans index.py 1
+2024-12-11 14:52:33 - INFO - Player uGm9_WC0WAe4aePwAAAD, dbaule has chosen 2 as their team and captain as their role.
+2024-12-11 14:52:33 - INFO - sendPlayerLists
+2024-12-11 14:52:41 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:49670]
+2024-12-11 14:52:51 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:46898]
+2024-12-11 14:53:01 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:42040]
+2024-12-11 14:53:11 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:53692]
+2024-12-11 14:53:21 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:47152]
+2024-12-11 14:53:31 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:38372]
+2024-12-11 14:53:41 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:54864]
+2024-12-11 14:53:51 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:45752]
+2024-12-11 14:54:02 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:45452]
+2024-12-11 14:54:12 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:47756]
+2024-12-11 14:54:22 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:44074]
+2024-12-11 14:54:32 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:56256]
+2024-12-11 14:54:42 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:38360]
+2024-12-11 14:54:52 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:42296]
+2024-12-11 14:55:02 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:40554]
+2024-12-11 14:55:12 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:52142]
+2024-12-11 14:55:22 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:41682]
+2024-12-11 14:55:32 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:34618]
+2024-12-11 14:55:42 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:49216]
+2024-12-11 14:55:52 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:48904]
+2024-12-11 14:56:02 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:59500]
+2024-12-11 14:56:12 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:46656]
+2024-12-11 14:56:22 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:35902]
+2024-12-11 14:56:32 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:55154]
+2024-12-11 14:56:42 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:48490]
+2024-12-11 14:56:52 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:44686]
+2024-12-11 14:57:02 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:52252]
+2024-12-11 14:57:12 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:56244]
+2024-12-11 14:57:22 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:48008]
+2024-12-11 14:57:32 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:34704]
+2024-12-11 14:57:42 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:39902]
+2024-12-11 14:57:52 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:55776]
+2024-12-11 14:58:02 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:43670]
+2024-12-11 14:58:12 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:42422]
+2024-12-11 14:58:23 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:32956]
+2024-12-11 14:58:33 - INFO - HTTP GET /healthcheck/ 200 [0.00, 127.0.0.1:57090]
