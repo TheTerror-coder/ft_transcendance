@@ -3,21 +3,22 @@
 async function initializeSocket()
 {
     console.log("JE SUIS DANS INITIALIZE SOCKET");
-    const response = await fetch('/static/gameserver/config.json');
-    console.log(response);
-    if (!response.ok) {
-        console.error('Erreur réseau : ' + response.statusText);
-        ip = 'localhost';
-    } else {
-        const data = await response.json();
-        ip = data.HOST_IP;
-    }
-    console.log("IP: ", ip);
+    // const response = await fetch('/static/gameserver/config.json');
+    // console.log(response);
+    // if (!response.ok) {
+    //     console.error('Erreur réseau : ' + response.statusText);
+    //     ip = 'localhost';
+    // } else {
+    //     const data = await response.json();
+    //     ip = data.HOST_IP;
+    // }
+    // console.log("IP: ", ip);
 
-    ip = 'localhost';
+    // ip = 'localhost';
 
     // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
-    socket = io('wss://' + ip + ':1443', {
+    // socket = io('wss://' + ip + ':1443', {
+	socket = io(`wss://${window.location.host}`, {
         // path: '/socket.io',
         transports: ['websocket'],
         // reconnection: true,
@@ -50,11 +51,11 @@ async function initializeSocket()
     });
 
     socket.on('connect', () => {
-        console.log('Connecté au serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
+        console.log('Connecté au serveur pong avec l\'ip: ' + window.location.hostname + ` sur le port: ${window.location.port} avec la socket: ` + socket.id + ' connected: ' + socket.connected);
     });
 
     socket.on('disconnect', () => {
-        console.log('Déconnecté du serveur pong avec l\'ip: ' + ip + ' sur le port: 3000 avec la socket: ' + socket.id + ' connected: ' + socket.connected);
+        console.log('Déconnecté du serveur pong avec l\'ip: ' + window.location.hostname + ` sur le port: ${window.location.port} avec la socket: ` + socket.id + ' connected: ' + socket.connected);
     });
 
     socket.on('error', (error) => {

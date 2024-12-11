@@ -33,10 +33,6 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 	}
-	else if (target.id === ELEMENTs.logoutButton()?.id){
-		event.preventDefault();
-		await logout();
-	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
 		event.preventDefault();
 		await verifyEmailJob();
