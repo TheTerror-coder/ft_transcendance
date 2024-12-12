@@ -86,15 +86,16 @@ async function displayWaitingListFriend(friends) {
         const listItem = document.createElement('li');
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
         const nameSpan = document.createElement('span');
-        // if (currentLanguage === 'en')
-        //     nameSpan.textContent = "No Invitations Waiting";
-        // else if (currentLanguage === 'fr')
-        //     nameSpan.textContent = "Aucune Invitations en Attente";
-        // else if (currentLanguage === 'es')
-        //     nameSpan.textContent = "No hay invitaciones en espera";
+        if (currentLanguage === 'en')
+            nameSpan.textContent = "No Invitations Waiting";
+        else if (currentLanguage === 'fr')
+            nameSpan.textContent = "Aucune Invitations en Attente";
+        else if (currentLanguage === 'es')
+            nameSpan.textContent = "No hay invitaciones en espera";
         nameSpan.dataset.translate = "NoInvitationsWaiting";
         listItem.appendChild(nameSpan);
         dropdownMenu.appendChild(listItem);
+        setlanguage();
     }
     else
     {

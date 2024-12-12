@@ -96,8 +96,11 @@ const eventManager = async (event) => {
 	{
 		if (globalSocket !== null)
 		{
+			console.log("j'ai cliquer sur lq croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
 			globalSocket.disconnect();
+			console.log("apres le disconnect global socket = ", globalSocket);
 			globalSocket = null;
+			console.log("mis a null de global socket = ", globalSocket);
 		}
 		event.preventDefault();
 		refreshHomePage();

@@ -245,6 +245,11 @@ const ELEMENTs = Object.freeze({
 
 
 	// LOBBY
+	lobbyDisplayRapidPlayPlayerOne : () => document.getElementById("lobbyDisplayRapidPlayPlayerOne"),
+	lobbyDisplayRapidPlayPlayerTwo : () => document.getElementById("lobbyDisplayRapidPlayPlayerTwo"),
+	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
+	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
+
 });
 
 let N_ALERT = 0;
