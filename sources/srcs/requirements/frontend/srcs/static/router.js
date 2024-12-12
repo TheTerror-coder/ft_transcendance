@@ -31,7 +31,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
 		event.preventDefault();
@@ -229,7 +229,7 @@ urlRoutes[PATHs.VIEWS.PROFILE] = {
 // };
 
 const handleLocation = async () => {
-	console.log('popstate');
+	console.log('*********DEBUG********* handleLocation()');
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
 	let _storage = {};
@@ -256,7 +256,7 @@ const handleLocation = async () => {
 	}
 	if (!(await isUserAuthenticated(_storage))){
 		// if (!await doPendingFlows({}, _storage.flows))
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
@@ -288,7 +288,7 @@ window.addEventListener('load', async () => {
         else if (response.find(data => data === 'invalid-session')) {
             console.log('invalid-session');
             window.sessionStorage.clear();
-            window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+            replace_location(URLs.VIEWS.LOGIN_VIEW);
         }
     }
 });
