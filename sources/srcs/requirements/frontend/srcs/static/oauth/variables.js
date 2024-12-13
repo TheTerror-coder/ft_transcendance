@@ -115,8 +115,16 @@ const AuthenticatorType = Object.freeze({
 })
 
 const ELEMENTs = Object.freeze({
+
+	logoutButton : () => document.getElementById("logoutButton"),
+	franceFlag : () => document.getElementById("franceFlag"),
+	spainFlag : () => document.getElementById("spainFlag"),
+	englandFlag : () => document.getElementById("englandFlag"),
+	englandFlagImg : () => document.getElementById("englandFlagImg"),
+	flag : () => document.getElementById("flag"),
+
+
 	mainPage :  () => document.getElementById("mainPage"),
-	exitLuffy :  () => document.getElementById("exitLuffy"),
 	
 	loginPageButton :  () => document.getElementById("loginPageButton"),
 	statusDiv :  () => document.getElementById("status"),
@@ -125,7 +133,6 @@ const ELEMENTs = Object.freeze({
 	lastnameDiv :  () => document.getElementById("lastname"),
 	emailDiv :  () => document.getElementById("email"),
 	profile_image :  () => document.getElementById("profile-image"),
-	logoutButton :  () => document.getElementById("logout"),
 	refresh_session_button :  () => document.getElementById("refresh-session-button"),
 	
 	verify_email_button :  () => document.getElementById("verify-email-button"),
@@ -176,15 +183,12 @@ const ELEMENTs = Object.freeze({
 	// homePage
 	playButtonImg : () => document.getElementById("playButtonImg"),
 	wantedProfile : () => document.getElementById("wantedProfile"),
-
-	wantedProfile : () => document.getElementById("wantedProfile"),
         
 	playDisplay : () => document.getElementById("playDisplay"),
 	
 	
 	centerPlayDisplay : () => document.getElementById("centerPlayDisplay"),
 	playButton : () => document.getElementById("playButton"),
-	playButtonImg : () => document.getElementById("playButtonImg"),
 	firstElement : () => document.getElementById("firstElement"),
 	secondElement : () => document.getElementById("secondElement"),
 	thirdElement : () => document.getElementById("thirdElement"),
@@ -212,6 +216,7 @@ const ELEMENTs = Object.freeze({
 	historicMatch : () => document.getElementById("historicMatch"),
 	switch2FA : () => document.getElementById("switch2FA"),
 	
+	profilePage : () => document.getElementById("profilePage"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),

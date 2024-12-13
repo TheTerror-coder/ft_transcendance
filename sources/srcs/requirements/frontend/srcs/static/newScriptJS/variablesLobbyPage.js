@@ -98,7 +98,7 @@ const lobbyPageDisplayVAR =
                 </div>
             </div>
             <div class="fireBackground" id="fireBackground">
-                    <button id="PlayButtonInLobby" class="PlayButtonInLobby">PLAY</button>
+                    <button data-translate="Play" id="PlayButtonInLobby" class="PlayButtonInLobby">PLAY</button>
             </div>
         </div>
     </div>

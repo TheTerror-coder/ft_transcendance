@@ -1,20 +1,16 @@
-#!/bin/sh
-
-sh -c $PYTHON_HOME/container-init.d/HOST_IP.sh
+#!/bin/sh -e
 
 # tail -f /dev/null
-python manage.py makemigrations backgame
-python manage.py makemigrations
-python manage.py migrate
+python manage.py makemigrations backgame --no-input
+python manage.py makemigrations --no-input
+python manage.py migrate --no-input
 
 if	! test -e $HEALTHFLAG_FILE
 then
 
-	echo 'yes' | python manage.py collectstatic
+	echo 'yes' | python manage.py collectstatic --no-input
 
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 fi
-
-python3 /usr/share/gameserver/apps/backgame/index.py &
 
 $CONTAINER_ENTRYPOINT

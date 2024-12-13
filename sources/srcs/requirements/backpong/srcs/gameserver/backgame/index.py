@@ -3,10 +3,9 @@ import asyncio
 import os
 import random
 import math
-from aiohttp import web
-from Player import Player
-from Team import Team
-from Channel import Channel
+from .Player import Player
+from .Team import Team
+from .Channel import Channel
 import logging
 import sys
 
@@ -16,56 +15,43 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    # stream=sys.stdout
+    stream=sys.stderr
 )
 logger = logging.getLogger(__name__)
 
 # Au début du fichier, après les imports
-host_ip = os.getenv("HOST_IP", "localhost")
+# host_ip = os.getenv("HOST_IP", "localhost")
+
+# host_ip = 'localhost'
 
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
-    cors_allowed_origins=[
-        f'http://{host_ip}:8888',
-        f'http://{host_ip}:8001',
-        f'http://{host_ip}:3000',
-        'https://admin.socket.io',
-        'http://localhost:8888',
-        'http://localhost:8001',
-        'http://localhost:3000'
-    ],
-    async_mode='aiohttp',
+    # cors_allowed_origins=[
+    #     f'wss://{host_ip}:1443',
+    #     f'https://{host_ip}:1443',
+    #     'wss://localhost:1443',
+    #     'https://localhost:1443',
+    #     'wss://localhost:8001',
+    #     'https://localhost:8001'
+    # ],
+    cors_allowed_origins='*',
+    async_mode='asgi',
     # logger=True,
     # engineio_logger=True,
-    # ping_timeout=60,
-    # ping_interval=25,
-    # max_http_buffer_size=1e8,
+    # async_handlers=True,
+    ping_timeout=60000,
+    ping_interval=25000,
+    transports=['websocket'],
     # allow_upgrades=True,
-    # http_compression=True,
-    transports=['websocket', 'polling']
+    # engineio_path='/socket.io'
 )
 
-sio.instrument(auth={
-    'username': 'admin',
-    'password': 'admin',
-})
+# sio.instrument(auth={
+#     'username': 'admin',
+#     'password': 'admin',
+# })
 
-# Création de l'application aiohttp
-app = web.Application()
-sio.attach(app)
-
-logger.info("Server started")
-
-# Routes HTTP
-async def index(request):
-    return web.Response(text="Hello", content_type='text/html')
-
-async def health_check(request):
-    return web.Response(text="OK", content_type='text/plain')
-
-app.router.add_get('/', index)
-app.router.add_get('/start', index)
-app.router.add_get('/health', health_check)
+logger.info("**********Server started***********")
 
 ChannelList = {}
 
@@ -93,6 +79,7 @@ async def connect(sid, environ):
 
     @sio.event
     async def createGame(sid, data):
+        logger.info(f"createGame {sid}, {data}")
         numPlayersPerTeam = data.get('numPlayersPerTeam')
         gameCode = generateGameCode()
         while gameCode in ChannelList:
@@ -113,6 +100,7 @@ async def connect(sid, environ):
         # Définir un gestionnaire d'événements imbriqué
         @sio.event
         async def confirmChoices(sid, choices):
+            logger.info(f"confirmChoices {sid}, {choices}")
             logger.info(f"Player {sid}, {choices['userName']} has chosen {choices['teamID']} as their team and {choices['role']} as their role.")
             team = game.getTeam(int(choices['teamID']))
             if team:
@@ -137,7 +125,8 @@ async def connect(sid, environ):
                 return
                 
             await sio.enter_room(sid, gameCode)
-            await sio.emit('gameJoined', {'gameCode': gameCode}, room=sid)
+            logger.info(f"game.getNbPlayerPerTeam() dans joinGame dans index.py {game.getNbPlayerPerTeam()}")
+            await sio.emit('gameJoined', {'gameCode': gameCode, 'nbPlayerPerTeam': game.getNbPlayerPerTeam() }, room=sid)
             await updateGameOptions(game, gameCode)
 
             # Définir un gestionnaire d'événements imbriqué pour confirmChoices
@@ -293,25 +282,20 @@ async def startGame(gameCode, game):
     
     logger.info(f"Partie {gameCode} terminée")
 
-if __name__ == '__main__':
-    # Attendre un peu que l'adresse IP soit disponible
-    import time
-    time.sleep(2)  # Attendre 2 secondes
+# if __name__ == '__main__':
+#     try:
+#         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+#         ssl_context.load_cert_chain(
+#             certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt",
+#             keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key"
+#         )
+#         ssl_context.check_hostname = False
+#         ssl_context.verify_mode = ssl.CERT_NONE
+#     except Exception as e:
+#         logger.error(f"Erreur lors de la configuration SSL: {e}")
+#         ssl_context = None
 
-    try:
-        web.run_app(app, 
-                    host="0.0.0.0",  # Écouter sur toutes les interfaces d'abord
-                    port=3000)
-    except OSError as e:
-        print(f"Première tentative échouée: {e}")
-        # Deuxième tentative avec l'IP spécifique
-        try:
-            web.run_app(app, 
-                        host=host_ip,
-                        port=3000)
-        except OSError as e:
-            print(f"Deuxième tentative échouée: {e}")
-            # Dernière tentative sur localhost
-            web.run_app(app, 
-                        host="localhost",
-                        port=3000)
+    # web.run_app(app, 
+    #             host=host_ip,
+    #             port=8002,
+    #             ssl_context=ssl_context)

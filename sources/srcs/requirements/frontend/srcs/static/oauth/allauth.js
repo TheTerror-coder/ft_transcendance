@@ -265,5 +265,5 @@ async function logout() {
 	window.sessionStorage.clear();
 	window.localStorage.removeItem('jwt_access_token')
 	window.localStorage.removeItem('jwt_refresh_token')
-	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+	replace_location(URLs.VIEWS.LOGIN_VIEW);
 }

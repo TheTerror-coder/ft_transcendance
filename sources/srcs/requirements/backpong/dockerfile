@@ -33,7 +33,6 @@ chown ${IMAGE_UID}:${IMAGE_GID} ${IMAGE_HOME}/secrets
 pip install -r ./requirements.txt
 EOF
 
-COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=770 ./tools/HOST_IP.sh ${IMAGE_HOME}/container-init.d
 COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=700 ./${SCRIPT_SH} ${IMAGE_HOME}/container-init.d
 COPY --chown=${IMAGE_UID}:${IMAGE_GID} --chmod=770 ./${IMAGE_SRCS}/ ${IMAGE_HOME}/apps
 COPY --chown=${IMAGE_UID}:${SHARED_GID} --chmod=770 ./media/ ${IMAGE_MEDIA_DIR}/
