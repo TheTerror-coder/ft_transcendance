@@ -116,6 +116,8 @@ const AuthenticatorType = Object.freeze({
 
 const ELEMENTs = Object.freeze({
 
+	doorJamp : () => document.getElementById("doorJamp"),
+	logoutDoor : () => document.getElementById("logoutDoor"),
 	logoutButton : () => document.getElementById("logoutButton"),
 	franceFlag : () => document.getElementById("franceFlag"),
 	spainFlag : () => document.getElementById("spainFlag"),

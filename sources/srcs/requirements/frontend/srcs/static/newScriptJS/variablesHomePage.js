@@ -6,47 +6,45 @@ const joinTwoPlayersVAR =
 `<div class="crossPlayMenu" id="cross">
     <button id="returnButtonPlayMenu"><img src="/static/photos/picturePng/homePage/miniCross.png" alt="quitButton"></button>
 </div>
-<div style="display:flex; justify-content: center; align-item: center;">
-    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
-        <div style="align-self: center;">
-            <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
-        </div>
-        <div>
-            <div style="display:flex; justify-content: space-between; height:246px;">
-                <div style="display:flex; flex-direction: column;" id="KurohigeTeam">
-                    <p class="teamChooseFont"> Black Beard </p>
-                    <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
-                </div>
-                <div class="container">
-                    <input type="checkbox" name="chooseTeamSwitch" id="chooseTeamSwitch" />
-                    <label for="chooseTeamSwitch" class="label"> </label>
-                </div>
-                <div style="display:flex; flex-direction: column;" id="ShirohigeTeam">
-                    <p class="teamChooseFont"> White Beard </p>
-                    <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
-                </div>
+<div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column;">
+    <div style="align-self: center;">
+        <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
+    </div>
+    <div>
+        <div style="display:flex; justify-content: space-between;">
+            <div style="display:flex; flex-direction: column;" id="KurohigeTeam">
+                <p class="teamChooseFontHomePage" style="font-size: 25px;"> Black Beard </p>
+                <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay" style="height: 130px;">
+            </div>
+            <div class="container">
+                <input type="checkbox" name="chooseTeamSwitch" id="chooseTeamSwitch" />
+                <label for="chooseTeamSwitch" class="labelJoin"> </label>
+            </div>
+            <div style="display:flex; flex-direction: column;" id="ShirohigeTeam">
+                <p class="teamChooseFontHomePage" style="font-size: 25px;"> White Beard </p>
+                <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay" style="height: 130px;">
             </div>
         </div>
     </div>
-    <div id="chooseRoleDisplay" style="display: flex; flex-direction: column;margin-left: 140px; margin-right: 140px;">
-        <div style="align-self: center;">
-            <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;"> Choose Your Role ! </p>
+</div>
+<div id="chooseRoleDisplay" style="display: flex; flex-direction: column;">
+    <div style="align-self: center;">
+        <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;"> Choose Your Role ! </p>
+    </div>
+    <div style="display:flex; justify-content: space-between; height: 140px;">
+        <div id="helmsmanRoleDisplay">
+            <p class="teamChooseFontHomePage" style="font-size: 25px; margin-top: 10px;"> Helmsman </p>
         </div>
-        <div style="display:flex; justify-content: space-between; height:246px;">
-            <div id="helmsmanRoleDisplay">
-                <p class="teamChooseFont" style="margin-left: 12px;"> Helmsman </p>
+            <div class="container">
+                <input type="checkbox" name="chooseRoleSwitch" id="chooseRoleSwitch" />
+                <label for="chooseRoleSwitch" class="labelJoin"> </label>
             </div>
-                <div class="container">
-                    <input type="checkbox" name="chooseRoleSwitch" id="chooseRoleSwitch" />
-                    <label for="chooseRoleSwitch" class="label"> </label>
-                </div>
-            <div id="gunnerRoleDisplay">
-                <p class="teamChooseFont" style="display:flex; justify-content: center;"> Gunner </p>
-            </div>
+        <div id="gunnerRoleDisplay">
+            <p class="teamChooseFontHomePage" style="display:flex; justify-content: center; font-size: 25px;"> Gunner </p>
         </div>
     </div>
-        <button data-translate="joinButton" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
-    </div>
+</div>
+    <button data-translate="joinButton" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
 </div>`;
 
 

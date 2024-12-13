@@ -27,7 +27,7 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
-	ELEMENTs.logoutButton().style.display = 'flex';
+	ELEMENTs.doorJamp().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
@@ -67,7 +67,7 @@ async function	loginView(title, description, data) {
 
 async function	profileView(title, description, data)
 {
-	ELEMENTs.logoutButton().style.display = 'flex';
+	ELEMENTs.doorJamp().style.display = 'flex';
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	await updateMfaBoxStatus();
@@ -89,7 +89,7 @@ async function	profileView(title, description, data)
 
 async function	createLobbyView(title, description, data) 
 {
-	ELEMENTs.logoutButton().style.display = 'flex';
+	ELEMENTs.doorJamp().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = CreateJoinLobbyDisplayVAR;
 

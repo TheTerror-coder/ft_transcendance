@@ -64,7 +64,7 @@ async function joinLobbyPlay()
             if (nbPerTeam == 2)
                 joinTwoPlayersDisplay(gameCode);
             else
-                joinLobbyOnevsOne(gameCode);
+                joinLobbyGame(gameCode, 2, "captain");
         }, 400);
     };
 }
@@ -91,7 +91,12 @@ function joinTwoPlayersDisplay(gameCode)
 
     setTimeout(() => {
         const joinButton = document.getElementById("joinButton");
+        const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+        returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
         joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
+        setLanguage(currentLanguage);
     }, 40);
 }
 
@@ -100,14 +105,9 @@ function initializeLobbyTwoVsTwo(gameCode)
     const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
     const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
 
-    console.log("QUAND JE JOIN TA GRAND MERE teamChosen: ", teamChosen);
-    console.log("QUAND JE JOIN TA GRAND MERE roleChosen: ", roleChosen);
-
     const teamID = teamChosen ? 2 : 1;
     const role = roleChosen ? "Cannoneer" : "captain";
-    console.log("QUAND JE JOIN TA GRAND MERE teamID: ", teamID);
-    console.log("QUAND JE JOIN TA GRAND MERE role: ", role);
-    joinLobbyTwovsTwo(gameCode, teamID, role);
+    joinLobbyGame(gameCode, teamID, role);
 }
 
 function createLobbyPlay()

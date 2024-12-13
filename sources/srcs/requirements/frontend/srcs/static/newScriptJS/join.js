@@ -1,19 +1,19 @@
-async function joinLobbyOnevsOne(gameCode)
-{
-    console.log("globalSocket in join lobby OnevsOne", globalSocket);
-    console.log("lobby one vs one");
+// async function joinLobbyOnevsOne(gameCode)
+// {
+//     console.log("globalSocket in join lobby OnevsOne", globalSocket);
+//     console.log("lobby one vs one");
 
-    ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
+//     ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
 
-    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    console.log("user avec await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER): ", user);
-    globalSocket.emit('confirmChoices', { teamID: 2, role: "captain", userName: user.username });
-    document.getElementById("lobbyCode").innerHTML = gameCode;
+//     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+//     console.log("user avec await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER): ", user);
+//     globalSocket.emit('confirmChoices', { teamID: 2, role: "captain", userName: user.username });
+//     document.getElementById("lobbyCode").innerHTML = gameCode;
 
-    // si pas possible, chopper le display du lobby 1vs1 et mettre le second joueur a droite
-}
+//     // si pas possible, chopper le display du lobby 1vs1 et mettre le second joueur a droite
+// }
 
-async function joinLobbyTwovsTwo(gameCode, teamID, role) // surement possible de faire une seule fonction pour les deux join
+async function joinLobbyGame(gameCode, teamID, role) // surement possible de faire une seule fonction pour les deux join
 {
     console.log("lobby two vs two");
 

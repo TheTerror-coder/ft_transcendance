@@ -16,21 +16,10 @@
     justify-content: space-between;
 }
 
-#logoutFont
-{
-    margin: 0;
-    font-size: 60px;
-    font-weight: 900;
-    color: firebrick;
-    -webkit-text-stroke: 1px black;
-    margin-top: -10px;
-    letter-spacing: 10px;
-    font-family: 'papyrusFont';
-}
-#logoutButton
+/* #logoutButton
 {
     display: none;
-}
+} */
 
 .wantedFriendHomePageDisplay
 {
@@ -160,7 +149,7 @@
     font-weight: 10;
 }
   
-  .cover {
+.cover {
     top: 0;
     position: absolute;
     background-image: url('/photos/picturePng/homePage/socialBackground.png');
@@ -174,20 +163,20 @@
     display: flex;
     -webkit-box-pack: center;
     justify-content: center;
-  }
-  
-  .book:hover .cover {
+}
+
+.book:hover .cover {
     -webkit-transition: all 0.5s;
     transition: all 0.5s;
     -webkit-transform: rotatey(-80deg);
     -ms-transform: rotatey(-80deg);
     transform: rotatey(-80deg);
-  }
+}
   
-  p {
+p {
     font-size: 20px;
     font-weight: bolder;
-  }
+}
 
 
 .sideBar {
@@ -217,9 +206,21 @@
     font-weight: 10;
 }
   
-  .logoutDoorPng {
+.doorJamb
+{
+    display:none;
     position: absolute;
-    background-image: url('/photos/picturePng/logoutDoor.png');
+    background-image: url('/photos/picturePng/doorJamb.png');
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.logoutDoorPng {
+    position: absolute;
+    background-image: url('/photos/picturePng/door.png');
     width: 100%;
     height: 100%;
     cursor: pointer;
@@ -230,12 +231,134 @@
     justify-content: center;
     background-size: contain;
     background-repeat: no-repeat;
-  }
+}
+
+
+@keyframes openDoor
+{
+    0% {
+        transform: rotateY(0deg) translateX(0px);
+    }
+    25% {
+        transform: rotateY(10deg) translateX(0px);
+    }
+    50% {
+        transform: rotateY(25deg) translateX(1px); 
+    }
+    75% {
+        transform: rotateY(40deg) translateX(3px);
+    }
+    100% {
+        transform: rotateY(50deg) translateX(7px);
+    }
+}
+
+
+.teamChooseFontHomePage
+{
+    font-size: 25px;
+    font-weight: bold;
+    color: #dc2700;
+    align-self: center;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8;
+    opacity: 0.85;
+}
   
-  .logoutDoor:hover .logoutDoorPng {
-    -webkit-transition: all 0.5s;
-    transition: all 0.5s;
-    -webkit-transform: rotatey(-80deg);
-    -ms-transform: rotatey(-80deg);
-    transform: rotatey(-80deg);
-  }
+
+
+
+
+
+.labelJoin {
+    height: 40px;
+    width: 110px;
+    background-color: #ffffff;
+    border-radius: 30px;
+    box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.4s;
+}
+
+.labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+    transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#switchNumbersOfPlayers {
+    display: none;
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseTeamSwitch {
+    display: none;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseRoleSwitch {
+    display: none;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+.labelJoin::before {
+    position: absolute;
+    content: "";
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: #000000;
+    background-image: linear-gradient(
+    130deg,
+    #757272 10%,
+    #ffffff 11%,
+    #726f6f 62%
+    );
+    left: 10px;
+    -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    10px 10px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
