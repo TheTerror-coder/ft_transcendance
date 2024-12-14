@@ -108,6 +108,7 @@
     max-height: 182px;
     margin-right: -5px;
     margin-top: 97px;
+    background-color: rgb(91, 222, 226);
 }
 
 .wantedProfileInProfilePage
@@ -118,6 +119,7 @@
     width: 302px;
     height: 442px;
     align-self: end;
+    background-color: rgb(152, 231, 241);
 }
 
 .wantedProfileInProfilePage p

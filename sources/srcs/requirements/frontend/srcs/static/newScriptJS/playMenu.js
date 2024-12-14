@@ -61,12 +61,11 @@ async function joinLobbyPlay()
         console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
-            console.log("nbPER TEAM PURAPINNN", nbPerTeam);
             if (nbPerTeam == 2)
-                joinTwoPlayersDisplay();
+                joinTwoPlayersDisplay(gameCode);
             else
-                console.log("on est al mon frere");
-        }, 500);
+                joinLobbyGame(gameCode, 2, "captain");
+        }, 400);
     };
 }
 
@@ -86,11 +85,30 @@ function readyLocalPlay()
 }
 
 
-function joinTwoPlayersDisplay()
+function joinTwoPlayersDisplay(gameCode)
 {
     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
+
+    setTimeout(() => {
+        const joinButton = document.getElementById("joinButton");
+        const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+        returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
+        joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
+        setLanguage(currentLanguage);
+    }, 40);
 }
 
+function initializeLobbyTwoVsTwo(gameCode)
+{
+    const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
+    const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
+
+    const teamID = teamChosen ? 2 : 1;
+    const role = roleChosen ? "Cannoneer" : "captain";
+    joinLobbyGame(gameCode, teamID, role);
+}
 
 function createLobbyPlay()
 {   
@@ -98,7 +116,6 @@ function createLobbyPlay()
     handleLocation();
     setTimeout(async() => {
         setLanguage(currentLanguage);
-        console.log("JE SUIS DANS CREATE LOBBY");
         const socket = await initializeSocket();
         initializeGlobalSocket(socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
@@ -124,9 +141,7 @@ function navigationPlayMenu()
     refreshHomePage();
     setTimeout(() => {
         if (nav == 1)
-        {
             ELEMENTs.playButtonImg().click();
-        }
         if (nav == 2)
         {
             ELEMENTs.playButtonImg().click();

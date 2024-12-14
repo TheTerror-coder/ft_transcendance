@@ -117,6 +117,8 @@ const AuthenticatorType = Object.freeze({
 
 const ELEMENTs = Object.freeze({
 
+	doorJamp : () => document.getElementById("doorJamp"),
+	logoutDoor : () => document.getElementById("logoutDoor"),
 	logoutButton : () => document.getElementById("logoutButton"),
 	franceFlag : () => document.getElementById("franceFlag"),
 	spainFlag : () => document.getElementById("spainFlag"),
@@ -238,6 +240,7 @@ const ELEMENTs = Object.freeze({
 	gunnerRoleDisplay : () => document.getElementById("gunnerRoleDisplay"),
 	KurohigeTeamDisplay : () => document.getElementById("KurohigeTeamDisplay"),
 	ShirohigeTeamDisplay : () => document.getElementById("ShirohigeTeamDisplay"),
+	ShirohigeTeam : () => document.getElementById("ShirohigeTeam"),
 
 
 
@@ -245,6 +248,11 @@ const ELEMENTs = Object.freeze({
 
 
 	// LOBBY
+	lobbyDisplayRapidPlayPlayerOne : () => document.getElementById("lobbyDisplayRapidPlayPlayerOne"),
+	lobbyDisplayRapidPlayPlayerTwo : () => document.getElementById("lobbyDisplayRapidPlayPlayerTwo"),
+	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
+	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
+
 });
 
 let N_ALERT = 0;

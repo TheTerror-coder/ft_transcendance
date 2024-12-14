@@ -1,15 +1,18 @@
 
 .lobbyCode
 {
-  margin-bottom: 0px;
-  margin-right: 50px;
-  font-size: 60px;
-  font-family: serif;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
+.lobbyCodeText
+{
+  margin-bottom: 0px;
+  margin-right: 50px;
+  font-size: 60px;
+  font-family: serif;
+}
 
 .createLobbySwitch label
 {
