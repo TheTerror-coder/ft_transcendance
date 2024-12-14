@@ -81,8 +81,8 @@ const localPlayButtonHTML = `<button data-translate="localPlay" class="localPlay
 
 const rapidPlayHTML = `<button data-translate="rapidPlay" class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
 
-// const TournamentButtonHTML =`<button data-translate="Tournament" id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-// const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
+const TournamentButtonHTML =`<button data-translate="Tournament" id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
+const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
 
 /*{ <form style="width:170px;">
 <div class="form-group">
