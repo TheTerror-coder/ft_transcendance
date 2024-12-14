@@ -1,3 +1,5 @@
+// import onePongAlerter from '/static/router.js';
+
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 	console.log("****DEBUG**** post auth middleware job")
 	try {
@@ -8,7 +10,7 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {
@@ -30,7 +32,7 @@ async function render_next(params, routeMatched, _storage) {
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {

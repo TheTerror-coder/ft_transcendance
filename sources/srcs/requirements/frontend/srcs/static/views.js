@@ -27,29 +27,38 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
+	console.log("CHELOU???");
+	ELEMENTs.logoutButton().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
-	flag.className = "homepageFlag";
-	flag.id = 'homepageFlag';
-	let englandFlagImg = document.getElementById("englandFlagImg");
-	englandFlagImg.className = "englandFlag";
-	englandFlag.style.marginRight = "-0.01px";
+
+	ELEMENTs.flag().className = "homepageFlag";
+	ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
+	ELEMENTs.englandFlag().style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	ELEMENTs.wantedProfile().onclick = () => profileView();
+	setLanguage(currentLanguage);
+	ELEMENTs.wantedProfile().onclick = () => {
+		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
+		handleLocation();
+ 	};
+	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
+	console.log('homeView: ');
 }
 
 async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
+	setLanguage(currentLanguage);
+
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
 		// 	keyboard: false
@@ -59,11 +68,7 @@ async function	loginView(title, description, data) {
 
 async function	profileView(title, description, data)
 {
-	const resp = await getAuthenticationStatus();
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-	console.log("profile view", resp);
-	document.title = "Profile | " + PAGE_TITLE;
-
+	ELEMENTs.logoutButton().style.display = 'flex';
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	await updateMfaBoxStatus();
@@ -76,6 +81,7 @@ async function	profileView(title, description, data)
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
+	setLanguage(currentLanguage);
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);
@@ -84,6 +90,7 @@ async function	profileView(title, description, data)
 
 async function	createLobbyView(title, description, data) 
 {
+	ELEMENTs.logoutButton().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = CreateJoinLobbyDisplayVAR;
 
@@ -101,6 +108,8 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
+	setLanguage(currentLanguage);
+
 }
 
 async function	providerCallbackView(title, description, data) {

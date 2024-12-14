@@ -95,7 +95,7 @@ async function doPendingFlows(params, flows) {
 	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
 		console.log("Pending flows: Authentication required");
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.VERIFY_EMAIL && data.is_pending)) {
@@ -394,4 +394,14 @@ async function updateMfaBoxStatus(data) {
 	} else {
 		ELEMENTs.switch2FA()?.removeAttribute('checked');
 	}
+}
+
+function assign_location(url) {
+	window.history.pushState({}, "", url);
+	handleLocation();
+}
+
+function replace_location(url) {
+	window.history.replaceState({}, "", url);
+	handleLocation();
 }

@@ -67,7 +67,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'wantedFont';
     flex-direction: column;
 }
 
@@ -98,7 +97,7 @@
 .profilePage
 {
     display: flex;
-    flex: 1;
+    height: 100%;
 }
 
 .profileProfilePagePicture
@@ -110,7 +109,6 @@
     margin-right: -5px;
     margin-top: 97px;
 }
-
 
 .wantedProfileInProfilePage
 {
@@ -124,7 +122,7 @@
 
 .wantedProfileInProfilePage p
 {
-    font-family: wantedFont;
+    font-family: 'wantedFont';
     font-size: 200%;
     margin-top: 32px;
     margin-bottom: -2px;
@@ -141,22 +139,17 @@
 
 .wantedProfileInProfilePage span
 {
-    font-family: wantedFont;
+    font-family: 'wantedFont';
     font-size: 165%;
     opacity: 85%;
     color: #493B3A;
     align-self: center;
 }
 
-
-
 .popover 
 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
-
-
 
 .bookProfile
 {

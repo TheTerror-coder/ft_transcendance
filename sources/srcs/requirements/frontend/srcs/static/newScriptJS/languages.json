@@ -1,0 +1,141 @@
+{
+    "en": {
+        "42SignIn": "SIGN IN WITH",
+        "SignIn": "SIGN IN",
+        "CreateAccount": "CREATE ACCOUNT",
+        "placeholderUser": "Username",
+        "placeholderPassword": "Password",
+        "placeholderConfirmPassword": "Confirm Password",
+        "Confirm": "CONFIRM",
+        "Play": "PLAY",
+        "Friends": "FRIENDS",
+        "AddFriend": "ADD",
+        "JoinLobby": "JOIN LOBBY",
+        "CreateLobby": "CREATE LOBBY",
+        "localPlay": "LOCAL PLAY",
+        "rapidPlay": "RAPID PLAY",
+        "Tournament": "TOURNAMENT",
+        "joinButton": "Join",
+        "placeholderJoinCode": "Lobby Code",
+        "PlayersPerTeams": "Players per Teams",
+        "CreateButton": "Create",
+        
+        "ChooseYourTeam": "Choose Your Team",
+        "ChooseRole": "Choose Your Role",
+        "kurohige": "Black Beard",
+        "shirohige": "White Beard",
+        "Helmsman": "Helmsman",
+        "Gunner": "Gunner",
+
+        "FriendList": "Friends List",
+        "waitingFriendlist": "Waiting Friend List",
+        "Stat": "Statistics",
+        "WinRate": "Win Rate",
+        "GamePlayed": "Games Played",
+        "GameWin": "Games Win",
+        "GameLose": "Games Lose",
+        "Historic": "Historic",
+        "Ready": "READY ?",
+
+
+        "NoFriends": "No Friends",
+        "NoInvitationsWaiting": "No Invitations Waiting",
+        "NoGamePlayed": "No Game Played",
+
+
+        "Logout": "LOGOUT"
+    },
+    "es": {
+        "42SignIn": "INICIE SESIÓN CON",
+        "SignIn": "INICIAR SESIÓN",
+        "CreateAccount": "CREAR UNA CUENTA",
+        "placeholderUser": "Usuario",
+        "placeholderPassword": "Contraseña",
+        "placeholderConfirmPassword": "Confirmar Contraseña",
+        "Confirm": "CONFIRMAR",
+
+        "Play": "JUGAR",
+        "Friends": "AMIGOS",
+        "AddFriend": "AÑADA",
+        "JoinLobby": "ÚNASE INSTANCIA",
+        "CreateLobby": "CREAR INSTANCIA",
+        "localPlay": "JUEGO LOCAL",
+        "rapidPlay": "JUEGO RAPIDO",
+        "Tournament": "TORNEOS",
+        "joinButton": "Unirse",
+        "Ready": "LISTO ?",
+        "placeholderJoinCode": "Código de Unirse",
+        "PlayersPerTeams": "Jugadores por Equipo",
+        "CreateButton": "Crear",
+        
+        "ChooseYourTeam": "Elige Tu Equipo",
+        "ChooseRole": "Elige Tu Papel",
+        "kurohige": "Barbanegra",
+        "shirohige": "Barba blanca",
+        "Helmsman": "Timonel",
+        "Gunner": "Cañonero",
+
+
+        "FriendList": "Lista de Amigos",
+        "waitingFriendlist": "Lista de Amigos en Espera",
+        "Stat": "Estadísticas",
+        "WinRate": "Porcentaje de victorias",
+        "GamePlayed": "Juegos Jugados",
+        "GameWin": "Juegos Ganar",
+        "GameLose": "Juegos Perder",
+        "Historic": "Histórico",
+
+        "NoFriends": "No Amigos",
+        "NoInvitationsWaiting": "No Invitaciones Esperando",
+        "NoGamePlayed": "No Juegos Jugados",
+
+
+
+        "Logout": "DESCONECTARSE"
+    },
+    "fr": {
+        "42SignIn": "CONNEXION AVEC ",
+        "SignIn": "CONNEXION",
+        "CreateAccount": "CREER UN COMPTE",
+        "placeholderUser": "Utilisateur",
+        "placeholderPassword": "Mot de passe",
+        "placeholderConfirmPassword": "Confirmer Mot De Passe",
+        "Confirm": "CONFIRMER",
+        "Play": "JOUER",
+        "Friends": "AMIS",
+        "AddFriend": "AJOUTER",
+        "JoinLobby": "REJOINDRE UN LOBBY",
+        "CreateLobby": "CREER UN LOBBY",
+        "localPlay": "JOUER EN LOCAL",
+        "rapidPlay": "PARTIE RAPIDE",
+        "Tournament": "TOURNOIS",
+        "joinButton": "Rejoindre",
+        "placeholderJoinCode": "Code du Lobby",
+        
+        "ChooseYourTeam": "Choisi Ton Equipe",
+        "ChooseRole": "Choisi Ton Role",
+        "kurohige": "Barbe Noire",
+        "shirohige": "Barbe Blanche",
+        "Helmsman": "Timonier",
+        "Gunner": "Cannonier",
+
+        "Ready": "PRET ?",
+
+        "FriendList": "Liste d'Amis",
+        "waitingFriendlist": "Liste d'Amis en Attente",
+        "Stat": "Statistiques",
+        "WinRate": "Pourcentage de Victoire",
+        "GamePlayed": "Nombre de Parties",
+        "GameWin": "Parties Gagnées",
+        "GameLose": "Parties Perdues",
+        "Historic": "Historique",
+
+        "NoFriends": "Pas d'Amis",
+        "NoInvitationsWaiting": "Pas d'Invitations en Attente",
+        "NoGamePlayed": "Pas de Parties Jouees",
+
+        "PlayersPerTeams": "Joueurs par Equipe",
+        "CreateButton": "Créer",
+        "Logout": "DÉCONNEXION"
+    }
+}

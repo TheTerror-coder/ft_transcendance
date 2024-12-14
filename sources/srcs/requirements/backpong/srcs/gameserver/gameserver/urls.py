@@ -21,6 +21,7 @@ from . import views
 urlpatterns = [
     path('', views.healthcheck, name="healthcheck"),
     path('healthcheck/', views.healthcheck, name="healthcheck"),
+    path('backgame/health/', views.test, name="healthcheck"),
     path('admin/', admin.site.urls),
     path('backgame/', include('backgame.urls')),
 ]
