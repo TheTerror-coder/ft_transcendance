@@ -200,27 +200,42 @@ async def connect(sid, environ):
             logger.info(f"ClientData {gameCode} in ChannelList")
             game = ChannelList[gameCode].getGame()
             await game.updateClientData(data)
-            game.gameStarted = True
+            if (game.nbPlayerConnected == game.nbPlayerPerTeam * 2):
+                game.gameStarted = True
+                await sio.emit('gameStarted', room=gameCode)
 
     @sio.event
     async def cannonPosition(sid, data):
         gameCode = data.get('gameCode')
         if gameCode in ChannelList:
             game = ChannelList[gameCode].getGame()
-            await game.updateCannonPosition(data['team'], data['cannonPosition']['x'], 
-                                    data['cannonPosition']['y'], data['cannonPosition']['z'])
+            # await game.updateCannonPosition(data['team'], data['cannonPosition']['x'], 
+            #                         data['cannonPosition']['y'], data['cannonPosition']['z'])
+            await game.updateCannonPosition(data['team'], data['cannonPosition']['x'])
             await sio.emit('cannonPosition', {
                 'teamID': data['team'],
                 'cannonPosition': data['cannonPosition']
             }, room=gameCode, skip_sid=sid)
+
+    # @sio.event
+    # async def cannonRotation(sid, data):
+    #     gameCode = data.get('gameCode')
+    #     if gameCode in ChannelList:
+    #         game = ChannelList[gameCode].getGame()
+    #         await game.updateCannonRotation(data['team'], data['cannonRotation']['y'])
+    #         await sio.emit('cannonRotation', {
+    #             'teamID': data['team'],
+    #             'cannonRotation': data['cannonRotation']
+    #         }, room=gameCode, skip_sid=sid)
 
     @sio.event
     async def boatPosition(sid, data):
         gameCode = data.get('gameCode')
         if gameCode in ChannelList:
             game = ChannelList[gameCode].getGame()
-            await game.updateBoatPosition(data['team'], data['boatPosition']['x'], 
-                                data['boatPosition']['y'], data['boatPosition']['z'])
+            # await game.updateBoatPosition(data['team'], data['boatPosition']['x'], 
+            #                         data['boatPosition']['y'], data['boatPosition']['z'])
+            await game.updateBoatPosition(data['team'], data['boatPosition']['x'])
             await sio.emit('boatPosition', {
                 'teamID': data['team'],
                 'boatPosition': data['boatPosition']

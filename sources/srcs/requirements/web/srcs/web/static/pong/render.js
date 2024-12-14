@@ -202,57 +202,75 @@ function loadCannons_Tube(MTLloader, OBJLoader) {
 
 async function initCannons(scene) {
     const MTLloader = new MTLLoader();
-    const objLoader = new OBJLoader(); // Assurez-vous d'utiliser une minuscule pour l'instance
+    const objLoader = new OBJLoader();
     let cannonGroup = new Map();
 
     try {
         const { cannonSupport1, cannonSupport2 } = await loadCannons_Support(MTLloader, objLoader);
         const { cannonTube1, cannonTube2 } = await loadCannons_Tube(MTLloader, objLoader);
+        
+        // Créer les points de tip avec un visuel
+        const tipGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const tipMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000,  // Rouge
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const cannonTip1 = new THREE.Mesh(tipGeometry, tipMaterial);
+        const cannonTip2 = new THREE.Mesh(tipGeometry, tipMaterial);
+        
+        // Nommer les objets
+        cannonTip1.name = `cannonTipTeam1`;
+        cannonTip2.name = `cannonTipTeam2`;
+        
+        let x = 24;
+        let y = 0;
+        let z = 50;
 
-        cannonSupport1.name = `cannonSupportTeam1`;
-        cannonSupport2.name = `cannonSupportTeam2`;
-        cannonTube1.name = `cannonTubeTeam1`;
-        cannonTube2.name = `cannonTubeTeam2`;
+        // Position des tips par rapport aux tubes
+        cannonTip1.position.set(115, 0, 60);
+        cannonTip2.position.set(115, 0, 60);
 
-        // Créer les groupes de canons pour chaque équipe
+        // Attacher les tips directement aux tubes
+        cannonTube1.add(cannonTip1);
+        cannonTube2.add(cannonTip2);
+
+        // Créer et configurer les groupes
         let cannonTeam1 = new THREE.Group();
         let cannonTeam2 = new THREE.Group();
         let cannon1_tube_group = new THREE.Group();
         let cannon2_tube_group = new THREE.Group();
 
+        // Nommer les groupes
         cannonTeam1.name = `cannonTeam1`;
         cannonTeam2.name = `cannonTeam2`;
         cannon1_tube_group.name = `cannon1_tube_group`;
         cannon2_tube_group.name = `cannon2_tube_group`;
 
-        // Ajouter les tubes de canon dans leurs groupes respectifs
-        cannon1_tube_group.add(cannonTube1);
-        cannon2_tube_group.add(cannonTube2);
-
-        let x = 24;
-        let y = 0;
-        let z = 50;
-
-        // Ajuste la position du groupe de tubes de canon
-        cannon1_tube_group.position.set(x, y, z);
-        cannon2_tube_group.position.set(x, y, z);
-
-        // Ajuste la position du tube de canon
+        // Configurer les tubes
         cannonTube1.position.set(-x, y, -z);
         cannonTube2.position.set(-x, y, -z);
 
-        // Ajouter les groupes de tubes de canon aux groupes de canons
+        // Ajouter les tubes aux groupes
+        cannon1_tube_group.add(cannonTube1);
+        cannon2_tube_group.add(cannonTube2);
+
+        // Positionner les groupes de tubes
+        cannon1_tube_group.position.set(x, y, z);
+        cannon2_tube_group.position.set(x, y, z);
+
+        // Assembler les groupes finaux
         cannonTeam1.add(cannon1_tube_group);
         cannonTeam2.add(cannon2_tube_group);
-
-        // Ajouter les supports de canon aux groupes de canons
         cannonTeam1.add(cannonSupport1);
         cannonTeam2.add(cannonSupport2);
-
+        
+        // Appliquer l'échelle finale
         cannonTeam1.scale.set(0.01, 0.03, 0.03);
         cannonTeam2.scale.set(0.01, 0.03, 0.03);
 
-        // Ajouter les groupes de canons à la Map
+        // Ajouter à la Map
         cannonGroup.set('cannonTeam1', cannonTeam1);
         cannonGroup.set('cannonTeam2', cannonTeam2);
 

@@ -40,7 +40,30 @@ class Team:
         self.nbPlayer += 1
         self.setIsFull()
 
-    def setBoatPosition(self, x, y, z):
+    # def setBoatPosition(self, x, y, z):
+    def setBoatPosition(self, x):
+        # Calculer le déplacement
+        dx = x - self.boat['x']
+        # dy = y - self.boat['y']
+        # dz = z - self.boat['z']
+        self.formerBoatPosition = {'x': self.boat['x'], 'y': self.boat['y'], 'z': self.boat['z']}
+        
+        # Mettre à jour la position du bateau
+        self.boat['x'] = x
+        # self.boat['y'] = y
+        # self.boat['z'] = z
+        # Mettre à jour la hitbox avec le même déplacement
+        if self.hitbox:
+            self.hitbox['min']['x'] += dx
+            # self.hitbox['min']['y'] += dy
+            # self.hitbox['min']['z'] += dz
+            self.hitbox['max']['x'] += dx
+            # self.hitbox['max']['y'] += dy
+            # self.hitbox['max']['z'] += dz
+
+        logger.info(f"Boat updated in setBoatPosition for team {self.TeamId}: pos={self.boat}")
+
+    def setBoatPosClient(self, x, y, z):
         # Calculer le déplacement
         dx = x - self.boat['x']
         dy = y - self.boat['y']
@@ -59,8 +82,8 @@ class Team:
             self.hitbox['max']['x'] += dx
             self.hitbox['max']['y'] += dy
             self.hitbox['max']['z'] += dz
-        
-        # logger.info(f"Boat and hitbox updated for team {self.TeamId}: pos={self.boat}, hitbox={self.hitbox}")
+
+        logger.info(f"Boat updated in setBoatPosClient for team {self.TeamId}: pos={self.boat}")
 
     def setBoatHitbox(self, hitbox):
         self.hitbox = hitbox
@@ -87,10 +110,19 @@ class Team:
     def setCannon(self, cannon):
         self.cannon = cannon
 
-    def setCannonPosition(self, x, y, z):
+    # def setCannonPosition(self, x, y, z):
+    def setCannonPosition(self, x):
+        self.cannon['x'] = x
+        # self.cannon['y'] = y
+        # self.cannon['z'] = z
+
+    def setCannonPosClient(self, x, y, z):
         self.cannon['x'] = x
         self.cannon['y'] = y
         self.cannon['z'] = z
+
+    # def setCannonRotation(self, y):
+    #     self.cannon['y'] = y
 
     def removePlayer(self, id):
         if id in self.player:

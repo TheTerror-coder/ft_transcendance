@@ -20,7 +20,6 @@ export async function calculateCannonBallTrajectory(cannonX, cannonY, cannonZ, c
 
         if (z < -1) break;
         trajectory.push(new THREE.Vector3(x, y, z));
-        pointCount++;
     }
 
     return trajectory;
