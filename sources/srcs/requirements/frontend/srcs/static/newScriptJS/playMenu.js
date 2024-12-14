@@ -11,7 +11,7 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().innerHTML = rapidPlayHTML;
     ELEMENTs.firstElement().style.display = "flex";
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
-    ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
+    // ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
     setLanguage(currentLanguage);
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
