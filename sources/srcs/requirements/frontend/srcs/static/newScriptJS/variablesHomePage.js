@@ -24,7 +24,7 @@ const rapidPlayHTML = `<button class="fontTextPlay rapidPlayButton" id="rapidPla
 
 const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
 
-{/* <form style="width:170px;">
+/*{ <form style="width:170px;">
 <div class="form-group">
     <select multiple class="form-control" id="exampleFormControlSelect2">
     <option>Username</option>
@@ -34,7 +34,7 @@ const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">
     <option>Username</option>
     </select>
 </div>
-</form> */}
+</form> }*/
 
 
 
