@@ -1,6 +1,7 @@
 ENV :=./srcs/.env
 COMPOSE_FILE= ./srcs/docker-compose.yml
-export HOST_IP=$(shell hostname -I | awk '{print $$1}')
+# export HOST_IP=$(shell hostname -I | awk '{print $$1}')
+export HOST_IP=$(ifconfig | grep 'inet ' | awk '!/127.0.0.1/ {print $2}' | head -n 1) 
 
 include $(ENV)
 
