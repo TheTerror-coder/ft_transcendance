@@ -38,6 +38,16 @@ class CustomAuthenticationForm(forms.Form):
     def get_user(self):
         return self.user_cache
 
+class UpdateUserLanguageForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['language']
+        
+    def clean_language(self):
+        language = self.cleaned_data.get('language')
+        if language not in ['FR', 'EN', 'ES']:
+            raise forms.ValidationError("cette langue n'est pas valide.")
+        return language
 
 class UpdateUsernameForm(forms.ModelForm):
     class Meta:

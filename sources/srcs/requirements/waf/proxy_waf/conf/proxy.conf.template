@@ -20,10 +20,14 @@ upstream backendmediator {
 	server		backend:8000;
 }
 
+upstream gameservermediator {
+	server		gameserver:8001;
+}
+
 server {
 	listen 1880;
 
-	server_name localhost;
+	server_name localhost $HOST_IP;
 	set $always_redirect on;
 
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
@@ -45,11 +49,13 @@ server {
 	listen 1443 ssl;
 	listen [::]:1443 ssl;
 
-	server_name localhost;
+	server_name localhost $HOST_IP;
 	#set $proxy_upstream http://frontendmediator;
 	set $frontend_upstream https://frontendmediator; # TODO: uncomment at production
 	set $backend_upstream http://backendmediator;
 	# set $backend_upstream https://backendmediator; # TODO: uncomment at production
+	set $gameserver_upstream http://gameservermediator;
+	# set $gameserver_upstream https://gameservermediator;
 
 	access_log /dev/stdout;
 	access_log /var/log/nginx/proxy.access.log proxylog_format;
@@ -125,6 +131,21 @@ server {
 	### websockets ###
 	location /websocket/ {
 		include includes/backendshared_conf.conf;
+	}
+
+
+	##################################
+	###     Gameserver routing     ###
+	##################################
+    location /backgame/ {
+		include includes/gameservershared_conf.conf;
+	}
+    location /gameserver/ {
+		include includes/gameservershared_conf.conf;
+	}
+	### websockets ###
+    location /socket.io/ {
+		include includes/gameservershared_conf.conf;
 	}
 
 	include includes/location_common.conf;

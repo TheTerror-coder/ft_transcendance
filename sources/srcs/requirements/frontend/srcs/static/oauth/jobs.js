@@ -1,3 +1,5 @@
+// import onePongAlerter from '/static/router.js';
+
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 	console.log("****DEBUG**** post auth middleware job")
 	try {
@@ -8,7 +10,7 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {
@@ -18,14 +20,19 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 
 async function render_next(params, routeMatched, _storage) {
 	console.log("****DEBUG**** render_next()");
-
+	
 	try {
+		
+		if (!window.localStorage.getItem('jwt_access_token')){
+			console.log("****DEBUG**** jwt credentials missing, calling once again jwt_authenticate()");
+			await jwt_authenticate();
+		}
 		if (routeMatched){
 			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {
@@ -101,8 +108,10 @@ async function mfaJob(params, totp_active) {
 	
 	let _params = [];
 
-	if (totp_active)
+	if (totp_active) {
+		console.log("****DEBUG**** mfaJob(): totp is active");
 		_params.push('totp');
+	}
 	await fragment_loadModalTemplate();
 	const html = await fragment_mfaOverview(_params);
 	ELEMENTs.oauth_modal_content().innerHTML = html;
@@ -201,7 +210,46 @@ async function	twoFaAuthenticateJob(params) {
 	}
 }
 
-async function	totpDeactivateJob(params) {
-	console.log('activate totp view');
+async function	deactivateTotpJob(params) {
+	const response = await getDeactivateTotp();
+	if (response.find(data => data === 'success-response')){
+		return ;
+	} else {
+		window.localStorage.setItem('skip_switch2FA_flag', 'true');
+		console.log('*********DEBUG********* in deactivateTotpJob(): reauthentication needed')
+		await reauthenticateFirst(response[2].flows);
+		return ;
+	}
+}
+
+async function requireMfaReauthenticateJob(params) {
 	
+	await fragment_loadModal2Template();
+	const html = await fragment_mfaReauthenticate();
+	ELEMENTs.oauth_modal2_content().innerHTML = html;
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal2', {
+		keyboard: false,
+	});
+	await _modal.show();
+}
+
+async function	mfaReauthenticateJob(params) {
+	const _input = ELEMENTs.two_fa_reauth_value_input();
+	_input.disabled = true;
+	const response = await getMfaReauthenticate(_input.value);
+	if (response.find(data => data === 'input-error')){
+		// raise error message
+		await onePongAlerter(ALERT_CLASSEs.DANGER, 'Error', response[2][0].message);
+		_input.disabled = '';
+		return ;
+	} else if (response.find(data => data === 'reauthenticated')){
+		if (!await isUserAuthenticated()){
+			await logout();
+		}
+		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');
+		await _modal.dispose();
+		ELEMENTs.oauth_modal2().remove();
+		ELEMENTs.switch2FA().click();
+		return;
+	}
 }

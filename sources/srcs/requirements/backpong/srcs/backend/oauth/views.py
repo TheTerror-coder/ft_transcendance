@@ -17,9 +17,13 @@ from django.http import HttpRequest
 from rest_framework_simplejwt.tokens import RefreshToken
 from allauth.socialaccount.models import SocialLogin
 from allauth.headless.account.views import SessionView
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from backend import parameters
 
 class socilaJwtToken(SessionView):
+	permission_classes = [IsAuthenticated]
+	
 	def get(self, request, *args, **kwargs):
 		# return super().get(request=request, args=args, kwargs=kwargs)
 		jwt = {}
@@ -60,10 +64,13 @@ class socilaJwtToken(SessionView):
 			del request.session['jwt_refresh_token']
 		
 		sys.stderr.write("*******DEBUG******* socilaJwtToken succeeded" + '\n')
+		print('*****DEBUG******: user photo link: ' + str(request.user.photo_link), file=sys.stderr)
+
 		return response
 
 @csrf_protect
 @api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def getUserProfile(request):
 	res = {}
 	user = request.user
@@ -103,6 +110,7 @@ def getUserProfile(request):
 
 @csrf_protect
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def generateTotpQrCode(request):
 	totp_url = request.data.get('totp_url');
 	res = {}

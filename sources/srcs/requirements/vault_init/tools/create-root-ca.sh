@@ -30,6 +30,7 @@ generate_root_ca () {
 		common_name="Transcendance CA" \
 		exclude_cn_from_sans=true \
 		alt_names="$ALT_NAMES" \
+		ip_sans="$HOST_IP" \
 		permitted_dns_domains="$ALT_NAMES" \
 		ip_sans="127.0.0.1" \
 		issuer_name="Root-Certificate-Authority" \

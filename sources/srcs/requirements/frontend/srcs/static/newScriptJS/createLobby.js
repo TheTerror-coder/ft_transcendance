@@ -1,10 +1,84 @@
+// import socketIOClient from 'socket.io-client';
+
+let savedGameCode = null;
+let gameStarted = false;
+let ip;
+let globalSocket = null;
+let nbPerTeam;
+
+// let dataDav;
 
 
-
-function createLobbyDisplay() 
+function initializeGlobalSocket(socket)
 {
+    globalSocket = socket;
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    globalSocket.on('gameCreated', (data) => {
+        console.log('Partie créée avec le code:', data.gameCode);
+        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        console.log("savedGameCode: ", savedGameCode);
+    });
+    globalSocket.on('gameJoined', (data) => {
+        console.log('Rejoint la partie:', data.gameCode);
+        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        nbPerTeam = data.nbPlayerPerTeam;
+        console.log("looooool !!! nbPlayerPerTeam: ", data.nbPlayerPerTeam);
+        console.log("savedGameCode: ", savedGameCode);
+    });
+    globalSocket.on('AvailableOptions', (data) => {
+
+        console.log("Reception des options disponibles :", data);
+        console.log("AvailableOptions: data: ",data);
+    });
+    globalSocket.on('updatePlayerLists', (data) => {
+        dataDav = data;
+        console.log("Reception des listes des joueurs :", data);
+        updateLobby(data);
+    });
+    globalSocket.on('startGame', (data) => {
+        console.log("Debut de la partie :", data);
+    });
+    globalSocket.on('error', (data) => {
+        console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
+        alert(data.message);
+    });
+}
+
+// function initializeGameEvent()
+// {
+//     globalSocket.on('gameCreated', (data) => {
+//         console.log('Partie créée avec le code:', data.gameCode);
+//         savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+//         console.log("savedGameCode: ", savedGameCode);
+//     });
+// }
+
+async function createLobbyDisplay()
+{
+    const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
+
+
     if (ELEMENTs.switchNumbersOfPlayers().checked == false)
+    {
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
+
+        setTimeout(() => {
+            nbPerTeam = 1;
+            globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
+            ELEMENTs.usernameOfWanted().innerHTML = response.username;
+            const photoUrl = response.photo;
+            const imgElement = ELEMENTs.pictureOfWanted();
+            imgElement.src = photoUrl;
+            ELEMENTs.primeAmount().innerHTML = response.prime;
+            setTimeout(() => {
+                globalSocket.emit('confirmChoices', { teamID: 1, role: "captain", userName: response.username });
+                console.log("saveCodeGameCode dans ;la focntion de cree les bails: ", savedGameCode);
+                document.getElementById("lobbyCode").innerHTML = savedGameCode;
+            }, 300);
+            console.log("globalSocket OnevsOne create lobby: ", globalSocket);
+        }, 100);
+        setLanguage(currentLanguage);
+    }
     else
     {
         createLobbyforTwoPlayer();
@@ -13,29 +87,43 @@ function createLobbyDisplay()
 
 function createLobbyforTwoPlayer()
 {
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    nbPerTeam = 2;
+    globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
+    // initializeGameEvent();
     ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
     setTimeout(() => {
         ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
-    
         ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
     }, 60);
+    setLanguage(currentLanguage);
 }
 
 
-function lobbyTwoPlayer()
+async function lobbyTwoPlayer()
 {
-    const teamChosen = ELEMENTs.chooseTeamSwitch().value;
-    const roleChosen = ELEMENTs.chooseRoleSwitch().value;
+    const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
+    const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
 
-    console.log("team chosen: ", teamChosen);
-    console.log("role chosen: ", roleChosen);
+    const teamID = teamChosen ? 2 : 1;
+    const role = roleChosen ? "Cannoneer" : "captain";
+    console.log("teamID: ", teamID);
+    console.log("role: ", role);
+    console.log("GLOBAL SOCKET: ", globalSocket);
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+
+    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username }); // TODO: get user name from database
     ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
+    console.log("savedGameCode in lobbyTwoPlayer: ", savedGameCode);
+    document.getElementById("lobbyCode").innerHTML = savedGameCode;
 
     setTimeout(() => {
         ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }, 60);
+
+    setLanguage(currentLanguage);
 
 }
 
@@ -66,15 +154,15 @@ function switchTeam()
     {
         kurohige.style.opacity = "0.3";
         kurohige.style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.9";
+        ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
+        ELEMENTs.ShirohigeTeam().style.opacity = "0.9";
 
     }
     else
     {
         kurohige.style.transition = "opacity 0.5s ease";
         kurohige.style.opacity = "0.9";
-        ELEMENTs.ShirohigeTeamDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeamDisplay().style.opacity = "0.3";
+        ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
+        ELEMENTs.ShirohigeTeam().style.opacity = "0.3";
     }
 }

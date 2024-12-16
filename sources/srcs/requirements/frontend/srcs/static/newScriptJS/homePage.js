@@ -5,6 +5,14 @@ function refreshHomePage()
     handleLocation();
 }
 
+// async function setLanguage()
+// {
+//     const language = document.getElementById("EN").value;
+//     const data = {"language": language};
+//     const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
+//     alert(response.message);
+// }
+
 
 async function addFriend()
 {
@@ -19,7 +27,7 @@ async function addFriend()
     console.log('user:', user);
     const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
     if (resp.status === 'error') {
-        socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
+        socket = new WebSocket("wss://${window.location.host}/websocket/friend_invite/");
     }
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
     if (response.status === 'success') {

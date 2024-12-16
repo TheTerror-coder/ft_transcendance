@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import FriendRequest
@@ -8,17 +8,27 @@ from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
 from django.utils.crypto import get_random_string
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import permission_classes
 from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
+from .tournament import Tournament, Players
 import sys
+
+
+GLOBAL_TOURNAMENT = {
+    "game": None,
+    "players": [],
+    "status": "WAITING",  # WAITING -> STARTGAME -> IN_GAME -> END_GAME
+}
+
 
 @api_view(['POST'])
 @csrf_protect
+@permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
 		print("register", request.data, file=sys.stderr)
@@ -46,6 +56,7 @@ def connect(request):
 
 @api_view(['POST'])
 @csrf_protect
+@permission_classes([AllowAny])
 def login_view(request):
 	if request.method == 'POST':
 		form = CustomAuthenticationForm(data=request.data)
@@ -81,8 +92,8 @@ def login_view(request):
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
 @api_view(['GET'])
-@login_required
 @csrf_protect
+@permission_classes([AllowAny])
 def logout_view(request):
     logout(request)
     
@@ -95,8 +106,8 @@ def logout_view(request):
 
 # check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def update_profile(request):
 	print("update-profile", request.data, file=sys.stderr)
 	username = request.data.get('username')
@@ -117,8 +128,8 @@ def update_profile(request):
 User = get_user_model()
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def update_photo(request):
 	if 'picture' not in request.FILES:
 		return Response({
@@ -158,6 +169,23 @@ def update_photo(request):
 
 
 @api_view(['POST'])
+@csrf_protect
+def set_language(request):
+	language = request.data.get('language')
+	form = UpdateUserLanguageForm({'language' : language}, instance=request.user)
+	if form.is_valid():
+		form.save()
+		return Response({
+			'status': 'success',
+			'message': 'la langue a ete changé',
+		}, status=200)
+	else:
+		return Response({
+			'status': 'error',
+			'message': form.errors.get('username', ['Erreur inconnue'])[0],
+		}, status=400)
+
+@api_view(['POST'])
 @login_required
 @csrf_protect
 def get_user_profile(request):
@@ -174,10 +202,17 @@ def get_user_profile(request):
             'date_joined': to_user.date_joined,
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
-			'photo': to_user.photo.url if to_user.photo else None,
-			'prime': prime,
+            'prime': prime,
+            'language': to_user.language,
         }
-        
+        if to_user.photo_link:
+            print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
+            user_info['photo'] = to_user.photo_link 
+        elif to_user.photo:
+            user_info['photo'] = to_user.photo.url 
+        else:
+            user_info['photo'] = None
+
         print("User profile info:", user_info, file=sys.stderr)
         return Response({
             'status': 'success',
@@ -191,27 +226,72 @@ def get_user_profile(request):
         }, status=404)
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @login_required
 @csrf_protect
-def set_info_game(request):
-	prime = request.data.get('prime')
-	user = request.user
-	user.prime = prime
-	user.save()
-	return Response({
-		'status': 'success',
-		'message': 'Prime status updated successfully.',
-	}, status=200)
+def game_routing(request):
+	global GLOBAL_TOURNAMENT
+	status = request.data.get('status')
+	player = Players(request.user.id, request.user.username, request.user.is_win)
+
+	if GLOBAL_TOURNAMENT['status'] == "WAITING":
+		if player not in GLOBAL_TOURNAMENT['players']:
+			GLOBAL_TOURNAMENT['players'].append(player)            
+		if len(GLOBAL_TOURNAMENT['players']) == request.user.people:
+			GLOBAL_TOURNAMENT['status'] = "START_GAME"
+	if status == 'START_GAME' and GLOBAL_TOURNAMENT['status'] == "START_GAME":
+		if GLOBAL_TOURNAMENT['game'] is None:
+			players = GLOBAL_TOURNAMENT['players']
+			random.shuffle(players)
+			for idx, player in enumerate(players, start=1):
+				player.id = idx
+			game = Tournament()
+			game.create_tree(len(players))
+			game.assign_players(players)
+			GLOBAL_TOURNAMENT['game'] = game
+			GLOBAL_TOURNAMENT['status'] = "IN_GAME"
+			game.print_tournament(game.root)
+		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in players]}
+	elif status == 'IN_GAME' and GLOBAL_TOURNAMENT['status'] == "IN_GAME":
+		game = GLOBAL_TOURNAMENT['game']
+
+		if player.is_win == True:
+			pairs = game.get_players_pair()
+			winners = [pair[0] if pair[0].username == player.username else pair[1] for pair in enumerate(pairs)]
+			calculate_score(player.username, pair[1].username, True)
+
+		# pairs = game.get_players_pair()
+		# winners = [pair[0] if i % 2 == 0 else pair[1] for i, pair in enumerate(pairs)]
+		
+		game.update_tree(winners)
+		game.print_tournament(game.root)
+		GLOBAL_TOURNAMENT['players'] = game.players
+		print("len p: ", len(game.players))
+		if len(game.players) == 1:
+			GLOBAL_TOURNAMENT['status'] = "END_GAME"
+		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in game.players]}
+	elif GLOBAL_TOURNAMENT['status'] == "END_GAME":
+		return {'status': 'END_GAME', 'message': 'The game has ended'}
+	return {'status': GLOBAL_TOURNAMENT['status'], 'message': 'Unexpected status'}
+
+
+
 
 @api_view(['GET'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
 	last_three_games = request.user.recent_games()
-	photo = request.user.photo.url if request.user.photo else None
+	# photo = request.user.photo.url if request.user.photo else None
+	if request.user.photo_link:
+		print("***********DEBUG*********: profile(): photo_link is not empty: ", file=sys.stderr)
+		photo = request.user.photo_link 
+	elif request.user.photo:
+		photo = request.user.photo.url 
+	else:
+		photo = None
 	prime = request.user.prime
 
 	recent_games_data = [
@@ -245,8 +325,8 @@ def profile(request):
 
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def send_friend_request(request):
 	if request.method == 'POST':
 		username = request.data.get('username')
@@ -286,8 +366,8 @@ def send_friend_request(request):
 
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def remove_friend(request):
 	if request.method == 'POST':
 		username = request.data.get('username')
@@ -336,8 +416,8 @@ def remove_friend(request):
 		return Response(response)
 
 @api_view(['POST'])
-@login_required
 @csrf_protect
+@permission_classes([IsAuthenticated])
 def get_user_sockets(request):
 	print("get_user_sockets", request.data, file=sys.stderr)
 	if request.data.get('username') in user_sockets:
@@ -358,31 +438,50 @@ def get_user(request):
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
+		'language': request.user.language,
 	}, status=200)
 
-# def calculate_score(player_game_played, player_victory, opponent_game_played, opponent_vicotry, player_won):
-#     player_score = (player_victory / player_game_played) * 100 if player_game_played > 0 else 0
-#     opponent_score = (opponent_vicotry / opponent_game_played) * 100 if opponent_game_played > 0 else 0
+def calculate_score(user_username, opponent_username, player_won):
+	user = User.objects.get(username=user_username)
+	opponent = User.objects.get(username=opponent_username)
+	player_score = (user.victories / user.game_played) * 100 if user.game_played > 0 else 0
+	opponent_score = (opponent.victories / opponent.game_played) * 100 if opponent.game_played > 0 else 0
 
-#     if player_won:
-#         if player_score < opponent_score:
-#             player_cote_change = (opponent_score - player_score) * 1.5
-#             opponent_cote_change = -(opponent_score - player_score) * 1.2
-#         else:
-#             player_cote_change = (opponent_score - player_score) * 1.2
-#             opponent_cote_change = -(opponent_score - player_score) * 1.1
-#     else:
-#         if opponent_score < player_score:
-#             opponent_cote_change = (player_score - opponent_score) * 1.5
-#             player_cote_change = -(player_score - opponent_score) * 1.2
-#         else:
-#             opponent_cote_change = (player_score - opponent_score) * 1.2
-#             player_cote_change = -(player_score - opponent_score) * 1.1
+	if player_won:
+		if player_score < opponent_score:
+			player_cote_change = (opponent_score - player_score) * 1.5
+			opponent_cote_change = -(opponent_score - player_score) * 1.2
+		else:
+			player_cote_change = (opponent_score - player_score) * 1.2
+			opponent_cote_change = -(opponent_score - player_score) * 1.1
+	else:
+		if opponent_score < player_score:
+			opponent_cote_change = (player_score - opponent_score) * 1.5
+			player_cote_change = -(player_score - opponent_score) * 1.2
+		else:
+			opponent_cote_change = (player_score - opponent_score) * 1.2
+			player_cote_change = -(player_score - opponent_score) * 1.1
 
-#     player_score += player_cote_change
-#     opponent_score += opponent_cote_change
+	player_score += player_cote_change
+	opponent_score += opponent_cote_change
 
-#     player_score = max(player_score, 0)
-#     opponent_score = max(opponent_score, 0)
+	user.prime = max(player_score, 0)
+	user.game_played += 1
+	user.victories += 1
+	user.save()
+	opponent.prime = max(opponent_score, 0)
+	opponent.game_played += 1
+	opponent.save()
 
-#     return player_score, opponent_score
+# @api_view(['POST'])
+# @login_required
+# @csrf_protect
+# def set_info_game(request):
+# 	prime = request.data.get('prime')
+# 	user = request.user
+# 	user.prime = prime
+# 	user.save()
+# 	return Response({
+# 		'status': 'success',
+# 		'message': 'Prime status updated successfully.',
+# 	}, status=200)

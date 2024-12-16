@@ -104,3 +104,45 @@ async function fragment_activateTotp(params) {
 	`;
 	return (body);
 }
+
+async function fragment_mfaReauthenticate(params) {
+		
+	content = `
+	<div id="mfa-auth-app-active">
+		<p id="mfa-auth-app-active">
+			Reauthentication using an authenticator app is required!
+		</p>
+	</div>
+	<div>
+		<label>
+			Authenticator code:
+			<input id="2fa-reauth-value-input" type='text' minlength="6" maxlength="6" size="6" placeholder="xxx xxx" />
+		</label>
+	</div>
+	`;
+
+	let body = `
+	<div class="modal-header text-center">
+		<h3 class="modal-title w-100" id="staticBackdropLabel">Two-Factor Reauthentication</h3>
+		<button id="close-mfa-reauth-modal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	</div>
+	<div class="modal-body">
+	
+
+		<div class="d-flex flex-column justify-content-center align-items-center">
+			<h2>Authenticator App</h2>
+			` + content + `
+		</div>
+
+
+	</div>
+	`;
+
+	body += `
+	<div class="modal-footer justify-content-center align-items-center">
+		<button id="validate-2fa-reauth-value-button" type="button" class="btn btn-primary">Validate</button>
+	</div>
+	`;
+
+	return (body);
+}

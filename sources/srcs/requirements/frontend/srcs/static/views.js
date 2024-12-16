@@ -10,12 +10,12 @@ async function UserProfileView(username, description, data)
 	const user = {"username": username};
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	console.log("user :  ", response);
-	console.log("game played :  ", response.user_info['game played']);
-	console.log("victory :  ", response.user_info.victorie);
-	console.log("photo :  ", response.user_info.photo);
-	console.log("prime :  ", response.user_info.prime);
-	const photoUrl = BASE_URL + response.user_info.photo;
+	// console.log("user :  ", response);
+	// console.log("game played :  ", response.user_info['game played']);
+	// console.log("victory :  ", response.user_info.victorie);
+	// console.log("photo :  ", response.user_info.photo);
+	// console.log("prime :  ", response.user_info.prime);
+	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser ();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
@@ -27,29 +27,37 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
+	ELEMENTs.doorJamp().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
-	flag.className = "homepageFlag";
-	flag.id = 'homepageFlag';
-	let englandFlagImg = document.getElementById("englandFlagImg");
-	englandFlagImg.className = "englandFlag";
-	englandFlag.style.marginRight = "-0.01px";
+
+	ELEMENTs.flag().className = "homepageFlag";
+	ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
+	ELEMENTs.englandFlag().style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
-	const photoUrl = BASE_URL + response.photo;
+	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	ELEMENTs.wantedProfile().onclick = () => profileView();
+	setLanguage(currentLanguage);
+	ELEMENTs.wantedProfile().onclick = () => {
+		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
+		handleLocation();
+ 	};
+	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
+	console.log('homeView: ');
 }
 
 async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
+	setLanguage(currentLanguage);
+
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
 		// 	keyboard: false
@@ -59,22 +67,20 @@ async function	loginView(title, description, data) {
 
 async function	profileView(title, description, data)
 {
-	const resp = await getAuthenticationStatus();
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-	console.log("profile view", resp);
-	document.title = "Profile | " + PAGE_TITLE;
-
+	ELEMENTs.doorJamp().style.display = 'flex';
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
+	await updateMfaBoxStatus();
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response.photo);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	const photoUrl = BASE_URL + response.photo;
+	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
+	setLanguage(currentLanguage);
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);
@@ -83,6 +89,7 @@ async function	profileView(title, description, data)
 
 async function	createLobbyView(title, description, data) 
 {
+	ELEMENTs.doorJamp().style.display = 'flex';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = CreateJoinLobbyDisplayVAR;
 
@@ -100,10 +107,12 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
+	setLanguage(currentLanguage);
+
 }
 
 async function	providerCallbackView(title, description, data) {
-	console.log('provider callback view');
+	// console.log('provider callback view');
 	document.title = title;
 	const params = {};
 
@@ -121,7 +130,7 @@ async function	providerCallbackView(title, description, data) {
 }
 
 async function	emailStatusView(title, description, data) {
-	console.log('email status view');
+	// console.log('email status view');
 	document.title = title;
 	
 	let index;
@@ -130,7 +139,7 @@ async function	emailStatusView(title, description, data) {
 	// get email verification information 
 	const verification = await getEmailVerification(data.querystring.key);
 	if (verification.find(_data => _data === 'verification-information')){
-		console.log('Function emailStatusView(): verification-information');
+		// console.log('Function emailStatusView(): verification-information');
 		if (verification[2].email && verification[3].is_authenticating){
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL;
 			//save email verfication key
@@ -144,18 +153,18 @@ async function	emailStatusView(title, description, data) {
 		}
 	}
 	else if (verification.find(_data => _data === 'input-error')){
-		console.log('Function emailStatusView(): input-error');
+		// console.log('Function emailStatusView(): input-error');
 		index = VARIABLEs.VERIFY_EMAIL.INDEXES.INVALID_LINK;
 	}
 	else if (verification.find(_data => _data === 'email-verification-not-pending')){
-		console.log('Function emailStatusView(): email-verification-not-pending');
-		console.log("Error 409: email-verification-not-pending");
+		// console.log('Function emailStatusView(): email-verification-not-pending');
+		// console.log("Error 409: email-verification-not-pending");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Email', 'Email verification is not pending');
 		await askRefreshSession();
 		return ;
 	}
 	else {
-		console.log('Function emailStatusView(): Error somewhere');
+		// console.log('Function emailStatusView(): Error somewhere');
 		return;
 	}
 	_params.index = index;

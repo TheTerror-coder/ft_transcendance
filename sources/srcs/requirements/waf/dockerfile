@@ -26,7 +26,7 @@ addgroup -g ${SHARED_GID} transcendance
 addgroup nginx transcendance
 mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
 touch ${NGINX_LOG_FILES}
-chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes
+chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes ${MODSEC_HOME}/container-init.d
 chmod 770 ${NGINX_STATICFILES_DIR}
 chown -R ${NGINX_UID}:${SHARED_GID} ${MODSEC_HOME}
 find ${MODSEC_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
@@ -39,14 +39,21 @@ EOF
 # COPY --chown=${NGINX_UID}:${NGINX_GID}  ./frontend_waf/srcs/static/ ${MODSEC_HOME}/volumes/www/static/
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ${REVERSEPROXY_CONF_FILE} /etc/nginx/templates/conf.d/default.conf.template
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendshared_conf.conf /etc/nginx/includes/backendshared_conf.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/gameservershared_conf.conf /etc/nginx/includes/gameservershared_conf.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendshared_conf.conf /etc/nginx/includes/frontendshared_conf.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendproxy_backend.conf /etc/nginx/includes/frontendproxy_backend.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendproxy_backend.conf /etc/nginx/includes/backendproxy_backend.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/gameserverproxy.conf /etc/nginx/includes/gameserverproxy.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/location_common.conf.template /etc/nginx/templates/includes/location_common.conf.template
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/logging.conf.template /etc/nginx/templates/conf.d/logging.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 \
+	./conf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf \
+	/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=500 ./tools/script.sh ${MODSEC_HOME}/container-init.d/
 
 USER ${NGINX_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
-CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]
+CMD [ "sh", "-c", "${MODSEC_HOME}/container-init.d/script.sh" ]
+# CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

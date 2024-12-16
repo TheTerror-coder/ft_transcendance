@@ -102,8 +102,28 @@ async function get2faAuthenticate(code) {
 	return ([]);
 }
 
-async function getDeactivateTotp(code) {
-	const response = await makeRequest('DELETE', URLs.ALLAUTH.MFA.TOTP_AUTHENTICATOR, { code });
+async function getMfaReauthenticate(code) {
+	const response = await makeRequest('POST', URLs.ALLAUTH.MFA.MFA_REAUTHENTICATE, { 'code' : code, });
+	if (response.status === 200){
+		return ([
+			'200',
+			'reauthenticated',
+			response.data, //object
+			response.meta, //object
+		]);
+	}
+	else if (response.status === 400){
+		return ([
+			'400',
+			'input-error',
+			response.errors, // array
+		]);
+	}
+	return ([]);
+}
+
+async function getDeactivateTotp() {
+	const response = await makeRequest('DELETE', URLs.ALLAUTH.MFA.TOTP_AUTHENTICATOR);
 	if (response.status === 200){
 		return ([
 			'200',
@@ -243,5 +263,7 @@ async function getJwtToken(url) {
 async function logout() {
 	await makeRequest('DELETE', URLs.ALLAUTH.AUTH_STATUS);
 	window.sessionStorage.clear();
-	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+	window.localStorage.removeItem('jwt_access_token')
+	window.localStorage.removeItem('jwt_refresh_token')
+	replace_location(URLs.VIEWS.LOGIN_VIEW);
 }

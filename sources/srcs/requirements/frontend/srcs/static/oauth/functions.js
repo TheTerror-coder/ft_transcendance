@@ -44,12 +44,17 @@ async function makeRequest(method, path, data, headers) {
 		}
 	}
 
+	access_token = window.localStorage.getItem('jwt_access_token');
+	if (access_token) {
+		options.headers['Authorization'] = 'Bearer ' + access_token;
+	}
+
 	if (data) {
 		if (data instanceof FormData) {
 		options.body = data;
 	} else {
 		options.body = JSON.stringify(data)
-			options.headers['Content-Type'] = 'application/json'
+		options.headers['Content-Type'] = 'application/json'
 	}
 	}
 
@@ -68,10 +73,9 @@ async function makeRequest(method, path, data, headers) {
 async function redirectToProvider()
 {
 	try {
-		
-		console.log("In function redirectToProvider()", 'csrfmiddlewaretoken= ' + await getCsrfToken());
+		// console.log("In function redirectToProvider()", 'csrfmiddlewaretoken= ' + await getCsrfToken());
 		postForm(URLs.ALLAUTH.REDIRECT_TO_PROVIDER, {
-			provider : OAUTH2_PRODIVIDER_ID,
+			provider : ULTIMAPI_PRODIVIDER_ID,
 			callback_url : URLs.VIEWS.CALLBACKURL_VIEW,
 			process : AUTHPROCESS.LOGIN,
 			csrfmiddlewaretoken : await getCsrfToken(),
@@ -91,7 +95,7 @@ async function doPendingFlows(params, flows) {
 	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
 		console.log("Pending flows: Authentication required");
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.VERIFY_EMAIL && data.is_pending)) {
@@ -111,11 +115,6 @@ async function doPendingFlows(params, flows) {
 	// }
 	// else if (params.flows?.find(data => data.id === FLOWs.SIGNUP && data.is_pending)) {
 	// 	console.log("Pending flows: Sign up required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.REAUTHENTICATE && data.is_pending)) {
-	// 	console.log("Pending flows: Reauthentication required");
 	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 	// 	return (true);
 	// }
@@ -144,11 +143,11 @@ async function skipTotpActivation(params) {
 }
 
 async function isTotpEnabled(params) {
-	const authenticators = (await getAuthenticators())[2];
+	const response = await getTotpAuthenticatorStatus();
 	
-	const totp = authenticators?.flows?.find(flow => flow?.types?.includes(AuthenticatorType.TOTP));
-	if (totp)
+	if (response.find(status => status === 'totp-authenticator-set-yet')) {
 		return (true);
+	}
 	return (false);
 }
 
@@ -253,7 +252,7 @@ function strcmp(str1, str2) {
 /**************************/
 
 async function callWebSockets(params) {
-	socket = new WebSocket("wss://localhost:1443/websocket/friend_invite/");
+	socket = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 	socket.onopen = function() {
 		console.log("WebSocket connection established.", socket);
 	};
@@ -340,35 +339,69 @@ function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-    let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-    let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-    let player_cote_change = 0;
-    let opponent_cote_change = 0;
+// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
+//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
+//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
+//     let player_cote_change = 0;
+//     let opponent_cote_change = 0;
 
-    if (player_won) {
-        if (player_score < opponent_score) {
-            player_cote_change = (opponent_score - player_score) * 1.5;
-            opponent_cote_change = -(opponent_score - player_score) * 1.2;
-        } else {
-            player_cote_change = (opponent_score - player_score) * 1.2;
-            opponent_cote_change = -(opponent_score - player_score) * 1.1;
-        }
-    } else {
-        if (opponent_score < player_score) {
-            opponent_cote_change = (player_score - opponent_score) * 1.5;
-            player_cote_change = -(player_score - opponent_score) * 1.2;
-        } else {
-            opponent_cote_change = (player_score - opponent_score) * 1.2;
-            player_cote_change = -(player_score - opponent_score) * 1.1;
-        }
-    }
+//     if (player_won) {
+//         if (player_score < opponent_score) {
+//             player_cote_change = (opponent_score - player_score) * 1.5;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
+//         } else {
+//             player_cote_change = (opponent_score - player_score) * 1.2;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
+//         }
+//     } else {
+//         if (opponent_score < player_score) {
+//             opponent_cote_change = (player_score - opponent_score) * 1.5;
+//             player_cote_change = -(player_score - opponent_score) * 1.2;
+//         } else {
+//             opponent_cote_change = (player_score - opponent_score) * 1.2;
+//             player_cote_change = -(player_score - opponent_score) * 1.1;
+//         }
+//     }
 
-    player_score += player_cote_change;
-    opponent_score += opponent_cote_change;
+//     player_score += player_cote_change;
+//     opponent_score += opponent_cote_change;
 
-    player_score = Math.max(player_score, 0);
-    opponent_score = Math.max(opponent_score, 0);
+//     player_score = Math.max(player_score, 0);
+//     opponent_score = Math.max(opponent_score, 0);
 
-    return { player_score, opponent_score };
+//     return { player_score, opponent_score };
+// }
+
+
+async function reauthenticateFirst(flows) {
+	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
+		console.log("Pending flows: Reauthentication required");
+		// await reauthenticateJob(undefined);
+		await logout();
+		return (true);
+	}
+	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {
+		console.log("Pending flows: mfa Reauthentication required");
+		await requireMfaReauthenticateJob(undefined);
+		return (true);
+	}
+	return false;
+}
+
+async function updateMfaBoxStatus(data) {
+	if (await isTotpEnabled()) {
+		ELEMENTs.switch2FA()?.setAttribute('checked', '');
+	} else {
+		ELEMENTs.switch2FA()?.removeAttribute('checked');
+	}
+}
+
+function assign_location(url) {
+	window.history.pushState({}, "", url);
+	handleLocation();
+}
+
+function replace_location(url) {
+	window.history.replaceState({}, "", url);
+	handleLocation();
 }

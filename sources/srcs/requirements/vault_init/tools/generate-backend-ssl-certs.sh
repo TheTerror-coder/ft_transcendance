@@ -35,7 +35,7 @@ generate_backend_intermediate_ca () {
 		exclude_cn_from_sans=true \
 		alt_names="$BACKEND_ALT_NAMES" \
 		permitted_dns_domains="$BACKEND_ALT_NAMES" \
-		ip_sans="127.0.0.1" \
+		ip_sans="127.0.0.1,$HOST_IP" \
 		issuer_name="Root-Certificate-Authority" \
 		key_name="ca-key" \
 		organization="42 Lyon Ft_transcendance Group" \
@@ -69,6 +69,7 @@ request_backend_certificate () {
 	vault write -format=json backend/issue/backend_intermediate_ca_role \
 		common_name="backend" \
 		alt_names="$BACKEND_ALT_NAMES" \
+		ip_sans="$HOST_IP" \
 		exclude_cn_from_sans=true \
 		ttl="720h" \
 		| tee \

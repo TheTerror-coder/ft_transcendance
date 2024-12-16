@@ -1,7 +1,10 @@
 
+// import * as views from './views.js';
+
 const eventManager = async (event) => {
 	const { target } = event;
 	
+	console.log('event listener: ', target.id);
 
 	if (target.matches('a')){
 		await urlRoute(event);
@@ -11,13 +14,24 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await redirectToProvider();
 	}
+	else if (target.id === ELEMENTs.franceFlag()?.id)
+	{
+		event.preventDefault();
+		setLanguage('fr');
+	}
+	else if (target.id === ELEMENTs.englandFlagImg()?.id)
+	{
+		event.preventDefault();
+		setLanguage('en');
+	}
+	else if (target.id === ELEMENTs.spainFlag()?.id)
+	{
+		event.preventDefault();
+		setLanguage('es');
+	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	}
-	else if (target.id === ELEMENTs.logoutButton()?.id){
-		event.preventDefault();
-		await logout();
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
 		event.preventDefault();
@@ -34,6 +48,10 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.validate_2fa_value_button()?.id){
 		event.preventDefault();
 		await twoFaAuthenticateJob();
+	}
+	else if (target.id === ELEMENTs.validate_2fa_reauth_value_button()?.id){
+		event.preventDefault();
+		await mfaReauthenticateJob();
 	}
 	else if (target.id === ELEMENTs.skip_activate_totp_button()?.id){
 		event.preventDefault();
@@ -72,24 +90,47 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.cross()?.id)
 	{
+		if (globalSocket !== null)
+		{
+			console.log("j'ai cliquer sur lq croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
+			globalSocket.disconnect();
+			console.log("apres le disconnect global socket = ", globalSocket);
+			globalSocket = null;
+			console.log("mis a null de global socket = ", globalSocket);
+		}
 		event.preventDefault();
 		refreshHomePage();
 	}
-	else if (target.id === ELEMENTs.playButtonImg()?.id){
-		// event.preventDefault();
-		playDisplayHomepage();
-	}
+	// else if (target.id === ELEMENTs.playButtonImg()?.id){
+	// 	event.preventDefault();
+	// 	playDisplayHomepage();
+	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
 		await addFriend();
 	}
-	else if (target.id === ELEMENTs.exitLuffy()?.id)
+	else if (target.id === ELEMENTs.logoutButton()?.id)
 	{
 		event.preventDefault();
 		await logout();
-		// TO DO: exitLuffy(); (logout function)
-		// await exitLuffy();
+	}
+	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
+	{
+		ELEMENTs.switch2FA().click();
+	}
+	else if (target.id === ELEMENTs.switch2FA()?.id)
+	{
+		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
+			
+			if (await isTotpEnabled()) {
+				await deactivateTotpJob();
+			} else {
+				await activateTotpJob();
+			}
+			return ;
+		}
+		window.localStorage.removeItem('skip_switch2FA_flag');
 	}
 
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
@@ -104,7 +145,6 @@ const eventManager = async (event) => {
 	// else if (target.id === 'live-alert'){
 	// 	await onePongAlerter(ALERT_CLASSEs.SUCCESS, 'success', 'Welcome to One Pong!');
 	// }
-	console.log('event listener: ', target.id);
 };
 
 // const auth_change = async (event) => {
@@ -118,7 +158,6 @@ const eventManager = async (event) => {
 // }
 
 document.addEventListener("click", eventManager); 
-document.addEventListener("auth-change", eventManager); 
 
 const urlRoute = async (event) => {
 	event = event || window.event;
@@ -193,7 +232,7 @@ urlRoutes[PATHs.VIEWS.PROFILE] = {
 // };
 
 const handleLocation = async () => {
-	console.log('popstate');
+	console.log('*********DEBUG********* handleLocation()');
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
 	let _storage = {};
@@ -220,55 +259,13 @@ const handleLocation = async () => {
 	}
 	if (!(await isUserAuthenticated(_storage))){
 		// if (!await doPendingFlows({}, _storage.flows))
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
 	await render_next(undefined, routeMatched, _storage);
 };
 
-async function onePongAlerter(type, title, message) {
-	const nth_alert = N_ALERT++;
-	const placeHolder = document.createElement('div');
-	placeHolder.innerHTML = `
-	<div id="live-alert-placeholder" class="col-xs-10 col-sm-10 col-md-3 position-absolute top-0 end-0" style="z-index: 2222; margin-top: 8px; margin-right: 8px;">
-	</div>
-	`;
-	document.body.appendChild(placeHolder);
-	
-	const alertPlaceholder = document.getElementById('live-alert-placeholder');
-
-	const wrapper = document.createElement('div');
-	wrapper.innerHTML = `
-		<div id="alert-${nth_alert}" class="alert alert-${type} alert-dismissible fade show" role="alert">
-				<h5 class="alert-heading" style="margin-bottom: 4px;">
-					${
-						(type === ALERT_CLASSEs.INFO)
-						? '<i class="bi bi-info-circle" style="margin-right: 4px;"></i>'
-						: (type === ALERT_CLASSEs.SUCCESS)
-						? '<i class="bi bi-check-circle-fill" style="margin-right: 4px;"></i>'
-						: (type === ALERT_CLASSEs.WARNING || type == ALERT_CLASSEs.DANGER)
-						? '<i class="bi bi-exclamation-triangle-fill" style="margin-right: 4px;"></i>'
-						: ''
-					}
-					${title}
-				</h5>
-				<hr style="margin: 0; margin-bottom: 2px;">
-			<div>${message}</div>
-			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-		</div>
-	`;
-	alertPlaceholder.insertBefore(wrapper, alertPlaceholder.firstChild);
-
-	const _alert = bootstrap.Alert.getOrCreateInstance(`#alert-${nth_alert}`);
-	setTimeout(
-		() => {
-			if (bootstrap.Alert.getInstance(`#alert-${nth_alert}`))
-				_alert.close();
-		},
-		5000
-	);
-}
 
 
 window.addEventListener('load', async () => {
@@ -294,7 +291,7 @@ window.addEventListener('load', async () => {
         else if (response.find(data => data === 'invalid-session')) {
             console.log('invalid-session');
             window.sessionStorage.clear();
-            window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+            replace_location(URLs.VIEWS.LOGIN_VIEW);
         }
     }
 });

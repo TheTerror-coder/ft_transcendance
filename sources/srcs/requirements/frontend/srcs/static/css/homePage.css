@@ -1,6 +1,12 @@
 @font-face {
     font-family: wantedFont;
     src: url(/static/wantedFont.ttf);
+
+}
+
+@font-face {
+    font-family: papyrusFont;
+    src: url(/static/papyrus.ttf);
 }
 
 /* il est partout lui lol */
@@ -9,6 +15,11 @@
     display: flex;
     justify-content: space-between;
 }
+
+/* #logoutButton
+{
+    display: none;
+} */
 
 .wantedFriendHomePageDisplay
 {
@@ -26,7 +37,8 @@
     max-width: 243px;
     max-height: 182px;
     margin-right: -5px;
-    margin-top: 50px;
+    margin-top: 53px;
+    background-color: rgb(152, 231, 241);
 }
 
 .wantedProfile
@@ -86,22 +98,17 @@
     justify-content: flex-end;
 }
 
-#homepageFlag button
+.homepageFlag button
 {
     width: 70px;
     height: 70px;
     margin-right: 10px;
 }
 
-#homepageFlag button img
+.homepageFlag button img
 {
     height: 100%;
     width: auto;
-}
-
-.englandFlag
-{
-    transform: scale(1.2);
 }
 
 .profileDisplay
@@ -142,7 +149,7 @@
     font-weight: 10;
 }
   
-  .cover {
+.cover {
     top: 0;
     position: absolute;
     background-image: url('/photos/picturePng/homePage/socialBackground.png');
@@ -156,23 +163,202 @@
     display: flex;
     -webkit-box-pack: center;
     justify-content: center;
-  }
-  
-  .book:hover .cover {
+}
+
+.book:hover .cover {
     -webkit-transition: all 0.5s;
     transition: all 0.5s;
     -webkit-transform: rotatey(-80deg);
     -ms-transform: rotatey(-80deg);
     transform: rotatey(-80deg);
-  }
+}
   
-  p {
+p {
     font-size: 20px;
     font-weight: bolder;
-  }
+}
 
 
 .sideBar {
     height: 100%; /* Full height */
     width: 40px;
+}
+
+.logoutDoor 
+{
+    position: relative;
+    border-radius: 10px;
+    -webkit-perspective: 2000px;
+    perspective: 2000px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-box-pack: center;
+    margin-left: 10px;
+    height: -webkit-fill-available;
+    width: 60px;
+}
+
+.logoutDoorPng p
+{
+    font-size: 50px;
+    font-weight: 10;
+}
+  
+.doorJamb
+{
+    display:none;
+    position: absolute;
+    background-image: url('/photos/picturePng/doorJamb.png');
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.logoutDoorPng {
+    position: absolute;
+    background-image: url('/photos/picturePng/door.png');
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.5s;
+    transform-origin: 0;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+@keyframes openDoor
+{
+    0% {
+        transform: rotateY(0deg) translateX(0px);
+    }
+    25% {
+        transform: rotateY(10deg) translateX(0px);
+    }
+    50% {
+        transform: rotateY(25deg) translateX(1px); 
+    }
+    75% {
+        transform: rotateY(40deg) translateX(3px);
+    }
+    100% {
+        transform: rotateY(50deg) translateX(7px);
+    }
+}
+
+
+.teamChooseFontHomePage
+{
+    font-size: 25px;
+    font-weight: bold;
+    color: #dc2700;
+    align-self: center;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8;
+    opacity: 0.85;
+}
+  
+
+
+
+
+
+.labelJoin {
+    height: 40px;
+    width: 110px;
+    background-color: #ffffff;
+    border-radius: 30px;
+    box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.4s;
+}
+
+.labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+    transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#switchNumbersOfPlayers {
+    display: none;
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseTeamSwitch {
+    display: none;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseRoleSwitch {
+    display: none;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+.labelJoin::before {
+    position: absolute;
+    content: "";
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: #000000;
+    background-image: linear-gradient(
+    130deg,
+    #757272 10%,
+    #ffffff 11%,
+    #726f6f 62%
+    );
+    left: 10px;
+    -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    10px 10px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
 }
