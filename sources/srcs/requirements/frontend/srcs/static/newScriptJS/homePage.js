@@ -14,6 +14,10 @@ function refreshHomePage()
 // }
 
 
+
+
+
+
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;

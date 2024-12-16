@@ -28,30 +28,35 @@
     </head>
     <body class="background" id="background">
         <div class="headPage">
-            <button style="width: 100px;">
+            <button style="width: 100px; height:70px;">
                 <div class="logoutDoor" id="logoutDoor">
-                    <!-- <div class="sideBar">
-                    </div>
-                    <div style="display:flex; flex-direction: column; width:180px;">
-                        <div style="display:flex; justify-content: center; margin-top: 20px;">
-                        </div>
-                    </div> -->
                     <div class="doorJamb" id="doorJamp">
+                        <img class="chopperDoor" src="/static/photos/picturePng/chopperDoor.png" alt="logout">
                         <div id="logoutButton" class="logoutDoorPng">
                         </div>
                     </div>
                 </div>
             </button>
-
-            <div class="form-check form-switch" style="display: flex; justify-content: center;">
-                <input class="form-check-input" type="checkbox" role="switch" id="switch2FA">
-                <label class="form-check-label" for="switch2FA" style="font-size: 15px;"> disable/enable 2FA</label>
+            <div class="button-container">
+                <button class="buttonHeadPage">
+                    <div class="form-check form-switch" style="display: flex; justify-content: center;">
+                        <input class="form-check-input" type="checkbox" role="switch" id="switch2FA">
+                        <label class="form-check-label" for="switch2FA" style="font-size: 15px;"></label>
+                    </div>
+                </button>
+                <button class="buttonHeadPage">
+                    <img id="dropDownLanguage" src="/static/photos/picturePng/loginPage/drapeau/flagen.png" alt="flags for change language">
+                </button>
             </div>
-            <div class="flag" id="flag">
+
+
+
+
+            <!-- <div class="flag" id="flag">
                 <button id="englandFlag"><img src="/static/photos/picturePng/loginPage/drapeau/angleterre.png" alt="England Flag" style="margin-right: -4px;" id="englandFlagImg"></button>
                 <button id="spainFlag"><img id="spainFlag" src="/static/photos/picturePng/loginPage/drapeau/Espagne.png" alt="Spain Flag"></button>
                 <button id="franceFlag"><img id="franceFlag" src="/static/photos/picturePng/loginPage/drapeau/France.png" alt="France Flag"></button>
-            </div>
+            </div> -->
         </div>
         <div id="mainPage" style="flex: 1;">
         </div>

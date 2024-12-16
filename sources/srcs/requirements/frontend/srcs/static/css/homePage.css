@@ -9,6 +9,69 @@
     src: url(/static/papyrus.ttf);
 }
 
+
+#dropDownLanguage
+{
+    width: 40px;
+    height: 40px;
+}
+
+#englandFlagImg
+{
+    width: 40px;
+    height: 40px;
+}
+
+#spainFlag
+{
+    width: 40px;
+    height: 40px;
+}
+
+#franceFlag
+{
+    width: 40px;
+    height: 40px;
+}
+
+
+/* From Uiverse.io by akshat-patel28 */ 
+.button-container {
+    display: flex;
+    background-color: rgb(123, 184, 225, 0.5);
+    width: 250px;
+    height: 40px;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px,
+          rgba(245, 73, 144, 0.5) 5px 10px 15px;
+  }
+  
+  .buttonHeadPage {
+    outline: 0 !important;
+    border: 0 !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: all ease-in-out 0.3s;
+    cursor: pointer;
+  }
+  
+  .buttonHeadPage:hover {
+    transform: translateY(-3px);
+  }
+  
+  .icon {
+    font-size: 20px;
+  }
+
+
 /* il est partout lui lol */
 .headPage
 {
@@ -184,6 +247,17 @@ p {
     width: 40px;
 }
 
+.chopperDoor
+{
+    width: 30px;
+    height: 55px;
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    opacity: 0.9;
+    z-index: -5;
+}
+
 .logoutDoor 
 {
     position: relative;
@@ -240,19 +314,37 @@ p {
         transform: rotateY(0deg) translateX(0px);
     }
     25% {
-        transform: rotateY(10deg) translateX(0px);
+        transform: rotateY(30deg) translateX(2px);
     }
     50% {
-        transform: rotateY(25deg) translateX(1px); 
+        transform: rotateY(48deg) translateX(5px); 
     }
     75% {
-        transform: rotateY(40deg) translateX(3px);
+        transform: rotateY(60deg) translateX(8px);
     }
     100% {
-        transform: rotateY(50deg) translateX(7px);
+        transform: rotateY(70deg) translateX(10px);
     }
 }
 
+@keyframes closeDoor
+{
+    0% {
+        transform: rotateY(70deg) translateX(10px);
+    }
+    25% {
+        transform: rotateY(60deg) translateX(8px);
+    }
+    50% {
+        transform: rotateY(48deg) translateX(5px);
+    }
+    75% {
+        transform: rotateY(30deg) translateX(2px);
+    }
+    100% {
+        transform: rotateY(10deg) translateX(0px);
+    }
+}
 
 .teamChooseFontHomePage
 {

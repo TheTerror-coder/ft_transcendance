@@ -29,6 +29,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		setLanguage('es');
 	}
+	else if (target.id === ELEMENTs.dropDownLanguage()?.id)
+	{
+		console.log("je suis cense etre al wsh ? dand drop downlanguage");
+		languagePopOver();
+	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
 		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
@@ -114,7 +119,7 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
-	else if (target.id === ELEMENTs.logoutButton()?.id)
+	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		event.preventDefault();
 		await logout();

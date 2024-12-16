@@ -95,7 +95,7 @@ async function displayWaitingListFriend(friends) {
         nameSpan.dataset.translate = "NoInvitationsWaiting";
         listItem.appendChild(nameSpan);
         dropdownMenu.appendChild(listItem);
-        setlanguage();
+        setlanguage(currentLanguage);
     }
     else
     {
