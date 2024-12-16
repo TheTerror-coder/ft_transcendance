@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+import { createCannonBall } from './render.js';
 const trajectoryCanvas = document.createElement('canvas');
 trajectoryCanvas.id = 'trajectoryCanvas';
 document.body.appendChild(trajectoryCanvas);
@@ -32,5 +32,23 @@ export async function createTrajectoryLine(points) {
         linewidth: 2
     });
     return new THREE.Line(geometry, material);
+}
+
+export async function fireCannon(trajectory, scene)
+{
+    const ballMesh = createCannonBall();
+    console.log('ballMesh : ', ballMesh);
+
+    ballMesh.position.set(trajectory[0].x, trajectory[0].y, trajectory[0].z);
+    scene.add(ballMesh);
+    for (const point of trajectory)
+    {
+        ballMesh.position.set(point.x, point.y, point.z);
+        ballMesh.rotation.x += 0.1;
+        ballMesh.rotation.z += 0.1;
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    scene.remove(ballMesh);
+    // return ballMesh;
 }
 

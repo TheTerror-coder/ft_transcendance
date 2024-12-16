@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { calculateCannonBallTrajectory, createTrajectoryLine, fireCannon } from './ballistic_cal.js';
 
 export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED) {
     if (currentPlayer.getRole() === 'Cannoneer') {
@@ -8,12 +9,12 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         let cannonTubeMoved = false;
 
         if (cannon) {
-            if (keys && keys['d'] && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 6 && TeamID === 2)))
+            if (keys && keys['d'] && keys['d'].pressed && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 6 && TeamID === 2)))
             {
                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
                 cannonTubeMoved = true;
             }
-            if (keys && keys['a'] && ((cannon.position.x < 6 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
+            if (keys && keys['a'] && keys['a'].pressed && ((cannon.position.x < 6 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
             {
                 cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
                 cannonTubeMoved = true;
@@ -26,16 +27,13 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
     }
 }
 
-export function updateAndEmitCannonRotation(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, Team1, Team2)
+export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene)
 {
     if (currentPlayer.getRole() === 'Cannoneer') {
         let directionRotation = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
         let TeamID = currentPlayerTeam.getTeamId();
         let cannon = currentPlayerTeam.getCannon();
         let cannonTube = currentPlayerTeam.getCannonTube();
-        // let cannonTubeOtherTeam = TeamID === 1 ? Team2.getCannonTube() : Team1.getCannonTube();
-        // let boatGroup = currentPlayerTeam.getBoatGroup();
-        // let cannonRotationChanged = false;
 
         console.log('currentPlayer GameStarted : ', currentPlayer.getGameStarted());
 
@@ -46,12 +44,44 @@ export function updateAndEmitCannonRotation(gameCode, socket, keys, currentPlaye
                 if (TeamID === 1)
                 {
                     let isGoingUp = true;
+                    let pause = false;
+                    let trajectoryLine = null;
                     setInterval(async () => {
-                        if (cannonTube.rotation.y < -Math.PI / 2) isGoingUp = false;
-                        else if (cannonTube.rotation.y > 0) isGoingUp = true;
-                        
-                        cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED * directionRotation;
-                        
+                        if (!pause)
+                        {
+                            if (cannonTube.rotation.y < -(75 * (Math.PI / 180))) isGoingUp = false;
+                            else if (cannonTube.rotation.y > 0) isGoingUp = true;
+                            
+                            cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED * directionRotation;
+                            if (keys && keys[' '] && keys[' '].pressed)
+                            {
+                                pause = true;
+                                const v0 = 27;  // Vitesse initiale en m/s
+                                let angle = -((cannonTube.rotation.y * 180 / Math.PI));  // Angle de tir en degrés
+                                const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
+                                console.log('======== cannonPosTip ========= : ', cannonPos);
+                                const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
+                                trajectoryLine = await createTrajectoryLine(trajectory);
+                                scene.add(trajectoryLine);
+                                console.log('trajectory : ', trajectory);
+                                await fireCannon(trajectory, scene);
+                                cannonTube.rotation.y = 0;
+                                hud.scene.add(hud.loadingCircle.group);
+                            }
+                        }
+                        else
+                        {
+                            if (keys && keys['r'] && keys['r'].pressed)
+                            {
+                                if (hud.getPercentage(keys, 'r') >= 100)
+                                {
+                                    console.log('key pressed : ', keys['r'].time);
+                                    pause = false;
+                                    scene.remove(trajectoryLine);
+                                    // cannonTube.rotation.y = 0;
+                                }
+                            }
+                        }
                     }, 100);
                 }
                 else if (TeamID === 2)
@@ -59,7 +89,7 @@ export function updateAndEmitCannonRotation(gameCode, socket, keys, currentPlaye
                     let isGoingUp = true;
                     setInterval(async () => {
                         if (cannonTube.rotation.y >= 0) isGoingUp = false;
-                        if (cannonTube.rotation.y <= -Math.PI / 2) isGoingUp = true;
+                        if (cannonTube.rotation.y <= -(75 * (Math.PI / 180))) isGoingUp = true;
                         
                         cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
                     }, 100);
@@ -77,11 +107,11 @@ export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayer
 
         let boatMoved = false;
 
-        if (keys && keys['d'] && ((boatGroup.position.x > -55 && TeamID === 1) || (boatGroup.position.x < 55 && TeamID === 2))) {
+        if (keys && keys['d'] && keys['d'].pressed && ((boatGroup.position.x > -55 && TeamID === 1) || (boatGroup.position.x < 55 && TeamID === 2))) {
             boatGroup.position.x += BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }
-        if (keys && keys['a'] && ((boatGroup.position.x < 55 && TeamID === 1) || (boatGroup.position.x > -55 && TeamID === 2))) {
+        if (keys && keys['a'] && keys['a'].pressed && ((boatGroup.position.x < 55 && TeamID === 1) || (boatGroup.position.x > -55 && TeamID === 2))) {
             boatGroup.position.x -= BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }

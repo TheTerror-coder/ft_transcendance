@@ -324,3 +324,69 @@ function showBoundingBox(object, scene) {
     const helper = new THREE.Box3Helper(boundingBox, 0xffff00);
     scene.add(helper);
 }
+
+export function createCannonBall() {
+    // Créer la géométrie sphérique pour le boulet
+    const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+
+    // Créer une texture procédurale
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 256;
+    canvas.height = 256;
+
+    // Créer le gradient radial pour la texture métallique
+    const gradient = context.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        canvas.width / 2
+    );
+
+    // Ajouter les couleurs pour un effet métallique usé
+    gradient.addColorStop(0, '#4a4a4a');     // Centre plus clair
+    gradient.addColorStop(0.4, '#333333');    // Transition
+    gradient.addColorStop(0.7, '#222222');    // Extérieur plus sombre
+    gradient.addColorStop(1, '#111111');      // Bord très sombre
+
+    // Appliquer le gradient
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Ajouter des effets de texture (rayures et imperfections)
+    for (let i = 0; i < 1000; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const brightness = Math.random() * 30 - 15;
+        
+        context.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.1})`;
+        context.fillRect(x, y, 2, 2);
+    }
+
+    // Créer la texture Three.js à partir du canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+    // Créer le matériau avec la texture
+    const material = new THREE.MeshStandardMaterial({
+        map: texture,
+        metalness: 0.8,
+        roughness: 0.4,
+        bumpMap: texture,
+        bumpScale: 0.02,
+        normalMap: texture,
+        normalScale: new THREE.Vector2(0.1, 0.1)
+    });
+
+    // Créer le mesh final
+    const cannonBall = new THREE.Mesh(geometry, material);
+
+    // Ajouter des ombres
+    cannonBall.castShadow = true;
+    cannonBall.receiveShadow = true;
+
+    return cannonBall;
+}

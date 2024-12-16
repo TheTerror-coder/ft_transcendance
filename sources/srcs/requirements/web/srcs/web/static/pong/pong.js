@@ -5,7 +5,8 @@ import { updateAndEmitBoatPositions, updateAndEmitCannonPositions, updateAndEmit
 import * as render from './render.js';
 import * as network from './network.js';
 import * as THREE from 'three'; // TODO : remove for production
-import { calculateCannonBallTrajectory, createTrajectoryLine } from './ballistic_cal.js';
+// import { calculateCannonBallTrajectory, createTrajectoryLine } from './ballistic_cal.js';
+import { createHUD } from './HUD.js';
 
 console.log("pong.js loaded");
 
@@ -40,6 +41,7 @@ export async function main(gameCode, socket) {
     });
     
     let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball } = await render.initScene();
+    let hud = createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
     let boat1Hitbox = new THREE.Box3Helper(boat1BoundingBox, 0xffff00); // TODO : remove for production
@@ -98,16 +100,16 @@ export async function main(gameCode, socket) {
     console.log('cameraPlayer : ', cameraPlayer);
     
     // Paramètres
-    const v0 = 27;  // Vitesse initiale en m/s
-    let angle = -((currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI));  // Angle de tir en degrés
+    // const v0 = 27;  // Vitesse initiale en m/s
+    // let angle = -((currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI));  // Angle de tir en degrés
 
     // Calculer et dessiner la trajectoire
-    const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
-    console.log('======== cannonPosTip ========= : ', cannonPos);
-    const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
-    const trajectoryLine = await createTrajectoryLine(trajectory);
-    scene.add(trajectoryLine);
-    console.log('trajectory : ', trajectory);
+    // const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
+    // console.log('======== cannonPosTip ========= : ', cannonPos);
+    // const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
+    // const trajectoryLine = await createTrajectoryLine(trajectory);
+    // scene.add(trajectoryLine);
+    // console.log('trajectory : ', trajectory);
     for (const player of Team1.getPlayerMap().values())
     {
         console.log('Player Team1 : ', player);
@@ -124,27 +126,25 @@ export async function main(gameCode, socket) {
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText);
     await waitForGameStarted(currentPlayer);
     setInterval(() => {
         updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED);
         updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED);
     }, FRAME_RATE);
-    updateAndEmitCannonRotation(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, Team1, Team2);
+    updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene);
     
     async function animate() {
         requestAnimationFrame(animate);
-        const newCannonPos = currentPlayerTeam.getCannonTubeTipPosition();
-        let newAngle = -((currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI));  // Angle de tir en degrés
-        // Vérifiez si la position du canon a changé
-        if (!cannonPos.equals(newCannonPos) || angle != newAngle) {
-            // console.log('currentPlayerTeam.getCannonTubeRotation().y : ', newAngle);
-            // console.log('angle : ', angle);
-            cannonPos.copy(newCannonPos);
-            angle = newAngle;
-            const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
-            trajectoryLine.geometry.setFromPoints(trajectory);
-        }
+        // const newCannonPos = currentPlayerTeam.getCannonTubeTipPosition();
+        // let newAngle = -((currentPlayerTeam.getCannonTubeRotation().y * 180 / Math.PI));  // Angle de tir en degrés
+        // // Vérifiez si la position du canon a changé
+        // if (!cannonPos.equals(newCannonPos) || angle != newAngle) {
+        //     cannonPos.copy(newCannonPos);
+        //     angle = newAngle;
+        //     const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
+        //     trajectoryLine.geometry.setFromPoints(trajectory);
+        // }
         
         boat1BoundingBox.setFromObject(boatGroup1);
         boat2BoundingBox.setFromObject(boatGroup2);
@@ -159,6 +159,11 @@ export async function main(gameCode, socket) {
         
         // Rendre la scène
         renderer.render(scene, cameraPlayer);
+
+        // Rendre la scène HUD
+        renderer.autoClear = false;
+        renderer.render(hud.scene, hud.camera);
+        renderer.autoClear = true;
     }
 
     animate();
@@ -273,12 +278,27 @@ function initCamera(player, cameraPlayer, cannon, bateau)
 }
 
 function setupEventListeners(socket, keys, cameraPlayer) {
+    let lastKeyPressTime = 0;
     window.addEventListener('keydown', (event) => {
-        keys[event.key] = true;
+        if (!keys[event.key] || !keys[event.key].pressed)
+        {
+            keys[event.key] = {pressed: true, time: 0};
+            console.log('key pressed : ', event.key);
+            lastKeyPressTime = Date.now();
+        }
+        else
+        {
+            keys[event.key].time = Date.now() - lastKeyPressTime;
+        }
     });
 
     window.addEventListener('keyup', (event) => {
-        keys[event.key] = false;
+        if (keys[event.key] && keys[event.key].pressed)
+        {
+            const pressDuration = Date.now() - lastKeyPressTime;
+            console.log('key pressed : ', event.key, 'duration : ', pressDuration);
+            keys[event.key] = {pressed: false, time: pressDuration};
+        }
     });
 
     window.addEventListener('resize', function () {

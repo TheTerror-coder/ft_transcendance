@@ -20,7 +20,7 @@ function updateCannoneerCamera(boatGroup, player) {
     }
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText) {
     socket.on('connect', (data) => {
         var Team = data.Team;
         console.log('Connected to the server');
@@ -92,8 +92,9 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball) 
         Team1.setScore(team1);
         Team2.setScore(team2);
         console.log('Score updated - Team 1: ', team1, 'Team 2: ', team2);
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        scoreDisplay.innerText = `Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`;
+        // const scoreDisplay = document.getElementById('scoreDisplay');
+        // scoreDisplay.innerText = `Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`;
+        scoreText.updateHUDText(`Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`);
     });
 }
 
