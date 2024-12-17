@@ -99,6 +99,95 @@ function createScoreText() {
     };
 }
 
+function createEndGameText() {
+    // Créer un canvas temporaire pour le texte
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    canvas.width = 1024;
+    canvas.height = 1024;
+    
+    // Configurer le style du texte
+    context.font = 'Bold 60px Arial';
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    
+    // Créer une texture à partir du canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true
+    });
+    
+    const geometry = new THREE.PlaneGeometry(10, 10);
+    const textMesh = new THREE.Mesh(geometry, material);
+    
+    function updateEndGameText(isWinner) {
+        const canvas = textMesh.material.map.image;
+        const context = canvas.getContext('2d');
+        
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const message = isWinner ? 'VICTOIRE !' : 'DÉFAITE...';
+        context.fillText(message, canvas.width/2, canvas.height/2);
+        
+        textMesh.material.map.needsUpdate = true;
+    }
+
+    // Positionner le texte au centre
+    textMesh.position.set(0, 0, 0);
+    textMesh.scale.set(100, 100, 100);
+    
+    return {
+        textMesh: textMesh,
+        updateEndGameText: updateEndGameText
+    };
+}
+
+function createHealthBar(sx, sy, sz, x, y, z) {
+    // Créer un groupe pour contenir la barre de vie
+    const healthGroup = new THREE.Group();
+
+    // Créer le fond de la barre (rouge)
+    const backgroundGeometry = new THREE.PlaneGeometry(100, 10);
+    const backgroundMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        side: THREE.DoubleSide
+    });
+    const backgroundBar = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+    healthGroup.add(backgroundBar);
+
+    // Créer la barre de vie (verte)
+    const healthGeometry = new THREE.PlaneGeometry(100, 10);
+    const healthMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        side: THREE.DoubleSide
+    });
+    const healthBar = new THREE.Mesh(healthGeometry, healthMaterial);
+    healthGroup.add(healthBar);
+
+    // Fonction pour mettre à jour la barre de vie
+    function updateHealth(percentage) {
+        healthBar.scale.x = Math.max(0, Math.min(1, percentage / 100));
+        healthBar.position.x = -50 * (1 - healthBar.scale.x);
+    }
+
+    // Positionner la barre en haut à gauche
+    healthGroup.position.set(
+        x,
+        y,
+        z
+    );
+
+    healthGroup.scale.set(sx, sy, sz);
+
+    return {
+        group: healthGroup,
+        updateHealth: updateHealth
+    };
+}
+
 export function createHUD(renderer) {
     // Créer une scène et une caméra orthographique pour le HUD
     const hudScene = new THREE.Scene();
@@ -121,8 +210,16 @@ export function createHUD(renderer) {
 
     // Créer le texte
     const scoreText = createScoreText();
-
     hudScene.add(scoreText.textMesh);
+
+    // Créer la barre de vie
+    const healthBar = createHealthBar(10, 5, 5, 0, window.innerHeight - 100, 0);
+    const healthBar2 = createHealthBar(1, 1, 1, -window.innerWidth, window.innerHeight - 200, 0);
+    hudScene.add(healthBar.group);
+    hudScene.add(healthBar2.group);
+
+    // Créer le texte de fin de partie
+    const endGameText = createEndGameText();
 
     // Fonction pour redimensionner le HUD
     function onWindowResize() {
@@ -144,6 +241,12 @@ export function createHUD(renderer) {
         scoreText.textMesh.position.set(
             0,
             window.innerHeight - scoreTextMargin,
+            0
+        );
+
+        healthBar.group.position.set(
+            -window.innerWidth/2 + 100,
+            window.innerHeight/2 - 30,
             0
         );
     }
@@ -168,6 +271,15 @@ export function createHUD(renderer) {
         loadingCircle: loadingCircle,
         getPercentage: getPercentage,
         scoreText: scoreText,
-        updateHUDText: scoreText.updateHUDText
+        updateHUDText: scoreText.updateHUDText,
+        endGameText: endGameText,
+        showEndGameText: (isWinner) => {
+            hudScene.add(endGameText.textMesh);
+            endGameText.updateEndGameText(isWinner);
+        },
+        healthBar: healthBar,
+        healthBar2 : healthBar2,
+        updateHealth: healthBar.updateHealth,
+        updateHealth2: healthBar2.updateHealth
     };
 }

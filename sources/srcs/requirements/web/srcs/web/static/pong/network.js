@@ -1,3 +1,5 @@
+import { fireEnnemieCannonBall } from './ballistic_cal.js';
+
 function findTeam(Team1, Team2, teamID)
 {
     if (teamID === Team1.getTeamId())
@@ -20,7 +22,7 @@ function updateCannoneerCamera(boatGroup, player) {
     }
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene) {
     socket.on('connect', (data) => {
         var Team = data.Team;
         console.log('Connected to the server');
@@ -53,7 +55,15 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     });
 
     socket.on('winner', (winner) => {
-        console.log(`Le joueur ${winner} a gagné !`);
+        console.log(`L'équipe ${winner} a gagné !`);
+        currentPlayer.setGameStarted(false);
+        const TeamID = currentPlayer.getTeamID();
+        const currentTeam = findTeam(Team1, Team2, TeamID);
+        const teamName = currentTeam.getTeamName();
+        console.log('teamName : ', teamName);
+        console.log('winner : ', winner);
+        const isWinner = winner === teamName;
+        hud.showEndGameText(isWinner);
         // gameStarted = false;
     });
 
@@ -71,6 +81,21 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         if (team && team.getCannon()) {
             team.getCannon().rotation.y = cannonRotation.y;
         }
+    });
+
+    socket.on('ballFired', async (data) => {
+        const trajectory = data;
+        console.log('trajectory : ', trajectory);
+        fireEnnemieCannonBall(scene, trajectory);
+    });
+
+    socket.on('updateHealth', async (data) => {
+        const {teamID, health} = data;
+        let team = findTeam(Team1, Team2, teamID);
+        if (team = currentPlayer.getTeamID())
+            hud.updateHealth(health);
+        else
+            hud.updateHealth2(health);
     });
 
     socket.on('boatPosition', async (data) => {

@@ -74,6 +74,11 @@ class Team
         this.name = name;
     }
 
+    getTeamName()
+    {
+        return (this.name);
+    }
+
     setBoat(boat)
     {
         this.boat = boat;

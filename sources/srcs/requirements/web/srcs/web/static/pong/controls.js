@@ -1,7 +1,8 @@
 import * as THREE from 'three';
-import { calculateCannonBallTrajectory, createTrajectoryLine, fireCannon } from './ballistic_cal.js';
+import { doTheCal } from './ballistic_cal.js';
 
-export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED) {
+export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED)
+{
     if (currentPlayer.getRole() === 'Cannoneer') {
         let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
         let TeamID = currentPlayerTeam.getTeamId();
@@ -27,7 +28,7 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
     }
 }
 
-export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene)
+export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode)
 {
     if (currentPlayer.getRole() === 'Cannoneer') {
         let directionRotation = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
@@ -56,17 +57,9 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                             if (keys && keys[' '] && keys[' '].pressed)
                             {
                                 pause = true;
-                                const v0 = 27;  // Vitesse initiale en m/s
-                                let angle = -((cannonTube.rotation.y * 180 / Math.PI));  // Angle de tir en degrés
-                                const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
-                                console.log('======== cannonPosTip ========= : ', cannonPos);
-                                const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
-                                trajectoryLine = await createTrajectoryLine(trajectory);
-                                scene.add(trajectoryLine);
-                                console.log('trajectory : ', trajectory);
-                                await fireCannon(trajectory, scene);
-                                cannonTube.rotation.y = 0;
-                                hud.scene.add(hud.loadingCircle.group);
+                                trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                console.log('trajectoryLine : ', trajectoryLine);
+                                emitBallFired(socket, gameCode, TeamID, trajectoryLine);
                             }
                         }
                         else
@@ -75,10 +68,8 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                             {
                                 if (hud.getPercentage(keys, 'r') >= 100)
                                 {
-                                    console.log('key pressed : ', keys['r'].time);
                                     pause = false;
                                     scene.remove(trajectoryLine);
-                                    // cannonTube.rotation.y = 0;
                                 }
                             }
                         }
@@ -87,11 +78,34 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                 else if (TeamID === 2)
                 {
                     let isGoingUp = true;
+                    let pause = false;
+                    let trajectoryLine = null;
                     setInterval(async () => {
-                        if (cannonTube.rotation.y >= 0) isGoingUp = false;
-                        if (cannonTube.rotation.y <= -(75 * (Math.PI / 180))) isGoingUp = true;
-                        
-                        cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
+                        if (!pause)
+                        {
+                            if (cannonTube.rotation.y >= 0) isGoingUp = false;
+                            if (cannonTube.rotation.y <= -(75 * (Math.PI / 180))) isGoingUp = true;
+                            
+                            cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
+                            if (keys && keys[' '] && keys[' '].pressed)
+                            {
+                                pause = true;
+                                trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                console.log('trajectoryLine : ', trajectoryLine);
+                                emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                            }
+                        }
+                        else
+                        {
+                            if (keys && keys['r'] && keys['r'].pressed)
+                            {
+                                if (hud.getPercentage(keys, 'r') >= 100)
+                                {
+                                    pause = false;
+                                    scene.remove(trajectoryLine);
+                                }
+                            }
+                        }
                     }, 100);
                 }
             }
@@ -99,7 +113,18 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
     }
 }
 
-export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED) {
+function emitBallFired(socket, gameCode, TeamID, trajectoryLine)
+{
+    console.log('PONG EMIT BALL FIRED');
+    socket.emit('BallFired', {
+        gameCode: gameCode,
+        team: TeamID,
+        trajectory: trajectoryLine,
+    });
+}
+
+export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED)
+{
     if (currentPlayer.getRole() === 'captain') {
         let directionMove = currentPlayerTeam.getTeamId() === 1 ? -1 : 1;
         let TeamID = currentPlayerTeam.getTeamId();
@@ -122,7 +147,8 @@ export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayer
     }
 }
 
-function emitCannonPosition(socket, gameCode, TeamID, x) {
+function emitCannonPosition(socket, gameCode, TeamID, x)
+{
     socket.emit('cannonPosition', { 
         gameCode: gameCode, 
         team: TeamID, 
@@ -132,37 +158,13 @@ function emitCannonPosition(socket, gameCode, TeamID, x) {
     });
 }
 
-// function emitCannonRotation(socket, gameCode, TeamID, y) {
-//     socket.emit('cannonRotation', { 
-//         gameCode: gameCode, 
-//         team: TeamID, 
-//         cannonRotation: {
-//             y: y,
-//         }
-//     });
-// }
-
-function emitBoatPosition(socket, gameCode, boatGroup, TeamID) {
-
-    // const cannonRotation = boatGroup.getObjectByName(`cannonTeam${TeamID}`).rotation;
-
+function emitBoatPosition(socket, gameCode, boatGroup, TeamID)
+{
     socket.emit('boatPosition', {
         gameCode: gameCode,
         team: TeamID,
         boatPosition: {
             x: boatGroup.position.x,
-            // y: boatGroup.position.y,
-            // z: boatGroup.position.z
         },
-        // cannonRotation: {
-        //     x: cannonRotation.x,
-        //     y: cannonRotation.y,
-        //     z: cannonRotation.z
-        // }
-        // cannonPosition: {
-        //     x: cannonGlobalPosition.x,
-        //     y: cannonGlobalPosition.y,
-        //     z: cannonGlobalPosition.z
-        // }
     });
 } 

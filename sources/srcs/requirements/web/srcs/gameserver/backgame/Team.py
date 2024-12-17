@@ -27,6 +27,16 @@ class Team:
             'min': {'x': 0, 'y': 0, 'z': 0},
             'max': {'x': 0, 'y': 0, 'z': 0}
         }
+        self.PV = 100
+    
+    def getPV(self):
+        return self.PV
+
+    def removePV(self, PV):
+        self.PV -= PV
+        if self.PV <= 0:
+            return -1
+        return 0
 
     def setIsFull(self):
         self.isFull = self.nbPlayer >= self.maxNbPlayer

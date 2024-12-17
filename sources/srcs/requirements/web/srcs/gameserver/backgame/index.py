@@ -217,17 +217,6 @@ async def connect(sid, environ):
                 'cannonPosition': data['cannonPosition']
             }, room=gameCode, skip_sid=sid)
 
-    # @sio.event
-    # async def cannonRotation(sid, data):
-    #     gameCode = data.get('gameCode')
-    #     if gameCode in ChannelList:
-    #         game = ChannelList[gameCode].getGame()
-    #         await game.updateCannonRotation(data['team'], data['cannonRotation']['y'])
-    #         await sio.emit('cannonRotation', {
-    #             'teamID': data['team'],
-    #             'cannonRotation': data['cannonRotation']
-    #         }, room=gameCode, skip_sid=sid)
-
     @sio.event
     async def boatPosition(sid, data):
         gameCode = data.get('gameCode')
@@ -240,6 +229,23 @@ async def connect(sid, environ):
                 'teamID': data['team'],
                 'boatPosition': data['boatPosition']
             }, room=gameCode, skip_sid=sid)
+
+    @sio.event
+    async def BallFired(sid, data):
+        gameCode = data.get('gameCode')
+        team = data.get('team')
+        logger.info(f"ballFired in index.py {data['trajectory']}")
+        if gameCode in ChannelList:
+            game = ChannelList[gameCode].getGame()
+            await sio.emit('ballFired', data['trajectory'], room=gameCode)
+            if (await game.updateBallFired(data) == -1):
+                await sio.emit('updateHealth', {
+                    'teamID': team,
+                    'health': game.getTeam(team).getPV()
+                }, room=gameCode)
+                if (game.getTeam(team).removePV(10) == -1):
+                    await sio.emit('winner', game.getTeam(team).getName(), room=gameCode)
+                    game.gameStarted = False
 
 async def updateGameOptions(game, gameCode):
     if not game.gameStarted:
@@ -302,7 +308,7 @@ async def startGame(gameCode, game):
     while game.gameStarted:
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
-        logger.info(f"game.gameStarted: {game.gameStarted}")
+        # logger.info(f"game.gameStarted: {game.gameStarted}")
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     
