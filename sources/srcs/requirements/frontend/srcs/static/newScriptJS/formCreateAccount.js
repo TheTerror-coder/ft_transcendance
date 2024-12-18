@@ -34,14 +34,7 @@ async function createAccount(instance) {
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REGISTER, data);
     if (response.status === 'success') {
         alert('Form is valid and passwords match! Submitting...');
-        await callWebSockets();
-        socket.onmessage = function(event) {
-            handleFriendInvitation(socket, event);
-        };
-        window.history.pushState({}, "", URLs.VIEWS.HOME);
-        handleLocation();
-        // window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
-        // handleLocation();
+		await mfaAuthMiddlewareJob();
     }
     else if (response.status === 'error') {
         if (typeof response.errors === 'object') {

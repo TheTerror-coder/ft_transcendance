@@ -5,3 +5,6 @@ sources/srcs/requirements/backpong/srcs/gameserver/.env/*
 *migrations*
 *__pycache__*
 *game.log*
+*.pyc
+*cpython*
+*allauth*

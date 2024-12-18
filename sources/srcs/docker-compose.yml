@@ -33,6 +33,7 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - VAULT_API_PORT=${VAULT_API_PORT}
       - HOST_IP=${HOST_IP}
+      - PONGADMIN_PASS=${PONGADMIN_PASS}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -272,6 +273,7 @@ services:
       - mediafiles:${BACKEND_MEDIA_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
       - backend_certs:${BACKEND_SSL_DIR}
+      # - allauth:/usr/local/lib/python3.10/site-packages/allauth/
     healthcheck: #*file_healthcheck
       test:
         [
@@ -591,3 +593,9 @@ volumes:
     driver: local
   gameserver_staticfiles:
     driver: local
+  # allauth:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     o: bind
+  #     device: ./allauth/

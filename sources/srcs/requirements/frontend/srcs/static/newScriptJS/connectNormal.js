@@ -11,18 +11,19 @@ async function connect()
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
     console.log(response);
-    if (response.status == "success") {
-        alert('connecting...');
-        await callWebSockets();
-
-        socket.onmessage = function(event) {
-            handleFriendInvitation(socket, event);
-        };
 // jm custom beginning //
-		await jwt_authenticate();
+	if (response.status === 401) {
+		if (response.data?.flows?.find(obj => (obj.id === FLOWs.MFA_AUTHENTICATE && obj.is_pending === true))) {
+			await mfaAuthMiddlewareJob();
+		}
+		else {
+			replace_location(URLs.VIEWS.LOGIN_VIEW);
+		}
+	}
 // jm custom end //
-        window.history.pushState({}, "", URLs.VIEWS.HOME);
-        handleLocation();
+if (response.status === "success") {
+	alert('connecting...');
+		await mfaAuthMiddlewareJob();
     }
     else if (response.status === 'error')
     {
