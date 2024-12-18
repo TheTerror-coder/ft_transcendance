@@ -141,7 +141,6 @@ const eventManager = async (event) => {
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
 	}
-
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
 	// {
 	// 	event.preventDefault();

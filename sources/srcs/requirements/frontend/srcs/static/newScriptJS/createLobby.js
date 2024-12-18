@@ -8,6 +8,8 @@ let nbPerTeam;
 
 // let dataDav;
 
+let error = null;
+
 
 function initializeGlobalSocket(socket)
 {
@@ -24,6 +26,8 @@ function initializeGlobalSocket(socket)
         nbPerTeam = data.nbPlayerPerTeam;
         console.log("looooool !!! nbPlayerPerTeam: ", data.nbPlayerPerTeam);
         console.log("savedGameCode: ", savedGameCode);
+        gameFound = true;
+        console.log("gameFound: ", gameFound);
     });
     globalSocket.on('AvailableOptions', (data) => {
 
@@ -35,11 +39,15 @@ function initializeGlobalSocket(socket)
         console.log("Reception des listes des joueurs :", data);
         updateLobby(data);
     });
-    globalSocket.on('startGame', (data) => {
-        console.log("Debut de la partie :", data);
+    globalSocket.on('startGame', async (data) => {
+        const module = await import ('../pong/pong.js');
+        // main(socket, gameCode); // Lancer le jeu
+        await module.main(globalSocket, savedGameCode);
+        console.log("globalSocket dans startGame: ", globalSocket);
     });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
+        error = data.message;
         alert(data.message);
     });
 }

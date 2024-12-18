@@ -61,10 +61,18 @@ async function joinLobbyPlay()
         console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
-            if (nbPerTeam == 2)
-                joinTwoPlayersDisplay(gameCode);
+            if (error === null)
+            {
+                console.log("nbPerTeam gang ? = ", nbPerTeam);
+                if (nbPerTeam == 2)
+                    joinTwoPlayersDisplay(gameCode);
+                else
+                    joinLobbyGame(gameCode, 2, "captain");
+            }
             else
-                joinLobbyGame(gameCode, 2, "captain");
+            {
+                error = null;
+            }
         }, 400);
     };
 }

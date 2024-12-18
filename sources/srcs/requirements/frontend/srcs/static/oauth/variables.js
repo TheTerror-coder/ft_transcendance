@@ -252,6 +252,7 @@ const ELEMENTs = Object.freeze({
 	lobbyDisplayRapidPlayPlayerTwo : () => document.getElementById("lobbyDisplayRapidPlayPlayerTwo"),
 	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
 	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
+	PlayButtonInLobby : () => document.getElementById("PlayButtonInLobby"),
 
 });
 
