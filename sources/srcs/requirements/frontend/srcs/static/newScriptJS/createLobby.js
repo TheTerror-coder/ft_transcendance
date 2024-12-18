@@ -77,7 +77,7 @@ async function createLobbyDisplay()
             }, 300);
             console.log("globalSocket OnevsOne create lobby: ", globalSocket);
         }, 100);
-        setLanguage(currentLanguage);
+        refreshLanguage();
     }
     else
     {
@@ -97,7 +97,7 @@ function createLobbyforTwoPlayer()
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
         ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
     }, 60);
-    setLanguage(currentLanguage);
+    refreshLanguage();
 }
 
 
@@ -123,7 +123,7 @@ async function lobbyTwoPlayer()
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }, 60);
 
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
 }
 

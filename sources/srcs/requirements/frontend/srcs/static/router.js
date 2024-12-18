@@ -31,7 +31,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.dropDownLanguage()?.id)
 	{
-		console.log("je suis cense etre al wsh ? dand drop downlanguage");
+		event.preventDefault();
 		languagePopOver();
 	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){

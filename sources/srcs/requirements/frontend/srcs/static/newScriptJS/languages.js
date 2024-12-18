@@ -10,36 +10,51 @@ let translations = {};
 let currentLanguage = 'en';
 
 // Load translations from JSON
-async function loadLanguages() {
+async function loadLanguages() 
+{
     const response = await fetch('/static/newScriptJS/languages.json');
     ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${currentLanguage}.png`;
     translations = await response.json();
 }
 
+async function refreshLanguage()
+{
+    if (translations[currentLanguage])
+    {
+        currentLanguage = currentLanguage;
+        updateUI();
+    }
+    else
+        console.error(`Language ${currentLanguage} not found`);
+}
+
 // Set current language
 async function setLanguage(lang) 
 {
-    if (translations[lang])
+    if (lang !== currentLanguage)
     {
-        currentLanguage = lang;
-        updateUI();
-    }
-    else 
-    {
-        console.error(`Language ${lang} not found`);
+        if (translations[lang])
+        {
+            currentLanguage = lang;
+            updateUI();
+        }
+        else
+            console.error(`Language ${lang} not found`);
     }
 }
 
 // Translate a specific key
-function translate(key) {
+function translate(key) 
+{
     return translations[currentLanguage][key] || key;
 }
 
 // Update UI with current language translations
-function updateUI() {
+function updateUI() 
+{
     const translateElements = document.querySelectorAll('[data-translate]');
     ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${currentLanguage}.png`;
-    
+
     translateElements.forEach(element => {
         const key = element.getAttribute('data-translate');
         element.textContent = translate(key);

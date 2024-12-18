@@ -47,7 +47,7 @@ async function	homeView(title, description, data)
 		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
 		handleLocation();
 	};
-	setLanguage(currentLanguage);
+	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	console.log('homeView: ');
 }
@@ -56,7 +56,7 @@ async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
-	setLanguage('en');
+	refreshLanguage();
 
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
@@ -80,7 +80,7 @@ async function	profileView(title, description, data)
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
-	setLanguage(currentLanguage);
+	refreshLanguage();
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);
@@ -107,7 +107,7 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
-	setLanguage(currentLanguage);
+	refreshLanguage();
 
 }
 
