@@ -22,7 +22,7 @@ class Game:
         self.isPaused = False
         
         # Constantes pour la balle
-        self.BALL_SPEED = 0.3
+        self.BALL_SPEED = 1
         self.SPEED_INCREASE_FACTOR = 1.1
         self.BALL_UPDATE_INTERVAL = 50
         self.FIELD_WIDTH = 160
@@ -63,13 +63,6 @@ class Game:
             self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
         return self.ballPosition
 
-
-    # Vérifier si la balle touche le bateau
-    # Different retour en fonction de la collision
-    # -1 : Erreur
-    # 0 : Pas de collision
-    # 1 : Collision avec le haut du bateau
-    # 2 : Collision avec le bord du bateau
     async def isColliding(self, team):
         ballRadius = 0.5
         hitbox = team.getBoatHitbox()
@@ -78,14 +71,11 @@ class Game:
         if not hitbox or not boatPos:
             logger.debug("Hitbox ou position du bateau non disponible")
             return -1
-        # logger.info(f"hitbox: {hitbox} boatPos: {boatPos}")
 
         # Calculer le déplacement du bateau
         formerBoatPos = team.getFormerBoatPosition()
         dx = boatPos['x'] - formerBoatPos['x']
-        # dy = boatPos['y'] - formerBoatPos['y']
-        # dz = boatPos['z'] - formerBoatPos['z']
-        # Ajuster la hitbox en fonction de la position du bateau
+
         adjusted_hitbox = {
             'min': {
                 'x': hitbox['min']['x'] + dx,
@@ -99,18 +89,8 @@ class Game:
             }
         }
         
-        # logger.info(f"team: {team.TeamId}")
-        # Vérifier la collision avec la hitbox ajustée
-        # isInXRange = adjusted_hitbox['min']['x'] - ballRadius <= self.ballPosition['x'] <= adjusted_hitbox['max']['x'] + ballRadius
-        # isInYRange = adjusted_hitbox['min']['y'] - ballRadius <= self.ballPosition['y'] <= adjusted_hitbox['max']['y'] + ballRadius
         isInXRange = adjusted_hitbox['min']['x'] <= self.ballPosition['x'] <= adjusted_hitbox['max']['x']
         isInYRange = adjusted_hitbox['min']['y'] <= self.ballPosition['y'] <= adjusted_hitbox['max']['y']
-
-        # Ajouter une condition pour verifier exactement le bord sur lequel la ball tape, il semble y avoir un bug quand la ball touche un des cotes droit ou gauche
-
-        # logger.info(f"isInXRange: adjusted_hitbox min x: {adjusted_hitbox['min']['x']}, ballPosition x: {self.ballPosition['x']}, adjusted_hitbox max x: {adjusted_hitbox['max']['x']}")
-        # logger.info(f"isInYRange: adjusted_hitbox min y: {adjusted_hitbox['min']['y']}, ballPosition y: {self.ballPosition['y']}, adjusted_hitbox max y: {adjusted_hitbox['max']['y']}")
-        # logger.info(f"isInXRange: {isInXRange} isInYRange: {isInYRange}")
         
         if isInXRange and isInYRange:
             logger.info(f"Collision détectée - Ball: {self.ballPosition}, Boat: {boatPos}, Adjusted Hitbox: {adjusted_hitbox}")
@@ -119,7 +99,6 @@ class Game:
             isOnRightSide = self.ballPosition['x'] >= adjusted_hitbox['max']['x']
             isOnTopSide = self.ballPosition['y'] >= adjusted_hitbox['max']['y']
             isOnBottomSide = self.ballPosition['y'] <= adjusted_hitbox['min']['y']
-            # logger.info(f"isOnLeftSide: {isOnLeftSide} isOnRightSide: {isOnRightSide} isOnTopSide: {isOnTopSide} isOnBottomSide: {isOnBottomSide}")
             if isOnRightSide or isOnLeftSide:
                 logger.info("Collision avec le bord du bateau")
                 return 2
@@ -143,13 +122,12 @@ class Game:
         if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2 or self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
             logger.info("Collision avec les murs latéraux")
             self.ballDirection["x"] = -self.ballDirection["x"]
-            self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR if self.BALL_SPEED < 1 else 1
+            self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR if self.BALL_SPEED < 2 else 2
             logger.info(f"Nouvelle vitesse de la balle: {self.BALL_SPEED}")
 
         # Collision avec les bateaux
         collision = await self.detectCollisionWithBoats()
         if collision <= 0:
-            # logger.info(f"Pas de collision avec les bateaux - collision: {collision}")
             pass
         elif collision == 1:
             self.ballDirection["y"] = -self.ballDirection["y"]
@@ -186,7 +164,6 @@ class Game:
     def resetBall(self):
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
-        # self.BALL_SPEED = 0.2  # Réinitialiser la vitesse
 
     def getBallPosition(self):
         return self.ballPosition
@@ -220,30 +197,22 @@ class Game:
         if Team.TeamId in self.teams:
             del self.teams[Team.TeamId]
 
-    # async def updateBoatPosition(self, teamId, x, y, z):
     async def updateBoatPosition(self, teamId, x):
-        # logger.info(f"updateBoatPosition x: {x} y: {y} z: {z} for team {teamId} in Game.py")
         team = self.getTeam(teamId)
         if team:
             boat = team.getBoat()
             if boat:
-                # team.setBoatPosition(x, y, z)
                 team.setBoatPosition(x)
-                # logger.info(f"Boat position set to: {boat} for team {teamId} in Game.py")
-                # logger.info(f"Values in updateBoatPosition: x: {x} y: {y} z: {z}")
             else:
                 logger.info(f"Boat not found for team {teamId}")
         else:
             logger.info(f"Team {teamId} not found")
 
-    # async def updateCannonPosition(self, teamId, x, y, z):
     async def updateCannonPosition(self, teamId, x):
-        # logger.info("updateCannonPosition")
         team = self.getTeam(teamId)
         if team:
             cannon = team.getCannon()
             if cannon:
-                # team.setCannonPosition(x, y, z)
                 team.setCannonPosition(x)
                 logger.info(f"cannon: {cannon}")
             else:
@@ -266,9 +235,7 @@ class Game:
         trajectory = data.get('trajectory')
         team = self.getTeam(data.get('team'))
         boat = team.getBoat()
-        
-        # Obtenir la position actuelle du bateau
-        # Obtenir la position précédente du bateau
+
         formerBoatPos = team.getFormerBoatPosition()
         
         # Calculer le déplacement du bateau

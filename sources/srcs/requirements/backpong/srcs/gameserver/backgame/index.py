@@ -274,8 +274,6 @@ async def sendPlayerLists(game, gameCode):
     await sio.emit('updatePlayerLists', teamsInfo, room=gameCode)
 
 async def startGame(gameCode, game):
-    # ballPosition = initializeBallPosition()
-    # ballDirection = initializeBallDirection()
     logger.info(f"En attente que tous les joueurs soient prêts pour la partie {gameCode}")
     
     # Attendre que tous les joueurs soient prêts
@@ -294,26 +292,7 @@ async def startGame(gameCode, game):
     while game.gameStarted:
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
-        # logger.info(f"game.gameStarted: {game.gameStarted}")
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     
     logger.info(f"Partie {gameCode} terminée")
-
-# if __name__ == '__main__':
-#     try:
-#         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-#         ssl_context.load_cert_chain(
-#             certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt",
-#             keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key"
-#         )
-#         ssl_context.check_hostname = False
-#         ssl_context.verify_mode = ssl.CERT_NONE
-#     except Exception as e:
-#         logger.error(f"Erreur lors de la configuration SSL: {e}")
-#         ssl_context = None
-
-    # web.run_app(app, 
-    #             host=host_ip,
-    #             port=8002,
-    #             ssl_context=ssl_context)
