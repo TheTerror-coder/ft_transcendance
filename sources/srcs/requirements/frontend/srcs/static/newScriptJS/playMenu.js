@@ -13,7 +13,7 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
     ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
-    setLanguage(currentLanguage);
+    refreshLanguage();
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
@@ -32,7 +32,7 @@ function rapidPlayLobbyDisplay()
     ELEMENTs.firstElement().style.height = "109px";
     ELEMENTs.secondElement().style.height = "109px";
     ELEMENTs.thirdElement().style.height = "109px";
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
     const joinLobbyButton = document.getElementById("joinLobbyButton");
     joinLobbyButton.onclick = () => joinLobbyPlay();
@@ -50,7 +50,7 @@ async function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
-    setLanguage(currentLanguage);
+    refreshLanguage();
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
@@ -61,12 +61,19 @@ async function joinLobbyPlay()
         console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
-            console.log("nbPER TEAM PURAPINNN", nbPerTeam);
-            if (nbPerTeam == 2)
-                joinTwoPlayersDisplay();
+            if (error === null)
+            {
+                console.log("nbPerTeam gang ? = ", nbPerTeam);
+                if (nbPerTeam == 2)
+                    joinTwoPlayersDisplay(gameCode);
+                else
+                    joinLobbyGame(gameCode, 2, "captain");
+            }
             else
-                console.log("on est al mon frere");
-        }, 500);
+            {
+                error = null;
+            }
+        }, 400);
     };
 }
 
@@ -80,25 +87,43 @@ function readyLocalPlay()
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
     // rejoindre le gang
 }
 
 
-function joinTwoPlayersDisplay()
+function joinTwoPlayersDisplay(gameCode)
 {
     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
+
+    setTimeout(() => {
+        const joinButton = document.getElementById("joinButton");
+        const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+        returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
+        joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
+        refreshLanguage();
+    }, 40);
 }
 
+function initializeLobbyTwoVsTwo(gameCode)
+{
+    const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
+    const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
+
+    const teamID = teamChosen ? 2 : 1;
+    const role = roleChosen ? "Cannoneer" : "captain";
+    joinLobbyGame(gameCode, teamID, role);
+}
 
 function createLobbyPlay()
 {   
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
     setTimeout(async() => {
-        setLanguage(currentLanguage);
-        console.log("JE SUIS DANS CREATE LOBBY");
+        refreshLanguage();
         const socket = await initializeSocket();
         initializeGlobalSocket(socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
@@ -124,9 +149,7 @@ function navigationPlayMenu()
     refreshHomePage();
     setTimeout(() => {
         if (nav == 1)
-        {
             ELEMENTs.playButtonImg().click();
-        }
         if (nav == 2)
         {
             ELEMENTs.playButtonImg().click();
