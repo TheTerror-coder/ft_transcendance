@@ -15,6 +15,7 @@ from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
+from random import random
 from .tournament import Tournament, Players
 import sys
 
@@ -93,7 +94,8 @@ def login_view(request):
 
 @api_view(['GET'])
 @csrf_protect
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
+@login_required
 def logout_view(request):
     logout(request)
     
@@ -108,6 +110,7 @@ def logout_view(request):
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
+@login_required
 def update_profile(request):
 	print("update-profile", request.data, file=sys.stderr)
 	username = request.data.get('username')
@@ -129,7 +132,8 @@ User = get_user_model()
 
 @api_view(['POST'])
 @csrf_protect
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@login_required
 def update_photo(request):
 	if 'picture' not in request.FILES:
 		return Response({
