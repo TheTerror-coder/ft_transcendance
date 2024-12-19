@@ -355,7 +355,8 @@ document.addEventListener('click', (event) =>
         return ;
     if (ELEMENTs.fileButton() !== null)
         {
-            if (event.target === ELEMENTs.fileButton()){
+            if (event.target === ELEMENTs.fileButton())
+            {
             console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
