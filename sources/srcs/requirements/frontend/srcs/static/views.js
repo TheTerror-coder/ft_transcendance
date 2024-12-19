@@ -5,6 +5,9 @@ async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
 	ELEMENTs.mainPage().style.display = "flex";
+	ELEMENTs.twoFA().style.display = 'none';
+	ELEMENTs.doorJamp().style.display = 'flex';
+
 	document.title = username +  " | " + PAGE_TITLE;
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
@@ -28,6 +31,7 @@ async function UserProfileView(username, description, data)
 async function	homeView(title, description, data) 
 {
 	ELEMENTs.doorJamp().style.display = 'flex';
+	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
@@ -57,6 +61,9 @@ async function	loginView(title, description, data) {
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
 	refreshLanguage();
+	ELEMENTs.twoFA().style.display = 'none';
+	ELEMENTs.doorJamp().style.display = 'none';
+
 
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
@@ -81,6 +88,7 @@ async function	profileView(title, description, data)
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
 	refreshLanguage();
+	ELEMENTs.twoFA().style.display = 'block';
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);
@@ -107,6 +115,7 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
+	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 
 }

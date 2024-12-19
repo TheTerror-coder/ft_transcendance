@@ -24,8 +24,6 @@ async function refreshLanguage()
         currentLanguage = currentLanguage;
         updateUI();
     }
-    else
-        console.error(`Language ${currentLanguage} not found`);
 }
 
 // Set current language
@@ -64,26 +62,36 @@ function updateUI()
 
 function languagePopOver()
 {
-    const popOverLanguage = document.createElement('div');
+    const popOverLanguage = document.createElement('li');
+    popOverLanguage.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+    let englandFlag;
+    let frenchFlag;
+    let spainFlag;
     popOverLanguage.id = "popOverLanguage";
     console.log("valeur de current language: ", currentLanguage);
     if (currentLanguage === 'en')
     {
-        const spainFlag = document.createElement('img');
-        const frenchFlag = document.createElement('img');
+        console.log("dans le if de en");
+        spainFlag = document.createElement('img');
+        frenchFlag = document.createElement('img');
         frenchFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagfr.png";
         frenchFlag.id = "franceFlag"
         spainFlag.src = "/static/photos/picturePng/loginPage/drapeau/flages.png";
         spainFlag.id = "spainFlag";
+        console.log("spainFlag: ", spainFlag);
+        console.log("frenchFlag: ", frenchFlag);
+
         popOverLanguage.appendChild(spainFlag);
         popOverLanguage.appendChild(frenchFlag);
         popOverLanguage.style.display = "flex";
         popOverLanguage.style.flexDirection = "column";
+        console.log("popOverLanguage: ", popOverLanguage);
     }
     else if (currentLanguage === 'es')
     {
-        const englandFlag = document.createElement('img');
-        const frenchFlag = document.createElement('img');
+        console.log("dans le if de es");
+        englandFlag = document.createElement('img');
+        frenchFlag = document.createElement('img');
         frenchFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagfr.png";
         frenchFlag.id = "franceFlag"
         englandFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagen.png";
@@ -95,8 +103,9 @@ function languagePopOver()
     }
     else
     {
-        const englandFlag = document.createElement('img');
-        const spainFlag = document.createElement('img');
+        console.log("dans le if de fr");
+        englandFlag = document.createElement('img');
+        spainFlag = document.createElement('img');
         spainFlag.src = "/static/photos/picturePng/loginPage/drapeau/flages.png";
         spainFlag.id = "spainFlag"
         englandFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagen.png";
@@ -106,10 +115,56 @@ function languagePopOver()
         popOverLanguage.style.display = "flex";
         popOverLanguage.style.flexDirection = "column";
     }
-    console.log("AVANT LE DROP DOWN GANG");
     ELEMENTs.dropDownLanguage().appendChild(popOverLanguage);
-    console.log("APRES LE DROP DOWN GANG");
+    console.log("ELEMENTs.dropDownLanguage(), : ", ELEMENTs.dropDownLanguage());
 }
+
+
+
+document.addEventListener('click', async (event) => 
+{
+    console.log("QUDN JE CLIAUE NORMQLEMENT: ", event.target);
+    if(ELEMENTs.dropDownLanguage() === event.target)
+    {
+        // languagePopOver();
+        if (document.getElementById('popOverLanguage') === null)
+        {
+            console.log("click on dropDownLanguage");
+            const popoverContainer = document.createElement('div');
+            popoverContainer.id = "popOverLanguage";
+            const rect = ELEMENTs.languageDiv().getBoundingClientRect();
+            popoverContainer.style.position = 'absolute';
+            popoverContainer.style.top = `${rect.top + window.scrollY}px`;
+            popoverContainer.style.left = `${rect.left + window.scrollX + 10}px`;
+            popoverContainer.style.zIndex = 1;
+            popoverContainer.style.width = '150px';
+            popoverContainer.style.height = '20px';
+            const spainFlag = document.createElement('img');
+            const frenchFlag = document.createElement('img');
+            frenchFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagfr.png";
+            frenchFlag.id = "franceFlag"
+            spainFlag.src = "/static/photos/picturePng/loginPage/drapeau/flages.png";
+            spainFlag.id = "spainFlag";
+            popoverContainer.appendChild(spainFlag);
+            popoverContainer.appendChild(frenchFlag);
+            popoverContainer.style.display = "flex";
+            popoverContainer.style.flexDirection = "column";
+            ELEMENTs.languageDiv().appendChild(popoverContainer);
+        }
+        else
+        {
+            console.log("gang remove document.getElementById('popOverLanguage') ");
+            document.getElementById('popOverLanguage').remove();
+        }
+
+    }
+    else if (document.getElementById('popOverLanguage') !== null)
+    {
+        console.log("remove qund tu clique ailleur lol");
+        document.getElementById('popOverLanguage').remove();
+    }
+});
+
 
 
 // Initialize on page load
