@@ -314,38 +314,38 @@ function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-    let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-    let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-    let player_cote_change = 0;
-    let opponent_cote_change = 0;
+// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
+//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
+//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
+//     let player_cote_change = 0;
+//     let opponent_cote_change = 0;
 
-    if (player_won) {
-        if (player_score < opponent_score) {
-            player_cote_change = (opponent_score - player_score) * 1.5;
-            opponent_cote_change = -(opponent_score - player_score) * 1.2;
-        } else {
-            player_cote_change = (opponent_score - player_score) * 1.2;
-            opponent_cote_change = -(opponent_score - player_score) * 1.1;
-        }
-    } else {
-        if (opponent_score < player_score) {
-            opponent_cote_change = (player_score - opponent_score) * 1.5;
-            player_cote_change = -(player_score - opponent_score) * 1.2;
-        } else {
-            opponent_cote_change = (player_score - opponent_score) * 1.2;
-            player_cote_change = -(player_score - opponent_score) * 1.1;
-        }
-    }
+//     if (player_won) {
+//         if (player_score < opponent_score) {
+//             player_cote_change = (opponent_score - player_score) * 1.5;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
+//         } else {
+//             player_cote_change = (opponent_score - player_score) * 1.2;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
+//         }
+//     } else {
+//         if (opponent_score < player_score) {
+//             opponent_cote_change = (player_score - opponent_score) * 1.5;
+//             player_cote_change = -(player_score - opponent_score) * 1.2;
+//         } else {
+//             opponent_cote_change = (player_score - opponent_score) * 1.2;
+//             player_cote_change = -(player_score - opponent_score) * 1.1;
+//         }
+//     }
 
-    player_score += player_cote_change;
-    opponent_score += opponent_cote_change;
+//     player_score += player_cote_change;
+//     opponent_score += opponent_cote_change;
 
-    player_score = Math.max(player_score, 0);
-    opponent_score = Math.max(opponent_score, 0);
+//     player_score = Math.max(player_score, 0);
+//     opponent_score = Math.max(opponent_score, 0);
 
-    return { player_score, opponent_score };
-}
+//     return { player_score, opponent_score };
+// }
 
 
 async function reauthenticateFirst(flows) {
