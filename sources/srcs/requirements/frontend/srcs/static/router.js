@@ -29,6 +29,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		setLanguage('es');
 	}
+	else if (target.id === ELEMENTs.dropDownLanguage()?.id)
+	{
+		event.preventDefault();
+		languagePopOver();
+	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
@@ -110,7 +115,7 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
-	else if (target.id === ELEMENTs.logoutButton()?.id)
+	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		event.preventDefault();
 		await logout();
@@ -132,7 +137,6 @@ const eventManager = async (event) => {
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
 	}
-
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
 	// {
 	// 	event.preventDefault();

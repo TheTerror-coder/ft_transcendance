@@ -141,6 +141,7 @@ async def connect(sid, environ):
                     logger.info("Équipe non trouvée")
                     await sio.emit('error', {'message': 'Équipe non trouvée'}, room=sid)
 
+
             # Vérification périodique si la partie est pleine
             async def check_game_full():
                 gameIsFullMsgSend = False
@@ -189,15 +190,16 @@ async def connect(sid, environ):
             logger.info(f"ClientData {gameCode} in ChannelList")
             game = ChannelList[gameCode].getGame()
             await game.updateClientData(data)
-            game.gameStarted = True
+            if (game.nbPlayerConnected == game.nbPlayerPerTeam * 2):
+                game.gameStarted = True
+                await sio.emit('gameStarted', room=gameCode)
 
     @sio.event
     async def cannonPosition(sid, data):
         gameCode = data.get('gameCode')
         if gameCode in ChannelList:
             game = ChannelList[gameCode].getGame()
-            await game.updateCannonPosition(data['team'], data['cannonPosition']['x'], 
-                                    data['cannonPosition']['y'], data['cannonPosition']['z'])
+            await game.updateCannonPosition(data['team'], data['cannonPosition']['x'])
             await sio.emit('cannonPosition', {
                 'teamID': data['team'],
                 'cannonPosition': data['cannonPosition']
@@ -208,12 +210,28 @@ async def connect(sid, environ):
         gameCode = data.get('gameCode')
         if gameCode in ChannelList:
             game = ChannelList[gameCode].getGame()
-            await game.updateBoatPosition(data['team'], data['boatPosition']['x'], 
-                                data['boatPosition']['y'], data['boatPosition']['z'])
+            await game.updateBoatPosition(data['team'], data['boatPosition']['x'])
             await sio.emit('boatPosition', {
                 'teamID': data['team'],
                 'boatPosition': data['boatPosition']
             }, room=gameCode, skip_sid=sid)
+
+    @sio.event
+    async def BallFired(sid, data):
+        gameCode = data.get('gameCode')
+        team = data.get('team')
+        logger.info(f"ballFired in index.py {data['trajectory']}")
+        if gameCode in ChannelList:
+            game = ChannelList[gameCode].getGame()
+            await sio.emit('ballFired', data['trajectory'], room=gameCode)
+            if (await game.updateBallFired(data) == -1):
+                await sio.emit('updateHealth', {
+                    'teamID': team,
+                    'health': game.getTeam(team).getPV()
+                }, room=gameCode)
+                if (game.getTeam(team).removePV(10) == -1):
+                    await sio.emit('winner', game.getTeam(team).getName(), room=gameCode)
+                    game.gameStarted = False
 
 async def updateGameOptions(game, gameCode):
     if not game.gameStarted:
@@ -276,7 +294,7 @@ async def startGame(gameCode, game):
     while game.gameStarted:
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
-        logger.info(f"game.gameStarted: {game.gameStarted}")
+        # logger.info(f"game.gameStarted: {game.gameStarted}")
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     

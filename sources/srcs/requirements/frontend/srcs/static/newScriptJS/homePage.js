@@ -13,7 +13,6 @@ function refreshHomePage()
 //     alert(response.message);
 // }
 
-
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;

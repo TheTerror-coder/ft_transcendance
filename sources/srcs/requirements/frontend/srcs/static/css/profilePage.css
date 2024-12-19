@@ -8,6 +8,29 @@
 }
 
 
+#profilPhotoInProfilePage
+{
+    opacity: 0.9;
+}
+
+#profilPhotoInProfilePage:hover
+{
+    opacity: 1;
+    filter:  contrast(170%) brightness(150%) saturate(50%);
+}
+
+#changeUsernameButton
+{
+    opacity: 0.9;
+    transition: all 0.5s;
+}
+
+#changeUsernameButton:hover
+{
+    opacity: 1;
+    filter:  contrast(170%) brightness(150%) saturate(50%);
+}
+
 .statHistoTitle
 {
     font-size: 70px; 
@@ -119,7 +142,6 @@
     width: 302px;
     height: 442px;
     align-self: end;
-    background-color: rgb(152, 231, 241);
 }
 
 .wantedProfileInProfilePage p
@@ -170,7 +192,6 @@
     color: #000;
     margin-left: 10px;
     align-self: center;
-    margin-bottom: 5px;
 }
 
 .bookProfile:hover .cover {

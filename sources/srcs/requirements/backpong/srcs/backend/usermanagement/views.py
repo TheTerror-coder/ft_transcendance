@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
@@ -6,17 +7,21 @@ from django.urls import reverse
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
-from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import permission_classes
-from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
 from .tournament import Tournament, Players
 import sys
+from allauth.account.utils import setup_user_email
+from allauth.account.adapter import get_adapter as allauth_acount_get_adapter
+from allauth.account.models import EmailAddress
+from allauth.account.internal.flows.login import record_authentication
+from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
+from allauth.headless.internal.decorators import browser_view
 
 
 GLOBAL_TOURNAMENT = {
@@ -37,8 +42,19 @@ def register(request):
 			form.save()
 			user = authenticate(email=request.data['email'], password=request.data['password1'])
 			if user is not None:
+### jm custom beginning ###
+				adapter = allauth_acount_get_adapter()
+				email = user.email;
+				primary = setup_user_email(request, user, [EmailAddress(email=email)] if email else [])
+				ret = adapter.confirm_email(request, primary)
+				if ret:
+					adapter.stash_verified_email(request, email)
+### jm custom end ###
 				login(request, user)
+### jm custom beginning ###
 				customObtainJwtTokenPair(request, user)
+				record_authentication(request, "password", username=user.username)
+### jm custom end ###
 			return Response({'status': 'success'})
 		else:
 			error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -49,11 +65,12 @@ def register(request):
 			}, status=400)
 	return Response({'error': 'Invalid request method'}, status=405)
 
-
+###TODO: Nico is this view used?
 def connect(request):
 	return render(request, 'base.html')
 
 
+@browser_view
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
@@ -65,13 +82,18 @@ def login_view(request):
 			email = form.cleaned_data.get('email')
 			user = authenticate(email=email, password=password)
 			if user is not None:
-				if user.username in user_sockets:
+### jm custom beginning ###
+				if allauth_mfa_get_adapter().is_mfa_enabled(user, ['totp']):
+					return perform_mfa_stage(request)
+### jm custom end ###
+				if user.username in user_sockets: ###TODO: this can be a concern Nico
 					return Response({
 						'status': 'error',
 						'message': f'user: {user.username} is already connected!',
 					}, status=400)
 				login(request, user)
 ### jm custom beginning ###
+				record_authentication(request, "password", email=user.email, username=user.username)
 				customObtainJwtTokenPair(request, user)
 ### jm custom end ###
 				return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
@@ -485,3 +507,32 @@ def calculate_score(user_username, opponent_username, player_won):
 # 		'status': 'success',
 # 		'message': 'Prime status updated successfully.',
 # 	}, status=200)
+
+def perform_mfa_stage(request):
+	from allauth.headless.account.inputs import LoginInput
+	from allauth.headless.internal.restkit.response import ErrorResponse
+	from allauth.headless.base.response import AuthenticationResponse
+
+
+	input = LoginInput(data=request.data)
+	if not input.is_valid():
+		return ErrorResponse(request, input=input)
+	credentials = input.clean()
+	record_authentication(request, method="password", **credentials)
+	resume_login(request, input.login)
+	return AuthenticationResponse(request)
+
+def resume_login(request, login):
+	from allauth.account.stages import LoginStageController
+	from allauth.core.exceptions import ImmediateHttpResponse
+
+
+	ctrl = LoginStageController(request, login)
+	try:
+		response = ctrl.handle()
+		if response:
+			return response
+	except ImmediateHttpResponse as e:
+		print ("********DEBUG*********perform_mfa_stage***ImmediateHttpResponse exception ", e, file=sys.stderr)
+		response = e.response
+	return response

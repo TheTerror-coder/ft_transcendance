@@ -9,6 +9,17 @@ class Player
         this.cameraPos = { x: 0, y: 0, z: 0 };
         this.cameraRotation = { x: 0, y: 0, z: 0 };
         this.TeamID = TeamID;
+        this.gameStarted = false;
+    }
+
+    setGameStarted(gameStarted)
+    {
+        this.gameStarted = gameStarted;
+    }
+
+    getGameStarted()
+    {
+        return (this.gameStarted);
     }
 
     getId()
