@@ -112,21 +112,9 @@ async function	createLobbyView(title, description, data)
 }
 
 async function	providerCallbackView(title, description, data) {
-	// console.log('provider callback view');
 	document.title = title;
-	const params = {};
-
-	if (await isUserAuthenticated(params)){
-		if (!await isTotpEnabled()){
-			await mfaJob(undefined, totp_active=false);
-			return ;
-		}
-		await postAuthMiddlewareJob();
-	}
-	else {
-		await doPendingFlows(params, flows=params?.flows);
-		return ;
-	}
+	
+	await mfaAuthMiddlewareJob();
 }
 
 async function	emailStatusView(title, description, data) {

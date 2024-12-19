@@ -33,6 +33,7 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - VAULT_API_PORT=${VAULT_API_PORT}
       - HOST_IP=${HOST_IP}
+      - PONGADMIN_PASS=${PONGADMIN_PASS}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -282,7 +283,7 @@ services:
       start_period: 10s
       interval: 10s
       timeout: 5s
-      retries: 1
+      retries: 3
     expose:
       - ${BACKEND_PORT}
     networks:
@@ -345,15 +346,13 @@ services:
       start_period: 10s
       interval: 10s
       timeout: 5s
-      retries: 1
+      retries: 3
     expose:
       - ${GAMESERVER_PORT}
-      - 3000
     networks:
       - ${NETWORK_NAME}
     ports:
       - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
-      - 3000:3000
     restart: on-failure
 
   frontend:
