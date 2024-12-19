@@ -14,7 +14,7 @@ async function initializeSocket()
     }
     console.log("IP: ", ip);
 
-    ip = 'localhost';
+    // ip = 'localhost';
 
     // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
     socket = io('wss://' + ip + ':1443', {
