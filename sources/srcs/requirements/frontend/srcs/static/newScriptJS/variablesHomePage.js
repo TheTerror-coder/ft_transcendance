@@ -82,20 +82,6 @@ const localPlayButtonHTML = `<button data-translate="localPlay" class="localPlay
 const rapidPlayHTML = `<button data-translate="rapidPlay" class="fontTextPlay rapidPlayButton" id="rapidPlayButton">RAPID PLAY</button>`;
 
 const TournamentButtonHTML =`<button data-translate="Tournament" id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-const TournamentButtonHTML =`<button id="tournamentButton" class="fontTextPlay">TOURNAMENT</button>`;
-
-/*{ <form style="width:170px;">
-<div class="form-group">
-    <select multiple class="form-control" id="exampleFormControlSelect2">
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    <option>Username</option>
-    </select>
-</div>
-</form> }*/
-
 
 
 const homePageDisplayVAR = 
@@ -115,7 +101,7 @@ const homePageDisplayVAR =
             </div>
         </div>
     <div class="playButton" id="playButton">
-        <button data-translate="Play" class="playImg fontTextPlay" id="playButtonImg"></button>
+        <button data-translate="Play" class="playImg fontTextPlay" id="playButtonImg" style="font-size:600%;">PLAY</button>
     </div>
     <div class="centerPlayDisplay" id="centerPlayDisplay">
         <div class="playDisplay" id="playDisplay">

@@ -1,10 +1,13 @@
 
-
+//TODO: Nico: ?? this one is not used
 //metre a joue les infos, si le user change de nom
 async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
 	ELEMENTs.mainPage().style.display = "flex";
+	ELEMENTs.twoFA().style.display = 'none';
+	ELEMENTs.doorJamp().style.display = 'flex';
+
 	document.title = username +  " | " + PAGE_TITLE;
 	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
@@ -28,35 +31,42 @@ async function UserProfileView(username, description, data)
 async function	homeView(title, description, data) 
 {
 	ELEMENTs.doorJamp().style.display = 'flex';
+	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 
-	ELEMENTs.flag().className = "homepageFlag";
-	ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
-	ELEMENTs.englandFlag().style.marginRight = "-0.01px";
+	// ELEMENTs.flag().className = "homepageFlag";
+	// ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
+	// ELEMENTs.englandFlag().style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	setLanguage(currentLanguage);
 	ELEMENTs.wantedProfile().onclick = () => {
 		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
 		handleLocation();
- 	};
+	};
+	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	console.log('homeView: ');
 }
 
 async function	loginView(title, description, data) {
+	if (await isUserAuthenticated({})) {
+		replace_location(URLs.VIEWS.HOME);
+	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
-	setLanguage(currentLanguage);
+	refreshLanguage();
+	ELEMENTs.twoFA().style.display = 'none';
+	ELEMENTs.doorJamp().style.display = 'none';
+
 
 	
 	// const myModal = new bootstrap.Modal('#loginModal', {
@@ -67,10 +77,11 @@ async function	loginView(title, description, data) {
 
 async function	profileView(title, description, data)
 {
+	document.title = title;
+
 	ELEMENTs.doorJamp().style.display = 'flex';
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	await updateMfaBoxStatus();
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response.photo);
 
@@ -80,7 +91,8 @@ async function	profileView(title, description, data)
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
-	setLanguage(currentLanguage);
+	refreshLanguage();
+	ELEMENTs.twoFA().style.display = 'block';
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games);
@@ -107,26 +119,15 @@ async function	createLobbyView(title, description, data)
 		}
 	});
 	ELEMENTs.cross().onclick = () => refreshHomePage();
-	setLanguage(currentLanguage);
+	ELEMENTs.twoFA().style.display = 'none';
+	refreshLanguage();
 
 }
 
 async function	providerCallbackView(title, description, data) {
-	// console.log('provider callback view');
 	document.title = title;
-	const params = {};
-
-	if (await isUserAuthenticated(params)){
-		if (!await isTotpEnabled()){
-			await mfaJob(undefined, totp_active=false);
-			return ;
-		}
-		await postAuthMiddlewareJob();
-	}
-	else {
-		await doPendingFlows(params, flows=params?.flows);
-		return ;
-	}
+	
+	await mfaAuthMiddlewareJob();
 }
 
 async function	emailStatusView(title, description, data) {

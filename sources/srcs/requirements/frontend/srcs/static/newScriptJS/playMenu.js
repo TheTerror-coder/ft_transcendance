@@ -13,7 +13,7 @@ function playDisplayHomepage()
     ELEMENTs.firstElement().style.backgroundImage = "url('/photos/picturePng/homePage/Kizaru.png')";
     ELEMENTs.secondElement().innerHTML = TournamentButtonHTML;
     ELEMENTs.secondElement().style.backgroundImage = "url('/photos/picturePng/homePage/TournamentLuffy.png')";
-    setLanguage(currentLanguage);
+    refreshLanguage();
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
@@ -32,7 +32,7 @@ function rapidPlayLobbyDisplay()
     ELEMENTs.firstElement().style.height = "109px";
     ELEMENTs.secondElement().style.height = "109px";
     ELEMENTs.thirdElement().style.height = "109px";
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
     const joinLobbyButton = document.getElementById("joinLobbyButton");
     joinLobbyButton.onclick = () => joinLobbyPlay();
@@ -50,7 +50,7 @@ async function joinLobbyPlay()
     ELEMENTs.secondElement().style.display = "none"; 
     ELEMENTs.thirdElement().style.display = "none";
     ELEMENTs.playDisplay().innerHTML = joinCodeDisplay;
-    setLanguage(currentLanguage);
+    refreshLanguage();
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
@@ -61,10 +61,18 @@ async function joinLobbyPlay()
         console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
-            if (nbPerTeam == 2)
-                joinTwoPlayersDisplay(gameCode);
+            if (error === null)
+            {
+                console.log("nbPerTeam gang ? = ", nbPerTeam);
+                if (nbPerTeam == 2)
+                    joinTwoPlayersDisplay(gameCode);
+                else
+                    joinLobbyGame(gameCode, 2, "captain");
+            }
             else
-                joinLobbyGame(gameCode, 2, "captain");
+            {
+                error = null;
+            }
         }, 400);
     };
 }
@@ -79,7 +87,7 @@ function readyLocalPlay()
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
     // rejoindre le gang
 }
@@ -96,7 +104,7 @@ function joinTwoPlayersDisplay(gameCode)
         ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
         joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
-        setLanguage(currentLanguage);
+        refreshLanguage();
     }, 40);
 }
 
@@ -115,7 +123,7 @@ function createLobbyPlay()
     window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
     handleLocation();
     setTimeout(async() => {
-        setLanguage(currentLanguage);
+        refreshLanguage();
         const socket = await initializeSocket();
         initializeGlobalSocket(socket);
         ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();

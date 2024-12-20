@@ -8,6 +8,8 @@ let nbPerTeam;
 
 // let dataDav;
 
+let error = null;
+
 
 function initializeGlobalSocket(socket)
 {
@@ -24,6 +26,8 @@ function initializeGlobalSocket(socket)
         nbPerTeam = data.nbPlayerPerTeam;
         console.log("looooool !!! nbPlayerPerTeam: ", data.nbPlayerPerTeam);
         console.log("savedGameCode: ", savedGameCode);
+        gameFound = true;
+        console.log("gameFound: ", gameFound);
     });
     globalSocket.on('AvailableOptions', (data) => {
 
@@ -35,11 +39,16 @@ function initializeGlobalSocket(socket)
         console.log("Reception des listes des joueurs :", data);
         updateLobby(data);
     });
-    globalSocket.on('startGame', (data) => {
-        console.log("Debut de la partie :", data);
+    globalSocket.on('startGame', async (data) => {
+        const module = await import ('../pong/pong.js');
+        // main(socket, gameCode); // Lancer le jeu
+        document.getElementById('background').innerHTML = "";
+        await module.main(savedGameCode, globalSocket);
+        console.log("globalSocket dans startGame: ", globalSocket);
     });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
+        error = data.message;
         alert(data.message);
     });
 }
@@ -77,7 +86,7 @@ async function createLobbyDisplay()
             }, 300);
             console.log("globalSocket OnevsOne create lobby: ", globalSocket);
         }, 100);
-        setLanguage(currentLanguage);
+        refreshLanguage();
     }
     else
     {
@@ -97,7 +106,7 @@ function createLobbyforTwoPlayer()
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
         ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
     }, 60);
-    setLanguage(currentLanguage);
+    refreshLanguage();
 }
 
 
@@ -123,7 +132,7 @@ async function lobbyTwoPlayer()
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }, 60);
 
-    setLanguage(currentLanguage);
+    refreshLanguage();
 
 }
 

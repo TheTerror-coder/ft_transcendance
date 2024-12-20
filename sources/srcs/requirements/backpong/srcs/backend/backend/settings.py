@@ -219,6 +219,7 @@ REST_FRAMEWORK = {
 		'rest_framework_simplejwt.authentication.JWTAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': [
+		# 'rest_framework.permissions.AllowAny',
 		'rest_framework.permissions.IsAuthenticated',
 	],
 }
@@ -244,17 +245,15 @@ EMAIL_HOST = os.getenv('MAIL_CONTAINER')
 EMAIL_PORT = os.getenv('MAIL_PORT')
 
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USERNAME_REQUIRED = True
-# ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 SOCIALACCOUNT_ADAPTER = "oauth.adapter.CustomAdapter"
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
-ACCOUNT_REAUTHENTICATION_TIMEOUT = 15 #default 300s (5min)
+ACCOUNT_REAUTHENTICATION_TIMEOUT = 1500 #default 300s (5min)
 
 AUTHENTICATION_BACKENDS = [
 	# `allauth` specific authentication methods, such as login by email

@@ -14,21 +14,6 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await redirectToProvider();
 	}
-	else if (target.id === ELEMENTs.franceFlag()?.id)
-	{
-		event.preventDefault();
-		setLanguage('fr');
-	}
-	else if (target.id === ELEMENTs.englandFlagImg()?.id)
-	{
-		event.preventDefault();
-		setLanguage('en');
-	}
-	else if (target.id === ELEMENTs.spainFlag()?.id)
-	{
-		event.preventDefault();
-		setLanguage('es');
-	}
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
@@ -74,7 +59,7 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		putFormRegister();
 	}
-	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
+	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
 		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
 		handleLocation();
@@ -110,7 +95,7 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
-	else if (target.id === ELEMENTs.logoutButton()?.id)
+	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		event.preventDefault();
 		await logout();
@@ -123,16 +108,14 @@ const eventManager = async (event) => {
 	{
 		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
 			
-			if (await isTotpEnabled()) {
+			if (await isTotpEnabled()) 
 				await deactivateTotpJob();
-			} else {
+			else 
 				await activateTotpJob();
-			}
 			return ;
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
 	}
-
 	// else if (target.id === ELEMENTs.wantedProfile()?.id)
 	// {
 	// 	event.preventDefault();
@@ -233,6 +216,7 @@ urlRoutes[PATHs.VIEWS.PROFILE] = {
 
 const handleLocation = async () => {
 	console.log('*********DEBUG********* handleLocation()');
+	dispose_modals();
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
 	let _storage = {};

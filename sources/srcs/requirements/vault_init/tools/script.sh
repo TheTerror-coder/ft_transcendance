@@ -62,7 +62,7 @@ create_postgres_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
 	postgres_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $postgres_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/postgres >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/postgres #>> /dev/null
 }
 
 #######################################
@@ -73,7 +73,7 @@ create_elastic_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
 	elastic_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $elastic_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/elastic >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/elastic #>> /dev/null
 }
 
 #######################################
@@ -84,7 +84,7 @@ create_kibana_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
 	kibana_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $kibana_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/kibana >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/kibana #>> /dev/null
 }
 
 #######################################
@@ -95,14 +95,24 @@ create_logstash_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
 	logstash_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash #>> /dev/null
 }
 
 create_logstash_es_client_password () {
 	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
 	logstash_es_client_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
 	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $logstash_es_client_password }})
-	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash_es_client >> /dev/null
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/logstash_es_client #>> /dev/null
+}
+
+#######################################
+######### backpong admin ##############
+#######################################
+
+create_backpong_admin_password () {
+	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": \"$PONGADMIN_PASS\" }})
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/backpong_admin #>> /dev/null
 }
 
 #######################################
@@ -178,6 +188,7 @@ else
 	create_kibana_password
 	create_logstash_password
 	create_logstash_es_client_password
+	create_backpong_admin_password
 	create_tls_certs
 	create_tokens
 # tail -f /dev/null

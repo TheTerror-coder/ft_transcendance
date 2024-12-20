@@ -18,7 +18,7 @@ class EnvVariables:
 	RESOLVED_PG_HOSTNAME	= os.getenv('RESOLVED_PG_HOSTNAME')
 	STATICFILES_DIR			= os.getenv('BACKEND_STATICFILES_DIR')
 	BACKEND_ROOT_CA			= os.getenv('BACKEND_ROOT_CA')
-	VAULT_CACERT			= os.getenv('BACKEND_VAULT_CACERT')
+	VAULT_CACERT			= os.getenv('VAULT_CACERT')
 	HOST_IP					= os.getenv('HOST_IP')
 	BACKEND_PORT			= os.getenv('BACKEND_PORT')
 	REDIS_CONTAINER			= os.getenv('REDIS_CONTAINER')

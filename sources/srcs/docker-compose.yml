@@ -33,6 +33,7 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - VAULT_API_PORT=${VAULT_API_PORT}
       - HOST_IP=${HOST_IP}
+      - PONGADMIN_PASS=${PONGADMIN_PASS}
     cap_add:
       - IPC_LOCK
     volumes:

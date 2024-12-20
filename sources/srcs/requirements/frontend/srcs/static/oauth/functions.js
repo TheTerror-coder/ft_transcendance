@@ -15,7 +15,7 @@ function postForm(action, data)
 	}
 	document.body.appendChild(form);
 	form.submit();
-	// document.body.removeChild(form);
+	document.body.removeChild(form);
 }
 
 async function getCsrfToken()
@@ -108,33 +108,7 @@ async function doPendingFlows(params, flows) {
 		await mfaJob(undefined, totp_active=true);
 		return (true);
 	}
-	// else if (params.flows?.find(data => data.id === FLOWs.LOGIN && data.is_pending)) {
-	// 	console.log("Pending flows: Login required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.SIGNUP && data.is_pending)) {
-	// 	console.log("Pending flows: Sign up required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_REDIRECT && data.is_pending)) {
-	// 	console.log("Pending flows: Provider redirect required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_SIGNUP && data.is_pending)) {
-	// 	console.log("Pending flows: Provider sign up required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_TOKEN && data.is_pending)) {
-	// 	console.log("Pending flows: Provider token required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
 	console.log("Pending flows: matched any");
-	// window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 	return (false);
 }
 
@@ -175,7 +149,9 @@ async function isUserAuthenticated(params) {
 		}
 		else if (response.find(data => data === 'not-authenticated')){
 			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
-			params.flows = response[2].flows;
+			if (params){
+				params.flows = response[2].flows;
+			}
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
@@ -226,8 +202,9 @@ async function askRefreshSession(params) {
 	</div>
 	`;
 
+	await fragment_loadModalTemplate();
 	ELEMENTs.oauth_modal_content().innerHTML = html;
-	const _modal = new bootstrap.Modal('#oauth-modal', {
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 		keyboard: false,
 	});
 	await _modal.show();
@@ -389,10 +366,12 @@ async function reauthenticateFirst(flows) {
 }
 
 async function updateMfaBoxStatus(data) {
-	if (await isTotpEnabled()) {
-		ELEMENTs.switch2FA()?.setAttribute('checked', '');
-	} else {
-		ELEMENTs.switch2FA()?.removeAttribute('checked');
+	if (ELEMENTs.switch2FA()) {
+		if (await isTotpEnabled()) {
+			ELEMENTs.switch2FA().checked = true;
+		} else {
+			ELEMENTs.switch2FA().checked = false;
+		}
 	}
 }
 
@@ -404,4 +383,21 @@ function assign_location(url) {
 function replace_location(url) {
 	window.history.replaceState({}, "", url);
 	handleLocation();
+}
+
+function dispose_modals() {
+	const _modal = bootstrap.Modal.getInstance('#oauth-modal', {
+		keyboard: false,
+	});
+	if (_modal) {
+		_modal.dispose();
+		ELEMENTs.oauth_modal()?.remove();
+	}
+	const _modal2 = bootstrap.Modal.getInstance('#oauth-modal2', {
+		keyboard: false,
+	});
+	if (_modal2) {
+		_modal2.dispose();
+		ELEMENTs.oauth_modal2()?.remove();
+	}
 }

@@ -27,6 +27,10 @@ async function updateLobby(data)
     if (nbPerTeam === 1 && data[2].length === 1) // marche bien !
     {
         await updateLobbyOneVsOne(data);
+        // TODO regarder si le lobby est plein
+        console.log("avant on click de start game lobby");
+        ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
+
     }
     else if (nbPerTeam === 2)
     {
@@ -127,4 +131,10 @@ async function updateLobbyTwoVsTwo(data)
         pos === 3 ? ELEMENTs.lobbyDisplayRapidPlayPlayerThree().innerHTML = wantedPlayerThree : ELEMENTs.lobbyDisplayRapidPlayPlayerFour().innerHTML = wantedPlayerFour;
         await setwantedProfileInLobby(user, pos);
     }
+}
+
+function startGameLobby ()
+{
+    console.log("start game lobby OOOOOOOOOOOOOOO");
+    globalSocket.emit('launchGame', savedGameCode);
 }

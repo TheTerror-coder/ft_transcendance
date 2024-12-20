@@ -1,15 +1,19 @@
-ENV :=./srcs/.env
-HOST_IP_SCRIPT :=./srcs/tools/host-ip.sh
-COMPOSE_FILE= ./srcs/docker-compose.yml
-# export HOST_IP=$(shell hostname -I | awk '{print $$1}')
-export HOST_IP=$(ifconfig | grep 'inet ' | awk '!/127.0.0.1/ {print $2}' | head -n 1) 
+###FILES
+ENV						= ./srcs/.env
+HOST_IP_SCRIPT			= ./srcs/tools/host-ip.sh
+COMPOSE_FILE			= ./srcs/docker-compose.yml
 
 include $(ENV)
+export ULTIMAPI_REDIRECT_URI_PART1
+export ULTIMAPI_REDIRECT_URI_PART2
 
-all dit_moi : host_ip build up
+export HOST_IP					:=$(shell ifconfig | grep 'inet ' | grep -v "127.0.0.1" | awk '{print $$2}' | head -n 1)
+export ULTIMAPI_REDIRECT_URI	:=$(shell echo $(ULTIMAPI_REDIRECT_URI_PART1)$(HOST_IP)$(ULTIMAPI_REDIRECT_URI_PART2))
+
+all : host_ip build up
 
 host_ip :
-	@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
+	-@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
 
 build b : # Build or rebuild services
 	-docker compose -f $(COMPOSE_FILE) build
@@ -48,9 +52,6 @@ rmi : # Removes images
 	-docker rmi $$(docker images | awk 'NR>1 {print $$3}' | tr '\n' ' ')
 rmv : # clean data
 	-docker volume prune -f
-#	-rm -rf ./srcs/requirements/backend/backendapps/*
-#TODO: enable below line and disable the above one on personal space monitorable by sudo
-#	-sudo rm -rf ./srcs/requirements/backend/backendapps/*
 kill k : # Force stop service containers.
 	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
@@ -59,7 +60,6 @@ backend : # Rebuild and restart only the backend container
 	-docker volume rm $$(docker volume ls --filter name=backendapps --format "{{.Name}}")
 	-docker compose -f $(COMPOSE_FILE) up -d --build backend
 
-###JM Customs###
 clean c : down rm rmi rmv
 cleanv cv : # clean all volumes
 	-docker volume prune -f
@@ -73,17 +73,4 @@ freset : fclean all
 valerie: cleanv all
 
 restart res : # Restart service containers
-	-docker compose -f $(COMPOSE_FILE) restart
-
-###JM Customs###
-jmcleanv jmcv : # clean all volumes
-	-docker volume prune -f
-	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $$2}' | tr '\n' ' ') 2> /dev/null
-jmclean jmc : down rm rmi rmv
-jmfclean jmfc : jmclean jmcleanv
-	-docker system prune -f
-jmreset : jmclean all
-jmfreset : jmfclean all
-
-jmrestart jmres : # Restart service containers
 	-docker compose -f $(COMPOSE_FILE) restart

@@ -59,7 +59,7 @@ const usersProfilePage =
 
 const profilePageDisplayVAR = 
 `<div class="profilePage" id="profilePage">
-    <div style="display:flex; flex-direction: column; justify-content: space-between;">
+    <div style="display:flex; flex-direction: column; justify-content: space-between; margin-top: 10px; margin-bottom: 10px;">
         <div class="bookProfile">
             <div class="sideBar">
             </div>
