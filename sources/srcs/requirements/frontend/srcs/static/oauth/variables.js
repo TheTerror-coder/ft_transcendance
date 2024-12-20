@@ -125,6 +125,9 @@ const ELEMENTs = Object.freeze({
 	englandFlag : () => document.getElementById("englandFlag"),
 	englandFlagImg : () => document.getElementById("englandFlagImg"),
 	flag : () => document.getElementById("flag"),
+	twoFA : () => document.getElementById("twoFA"),
+	languageDiv : () => document.getElementById("languageDiv"),
+
 	dropDownLanguage : () => document.getElementById("dropDownLanguage"),
 
 

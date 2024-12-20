@@ -29,11 +29,11 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		setLanguage('es');
 	}
-	else if (target.id === ELEMENTs.dropDownLanguage()?.id)
-	{
-		event.preventDefault();
-		languagePopOver();
-	}
+	// else if (target.id === ELEMENTs.dropDownLanguage()?.id)
+	// {
+	// 	event.preventDefault();
+	// 	languagePopOver();
+	// }
 	else if (target.id === ELEMENTs.loginPageButton()?.id){
 		event.preventDefault();
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
@@ -128,11 +128,10 @@ const eventManager = async (event) => {
 	{
 		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
 			
-			if (await isTotpEnabled()) {
+			if (await isTotpEnabled()) 
 				await deactivateTotpJob();
-			} else {
+			else 
 				await activateTotpJob();
-			}
 			return ;
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
