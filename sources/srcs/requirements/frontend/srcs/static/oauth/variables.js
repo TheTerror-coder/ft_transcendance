@@ -115,14 +115,13 @@ const AuthenticatorType = Object.freeze({
 })
 
 const ELEMENTs = Object.freeze({
-
+	headPage : () => document.getElementById("headPage"),
 	doorJamp : () => document.getElementById("doorJamp"),
 	logoutDoor : () => document.getElementById("logoutDoor"),
 	logoutButton : () => document.getElementById("logoutButton"),
 	franceFlag : () => document.getElementById("franceFlag"),
 	spainFlag : () => document.getElementById("spainFlag"),
 	englandFlag : () => document.getElementById("englandFlag"),
-	englandFlagImg : () => document.getElementById("englandFlagImg"),
 	flag : () => document.getElementById("flag"),
 	twoFA : () => document.getElementById("twoFA"),
 	languageDiv : () => document.getElementById("languageDiv"),

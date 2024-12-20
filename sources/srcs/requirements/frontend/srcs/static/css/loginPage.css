@@ -37,7 +37,9 @@ body
 
 .loginButton
 {
-    z-index: 3; 
+    z-index: 3;
+    min-width: 450px; 
+    min-height: 160px;
 
     /* position: fixed */
     transition: margin-top 2s ease, box-shadow 3s ease-in-out, filter 1.2s ease;

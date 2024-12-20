@@ -18,8 +18,8 @@ function putFormConnect()
 
 const loginPageDisplayVAR = 
 `<div class="loginPage" id="loginPage">
-    <div id="loginButton" style="display: flex;align-items: center;justify-content: center;">
-        <button class="loginButton"><img id="refreshPage" src="/static/photos/picturePng/loginPage/onePong.png" alt="ONE PONG" style="min-width: 450px; min-height: 160px;"></button>
+    <div id="loginButton" style="display: flex;align-items: center;justify-content: center; height: 290px;">
+        <button class="loginButton"><img id="refreshPage" src="/static/photos/picturePng/loginPage/onePong.png" alt="ONE PONG"></button>
     </div>
     <div class="woodPresentation" id="woodPresentation">
         <img src="/static/photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">

@@ -101,7 +101,7 @@ const homePageDisplayVAR =
             </div>
         </div>
     <div class="playButton" id="playButton">
-        <button data-translate="Play" class="playImg fontTextPlay" id="playButtonImg">PLAY</button>
+        <button data-translate="Play" class="playImg fontTextPlay" id="playButtonImg" style="font-size:600%;">PLAY</button>
     </div>
     <div class="centerPlayDisplay" id="centerPlayDisplay">
         <div class="playDisplay" id="playDisplay">

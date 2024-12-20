@@ -14,21 +14,24 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await redirectToProvider();
 	}
-	else if (target.id === ELEMENTs.franceFlag()?.id)
-	{
-		event.preventDefault();
-		setLanguage('fr');
-	}
-	else if (target.id === ELEMENTs.englandFlagImg()?.id)
-	{
-		event.preventDefault();
-		setLanguage('en');
-	}
-	else if (target.id === ELEMENTs.spainFlag()?.id)
-	{
-		event.preventDefault();
-		setLanguage('es');
-	}
+	// else if (target.id === ELEMENTs.franceFlag()?.id)
+	// {
+	// 	console.log("click on franceFlag");
+	// 	event.preventDefault();
+	// 	setLanguage('fr');
+	// }
+	// else if (target.id === ELEMENTs.englandFlagImg()?.id)
+	// {
+	// 	console.log("click on englandFlag");
+	// 	event.preventDefault();
+	// 	setLanguage('en');
+	// }
+	// else if (target.id === ELEMENTs.spainFlag()?.id)
+	// {
+	// 	console.log("click on spainFlag");
+	// 	event.preventDefault();
+	// 	setLanguage('es');
+	// }
 	// else if (target.id === ELEMENTs.dropDownLanguage()?.id)
 	// {
 	// 	event.preventDefault();
@@ -83,7 +86,8 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		putFormRegister();
 	}
-	else if (target.id === ELEMENTs.buttonRefreshPage()?.id){
+	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) )
+	{
 		event.preventDefault();
 		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
 		handleLocation();

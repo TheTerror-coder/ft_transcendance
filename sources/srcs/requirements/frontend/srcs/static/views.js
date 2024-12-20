@@ -60,7 +60,7 @@ async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
-	refreshLanguage();
+	// refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
 
