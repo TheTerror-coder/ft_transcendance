@@ -45,17 +45,17 @@
         "Logout": "LOGOUT"
     },
     "es": {
-        "42SignIn": "INICIE SESIÓN CON",
-        "SignIn": "INICIAR SESIÓN",
+        "42SignIn": "INICIE SESION CON",
+        "SignIn": "INICIAR SESION",
         "CreateAccount": "CREAR UNA CUENTA",
         "placeholderUser": "Usuario",
-        "placeholderPassword": "Contraseña",
-        "placeholderConfirmPassword": "Confirmar Contraseña",
+        "placeholderPassword": "Contrasena",
+        "placeholderConfirmPassword": "Confirmar Contrasena",
         "Confirm": "CONFIRMAR",
 
         "Play": "JUGAR",
         "Friends": "AMIGOS",
-        "AddFriend": "AÑADA",
+        "AddFriend": "ANADA",
         "JoinLobby": "ÚNASE INSTANCIA",
         "CreateLobby": "CREAR INSTANCIA",
         "localPlay": "JUEGO LOCAL",
@@ -63,7 +63,7 @@
         "Tournament": "TORNEOS",
         "joinButton": "Unirse",
         "Ready": "LISTO ?",
-        "placeholderJoinCode": "Código de Unirse",
+        "placeholderJoinCode": "Codigo de Unirse",
         "PlayersPerTeams": "Jugadores por Equipo",
         "CreateButton": "Crear",
         
@@ -77,7 +77,7 @@
 
         "FriendList": "Lista de Amigos",
         "waitingFriendlist": "Lista de Amigos en Espera",
-        "Stat": "Estadísticas",
+        "Stat": "Estadisticas",
         "WinRate": "Porcentaje de victorias",
         "GamePlayed": "Juegos Jugados",
         "GameWin": "Juegos Ganar",

@@ -48,8 +48,20 @@
     border-radius: 50%;
 
 }
-
 .fontTextPlay
+{
+    background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
+    background-clip: text;
+    color: transparent;
+    font-family: onePieceFont;
+    -webkit-text-stroke: 1px rgb(255, 255, 255);
+    font-size: 400%;
+    z-index: 3;
+    display: block;
+    font-weight: 200;
+}
+
+/* .fontTextPlay
 {
     background: linear-gradient(to top, #70d2ff 0%, #ff0800 100%);
     background-clip: text;
@@ -60,7 +72,7 @@
     font-size: 400%;
     z-index: 3;
     display: block;
-}
+} */
 
 .playButton
 {
