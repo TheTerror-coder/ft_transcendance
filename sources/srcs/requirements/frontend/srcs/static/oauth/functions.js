@@ -149,7 +149,9 @@ async function isUserAuthenticated(params) {
 		}
 		else if (response.find(data => data === 'not-authenticated')){
 			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
-			params.flows = response[2].flows;
+			if (params){
+				params.flows = response[2].flows;
+			}
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
@@ -364,34 +366,26 @@ async function reauthenticateFirst(flows) {
 }
 
 async function updateMfaBoxStatus(data) {
-	if (await isTotpEnabled()) {
-		ELEMENTs.switch2FA()?.setAttribute('checked', '');
-	} else {
-		ELEMENTs.switch2FA()?.removeAttribute('checked');
+	if (ELEMENTs.switch2FA()) {
+		if (await isTotpEnabled()) {
+			ELEMENTs.switch2FA().checked = true;
+		} else {
+			ELEMENTs.switch2FA().checked = false;
+		}
 	}
 }
 
 function assign_location(url) {
 	window.history.pushState({}, "", url);
-	const _modal = bootstrap.Modal.getInstance('#oauth-modal', {
-		keyboard: false,
-	});
-	if (_modal) {
-		_modal.dispose();
-		ELEMENTs.oauth_modal()?.remove();
-	}
-	const _modal2 = bootstrap.Modal.getInstance('#oauth-modal2', {
-		keyboard: false,
-	});
-	if (_modal2) {
-		_modal2.dispose();
-		ELEMENTs.oauth_modal2()?.remove();
-	}
 	handleLocation();
 }
 
 function replace_location(url) {
 	window.history.replaceState({}, "", url);
+	handleLocation();
+}
+
+function dispose_modals() {
 	const _modal = bootstrap.Modal.getInstance('#oauth-modal', {
 		keyboard: false,
 	});
@@ -406,5 +400,4 @@ function replace_location(url) {
 		_modal2.dispose();
 		ELEMENTs.oauth_modal2()?.remove();
 	}
-	handleLocation();
 }

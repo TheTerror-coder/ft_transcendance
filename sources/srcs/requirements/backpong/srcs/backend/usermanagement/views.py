@@ -86,7 +86,7 @@ def login_view(request):
 				if allauth_mfa_get_adapter().is_mfa_enabled(user, ['totp']):
 					return perform_mfa_stage(request)
 ### jm custom end ###
-				if user.username in user_sockets: ###TODO: this can be a concern Nico
+				if user.username in user_sockets: ###TODO Nico: this can be a concern Nico
 					return Response({
 						'status': 'error',
 						'message': f'user: {user.username} is already connected!',

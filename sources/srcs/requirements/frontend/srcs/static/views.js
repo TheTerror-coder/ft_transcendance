@@ -1,5 +1,5 @@
 
-
+//TODO: Nico: ?? this one is not used
 //metre a joue les infos, si le user change de nom
 async function UserProfileView(username, description, data)
 {
@@ -53,6 +53,9 @@ async function	homeView(title, description, data)
 }
 
 async function	loginView(title, description, data) {
+	if (await isUserAuthenticated({})) {
+		replace_location(URLs.VIEWS.HOME);
+	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
@@ -67,10 +70,11 @@ async function	loginView(title, description, data) {
 
 async function	profileView(title, description, data)
 {
+	document.title = title;
+
 	ELEMENTs.doorJamp().style.display = 'flex';
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
-	await updateMfaBoxStatus();
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	console.log("response: ", response.photo);
 

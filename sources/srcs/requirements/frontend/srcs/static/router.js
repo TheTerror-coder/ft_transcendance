@@ -237,6 +237,7 @@ urlRoutes[PATHs.VIEWS.PROFILE] = {
 
 const handleLocation = async () => {
 	console.log('*********DEBUG********* handleLocation()');
+	dispose_modals();
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
 	let _storage = {};

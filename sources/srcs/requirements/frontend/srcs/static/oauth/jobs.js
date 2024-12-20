@@ -52,6 +52,8 @@ async function render_next(params, routeMatched, _storage) {
 			console.log("****DEBUG**** jwt credentials missing, calling once again jwt_authenticate()");
 			await jwt_authenticate();
 		}
+
+		await updateMfaBoxStatus();
 		if (routeMatched){
 			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 			return ;
@@ -192,7 +194,7 @@ async function	validateTotpValueJob(params) {
 		return ;
 	} else if (response.find(data => data === 'totp-authenticator-information')){
 		// go to ?next
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		await postAuthMiddlewareJob();
@@ -219,7 +221,7 @@ async function	twoFaAuthenticateJob(params) {
 		return ;
 	} else if (response.find(data => data === 'authenticated')){
 		// go to ?next
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		await postAuthMiddlewareJob();
@@ -268,7 +270,7 @@ async function	mfaReauthenticateJob(params) {
 		_input.disabled = '';
 		return ;
 	} else if (response.find(data => data === 'reauthenticated')){
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');
