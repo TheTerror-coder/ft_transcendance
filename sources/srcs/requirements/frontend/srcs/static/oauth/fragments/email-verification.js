@@ -37,7 +37,7 @@ async function fragment_emailVerification(params) {
 		<h3 class="modal-title w-100" id="staticBackdropLabel">Confirm Email Address</h3>
 		${
 			(params.index !== VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL)
-			? '<button id="verify-email-close-error-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+			? '<button id="verify-email-close-error-button" type="button" class="btn-close" aria-label="Close"></button>'
 			: ''
 		}
 	</div>
@@ -76,7 +76,7 @@ async function fragment_isEmailVerified(params) {
 	let body = `
 	<div class="modal-header text-center">
 		<h3 class="modal-title w-100" id="staticBackdropLabel">Email Confirmation</h3>
-		<button id="verify-email-close-error-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		<button id="verify-email-close-error-button" type="button" class="btn-close" aria-label="Close"></button>
 	</div>
 	<div class="modal-body">
 	

@@ -3,6 +3,8 @@ from allauth.socialaccount.signals import social_account_updated, social_account
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from .tokens import CustomRefreshToken
+from django.db.models.signals import post_migrate
+from django.core.management import call_command
 
 @receiver(social_account_updated)
 def issue_jwt_token(sender, request, sociallogin, **kwargs):
@@ -26,3 +28,7 @@ def issue_jwt_token(sender, request, sociallogin, **kwargs):
 	
 			request.session["jwt_access_token"] = jwt_access_token
 			request.session["jwt_refresh_token"] = jwt_refresh_token
+
+@receiver(post_migrate)
+def create_admin_user(sender, **kwargs):
+	call_command('create_admin_user')

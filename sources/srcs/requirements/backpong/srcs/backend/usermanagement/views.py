@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
 from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
@@ -6,17 +7,28 @@ from django.urls import reverse
 from .models import FriendRequest
 from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
-from django.utils.crypto import get_random_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.decorators import permission_classes
-from oauth.tokens import CustomRefreshToken
 from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
+from .tournament import Tournament, Players
 import sys
+from allauth.account.utils import setup_user_email
+from allauth.account.adapter import get_adapter as allauth_acount_get_adapter
+from allauth.account.models import EmailAddress
+from allauth.account.internal.flows.login import record_authentication
+from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
+from allauth.headless.internal.decorators import browser_view
 
+
+GLOBAL_TOURNAMENT = {
+    "game": None,
+    "players": [],
+    "status": "WAITING",  # WAITING -> STARTGAME -> IN_GAME -> END_GAME
+}
 
 
 @api_view(['POST'])
@@ -30,8 +42,19 @@ def register(request):
 			form.save()
 			user = authenticate(email=request.data['email'], password=request.data['password1'])
 			if user is not None:
+### jm custom beginning ###
+				adapter = allauth_acount_get_adapter()
+				email = user.email;
+				primary = setup_user_email(request, user, [EmailAddress(email=email)] if email else [])
+				ret = adapter.confirm_email(request, primary)
+				if ret:
+					adapter.stash_verified_email(request, email)
+### jm custom end ###
 				login(request, user)
+### jm custom beginning ###
 				customObtainJwtTokenPair(request, user)
+				record_authentication(request, "password", username=user.username)
+### jm custom end ###
 			return Response({'status': 'success'})
 		else:
 			error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -42,11 +65,12 @@ def register(request):
 			}, status=400)
 	return Response({'error': 'Invalid request method'}, status=405)
 
-
+###TODO: Nico is this view used?
 def connect(request):
 	return render(request, 'base.html')
 
 
+@browser_view
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
@@ -58,13 +82,18 @@ def login_view(request):
 			email = form.cleaned_data.get('email')
 			user = authenticate(email=email, password=password)
 			if user is not None:
-				if user.username in user_sockets:
+### jm custom beginning ###
+				if allauth_mfa_get_adapter().is_mfa_enabled(user, ['totp']):
+					return perform_mfa_stage(request)
+### jm custom end ###
+				if user.username in user_sockets: ###TODO Nico: this can be a concern Nico
 					return Response({
 						'status': 'error',
 						'message': f'user: {user.username} is already connected!',
 					}, status=400)
 				login(request, user)
 ### jm custom beginning ###
+				record_authentication(request, "password", email=user.email, username=user.username)
 				customObtainJwtTokenPair(request, user)
 ### jm custom end ###
 				return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
@@ -219,18 +248,56 @@ def get_user_profile(request):
         }, status=404)
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @login_required
 @csrf_protect
-def set_info_game(request):
-	prime = request.data.get('prime')
-	user = request.user
-	user.prime = prime
-	user.save()
-	return Response({
-		'status': 'success',
-		'message': 'Prime status updated successfully.',
-	}, status=200)
+def game_routing(request):
+	global GLOBAL_TOURNAMENT
+	status = request.data.get('status')
+	player = Players(request.user.id, request.user.username, request.user.is_win)
+
+	if GLOBAL_TOURNAMENT['status'] == "WAITING":
+		if player not in GLOBAL_TOURNAMENT['players']:
+			GLOBAL_TOURNAMENT['players'].append(player)            
+		if len(GLOBAL_TOURNAMENT['players']) == request.user.people:
+			GLOBAL_TOURNAMENT['status'] = "START_GAME"
+	if status == 'START_GAME' and GLOBAL_TOURNAMENT['status'] == "START_GAME":
+		if GLOBAL_TOURNAMENT['game'] is None:
+			players = GLOBAL_TOURNAMENT['players']
+			random.shuffle(players)
+			for idx, player in enumerate(players, start=1):
+				player.id = idx
+			game = Tournament()
+			game.create_tree(len(players))
+			game.assign_players(players)
+			GLOBAL_TOURNAMENT['game'] = game
+			GLOBAL_TOURNAMENT['status'] = "IN_GAME"
+			game.print_tournament(game.root)
+		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in players]}
+	elif status == 'IN_GAME' and GLOBAL_TOURNAMENT['status'] == "IN_GAME":
+		game = GLOBAL_TOURNAMENT['game']
+
+		if player.is_win == True:
+			pairs = game.get_players_pair()
+			winners = [pair[0] if pair[0].username == player.username else pair[1] for pair in enumerate(pairs)]
+			calculate_score(player.username, pair[1].username, True)
+
+		# pairs = game.get_players_pair()
+		# winners = [pair[0] if i % 2 == 0 else pair[1] for i, pair in enumerate(pairs)]
+		
+		game.update_tree(winners)
+		game.print_tournament(game.root)
+		GLOBAL_TOURNAMENT['players'] = game.players
+		print("len p: ", len(game.players))
+		if len(game.players) == 1:
+			GLOBAL_TOURNAMENT['status'] = "END_GAME"
+		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in game.players]}
+	elif GLOBAL_TOURNAMENT['status'] == "END_GAME":
+		return {'status': 'END_GAME', 'message': 'The game has ended'}
+	return {'status': GLOBAL_TOURNAMENT['status'], 'message': 'Unexpected status'}
+
+
+
 
 @api_view(['GET'])
 @csrf_protect
@@ -396,29 +463,76 @@ def get_user(request):
 		'language': request.user.language,
 	}, status=200)
 
-# def calculate_score(player_game_played, player_victory, opponent_game_played, opponent_vicotry, player_won):
-#     player_score = (player_victory / player_game_played) * 100 if player_game_played > 0 else 0
-#     opponent_score = (opponent_vicotry / opponent_game_played) * 100 if opponent_game_played > 0 else 0
+def calculate_score(user_username, opponent_username, player_won):
+	user = User.objects.get(username=user_username)
+	opponent = User.objects.get(username=opponent_username)
+	player_score = (user.victories / user.game_played) * 100 if user.game_played > 0 else 0
+	opponent_score = (opponent.victories / opponent.game_played) * 100 if opponent.game_played > 0 else 0
 
-#     if player_won:
-#         if player_score < opponent_score:
-#             player_cote_change = (opponent_score - player_score) * 1.5
-#             opponent_cote_change = -(opponent_score - player_score) * 1.2
-#         else:
-#             player_cote_change = (opponent_score - player_score) * 1.2
-#             opponent_cote_change = -(opponent_score - player_score) * 1.1
-#     else:
-#         if opponent_score < player_score:
-#             opponent_cote_change = (player_score - opponent_score) * 1.5
-#             player_cote_change = -(player_score - opponent_score) * 1.2
-#         else:
-#             opponent_cote_change = (player_score - opponent_score) * 1.2
-#             player_cote_change = -(player_score - opponent_score) * 1.1
+	if player_won:
+		if player_score < opponent_score:
+			player_cote_change = (opponent_score - player_score) * 1.5
+			opponent_cote_change = -(opponent_score - player_score) * 1.2
+		else:
+			player_cote_change = (opponent_score - player_score) * 1.2
+			opponent_cote_change = -(opponent_score - player_score) * 1.1
+	else:
+		if opponent_score < player_score:
+			opponent_cote_change = (player_score - opponent_score) * 1.5
+			player_cote_change = -(player_score - opponent_score) * 1.2
+		else:
+			opponent_cote_change = (player_score - opponent_score) * 1.2
+			player_cote_change = -(player_score - opponent_score) * 1.1
 
-#     player_score += player_cote_change
-#     opponent_score += opponent_cote_change
+	player_score += player_cote_change
+	opponent_score += opponent_cote_change
 
-#     player_score = max(player_score, 0)
-#     opponent_score = max(opponent_score, 0)
+	user.prime = max(player_score, 0)
+	user.game_played += 1
+	user.victories += 1
+	user.save()
+	opponent.prime = max(opponent_score, 0)
+	opponent.game_played += 1
+	opponent.save()
 
-#     return player_score, opponent_score
+# @api_view(['POST'])
+# @login_required
+# @csrf_protect
+# def set_info_game(request):
+# 	prime = request.data.get('prime')
+# 	user = request.user
+# 	user.prime = prime
+# 	user.save()
+# 	return Response({
+# 		'status': 'success',
+# 		'message': 'Prime status updated successfully.',
+# 	}, status=200)
+
+def perform_mfa_stage(request):
+	from allauth.headless.account.inputs import LoginInput
+	from allauth.headless.internal.restkit.response import ErrorResponse
+	from allauth.headless.base.response import AuthenticationResponse
+
+
+	input = LoginInput(data=request.data)
+	if not input.is_valid():
+		return ErrorResponse(request, input=input)
+	credentials = input.clean()
+	record_authentication(request, method="password", **credentials)
+	resume_login(request, input.login)
+	return AuthenticationResponse(request)
+
+def resume_login(request, login):
+	from allauth.account.stages import LoginStageController
+	from allauth.core.exceptions import ImmediateHttpResponse
+
+
+	ctrl = LoginStageController(request, login)
+	try:
+		response = ctrl.handle()
+		if response:
+			return response
+	except ImmediateHttpResponse as e:
+		print ("********DEBUG*********perform_mfa_stage***ImmediateHttpResponse exception ", e, file=sys.stderr)
+		response = e.response
+	return response

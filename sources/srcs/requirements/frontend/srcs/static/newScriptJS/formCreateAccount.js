@@ -38,7 +38,6 @@ async function createAccount(instance) {
         socket.onmessage = function(event) {
             handleFriendInvitation(socket, event);
         };
-        console.log("valeur de response gang: ", response, "   et de socket: ", socket);
         window.history.pushState({}, "", URLs.VIEWS.HOME);
         handleLocation();
         // window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);

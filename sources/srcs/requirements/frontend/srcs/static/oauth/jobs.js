@@ -1,16 +1,41 @@
-// import onePongAlerter from '/static/router.js';
+async function mfaAuthMiddlewareJob() {
+	try {
+		const params = {};
+
+		if (await isUserAuthenticated(params)){
+			if (!await isTotpEnabled()){
+				console.log("****DEBUG**** mfaAuthMiddlewareJob(): totp is enabled");
+				await mfaJob(undefined, totp_active=false);
+				return ;
+			}
+			console.log("****DEBUG**** mfaAuthMiddlewareJob(): totp is not enabled");
+			await postAuthMiddlewareJob();
+		}
+		else {
+			await doPendingFlows(params, flows=params?.flows);
+			return ;
+		}
+	} catch (error) {
+		console.log("****EXCEPTION**** mfaAuthMiddlewareJob(): ", error);
+	}
+}
 
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 	console.log("****DEBUG**** post auth middleware job")
 	try {
 		await jwt_authenticate();
 		
+		await callWebSockets();
+        socket.onmessage = function(event) {
+            handleFriendInvitation(socket, event);
+        };
+
 		if (routeMatched){
 			await render_next(params, routeMatched, _storage);
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {
@@ -27,12 +52,14 @@ async function render_next(params, routeMatched, _storage) {
 			console.log("****DEBUG**** jwt credentials missing, calling once again jwt_authenticate()");
 			await jwt_authenticate();
 		}
+
+		await updateMfaBoxStatus();
 		if (routeMatched){
 			await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 			return ;
 		}
 		else {
-			window.location.replace(URLs.VIEWS.HOME);
+			replace_location(URLs.VIEWS.HOME);
 			return ;
 		}
 	} catch (error) {
@@ -167,7 +194,7 @@ async function	validateTotpValueJob(params) {
 		return ;
 	} else if (response.find(data => data === 'totp-authenticator-information')){
 		// go to ?next
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		await postAuthMiddlewareJob();
@@ -194,7 +221,7 @@ async function	twoFaAuthenticateJob(params) {
 		return ;
 	} else if (response.find(data => data === 'authenticated')){
 		// go to ?next
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		await postAuthMiddlewareJob();
@@ -243,7 +270,7 @@ async function	mfaReauthenticateJob(params) {
 		_input.disabled = '';
 		return ;
 	} else if (response.find(data => data === 'reauthenticated')){
-		if (!await isUserAuthenticated()){
+		if (!await isUserAuthenticated({})){
 			await logout();
 		}
 		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');

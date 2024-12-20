@@ -42,7 +42,8 @@ function initializeGlobalSocket(socket)
     globalSocket.on('startGame', async (data) => {
         const module = await import ('../pong/pong.js');
         // main(socket, gameCode); // Lancer le jeu
-        await module.main(globalSocket, savedGameCode);
+        document.getElementById('background').innerHTML = "";
+        await module.main(savedGameCode, globalSocket);
         console.log("globalSocket dans startGame: ", globalSocket);
     });
     globalSocket.on('error', (data) => {

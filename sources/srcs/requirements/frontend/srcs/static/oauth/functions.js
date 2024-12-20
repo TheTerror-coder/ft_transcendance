@@ -15,7 +15,7 @@ function postForm(action, data)
 	}
 	document.body.appendChild(form);
 	form.submit();
-	// document.body.removeChild(form);
+	document.body.removeChild(form);
 }
 
 async function getCsrfToken()
@@ -95,7 +95,7 @@ async function doPendingFlows(params, flows) {
 	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
 		console.log("Pending flows: Authentication required");
-		window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.VERIFY_EMAIL && data.is_pending)) {
@@ -108,33 +108,7 @@ async function doPendingFlows(params, flows) {
 		await mfaJob(undefined, totp_active=true);
 		return (true);
 	}
-	// else if (params.flows?.find(data => data.id === FLOWs.LOGIN && data.is_pending)) {
-	// 	console.log("Pending flows: Login required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.SIGNUP && data.is_pending)) {
-	// 	console.log("Pending flows: Sign up required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_REDIRECT && data.is_pending)) {
-	// 	console.log("Pending flows: Provider redirect required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_SIGNUP && data.is_pending)) {
-	// 	console.log("Pending flows: Provider sign up required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
-	// else if (params.flows?.find(data => data.id === FLOWs.PROVIDER_TOKEN && data.is_pending)) {
-	// 	console.log("Pending flows: Provider token required");
-	// 	window.location.replace(URLs.VIEWS.LOGIN_VIEW);
-	// 	return (true);
-	// }
 	console.log("Pending flows: matched any");
-	// window.location.replace(URLs.VIEWS.LOGIN_VIEW);
 	return (false);
 }
 
@@ -175,7 +149,9 @@ async function isUserAuthenticated(params) {
 		}
 		else if (response.find(data => data === 'not-authenticated')){
 			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
-			params.flows = response[2].flows;
+			if (params){
+				params.flows = response[2].flows;
+			}
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
@@ -226,8 +202,9 @@ async function askRefreshSession(params) {
 	</div>
 	`;
 
+	await fragment_loadModalTemplate();
 	ELEMENTs.oauth_modal_content().innerHTML = html;
-	const _modal = new bootstrap.Modal('#oauth-modal', {
+	const _modal = await bootstrap.Modal.getOrCreateInstance('#oauth-modal', {
 		keyboard: false,
 	});
 	await _modal.show();
@@ -339,38 +316,38 @@ function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-    let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-    let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-    let player_cote_change = 0;
-    let opponent_cote_change = 0;
+// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
+//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
+//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
+//     let player_cote_change = 0;
+//     let opponent_cote_change = 0;
 
-    if (player_won) {
-        if (player_score < opponent_score) {
-            player_cote_change = (opponent_score - player_score) * 1.5;
-            opponent_cote_change = -(opponent_score - player_score) * 1.2;
-        } else {
-            player_cote_change = (opponent_score - player_score) * 1.2;
-            opponent_cote_change = -(opponent_score - player_score) * 1.1;
-        }
-    } else {
-        if (opponent_score < player_score) {
-            opponent_cote_change = (player_score - opponent_score) * 1.5;
-            player_cote_change = -(player_score - opponent_score) * 1.2;
-        } else {
-            opponent_cote_change = (player_score - opponent_score) * 1.2;
-            player_cote_change = -(player_score - opponent_score) * 1.1;
-        }
-    }
+//     if (player_won) {
+//         if (player_score < opponent_score) {
+//             player_cote_change = (opponent_score - player_score) * 1.5;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
+//         } else {
+//             player_cote_change = (opponent_score - player_score) * 1.2;
+//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
+//         }
+//     } else {
+//         if (opponent_score < player_score) {
+//             opponent_cote_change = (player_score - opponent_score) * 1.5;
+//             player_cote_change = -(player_score - opponent_score) * 1.2;
+//         } else {
+//             opponent_cote_change = (player_score - opponent_score) * 1.2;
+//             player_cote_change = -(player_score - opponent_score) * 1.1;
+//         }
+//     }
 
-    player_score += player_cote_change;
-    opponent_score += opponent_cote_change;
+//     player_score += player_cote_change;
+//     opponent_score += opponent_cote_change;
 
-    player_score = Math.max(player_score, 0);
-    opponent_score = Math.max(opponent_score, 0);
+//     player_score = Math.max(player_score, 0);
+//     opponent_score = Math.max(opponent_score, 0);
 
-    return { player_score, opponent_score };
-}
+//     return { player_score, opponent_score };
+// }
 
 
 async function reauthenticateFirst(flows) {
@@ -389,9 +366,38 @@ async function reauthenticateFirst(flows) {
 }
 
 async function updateMfaBoxStatus(data) {
-	if (await isTotpEnabled()) {
-		ELEMENTs.switch2FA()?.setAttribute('checked', '');
-	} else {
-		ELEMENTs.switch2FA()?.removeAttribute('checked');
+	if (ELEMENTs.switch2FA()) {
+		if (await isTotpEnabled()) {
+			ELEMENTs.switch2FA().checked = true;
+		} else {
+			ELEMENTs.switch2FA().checked = false;
+		}
+	}
+}
+
+function assign_location(url) {
+	window.history.pushState({}, "", url);
+	handleLocation();
+}
+
+function replace_location(url) {
+	window.history.replaceState({}, "", url);
+	handleLocation();
+}
+
+function dispose_modals() {
+	const _modal = bootstrap.Modal.getInstance('#oauth-modal', {
+		keyboard: false,
+	});
+	if (_modal) {
+		_modal.dispose();
+		ELEMENTs.oauth_modal()?.remove();
+	}
+	const _modal2 = bootstrap.Modal.getInstance('#oauth-modal2', {
+		keyboard: false,
+	});
+	if (_modal2) {
+		_modal2.dispose();
+		ELEMENTs.oauth_modal2()?.remove();
 	}
 }

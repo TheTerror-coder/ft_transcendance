@@ -136,10 +136,11 @@ const eventManager = async (event) => {
 	{
 		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
 			
-			if (await isTotpEnabled()) 
+			if (await isTotpEnabled()) {
 				await deactivateTotpJob();
-			else 
+			} else {
 				await activateTotpJob();
+			}
 			return ;
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');

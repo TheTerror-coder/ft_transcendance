@@ -34,7 +34,7 @@ async function fragment_mfaOverview(params) {
 		<h3 class="modal-title w-100" id="staticBackdropLabel">Two-Factor Authentication</h3>
 		${
 			(_activate)
-			? '<button id="skip-activate-totp-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+			? '<button id="skip-activate-totp-button" type="button" class="btn-close" aria-label="Close"></button>'
 			: ''
 		}
 	</div>
@@ -124,7 +124,7 @@ async function fragment_mfaReauthenticate(params) {
 	let body = `
 	<div class="modal-header text-center">
 		<h3 class="modal-title w-100" id="staticBackdropLabel">Two-Factor Reauthentication</h3>
-		<button id="close-mfa-reauth-modal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		<button id="close-mfa-reauth-modal" type="button" class="btn-close" aria-label="Close"></button>
 	</div>
 	<div class="modal-body">
 	
