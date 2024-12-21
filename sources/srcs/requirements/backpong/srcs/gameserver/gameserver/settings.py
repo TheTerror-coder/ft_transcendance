@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from . import tools
+from .parameters import EnvVariables
 
 import requests
 
@@ -23,9 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-q=g580bmrn1s((-$rl0e7791@a1q!fsg1cy18%sn=ajif1tdqs'
+SECRET_KEY = str(
+	requests.get(f"https://vault_c:{EnvVariables.VAULT_API_PORT}/v1/secret/data/gameserver_secret_key",
+		verify=os.environ.get('VAULT_CACERT'),
+		headers={"Authorization": "Bearer " + tools.get_secrets_access_pass()}).json()["data"]["data"]["password"]
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: TODO don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -96,9 +101,9 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': str(
-			requests.get("https://vault_c:8200/v1/secret/data/postgres",
+			requests.get(f"https://vault_c:{EnvVariables.VAULT_API_PORT}/v1/secret/data/postgres",
 				verify=os.environ.get('VAULT_CACERT'),
-				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+				headers={"Authorization": "Bearer " + tools.get_secrets_access_pass()}).json()["data"]["data"]["password"]
 		),
         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
         'PORT': os.environ.get('POSTGRES_PORT'),

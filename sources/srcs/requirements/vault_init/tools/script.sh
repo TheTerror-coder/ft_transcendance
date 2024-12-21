@@ -116,6 +116,26 @@ create_backpong_admin_password () {
 }
 
 #######################################
+###      backend secret key         ###
+#######################################
+
+create_backend_secret_key () {
+	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": \"$BACKEND_SECRET_KEY\" }})
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/backend_secret_key #>> /dev/null
+}
+
+#######################################
+###       gameserver secret key     ###
+#######################################
+
+create_gameserver_secret_key () {
+	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": \"$GAMESERVER_SECRET_KEY\" }})
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/gameserver_secret_key #>> /dev/null
+}
+
+#######################################
 ######## Create certificates ##########
 #######################################
 
@@ -189,6 +209,8 @@ else
 	create_logstash_password
 	create_logstash_es_client_password
 	create_backpong_admin_password
+	create_backend_secret_key
+	create_gameserver_secret_key
 	create_tls_certs
 	create_tokens
 # tail -f /dev/null

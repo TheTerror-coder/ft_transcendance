@@ -34,6 +34,8 @@ services:
       - VAULT_API_PORT=${VAULT_API_PORT}
       - HOST_IP=${HOST_IP}
       - PONGADMIN_PASS=${PONGADMIN_PASS}
+      - BACKEND_SECRET_KEY=${BACKEND_SECRET_KEY}
+      - GAMESERVER_SECRET_KEY=${GAMESERVER_SECRET_KEY}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -330,6 +332,7 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
       - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - VAULT_API_PORT=${VAULT_API_PORT}
     volumes:
     #   - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
       - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
