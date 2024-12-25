@@ -251,7 +251,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - GUNICORN_CMD_ARGS=${BACKEND_GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
       - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
       - VAULT_CACERT=${BACKEND_VAULT_CACERT}
@@ -269,6 +269,7 @@ services:
       - ULTIMAPI_UID=${ULTIMAPI_UID}
       - ULTIMAPI_SECRET=${ULTIMAPI_SECRET}
       - ULTIMAPI_REDIRECT_URI=${ULTIMAPI_REDIRECT_URI}
+      - DJANGO_SETTINGS_MODULE=backend.settings
     volumes:
     #   - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
@@ -280,7 +281,7 @@ services:
         [
           "CMD-SHELL",
           "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
-          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # In production
+        #   "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s
@@ -325,7 +326,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - GUNICORN_CMD_ARGS=${GAMESERVER_GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
       - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
       - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
@@ -342,9 +343,8 @@ services:
       test:
         [
           "CMD-SHELL",
-        #   "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
-          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
-        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s

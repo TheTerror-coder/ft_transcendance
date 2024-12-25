@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
 
-	'daphne',
+	'daphne', #TODO JM: Remove in production, uvicorn will be the asgi server instead
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,11 +76,9 @@ INSTALLED_APPS = [
     'channels',
 	
 	'ultimapi',
-    # 'oauth',
     'oauth',
     'usermanagement',
 
-	# allauth
 	'allauth',
     'allauth.account',
     'allauth.headless',
