@@ -13,19 +13,19 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream frontendmediator {
-	server		frontend:3443;
+	server		frontend:$FRONTEND_HTTPS_PORT;
 }
 
 upstream backendmediator {
-	server		backend:8000;
+	server		backend:$BACKEND_PORT;
 }
 
 upstream gameservermediator {
-	server		gameserver:8001;
+	server		gameserver:$GAMESERVER_PORT;
 }
 
 server {
-	listen 1880;
+	listen $PROXYWAF_HTTP_PORT;
 
 	server_name localhost $HOST_IP;
 	set $always_redirect on;
@@ -37,7 +37,7 @@ server {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host:1443$request_uri;
+			return 301 https://$host:$PROXYWAF_HTTPS_PORT$request_uri;
 		}
 	}
 
@@ -46,8 +46,8 @@ server {
 }
 
 server {
-	listen 1443 ssl;
-	listen [::]:1443 ssl;
+	listen $PROXYWAF_HTTPS_PORT ssl;
+	listen [::]:$PROXYWAF_HTTPS_PORT ssl;
 
 	server_name localhost $HOST_IP;
 	#set $proxy_upstream http://frontendmediator;

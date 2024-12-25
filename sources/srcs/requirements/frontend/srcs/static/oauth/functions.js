@@ -306,7 +306,7 @@ function handleFriendInvitation(socket, event) {
 
 
 // async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:1443/hello/');
+// 	const response = await request('GET', 'https://localhost:"env variable PROXYWAF_HTTPS_PORT"/hello/');
 // 	if (response.status === 200)
 // 		console.log('request succeeded!!');
 // 	console.log('request failed!!');

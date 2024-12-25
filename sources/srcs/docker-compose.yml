@@ -153,10 +153,10 @@ services:
     image: redis:${REDIS_TAG}
     container_name: ${REDIS_CONTAINER}
     expose:
-      - 16379
+      - ${REDIS_PORT}
     networks:
       - ${NETWORK_NAME}
-    entrypoint: ["redis-server", "--port", "16379", "--loglevel", "debug"]
+    entrypoint: ["redis-server", "--port", "${REDIS_PORT}", "--loglevel", "debug"]
     # restart: on-failure
 
 
@@ -458,6 +458,9 @@ services:
       - HOST_IP=${HOST_IP}
       - CONTAINER_HTTP_PORT=${PROXYWAF_HTTP_PORT}
       - CONTAINER_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
     volumes:
       # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${NGINX_STATICFILES_DIR}
