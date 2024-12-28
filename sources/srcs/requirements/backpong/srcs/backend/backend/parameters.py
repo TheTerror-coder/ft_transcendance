@@ -21,6 +21,8 @@ class EnvVariables:
 	BACKEND_PORT			= os.getenv('BACKEND_PORT')
 	REDIS_CONTAINER			= os.getenv('REDIS_CONTAINER')
 	REDIS_PORT				= os.getenv('REDIS_PORT')
+	REDIS_USER				= os.getenv('REDIS_USER')
+	REDIS_HOME				= os.getenv('REDIS_HOME')
 	MEDIA_DIR				= os.getenv('MEDIA_DIR')
 	MAIL_CONTAINER			= os.getenv('MAIL_CONTAINER')
 	MAIL_PORT				= os.getenv('MAIL_PORT')

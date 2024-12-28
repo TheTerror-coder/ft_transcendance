@@ -211,7 +211,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			"hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			### TODO: IN production
+            # "hosts": [
+			# 	{
+			# 		"address": tools.get_RedisBackendUri(),
+			# 	}
+			# ],
         },
     },
 }

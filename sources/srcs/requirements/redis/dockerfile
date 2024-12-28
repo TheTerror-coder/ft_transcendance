@@ -17,7 +17,7 @@ WORKDIR ${REDIS_HOME}
 RUN <<EOF
 addgroup -g ${SHARED_GID} transcendance
 addgroup redis transcendance
-apk add --update --no-cache dumb-init curl jq
+apk add --update --no-cache dumb-init curl jq envsubst
 mkdir -p ${REDIS_DIRS_TO_MAKE}
 chmod 0700 ${REDIS_HOME} ${REDIS_HOME}/container-init.d ${REDIS_HOME}/volumes
 chmod 1500 ${REDIS_HOME}/secrets
@@ -26,7 +26,7 @@ chown ${REDIS_UID}:${REDIS_GID} ${REDIS_HOME}/secrets
 EOF
 
 COPY --chown=${REDIS_UID}:${REDIS_GID} --chmod=700 ./tools/script.sh ${REDIS_HOME}/container-init.d/
-COPY --chown=${REDIS_UID}:${REDIS_GID} --chmod=700 ./conf/redis.conf ${REDIS_HOME}/container-init.d/
+COPY --chown=${REDIS_UID}:${REDIS_GID} --chmod=700 ./conf/redis.conf ${REDIS_HOME}/container-init.d/redis.conf.template
 
 USER ${REDIS_UID}
 

@@ -8,6 +8,7 @@ source $VAULT_HOME/container-init.d/create-root-ca.sh
 source $VAULT_HOME/container-init.d/generate-nginx-ssl-certs.sh
 source $VAULT_HOME/container-init.d/generate-backend-ssl-certs.sh
 source $VAULT_HOME/container-init.d/generate-gameserver-ssl-certs.sh
+source $VAULT_HOME/container-init.d/generate-redis-ssl-certs.sh
 source $VAULT_HOME/container-init.d/vault-ssl.sh
 
 init () {
@@ -106,6 +107,24 @@ create_logstash_es_client_password () {
 }
 
 #######################################
+#############  redis   ################
+#######################################
+
+create_redis_default_password () {
+	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
+	redis_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $redis_password }})
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/redis_default #>> /dev/null
+}
+
+create_redis_onepong_password () {
+	root_token=$(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}')
+	redis_password=$(curl -s --cacert $VAULT_CACERT -H "Authorization: Bearer $root_token" https://vault_c:$VAULT_API_PORT/v1/sys/policies/password/password_policy/generate | jq .data.password)
+	payload=$(echo {  \"options\": {    \"cas\": 0  },  \"data\": {    \"password\": $redis_password }})
+	curl -s --cacert $VAULT_CACERT  -H "Authorization: Bearer $root_token" --data "$payload" https://vault_c:$VAULT_API_PORT/v1/secret/data/redis_onepong #>> /dev/null
+}
+
+#######################################
 ######### backpong admin ##############
 #######################################
 
@@ -157,6 +176,12 @@ set_tls_volumes_permissions(){
 	find $VAULT_HOME/volumes/gameserver/certs -type f -exec chmod 640 \{\} \;;
 	chown -R $VAULT_UID:$SHARED_GID $VAULT_HOME/volumes/gameserver/certs;
 	echo "GameServer's TLS files permissions Done!"
+	
+	echo "Setting Redis's TLS files permissions..."
+	find $VAULT_HOME/volumes/redis/certs -type d -exec chmod 750 \{\} \;;
+	find $VAULT_HOME/volumes/redis/certs -type f -exec chmod 640 \{\} \;;
+	chown -R $VAULT_UID:$SHARED_GID $VAULT_HOME/volumes/redis/certs;
+	echo "Redis's TLS files permissions Done!"
 }
 
 create_tls_certs () {
@@ -174,6 +199,10 @@ create_tls_certs () {
 	enable_gameserver_pki_engine
 	generate_gameserver_intermediate_ca
 	request_gameserver_certificate
+	
+	enable_redis_pki_engine
+	generate_redis_intermediate_ca
+	request_redis_certificate
 	
 	set_tls_volumes_permissions
 }
@@ -208,6 +237,8 @@ else
 	create_kibana_password
 	create_logstash_password
 	create_logstash_es_client_password
+	create_redis_default_password
+	create_redis_onepong_password
 	create_backpong_admin_password
 	create_backend_secret_key
 	create_gameserver_secret_key
