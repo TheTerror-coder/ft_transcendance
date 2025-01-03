@@ -14,6 +14,7 @@ from rest_framework.decorators import permission_classes
 from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
+from random import random
 from .tournament import Tournament, Players
 import sys
 from allauth.account.utils import setup_user_email
@@ -151,7 +152,8 @@ User = get_user_model()
 
 @api_view(['POST'])
 @csrf_protect
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@login_required
 def update_photo(request):
 	if 'picture' not in request.FILES:
 		return Response({
