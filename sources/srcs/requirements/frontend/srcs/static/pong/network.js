@@ -1,4 +1,6 @@
 import { fireEnnemieCannonBall } from './ballistic_cal.js';
+import { unloadScene } from './render.js';
+
 
 function findTeam(Team1, Team2, teamID)
 {
@@ -8,29 +10,15 @@ function findTeam(Team1, Team2, teamID)
         return (Team2);
 }
 
-function updateCannoneerCamera(boatGroup, player) {
-    // Mettre à jour la position de la caméra du canonnier en fonction de la position du bateau
-    let cannoneerCamera = player.getCamera();
-    if (cannoneerCamera) {
-        // Ajuster ces valeurs selon vos besoins
-        cannoneerCamera.position.set(
-            boatGroup.position.x,
-            boatGroup.position.y + 5,  // Légèrement au-dessus du bateau
-            boatGroup.position.z - 10  // Derrière le bateau
-        );
-        cannoneerCamera.lookAt(boatGroup.position);
-    }
-}
-
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, ocean, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2, requestAnimationFrameId) {
     socket.on('connect', (data) => {
         var Team = data.Team;
         console.log('Connected to the server');
     });
 
     socket.on('disconnect', () => {
-        socket.emit('stopGame');
-        window.location.href = '/lobby';
+        // socket.emit('stopGame');
+        window.location.href = '/home';
         console.log('Disconnected from the server');
     });
 
@@ -47,25 +35,34 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     });
     
     socket.on('stopGame', () => {
-        gameStarted = false;
-        waitingMessage.style.display = 'block';
+        // gameStarted = false;
+        // waitingMessage.style.display = 'block';
         console.log('Game stopped');
-        window.location.href = '/lobby';
+        // window.location.href = '/lobby';
         currentPlayer.setGameStarted(false);
     });
 
-    socket.on('winner', (winner) => {
+    socket.on('winner', async (winner) => {
         console.log(`L'équipe ${winner} a gagné !`);
-        currentPlayer.setGameStarted(false);
         const TeamID = currentPlayer.getTeamID();
         const currentTeam = findTeam(Team1, Team2, TeamID);
         const teamName = currentTeam.getTeamName();
         console.log('teamName : ', teamName);
         console.log('winner : ', winner);
-        const isWinner = winner === teamName;
-        hud.showEndGameText(isWinner);
-        // gameStarted = false;
+        if (winner === teamName)
+            await hud.showEndGameText(true);
+        else
+            await hud.showEndGameText(false);
+        currentPlayer.setGameStarted(false);
+        // socket.disconnect();
+        console.log('Game ended');
+        // console.log('socket disconnected ', socket);
     });
+
+    // socket.on('gameEnded', () => {
+    //     currentPlayer.setGameStarted(false);
+    //     // unloadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2);
+    // });
 
     socket.on('cannonPosition', async (data) => {
         const {teamID, cannonPosition} = data;
@@ -102,10 +99,12 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         const {teamID, boatPosition} = data;
         let team = findTeam(Team1, Team2, teamID);
         if (team && team.getBoatGroup()) {
+            let boatFormerPosition = team.getBoatGroup().position.x;
             team.getBoatGroup().position.x = boatPosition.x;
             
             if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
-                updateCannoneerCamera(team.getBoatGroup(), currentPlayer);
+                console.log('team.getCannonPosInTheWorld() : ', team.getCannonPosInTheWorld());
+                currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
             }
         } else {
             console.error('Team, boat or cannon not found for team', teamID);
@@ -117,8 +116,6 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         Team1.setScore(team1);
         Team2.setScore(team2);
         console.log('Score updated - Team 1: ', team1, 'Team 2: ', team2);
-        // const scoreDisplay = document.getElementById('scoreDisplay');
-        // scoreDisplay.innerText = `Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`;
         scoreText.updateHUDText(`Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`);
     });
 }

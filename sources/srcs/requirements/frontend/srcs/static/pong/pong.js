@@ -40,7 +40,7 @@ export async function main(gameCode, socket) {
         }
     });
     
-    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball } = await render.initScene();
+    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene();
     let hud = createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
@@ -65,15 +65,6 @@ export async function main(gameCode, socket) {
     ballPositionDisplay.style.color = 'white';
     document.body.appendChild(ballPositionDisplay);
     
-    // Cree un element pour afficher le score
-    const scoreDisplay = document.createElement('div');
-    scoreDisplay.id = 'scoreDisplay';
-    scoreDisplay.style.position = 'absolute';
-    scoreDisplay.style.top = '10px';
-    scoreDisplay.style.right = '10px';
-    scoreDisplay.style.color = 'white';
-    document.body.appendChild(scoreDisplay);
-    
     // Créer une caméra contrôlable
     setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
     
@@ -91,6 +82,7 @@ export async function main(gameCode, socket) {
         if (boat && cannon) {
             currentPlayer.setCameraPos(boat, cannon, cannonPosInTheWorld);
             cameraPlayer = initCamera(currentPlayer, cameraPlayer, cannon, boat);
+            currentPlayer.setCameraPlayer(cameraPlayer);
         } else {
             console.error('Boat or cannon is undefined');
         }
@@ -124,7 +116,7 @@ export async function main(gameCode, socket) {
     updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode);
     
     async function animate() {
-        requestAnimationFrame(animate);
+        let requestAnimationFrameId = requestAnimationFrame(animate);
         
         boat1BoundingBox.setFromObject(boatGroup1);
         boat2BoundingBox.setFromObject(boatGroup2);
@@ -141,6 +133,63 @@ export async function main(gameCode, socket) {
         boat2BoundingBox.max.z /= 3;
         boat1Hitbox.updateMatrixWorld(true);
         boat2Hitbox.updateMatrixWorld(true);
+
+        if (currentPlayer.getGameStarted() === false) {
+            cancelAnimationFrame(requestAnimationFrameId);
+            window.removeEventListener('keydown', keys);
+            window.removeEventListener('keyup', keys);
+            
+            // Garder uniquement le texte de victoire dans le HUD
+            if (hud && hud.scene) {
+                hud.scene.children.forEach(child => {
+                    if (child !== hud.scoreText && child !== hud.endGameText.textMesh) {
+                        hud.scene.remove(child);
+                    }
+                });
+            }
+            
+            // Attendre que le texte soit visible avant de nettoyer
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Nettoyer la scène mais pas le HUD
+            scene.children.forEach(child => {
+                if (!hud.scene.children.includes(child)) {
+                    scene.remove(child);
+                }
+            });
+            
+            // Attendre avant le nettoyage final
+            await new Promise(resolve => setTimeout(resolve, 7000));
+            
+            // Nettoyer la scène HUD
+            if (hud) {
+                hud.scene.clear();
+                if (hud.camera) hud.camera = null;
+            }
+            
+            // Supprimer les éléments d'affichage du DOM
+            if (displayInfo && displayInfo.parentNode) {
+                displayInfo.parentNode.removeChild(displayInfo);
+            }
+            if (ballPositionDisplay && ballPositionDisplay.parentNode) {
+                ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
+            }
+            
+            render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
+            
+            // Forcer le garbage collector
+            scene = null;
+            ball = null;
+            boatGroup1 = null;
+            boatGroup2 = null;
+            renderer = null;
+            cameraPlayer = null;
+            
+            socket.disconnect();
+            console.log('socket disconnected ', socket);
+
+            return;
+        }
         
         // Rendre la scène
         renderer.render(scene, cameraPlayer);
@@ -193,8 +242,8 @@ async function initGame(gameData, socketID) {
     console.log('Initialisation du jeu avec les données : ', gameData);
 
     // Créer les équipes
-    const team1 = new Team(gameData.team1.name, gameData.team1.maxNbPlayer, gameData.team1.TeamId);
-    const team2 = new Team(gameData.team2.name, gameData.team2.maxNbPlayer, gameData.team2.TeamId);
+    const team1 = new Team(gameData.team1.Name, gameData.team1.MaxNbPlayer, gameData.team1.TeamId);
+    const team2 = new Team(gameData.team2.Name, gameData.team2.MaxNbPlayer, gameData.team2.TeamId);
 
     let currentPlayer = null;
     let currentPlayerTeam = null;
@@ -251,14 +300,6 @@ function initCamera(player, cameraPlayer, cannon, bateau)
     cameraPlayer.position.copy(player.getCameraPos());
     console.log('player.getCameraRotation() : ', player.getCameraRotation());
     cameraPlayer.rotation.set(player.getCameraRotation().x, player.getCameraRotation().y, player.getCameraRotation().z);
-    // if (player.getRole() === 'captain') {
-    //     // Vue d'ensemble pour le capitaine
-    //     // cameraPlayer.lookAt(bateau);
-    // } else if (player.getRole() === 'Cannoneer') {
-    //     // Vue depuis le canon pour le canonnier
-    //     // cameraPlayer.lookAt(cannon);
-    // }
-    // player.setCamera(cameraPlayer);
     return cameraPlayer;
 }
 

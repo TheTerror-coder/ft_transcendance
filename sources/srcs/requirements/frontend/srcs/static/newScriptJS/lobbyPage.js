@@ -36,6 +36,7 @@ async function updateLobby(data)
     {
         console.log("2 joueurs par equipe");
         await updateLobbyTwoVsTwo(data);
+        ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
     }
 }
 

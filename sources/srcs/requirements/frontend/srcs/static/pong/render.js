@@ -21,8 +21,9 @@ export async function initScene() {
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
     let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene);
-    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2)
-    return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball };
+    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
+    let display = [ocean, ambientLight, directionalLight1, directionalLight2];
+    return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display };
 }
 
 function initBoundaryLines() {
@@ -66,6 +67,87 @@ function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directio
     scene.add(bateau1);
     scene.add(bateau2);
     scene.add(boundaryLines); // Ajouter les lignes de délimitation
+}
+
+export function unloadScene(ball, scene, bateau1, bateau2, display, renderer) {
+    // Supprimer la balle
+    if (ball) {
+        scene.remove(ball);
+        if (ball.geometry) ball.geometry.dispose();
+        if (ball.material) ball.material.dispose();
+    }
+
+    // Supprimer les bateaux
+    if (bateau1) {
+        scene.remove(bateau1);
+        bateau1.traverse((child) => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(material => material.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+        });
+    }
+
+    if (bateau2) {
+        scene.remove(bateau2);
+        bateau2.traverse((child) => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(material => material.dispose());
+                } else {
+                    child.material.dispose();
+                }
+            }
+        });
+    }
+
+    // Supprimer les éléments d'affichage
+    if (display) {
+        for (const item of display) {
+            if (item) {
+                scene.remove(item);
+                if (item.geometry) item.geometry.dispose();
+                if (item.material) item.material.dispose();
+            }
+        }
+    }
+
+    // Nettoyer le reste de la scène
+    while(scene.children.length > 0) { 
+        const object = scene.children[0];
+        scene.remove(object);
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(material => material.dispose());
+            } else {
+                object.material.dispose();
+            }
+        }
+    }
+
+    // Nettoyer le renderer
+    if (renderer) {
+        renderer.renderLists.dispose();
+        renderer.dispose();
+        // Supprimer l'élément canvas du DOM
+        if (renderer.domElement && renderer.domElement.parentNode) {
+            renderer.domElement.parentNode.removeChild(renderer.domElement);
+        }
+    }
+
+    // Vider la scène
+    scene.clear();
+
+    // Force la mise à jour du rendu
+    if (renderer) {
+        renderer.render(scene, new THREE.PerspectiveCamera());
+    }
 }
 
 async function initObject(scene)

@@ -45,6 +45,9 @@ function initializeGlobalSocket(socket)
         await module.main(savedGameCode, globalSocket);
         console.log("globalSocket dans startGame: ", globalSocket);
     });
+    globalSocket.on('TeamsFull', () => {
+        ELEMENTs.PlayButtonInLobby().style.display = "block";
+    });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
         error = data.message;

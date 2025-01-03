@@ -123,14 +123,16 @@ function createEndGameText() {
     const geometry = new THREE.PlaneGeometry(10, 10);
     const textMesh = new THREE.Mesh(geometry, material);
     
-    function updateEndGameText(isWinner) {
+    async function updateEndGameText(isWinner) {
         const canvas = textMesh.material.map.image;
         const context = canvas.getContext('2d');
         
         context.clearRect(0, 0, canvas.width, canvas.height);
         
-        const message = isWinner ? 'VICTOIRE !' : 'DÉFAITE...';
-        context.fillText(message, canvas.width/2, canvas.height/2);
+        if (isWinner)
+            await context.fillText('VICTOIRE !', canvas.width/2, canvas.height/2);
+        else
+            await context.fillText('DÉFAITE...', canvas.width/2, canvas.height/2);
         
         textMesh.material.map.needsUpdate = true;
     }
