@@ -7,13 +7,13 @@ include $(ENV)
 export ULTIMAPI_REDIRECT_URI_PART1
 export ULTIMAPI_REDIRECT_URI_PART2
 
-export HOST_IP					:=$(shell ifconfig | grep 'inet ' | grep -v "127.0.0.1" | awk '{print $$2}' | head -n 1)
+export HOST_IP					:=$(shell $(HOST_IP_SCRIPT) $(ENV))
 export ULTIMAPI_REDIRECT_URI	:=$(shell echo $(ULTIMAPI_REDIRECT_URI_PART1)$(HOST_IP)$(ULTIMAPI_REDIRECT_URI_PART2))
 
-all : host_ip build up
+all : build up
 
-host_ip :
-	-@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
+# host_ip :
+# 	-@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
 
 build b : # Build or rebuild services
 	-docker compose -f $(COMPOSE_FILE) build
