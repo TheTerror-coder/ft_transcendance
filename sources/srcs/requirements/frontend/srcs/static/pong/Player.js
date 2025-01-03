@@ -10,6 +10,17 @@ class Player
         this.cameraRotation = { x: 0, y: 0, z: 0 };
         this.TeamID = TeamID;
         this.gameStarted = false;
+        this.cameraPlayer = null;
+    }
+
+    setCameraPlayer(cameraPlayer)
+    {
+        this.cameraPlayer = cameraPlayer;
+    }
+
+    getCameraPlayer()
+    {
+        return (this.cameraPlayer);
     }
 
     setGameStarted(gameStarted)
@@ -108,6 +119,15 @@ class Player
             this.cameraRotation = { x: crx, y: cry, z: crz };
             console.log('this.cameraPos : ', this.cameraPos);
             console.log('this.cameraRotation : ', this.cameraRotation);
+        }
+    }
+
+    updateCannoneerCameraPos(boatFormerPosition, boatCurrentPosition)
+    {
+        let deltaX = boatCurrentPosition - boatFormerPosition;
+        if (this.role == 'Cannoneer')
+        {
+            this.cameraPlayer.position.x = this.cameraPlayer.position.x + deltaX;
         }
     }
 

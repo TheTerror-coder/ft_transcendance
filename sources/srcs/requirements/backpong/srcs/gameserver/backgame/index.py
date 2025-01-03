@@ -61,17 +61,26 @@ def generateGameCode():
 @sio.event
 async def disconnect(sid):
     logger.info(f'Client disconnected: {sid}')
-    for gameCode, channel in ChannelList.items():
+    channel_codes = list(ChannelList.keys())  # Créer une copie des clés
+    
+    for gameCode in channel_codes:
+        channel = ChannelList[gameCode]
         game = channel.getGame()
         game.removeNbPlayerConnected()
+        
+        # Vérifier les deux équipes
         for team in game.teams.values():
             if team.getPlayerById(sid):
                 team.removePlayer(sid)
+                await sio.leave_room(sid, gameCode)
+                break  # On peut sortir de la boucle une fois le joueur trouvé
+        
+        # Si plus aucun joueur connecté
         if game.nbPlayerConnected == 0:
             logger.info(f"Closing room {gameCode} because no player is connected")
             game.gameStarted = False
-            await sio.close_room(gameCode, sid)
-    # await sio.leave_room(sid)
+            await sio.close_room(gameCode)
+            ChannelList.pop(gameCode)
 
 @sio.event
 async def connect(sid, environ):
@@ -293,6 +302,16 @@ async def startGame(gameCode, game):
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
+        logger.info(f"game.gameStarted: {game.gameStarted}")
+        if (game.gameStarted == False):
+            logger.info(f"Game started is False so we break the loop")
+            break
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     
-    logger.info(f"Partie {gameCode} terminée")
+    # await endGame(game, gameCode)
+
+# async def endGame(game, gameCode):
+#     logger.info(f"Partie {gameCode} terminée")
+#     await sio.emit('gameEnded', room=gameCode)
+#     # ChannelList.pop(gameCode)
+#     logger.info(f"ChannelList: {ChannelList}")
