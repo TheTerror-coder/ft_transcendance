@@ -6,7 +6,6 @@ let ip;
 let globalSocket = null;
 let nbPerTeam;
 
-// let dataDav;
 
 let error = null;
 
@@ -81,6 +80,14 @@ async function createLobbyDisplay()
             ELEMENTs.primeAmount().innerHTML = response.prime;
             setTimeout(() => {
                 globalSocket.emit('confirmChoices', { teamID: 1, role: "captain", userName: response.username });
+                if (error !== null)
+                {
+                    console.log("error: ", error);
+                    error = null;
+                    window.history.pushState({}, "", URLs.VIEWS.HOME);
+                    handlelocation();
+                    return ;
+                }
                 console.log("saveCodeGameCode dans ;la focntion de cree les bails: ", savedGameCode);
                 document.getElementById("lobbyCode").innerHTML = savedGameCode;
             }, 300);
@@ -89,9 +96,7 @@ async function createLobbyDisplay()
         refreshLanguage();
     }
     else
-    {
         createLobbyforTwoPlayer();
-    }
 }
 
 function createLobbyforTwoPlayer()
@@ -123,6 +128,13 @@ async function lobbyTwoPlayer()
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
     globalSocket.emit('confirmChoices', { teamID, role, userName: user.username }); // TODO: get user name from database
+    if (error !== null)
+    {
+        
+        console.log("error: ", error);
+        error = null;
+        return ;
+    }
     ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
     console.log("savedGameCode in lobbyTwoPlayer: ", savedGameCode);
     document.getElementById("lobbyCode").innerHTML = savedGameCode;
