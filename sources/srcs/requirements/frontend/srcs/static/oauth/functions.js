@@ -299,6 +299,7 @@ function handleFriendInvitation(socket, event) {
                 response: response,
                 friend_request_id: data.friend_request_id
             }));
+			// actualiser la page ici
         });
     }
 }
