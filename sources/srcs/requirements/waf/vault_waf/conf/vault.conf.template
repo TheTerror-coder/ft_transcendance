@@ -17,7 +17,7 @@ upstream vaultmediator {
 }
 
 server {
-	listen 5880;
+	listen $VAULTWAF_HTTP_PORT;
 
 	server_name localhost $HOST_IP;
 	set $upstream https://vaultmediator;

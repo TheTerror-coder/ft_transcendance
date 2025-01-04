@@ -16,7 +16,7 @@ import requests
 from . import tools
 from pathlib import Path
 from . import parameters
-from .parameters import EnvVariables, UltimApi
+from .parameters import EnvVariables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,10 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: TODO keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-nubwiuho4c4%@3fk9yo54_^#l11s0_+4zl%^$7r3b4-4hknx5_'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = str(
+	requests.get(f"https://vault_c:{EnvVariables.VAULT_API_PORT}/v1/secret/data/backend_secret_key",
+		verify=os.environ.get('VAULT_CACERT'),
+		headers={"Authorization": "Bearer " + tools.get_secrets_access_pass()}).json()["data"]["data"]["password"]
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: TODO don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', f'{EnvVariables.HOST_IP}', '127.0.0.1']
@@ -57,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
 
-	'daphne',
+	'daphne', #TODO JM: Remove in production, uvicorn will be the asgi server instead
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,11 +76,9 @@ INSTALLED_APPS = [
     'channels',
 	
 	'ultimapi',
-    # 'oauth',
     'oauth',
     'usermanagement',
 
-	# allauth
 	'allauth',
     'allauth.account',
     'allauth.headless',
@@ -133,7 +135,7 @@ DATABASES = {
         'PASSWORD': str(
 			requests.get(f"https://vault_c:{EnvVariables.VAULT_API_PORT}/v1/secret/data/postgres",
 				verify=os.environ.get('VAULT_CACERT'),
-				headers={"Authorization": "Bearer " + tools.get_postgres_pass()}).json()["data"]["data"]["password"]
+				headers={"Authorization": "Bearer " + tools.get_secrets_access_pass()}).json()["data"]["data"]["password"]
 		),
         'HOST': os.environ.get('RESOLVED_PG_HOSTNAME'),
         'PORT': os.environ.get('POSTGRES_PORT'),
@@ -209,7 +211,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			"hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			### TODO: IN production
+            # "hosts": [
+			# 	{
+			# 		"address": tools.get_RedisBackendUri(),
+			# 	}
+			# ],
         },
     },
 }

@@ -151,10 +151,6 @@ document.addEventListener('click', async (event) =>
                 frenchFlag.style.marginBottom = "5px";
                 popoverContainer.appendChild(spainFlag);
                 popoverContainer.appendChild(frenchFlag);
-                popoverContainer.style.display = "flex";
-                popoverContainer.style.flexDirection = "column";
-                popoverContainer.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
-                popoverContainer.style.justifyContent = "space-between";
                 ELEMENTs.languageDiv().appendChild(popoverContainer);
             }
             else if (currentLanguage === 'es')
@@ -171,10 +167,6 @@ document.addEventListener('click', async (event) =>
                 frenchFlag.style.marginBottom = "5px";
                 popoverContainer.appendChild(englandFlag);
                 popoverContainer.appendChild(frenchFlag);
-                popoverContainer.style.display = "flex";
-                popoverContainer.style.flexDirection = "column";
-                popoverContainer.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
-                popoverContainer.style.justifyContent = "space-between";
                 ELEMENTs.languageDiv().appendChild(popoverContainer);
             }
             else
@@ -182,7 +174,7 @@ document.addEventListener('click', async (event) =>
                 const englandFlag = document.createElement('img');
                 const spainFlag = document.createElement('img');
                 spainFlag.src = "/static/photos/picturePng/loginPage/drapeau/flages.png";
-                spainFlag.id = "franceFlag"
+                spainFlag.id = "spainFlag"
                 englandFlag.src = "/static/photos/picturePng/loginPage/drapeau/flagen.png";
                 englandFlag.id = "englandFlag";
                 spainFlag.style.alignSelf = "center";
@@ -191,12 +183,12 @@ document.addEventListener('click', async (event) =>
                 spainFlag.style.marginBottom = "5px";
                 popoverContainer.appendChild(englandFlag);
                 popoverContainer.appendChild(spainFlag);
-                popoverContainer.style.display = "flex";
-                popoverContainer.style.flexDirection = "column";
-                popoverContainer.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
-                popoverContainer.style.justifyContent = "space-between";
                 ELEMENTs.languageDiv().appendChild(popoverContainer);
             }
+            popoverContainer.style.display = "flex";
+            popoverContainer.style.flexDirection = "column";
+            popoverContainer.style.backgroundColor = "rgba(255, 255, 255, 0.3)";
+            popoverContainer.style.justifyContent = "space-between";
         }
         else
             document.getElementById('popOverLanguage').remove();
@@ -214,13 +206,23 @@ document.addEventListener('click', async (event) =>
     }
 });
 
-window.addEventListener('resize' , () => {
+function updatePopoverPosition() 
+{
     if (document.getElementById('popOverLanguage') !== null)
     {
-        document.getElementById('popOverLanguage').remove
+        const popoverContainer = document.getElementById('popOverLanguage');
+        const rect = ELEMENTs.languageDiv().getBoundingClientRect();
+        popoverContainer.style.position = 'absolute';
+        popoverContainer.style.top = `${rect.top + window.scrollY + 35}px`;
+        popoverContainer.style.left = `${rect.left + window.scrollX - 5}px`;
+        popoverContainer.style.zIndex = 10;
+        popoverContainer.style.width = '40px';
+        popoverContainer.style.height = '80px';
     }
-});
+}
 
+// Recalculate position when the window is resized
+window.addEventListener('resize', updatePopoverPosition);
 
 
 // Initialize on page load

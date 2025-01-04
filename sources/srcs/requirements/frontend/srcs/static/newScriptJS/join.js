@@ -1,17 +1,3 @@
-// async function joinLobbyOnevsOne(gameCode)
-// {
-//     console.log("globalSocket in join lobby OnevsOne", globalSocket);
-//     console.log("lobby one vs one");
-
-//     ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
-
-//     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-//     console.log("user avec await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER): ", user);
-//     globalSocket.emit('confirmChoices', { teamID: 2, role: "captain", userName: user.username });
-//     document.getElementById("lobbyCode").innerHTML = gameCode;
-
-//     // si pas possible, chopper le display du lobby 1vs1 et mettre le second joueur a droite
-// }
 
 async function joinLobbyGame(gameCode, teamID, role) // surement possible de faire une seule fonction pour les deux join
 {
@@ -28,6 +14,14 @@ async function joinLobbyGame(gameCode, teamID, role) // surement possible de fai
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     console.log("user dans joinLobbyGame: ", user, "gameCode: ", gameCode, "teamID: ", teamID, "role: ", role);
     globalSocket.emit('confirmChoices', { teamID: teamID, role: role, userName: user.username });
+    if (error !== null)
+    {
+        console.log("error: ", error);
+        error = null;
+        window.history.pushState({}, "", URLs.VIEWS.HOME);
+        handleLocation();
+        return ;
+    }
     document.getElementById("lobbyCode").innerHTML = gameCode;
 
     // meme delire que le 1vs1 si possible d'avoir la meme page

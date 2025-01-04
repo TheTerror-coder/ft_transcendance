@@ -1,8 +1,6 @@
 #my custom variables
 
 import os
-from backend import settings
-from urllib.parse import urlparse
 
 #########################
 ###   ENV VARIABLES   ###
@@ -10,20 +8,22 @@ from urllib.parse import urlparse
 
 class EnvVariables:
 	SECRET_ACCESS_TOKEN		= os.getenv('SECRET_ACCESS_TOKEN')
-	CONTAINER_HOME			= os.getenv('BACKEND_HOME')
+	CONTAINER_HOME			= os.getenv('CONTAINER_HOME')
 	BACKEND_HOME			= os.getenv('BACKEND_HOME')
 	POSTGRES_USER			= os.getenv('POSTGRES_USER')
 	POSTGRES_DB				= os.getenv('POSTGRES_DB')
 	POSTGRES_PORT			= os.getenv('POSTGRES_PORT')
 	RESOLVED_PG_HOSTNAME	= os.getenv('RESOLVED_PG_HOSTNAME')
-	STATICFILES_DIR			= os.getenv('BACKEND_STATICFILES_DIR')
+	STATICFILES_DIR			= os.getenv('STATICFILES_DIR')
 	BACKEND_ROOT_CA			= os.getenv('BACKEND_ROOT_CA')
 	VAULT_CACERT			= os.getenv('VAULT_CACERT')
 	HOST_IP					= os.getenv('HOST_IP')
 	BACKEND_PORT			= os.getenv('BACKEND_PORT')
 	REDIS_CONTAINER			= os.getenv('REDIS_CONTAINER')
 	REDIS_PORT				= os.getenv('REDIS_PORT')
-	MEDIA_DIR				= os.getenv('BACKEND_MEDIA_DIR')
+	REDIS_USER				= os.getenv('REDIS_USER')
+	REDIS_HOME				= os.getenv('REDIS_HOME')
+	MEDIA_DIR				= os.getenv('MEDIA_DIR')
 	MAIL_CONTAINER			= os.getenv('MAIL_CONTAINER')
 	MAIL_PORT				= os.getenv('MAIL_PORT')
 	PROXYWAF_HTTPS_PORT		= os.getenv('PROXYWAF_HTTPS_PORT')

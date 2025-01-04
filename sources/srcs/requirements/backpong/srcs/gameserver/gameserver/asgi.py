@@ -8,15 +8,17 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/asgi/
 """
 
 import os
-import sys
-import socketio
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gameserver.settings')
+
+django.setup()
+
 from socketio import ASGIApp
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from backgame import index
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gameserver.settings')
 
 # sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 app = get_asgi_application()

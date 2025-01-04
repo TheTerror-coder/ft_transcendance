@@ -30,6 +30,7 @@ COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 \
 ./tools/create-root-ca.sh \
 ./tools/generate-nginx-ssl-certs.sh \
 ./tools/generate-gameserver-ssl-certs.sh \
+./tools/generate-redis-ssl-certs.sh \
 ./tools/generate-backend-ssl-certs.sh \
 ./tools/vault-ssl.sh \
 ./conf/vault-ssl.cnf ./container-init.d/

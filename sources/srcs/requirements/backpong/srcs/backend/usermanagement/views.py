@@ -116,8 +116,7 @@ def login_view(request):
 
 @api_view(['GET'])
 @csrf_protect
-# @permission_classes([AllowAny])
-@login_required
+@permission_classes([AllowAny])
 def logout_view(request):
     logout(request)
     
@@ -132,7 +131,6 @@ def logout_view(request):
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
-@login_required
 def update_profile(request):
 	print("update-profile", request.data, file=sys.stderr)
 	username = request.data.get('username')

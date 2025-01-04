@@ -17,7 +17,7 @@ async function initializeSocket()
     // ip = 'localhost';
 
     // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
-    // socket = io('wss://' + ip + ':1443', {
+    // socket = io('wss://' + ip + ':"env variable PROXYWAF_HTTPS_PORT"', {
 	socket = io(`wss://${window.location.host}`, {
         // path: '/socket.io',
         transports: ['websocket'],

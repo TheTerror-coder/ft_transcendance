@@ -29,11 +29,14 @@ services:
       - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
       - BACKEND_ALT_NAMES=${BACKEND_ALT_NAMES}
       - GAMESERVER_ALT_NAMES=${GAMESERVER_ALT_NAMES}
+      - REDIS_ALT_NAMES=${REDIS_ALT_NAMES}
       - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - VAULT_API_PORT=${VAULT_API_PORT}
       - HOST_IP=${HOST_IP}
       - PONGADMIN_PASS=${PONGADMIN_PASS}
+      - BACKEND_SECRET_KEY=${BACKEND_SECRET_KEY}
+      - GAMESERVER_SECRET_KEY=${GAMESERVER_SECRET_KEY}
     cap_add:
       - IPC_LOCK
     volumes:
@@ -43,6 +46,7 @@ services:
       - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
       - backend_certs:${VAULT_HOME}/volumes/backend/certs
       - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
+      - redis_certs:${VAULT_HOME}/volumes/redis/certs
     networks:
       - transcendance
     healthcheck:
@@ -151,10 +155,10 @@ services:
     image: redis:${REDIS_TAG}
     container_name: ${REDIS_CONTAINER}
     expose:
-      - 16379
+      - ${REDIS_PORT}
     networks:
       - ${NETWORK_NAME}
-    entrypoint: ["redis-server", "--port", "16379", "--loglevel", "debug"]
+    entrypoint: ["redis-server", "--port", "${REDIS_PORT}", "--loglevel", "debug"]
     # restart: on-failure
 
 
@@ -179,15 +183,16 @@ services:
   #     - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
   #     - REDIS_HOME=${REDIS_HOME}
   #     - REDIS_USER=${REDIS_USER}
-  #     - REDIS_DB=${REDIS_DB}
   #     - REDIS_PORT=${REDIS_PORT}
   #     - REDIS_DATA=${REDIS_DATA}
   #     - VAULT_CACERT=${REDIS_VAULT_CACERT}
   #     - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
-      # - HOST_IP=${HOST_IP}
+  #     - HOST_IP=${HOST_IP}
+  #     - VAULT_API_PORT=${VAULT_API_PORT}
   #   volumes:
-  #     # - db_data:${REDIS_DATA}
+  #     - rdb_data:${REDIS_DATA}
   #     - vault_certs:${REDIS_HOME}/volumes/vault/certs
+  #     - redis_certs:${REDIS_HOME}/volumes/redis/certs
   #   healthcheck: #&file_healthcheck
   #     test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
   #     start_period: 10s
@@ -221,6 +226,7 @@ services:
         restart: true
       redis:
         condition: service_started
+        # condition: service_healthy
         restart: true
     image: ${BACKEND_IMAGE}
     container_name: ${BACKEND_CONTAINER}
@@ -249,7 +255,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - GUNICORN_CMD_ARGS=${BACKEND_GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
       - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
       - VAULT_CACERT=${BACKEND_VAULT_CACERT}
@@ -258,6 +264,8 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
       - REDIS_CONTAINER=${REDIS_CONTAINER}
       - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_HOME=${REDIS_HOME}
       - MEDIA_DIR=${BACKEND_MEDIA_DIR}
       - MAIL_CONTAINER=${MAIL_CONTAINER}
       - MAIL_PORT=${MAIL_PORT}
@@ -267,8 +275,9 @@ services:
       - ULTIMAPI_UID=${ULTIMAPI_UID}
       - ULTIMAPI_SECRET=${ULTIMAPI_SECRET}
       - ULTIMAPI_REDIRECT_URI=${ULTIMAPI_REDIRECT_URI}
+      - DJANGO_SETTINGS_MODULE=backend.settings
     volumes:
-    #   - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
+      # - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
       - staticfiles:${BACKEND_STATICFILES_DIR}
       - mediafiles:${BACKEND_MEDIA_DIR}
       - vault_certs:${BACKEND_HOME}/volumes/vault/certs
@@ -278,7 +287,7 @@ services:
         [
           "CMD-SHELL",
           "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
-          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # In production
+        #   "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s
@@ -323,15 +332,16 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
+      - GUNICORN_CMD_ARGS=${GAMESERVER_GUNICORN_CMD_ACTIVE_OPTIONS}
       - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
       - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
       - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
       - HOST_IP=${HOST_IP}
       - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - VAULT_API_PORT=${VAULT_API_PORT}
     volumes:
-    #   - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
+      # - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
       - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
       - gameserver_certs:${GAMESERVER_SSL_DIR}
       - gameserver_staticfiles:${GAMESERVER_STATICFILES_DIR}
@@ -339,9 +349,8 @@ services:
       test:
         [
           "CMD-SHELL",
-        #   "curl -s http://localhost:${GAMESERVER_PORT}/healthcheck/ | grep -q ''",
-          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
-        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # In production
+          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s
@@ -455,6 +464,9 @@ services:
       - HOST_IP=${HOST_IP}
       - CONTAINER_HTTP_PORT=${PROXYWAF_HTTP_PORT}
       - CONTAINER_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
     volumes:
       # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${NGINX_STATICFILES_DIR}
@@ -566,6 +578,8 @@ volumes:
     driver: local
   db_data:
     driver: local
+  rdb_data:
+    driver: local
   vault_healthiness:
     driver: local
   modsec_data:
@@ -589,6 +603,8 @@ volumes:
   backend_certs:
     driver: local
   gameserver_certs:
+    driver: local
+  redis_certs:
     driver: local
   gameserver_staticfiles:
     driver: local

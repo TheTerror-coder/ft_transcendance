@@ -27,12 +27,12 @@ logger = logging.getLogger(__name__)
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
     # cors_allowed_origins=[
-    #     f'wss://{host_ip}:1443',
-    #     f'https://{host_ip}:1443',
-    #     'wss://localhost:1443',
-    #     'https://localhost:1443',
-    #     'wss://localhost:8001',
-    #     'https://localhost:8001'
+    #     f'wss://{host_ip}:"env variable PROXYWAF_HTTPS_PORT"',
+    #     f'https://{host_ip}:"env variable PROXYWAF_HTTPS_PORT"',
+    #     'wss://localhost:"env variable PROXYWAF_HTTPS_PORT"',
+    #     'https://localhost:"env variable PROXYWAF_HTTPS_PORT"',
+    #     'wss://localhost:"env variable GAMESERVER_PORT"',
+    #     'https://localhost:"env variable GAMESERVER_PORT"'
     # ],
     cors_allowed_origins='*',
     async_mode='asgi',
