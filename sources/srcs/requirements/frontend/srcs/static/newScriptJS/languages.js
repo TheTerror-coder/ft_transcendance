@@ -19,10 +19,11 @@ async function loadLanguages()
 
 async function refreshLanguage()
 {
-    const response = await makeRequest('GET', URLs.USERMANAGEMENT.GETLANGUAGE);
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETLANGUAGE, user);
     if (response.status === 'success')
     {
-        currentLanguage = response.lang;
+        currentLanguage = response.language;
         console.log("si ya erreur de response je suis pas al stp");
     }
     if (translations[currentLanguage])
@@ -31,12 +32,15 @@ async function refreshLanguage()
         console.log('Language not found');
 }
 
-// Set current language
 async function setLanguage(lang) 
 {
     if (translations[lang])
     {
-        const data = {"language": lang};
+        const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+        const data = {
+            "language": lang,
+            "username": user.username,
+        };
         currentLanguage = lang;
         const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
         console.log("Dans set language response gang: ", response);

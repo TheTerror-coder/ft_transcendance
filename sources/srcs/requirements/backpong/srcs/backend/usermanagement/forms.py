@@ -45,7 +45,7 @@ class UpdateUserLanguageForm(forms.ModelForm):
         
     def clean_language(self):
         language = self.cleaned_data.get('language')
-        if language not in ['FR', 'EN', 'ES']:
+        if language not in ['fr', 'en', 'es']:
             raise forms.ValidationError("cette langue n'est pas valide.")
         return language
 

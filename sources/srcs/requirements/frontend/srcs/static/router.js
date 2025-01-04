@@ -98,7 +98,7 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		event.preventDefault();
-		await logout();
+		await logout_views();
 	}
 	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
 	{

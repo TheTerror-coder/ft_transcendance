@@ -23,6 +23,7 @@ from allauth.account.models import EmailAddress
 from allauth.account.internal.flows.login import record_authentication
 from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
+from channels.layers import get_channel_layer
 
 
 GLOBAL_TOURNAMENT = {
@@ -114,18 +115,42 @@ def login_view(request):
 			}, status=400)
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
-@api_view(['GET'])
+# @api_view(['GET'])
+# @csrf_protect
+# @permission_classes([AllowAny])
+# def logout_view(request):
+# 	logout(request)
+# 	if request.user.username in user_sockets:
+# 		del user_sockets[request.user.username]
+# 	return Response({
+# 		'status': 'success',
+# 		'redirect': True,
+# 		'redirect_url': reverse('login')
+# 	})
+    
+
+@api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
-    logout(request)
-    
-    return Response({
-        'status': 'success',
-        'redirect': True,
-        'redirect_url': reverse('login')
-    })
-    
+	logout(request)
+	username = request.data.get('username')
+	# if username in user_sockets:
+	# 	channel_name = user_sockets[username]
+	# 	channel_layer = get_channel_layer()
+	# 	print("logout_view caca||", channel_layer, file=sys.stderr)
+	# 	channel_layer.send(channel_name, {
+	# 		'type': 'websocket.close'
+	# 	})
+	del user_sockets[username]
+	return Response({
+		'status': 'success',
+		'redirect': True,
+		'redirect_url': reverse('login')
+	})
+
+
+
 
 # check si l'utilisateur exite deja ou pas
 @api_view(['POST'])
@@ -192,38 +217,69 @@ def update_photo(request):
 		}, status=400)
 
 
-@api_view(['POST'])
+
+@api_view(['POST', 'GET'])
 @csrf_protect
 @permission_classes([AllowAny])
 def set_language(request):
-	print("SSSSSerpentet_language: ", file=sys.stderr)
-	language = request.data.get('language')
-	form = UpdateUserLanguageForm({'language' : language}, instance=request.user)
-	print("form: ", form, file=sys.stderr)
-	if form.is_valid():
-		form.save()
-		return Response({
-			'status': 'success',
-			'message': 'la langue a ete changé',
-		}, status=200)
-	else:
-		return Response({
-			'status': 'error',
-			'message': form.errors.get('username', ['Erreur inconnue'])[0],
-		}, status=400)
+    
+    username = request.data.get('username')
+    language = request.data.get('language')
+    
+    if not username:
+        return Response({
+            'status': 'error',
+            'message': 'Le nom d\'utilisateur est requis.'
+        }, status=400)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response({
+            'status': 'error',
+            'message': 'Utilisateur introuvable.'
+        }, status=404)
+    
+    form = UpdateUserLanguageForm({'language': language})
+
+    if form.is_valid():
+        user.language = form.cleaned_data['language']
+        user.save()
+        
+        return Response({
+            'status': 'success',
+            'message': 'La langue a été changée.',
+        }, status=200)
+    else:
+        return Response({
+            'status': 'error',
+            'message': form.errors.get('language', ['Erreur inconnue'])[0],
+        }, status=400)
 
 
-@api_view(['GET'])
+
+@api_view(['GET', 'POST'])
 @csrf_protect
 @permission_classes([AllowAny])
 def get_language(request):
-	print("get_language: ", file=sys.stderr)
-	username = request.data.get('username')
-	to_user = User.objects.get(username=username)
-	return Response({
-		'status': 'success',
-		'language': to_user.language,
-	}, status=200)
+    
+    username = request.data.get('username')
+    
+    if not username:
+        return Response({
+            'status': 'error',
+        }, status=400)
+    
+    try:
+        to_user = User.objects.get(username=username)
+        return Response({
+            'status': 'success',
+            'language': to_user.language,
+        }, status=200)
+    except User.DoesNotExist:
+        return Response({
+            'status': 'error',
+        }, status=400)
 
 
 @api_view(['POST'])
