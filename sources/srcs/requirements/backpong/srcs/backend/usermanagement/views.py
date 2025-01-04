@@ -66,7 +66,7 @@ def register(request):
 			}, status=400)
 	return Response({'error': 'Invalid request method'}, status=405)
 
-###TODO: Nico is this view used?
+# ###TODO: Nico is this view used?
 def connect(request):
 	return render(request, 'base.html')
 
@@ -194,9 +194,12 @@ def update_photo(request):
 
 @api_view(['POST'])
 @csrf_protect
+@permission_classes([AllowAny])
 def set_language(request):
+	print("SSSSSerpentet_language: ", file=sys.stderr)
 	language = request.data.get('language')
 	form = UpdateUserLanguageForm({'language' : language}, instance=request.user)
+	print("form: ", form, file=sys.stderr)
 	if form.is_valid():
 		form.save()
 		return Response({
@@ -208,6 +211,20 @@ def set_language(request):
 			'status': 'error',
 			'message': form.errors.get('username', ['Erreur inconnue'])[0],
 		}, status=400)
+
+
+@api_view(['GET'])
+@csrf_protect
+@permission_classes([AllowAny])
+def get_language(request):
+	print("get_language: ", file=sys.stderr)
+	username = request.data.get('username')
+	to_user = User.objects.get(username=username)
+	return Response({
+		'status': 'success',
+		'language': to_user.language,
+	}, status=200)
+
 
 @api_view(['POST'])
 @login_required

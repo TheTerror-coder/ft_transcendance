@@ -19,7 +19,7 @@ class CustomUser(AbstractUser):
     games_played = models.IntegerField(default=0)
     language = models.CharField(
         blank=True,
-        default="FR",
+        default="en",
         max_length=10,
     )
 
