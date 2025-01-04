@@ -8,8 +8,8 @@ function refreshHomePage()
 // async function setLanguage()
 // {
 //     const language = document.getElementById("EN").value;
-//     const data = {"language": language};
-//     const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
+    // const data = {"language": language};
+    // const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
 //     alert(response.message);
 // }
 
