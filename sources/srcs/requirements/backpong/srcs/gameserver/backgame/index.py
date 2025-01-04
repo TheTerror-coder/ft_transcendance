@@ -61,17 +61,26 @@ def generateGameCode():
 @sio.event
 async def disconnect(sid):
     logger.info(f'Client disconnected: {sid}')
-    for gameCode, channel in ChannelList.items():
+    channel_codes = list(ChannelList.keys())  # Créer une copie des clés
+    
+    for gameCode in channel_codes:
+        channel = ChannelList[gameCode]
         game = channel.getGame()
         game.removeNbPlayerConnected()
+        
+        # Vérifier les deux équipes
         for team in game.teams.values():
             if team.getPlayerById(sid):
                 team.removePlayer(sid)
+                await sio.leave_room(sid, gameCode)
+                break  # On peut sortir de la boucle une fois le joueur trouvé
+        
+        # Si plus aucun joueur connecté
         if game.nbPlayerConnected == 0:
             logger.info(f"Closing room {gameCode} because no player is connected")
             game.gameStarted = False
-            await sio.close_room(gameCode, sid)
-    # await sio.leave_room(sid)
+            await sio.close_room(gameCode)
+            ChannelList.pop(gameCode)
 
 @sio.event
 async def connect(sid, environ):
@@ -274,8 +283,6 @@ async def sendPlayerLists(game, gameCode):
     await sio.emit('updatePlayerLists', teamsInfo, room=gameCode)
 
 async def startGame(gameCode, game):
-    # ballPosition = initializeBallPosition()
-    # ballDirection = initializeBallDirection()
     logger.info(f"En attente que tous les joueurs soient prêts pour la partie {gameCode}")
     
     # Attendre que tous les joueurs soient prêts
@@ -294,26 +301,17 @@ async def startGame(gameCode, game):
     while game.gameStarted:
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
-        # logger.info(f"game.gameStarted: {game.gameStarted}")
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
+        logger.info(f"game.gameStarted: {game.gameStarted}")
+        if (game.gameStarted == False):
+            logger.info(f"Game started is False so we break the loop")
+            break
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     
-    logger.info(f"Partie {gameCode} terminée")
+    # await endGame(game, gameCode)
 
-# if __name__ == '__main__':
-#     try:
-#         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-#         ssl_context.load_cert_chain(
-#             certfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.crt",
-#             keyfile="/usr/share/gameserver/volumes/gameserver/certs/gameserver.key"
-#         )
-#         ssl_context.check_hostname = False
-#         ssl_context.verify_mode = ssl.CERT_NONE
-#     except Exception as e:
-#         logger.error(f"Erreur lors de la configuration SSL: {e}")
-#         ssl_context = None
-
-    # web.run_app(app, 
-    #             host=host_ip,
-    #             port=8002,
-    #             ssl_context=ssl_context)
+# async def endGame(game, gameCode):
+#     logger.info(f"Partie {gameCode} terminée")
+#     await sio.emit('gameEnded', room=gameCode)
+#     # ChannelList.pop(gameCode)
+#     logger.info(f"ChannelList: {ChannelList}")
