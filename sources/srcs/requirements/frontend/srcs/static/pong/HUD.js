@@ -99,28 +99,26 @@ function createScoreText() {
     };
 }
 
-function createEndGameText() {
-    // Créer un canvas temporaire pour le texte
+async function createEndGameText() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    canvas.width = 1024;
-    canvas.height = 1024;
+    canvas.width = 2048;  // Augmenter la taille du canvas
+    canvas.height = 2048;
     
     // Configurer le style du texte
-    context.font = 'Bold 60px Arial';
+    context.font = 'Bold 120px Arial';  // Augmenter la taille de la police
     context.fillStyle = 'white';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     
-    // Créer une texture à partir du canvas
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true
     });
     
-    const geometry = new THREE.PlaneGeometry(10, 10);
+    const geometry = new THREE.PlaneGeometry(20, 20);  // Augmenter la taille du plan
     const textMesh = new THREE.Mesh(geometry, material);
     
     async function updateEndGameText(isWinner) {
@@ -137,9 +135,9 @@ function createEndGameText() {
         textMesh.material.map.needsUpdate = true;
     }
 
-    // Positionner le texte au centre
-    textMesh.position.set(0, 0, 0);
-    textMesh.scale.set(100, 100, 100);
+    // Positionner le texte au centre et plus proche de la caméra
+    textMesh.position.set(0, 0, -10);
+    textMesh.scale.set(200, 200, 200);
     
     return {
         textMesh: textMesh,
@@ -190,7 +188,7 @@ function createHealthBar(sx, sy, sz, x, y, z) {
     };
 }
 
-export function createHUD(renderer) {
+export async function createHUD(renderer) {
     // Créer une scène et une caméra orthographique pour le HUD
     const hudScene = new THREE.Scene();
     const hudCamera = new THREE.OrthographicCamera(
@@ -221,7 +219,7 @@ export function createHUD(renderer) {
     hudScene.add(healthBar2.group);
 
     // Créer le texte de fin de partie
-    const endGameText = createEndGameText();
+    const endGameText = await createEndGameText();
 
     // Fonction pour redimensionner le HUD
     function onWindowResize() {

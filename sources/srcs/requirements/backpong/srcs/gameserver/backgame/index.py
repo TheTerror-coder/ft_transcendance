@@ -178,6 +178,17 @@ async def connect(sid, environ):
                     await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie'}, room=sid)
             else:
                 await sio.emit('error', {'message': 'Toutes les équipes ne sont pas pleines'}, room=sid)
+    
+    @sio.event
+    async def playerReady(sid, gameCode):
+        logger.info(f"playerReady {gameCode}")
+        if gameCode in ChannelList:
+            game = ChannelList[gameCode].getGame()
+            game.addPlayerReady()
+            logger.info(f"game.getPlayerReady() dans la fonction playerReady dans index.py {game.getPlayerReady()}")
+        else:
+            await sio.emit('error', {'message': 'Partie non trouvée'}, room=sid)
+
 
     @sio.event
     async def GameStarted(sid, gameCode):
@@ -199,9 +210,9 @@ async def connect(sid, environ):
             logger.info(f"ClientData {gameCode} in ChannelList")
             game = ChannelList[gameCode].getGame()
             await game.updateClientData(data)
-            if (game.nbPlayerConnected == game.nbPlayerPerTeam * 2):
-                game.gameStarted = True
-                await sio.emit('gameStarted', room=gameCode)
+            # if (game.nbPlayerConnected == game.nbPlayerPerTeam * 2):
+                # game.gameStarted = True
+                # await sio.emit('gameStarted', room=gameCode)
 
     @sio.event
     async def cannonPosition(sid, data):
@@ -287,8 +298,10 @@ async def startGame(gameCode, game):
     
     # Attendre que tous les joueurs soient prêts
     while not game.gameStarted:
-        if game.nbPlayerConnected == game.nbPlayerPerTeam * 2:
+        logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
+        if game.nbPlayerConnected == game.nbPlayerPerTeam * 2 and game.getPlayerReady() == game.nbPlayerPerTeam * 2:
             game.gameStarted = True
+            await sio.emit('gameStarted', room=gameCode)
         j = 0
         for i in game.teams.values():
             logger.info(f"team {i.TeamId} isFull: {i.getIsFull()}")
@@ -302,7 +315,6 @@ async def startGame(gameCode, game):
         await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
         await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
-        logger.info(f"game.gameStarted: {game.gameStarted}")
         if (game.gameStarted == False):
             logger.info(f"Game started is False so we break the loop")
             break

@@ -19,6 +19,7 @@ class Game:
         self.teams = {}
         self.nbPlayerPerTeam = 0
         self.nbPlayerConnected = 0
+        self.playerReady = 0
         self.isPaused = False
         
         # Constantes pour la balle
@@ -192,6 +193,18 @@ class Game:
     def removeNbPlayerConnected(self):
         logger.info("removeNbPlayerConnected")
         self.nbPlayerConnected -= 1
+
+    def addPlayerReady(self):
+        logger.info("addPlayerReady")
+        self.playerReady += 1
+
+    def removePlayerReady(self):
+        logger.info("removePlayerReady")
+        self.playerReady -= 1
+
+    def getPlayerReady(self):
+        logger.info("getPlayerReady")
+        return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):
         logger.info("setNbPlayerPerTeam")

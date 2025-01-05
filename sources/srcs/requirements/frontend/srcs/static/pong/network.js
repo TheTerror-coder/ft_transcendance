@@ -47,16 +47,17 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         const TeamID = currentPlayer.getTeamID();
         const currentTeam = findTeam(Team1, Team2, TeamID);
         const teamName = currentTeam.getTeamName();
-        console.log('teamName : ', teamName);
-        console.log('winner : ', winner);
-        if (winner === teamName)
+        
+        // Afficher le texte de victoire/défaite
+        if (winner === teamName) {
             await hud.showEndGameText(true);
-        else
+        } else {
             await hud.showEndGameText(false);
+        }
+        
+        // Attendre un court instant avant de marquer la partie comme terminée
+        await new Promise(resolve => setTimeout(resolve, 500));
         currentPlayer.setGameStarted(false);
-        // socket.disconnect();
-        console.log('Game ended');
-        // console.log('socket disconnected ', socket);
     });
 
     // socket.on('gameEnded', () => {
