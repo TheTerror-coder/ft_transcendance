@@ -245,30 +245,12 @@ async function callWebSockets(params) {
 		var data = JSON.parse(event.data);
 		if (data.type === 'invitation') {
 			console.log("Received invitation:", data);
-			Swal.fire({
-				title: 'Friend Invitation',
-				text: `You have received a friend invitation from ${data.from}.`,
-				icon: 'info',
-				showCancelButton: true,
-				confirmButtonText: 'Accept',
-				cancelButtonText: 'Reject',
-				confirmButtonColor: 'green',
-				cancelButtonColor: 'red',
-			}).then((result) => {
-				if (result.isConfirmed) {
-					socket.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'accept',
-						friend_request_id: data.friend_request_id
-					}));
-				} else if (result.dismiss === Swal.DismissReason.cancel) {
-					socket.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'reject',
-						friend_request_id: data.friend_request_id
-					}));
-				}
-			});
+			// Réponse "pending" sans alerte
+			socket.send(JSON.stringify({
+				type: 'response.invitation',
+				response: 'pending',  // L'invitation reste en attente
+				friend_request_id: data.friend_request_id
+			}));
 		}
 	};
 }
@@ -281,26 +263,13 @@ function handleFriendInvitation(socket, event) {
     if (data.type === 'invitation') {
         console.log("Received invitation:", data);
         
-        // Afficher la boîte de dialogue SweetAlert
-        Swal.fire({
-            title: 'Friend Invitation',
-            text: `You have received a friend invitation from ${data.from}.`,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'Accept',
-            cancelButtonText: 'Reject',
-            confirmButtonColor: 'green',
-            cancelButtonColor: 'red',
-        }).then((result) => {
-            let response = result.isConfirmed ? 'accept' : 'reject';
-            
-            socket.send(JSON.stringify({
-                type: 'response.invitation',
-                response: response,
-                friend_request_id: data.friend_request_id
-            }));
-			// actualiser la page ici
-        });
+        // Réponse "pending" sans alerte
+        socket.send(JSON.stringify({
+            type: 'response.invitation',
+            response: 'pending',  // L'invitation reste en attente
+            friend_request_id: data.friend_request_id
+        }));
+		// actualiser la page ici si nécessaire
     }
 }
 
