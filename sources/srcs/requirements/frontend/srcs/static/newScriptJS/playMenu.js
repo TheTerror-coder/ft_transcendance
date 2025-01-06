@@ -17,6 +17,7 @@ function playDisplayHomepage()
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
+    ELEMENTs.tournamentButton().onclick = () => assign_location(URLs.VIEWS.TOURNAMENT);
 }
 
 
@@ -120,8 +121,7 @@ function initializeLobbyTwoVsTwo(gameCode)
 
 function createLobbyPlay()
 {   
-    window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
-    handleLocation();
+    replace_location(URLs.VIEWS.CREATE_LOBBY);
     setTimeout(async() => {
         refreshLanguage();
         const socket = await initializeSocket();

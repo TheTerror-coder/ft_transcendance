@@ -61,8 +61,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
-		window.history.pushState({}, "", URLs.VIEWS.LOGIN_VIEW);
-		handleLocation();
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
@@ -193,6 +192,11 @@ urlRoutes[PATHs.VIEWS.PROFILE] = {
 	title : "Profile | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
+	view : tournamentView,
+	title : "Tournament | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -253,7 +257,7 @@ const handleLocation = async () => {
 
 
 window.addEventListener('load', async () => {
-    console.log('  La page a été actualisée.  ');
+    console.log('La page a été actualisée.');
     const urlActuelle = window.location.href;
 
     if (!urlActuelle.includes('login')) {

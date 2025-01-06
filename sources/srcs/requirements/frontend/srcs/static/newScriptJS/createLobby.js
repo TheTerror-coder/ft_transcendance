@@ -41,8 +41,9 @@ function initializeGlobalSocket(socket)
     globalSocket.on('startGame', async (data) => {
         const module = await import ('../pong/pong.js');
         // main(socket, gameCode); // Lancer le jeu
-        document.getElementById('background').innerHTML = "";
+        ELEMENTs.background().innerHTML = "";
         await module.main(savedGameCode, globalSocket);
+        ELEMENTs.background().style.backgroundImage = "none";
         console.log("globalSocket dans startGame: ", globalSocket);
     });
     globalSocket.on('TeamsFull', () => {
@@ -87,8 +88,7 @@ async function createLobbyDisplay()
                 {
                     console.log("error: ", error);
                     error = null;
-                    window.history.pushState({}, "", URLs.VIEWS.HOME);
-                    handlelocation();
+                    replace_location(URLs.VIEWS.HOME);
                     return ;
                 }
                 console.log("saveCodeGameCode dans ;la focntion de cree les bails: ", savedGameCode);

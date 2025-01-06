@@ -1,8 +1,7 @@
 
 function refreshHomePage()
 {
-    window.history.pushState({}, "", URLs.VIEWS.HOME);
-    handleLocation();
+    replace_location(URLs.VIEWS.HOME);
 }
 
 

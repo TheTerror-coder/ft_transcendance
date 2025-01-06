@@ -136,6 +136,8 @@ async function updateLobbyTwoVsTwo(data)
 
 function startGameLobby ()
 {
-    console.log("start game lobby OOOOOOOOOOOOOOO");
+    console.log("juste avant le changement");
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
+    console.log("savedGameCode: ", savedGameCode);
     globalSocket.emit('launchGame', savedGameCode);
 }

@@ -18,8 +18,7 @@ async function joinLobbyGame(gameCode, teamID, role) // surement possible de fai
     {
         console.log("error: ", error);
         error = null;
-        window.history.pushState({}, "", URLs.VIEWS.HOME);
-        handleLocation();
+        replace_location(URLs.VIEWS.HOME);
         return ;
     }
     document.getElementById("lobbyCode").innerHTML = gameCode;
@@ -32,9 +31,4 @@ function joinLocalGame()
 {
     console.log("local game");
     // direct lancer la game en local
-}
-
-function joinTournament()
-{
-    console.log("tournament");
 }

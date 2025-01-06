@@ -41,7 +41,8 @@
         "NoFriends": "No Friends",
         "NoInvitationsWaiting": "No Invitations Waiting",
         "NoGamePlayed": "No Game Played",
-
+        "joinTournament": "Join Tournament",
+        "createTournament": "Create Tournament",
         "Logout": "LOGOUT"
     },
     "es": {
@@ -88,7 +89,8 @@
         "NoInvitationsWaiting": "No Invitaciones Esperando",
         "NoGamePlayed": "No Juegos Jugados",
 
-
+        "joinTournament": "Unirse al Torneo",
+        "createTournament": "Crear Torneo",
         "Logout": "DESCONECTARSE"
     },
     "fr": {
@@ -134,6 +136,8 @@
 
         "PlayersPerTeams": "Joueurs par Equipe",
         "CreateButton": "Créer",
+        "joinTournament": "Rejoindre un Tournois",
+        "createTournament": "Créer un Tournois",
         "Logout": "DÉCONNEXION"
     }
 }
