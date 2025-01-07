@@ -211,9 +211,9 @@ const ELEMENTs = Object.freeze({
 	nameUser : () => document.getElementById("nameUser"),
 	photoUser : () => document.getElementById("profilPhotoInProfilePage"),
 	prime : () => document.getElementById("prime"),
-
+	
 	// profilePage
-
+	
 	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),
 	changeUsernameButton : () => document.getElementById("changeUsernameButton"),
 	profilPhotoInProfilePage : () => document.getElementById("profilPhotoInProfilePage"),
@@ -224,6 +224,7 @@ const ELEMENTs = Object.freeze({
 	switch2FA : () => document.getElementById("switch2FA"),
 	
 	profilePage : () => document.getElementById("profilePage"),
+	bookProfile : () => document.getElementById("bookProfile"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),

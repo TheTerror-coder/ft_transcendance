@@ -9,20 +9,20 @@ async function UserProfileView(username, description, data)
 	ELEMENTs.doorJamp().style.display = 'flex';
 
 	document.title = username +  " | " + PAGE_TITLE;
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
+	// window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	// console.log("user :  ", response);
-	// console.log("game played :  ", response.user_info['game played']);
-	// console.log("victory :  ", response.user_info.victorie);
-	// console.log("photo :  ", response.user_info.photo);
-	// console.log("prime :  ", response.user_info.prime);
+	console.log("user quand on display le goat bite :  ", response);
 	const photoUrl = response.user_info.photo;
-	const imgElement = ELEMENTs.photoUser ();
+	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
-	ELEMENTs.prime().innerHTML = response.user_info.prime;
+	// afficher 0 sir prime == null
+	if (response.user_info.prime === null)
+		ELEMENTs.prime().innerHTML = "0";
+	else
+		ELEMENTs.prime().innerHTML = response.user_info.prime;
 	await getHistoric(response.user_info['game played']);
 	await statsInProfilePage();
 }

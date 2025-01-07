@@ -245,10 +245,9 @@ async function callWebSockets(params) {
 		var data = JSON.parse(event.data);
 		if (data.type === 'invitation') {
 			console.log("Received invitation:", data);
-			// Réponse "pending" sans alerte
 			socket.send(JSON.stringify({
 				type: 'response.invitation',
-				response: 'pending',  // L'invitation reste en attente
+				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
 		}
@@ -262,14 +261,14 @@ function handleFriendInvitation(socket, event) {
     
     if (data.type === 'invitation') {
         console.log("Received invitation:", data);
-        
-        // Réponse "pending" sans alerte
+
         socket.send(JSON.stringify({
             type: 'response.invitation',
-            response: 'pending',  // L'invitation reste en attente
+            response: 'pending',
             friend_request_id: data.friend_request_id
         }));
 		// actualiser la page ici si nécessaire
+		assign_location(URLs.VIEWS.PROFILE);
     }
 }
 
