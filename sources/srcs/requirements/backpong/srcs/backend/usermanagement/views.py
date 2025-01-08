@@ -1,10 +1,10 @@
 import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm, UpdateStatFrom
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .models import FriendRequest
+from .models import FriendRequest, Game
 from django.views.decorators.csrf import csrf_protect
 from usermanagement.consumers import user_sockets
 from rest_framework.response import Response
@@ -115,19 +115,6 @@ def login_view(request):
 			}, status=400)
 	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
 
-# @api_view(['GET'])
-# @csrf_protect
-# @permission_classes([AllowAny])
-# def logout_view(request):
-# 	logout(request)
-# 	if request.user.username in user_sockets:
-# 		del user_sockets[request.user.username]
-# 	return Response({
-# 		'status': 'success',
-# 		'redirect': True,
-# 		'redirect_url': reverse('login')
-# 	})
-    
 
 @api_view(['POST'])
 @csrf_protect
@@ -148,8 +135,6 @@ def logout_view(request):
 		'redirect': True,
 		'redirect_url': reverse('login')
 	})
-
-
 
 
 # check si l'utilisateur exite deja ou pas
@@ -541,8 +526,8 @@ def get_user(request):
 def calculate_score(user_username, opponent_username, player_won):
 	user = User.objects.get(username=user_username)
 	opponent = User.objects.get(username=opponent_username)
-	player_score = (user.victories / user.game_played) * 100 if user.game_played > 0 else 0
-	opponent_score = (opponent.victories / opponent.game_played) * 100 if opponent.game_played > 0 else 0
+	player_score = (user.victories / user.games_played) * 100 if user.games_played > 0 else 0
+	opponent_score = (opponent.victories / opponent.games_played) * 100 if opponent.games_played > 0 else 0
 
 	if player_won:
 		if player_score < opponent_score:
@@ -562,26 +547,74 @@ def calculate_score(user_username, opponent_username, player_won):
 	player_score += player_cote_change
 	opponent_score += opponent_cote_change
 
-	user.prime = max(player_score, 0)
-	user.game_played += 1
-	user.victories += 1
-	user.save()
-	opponent.prime = max(opponent_score, 0)
-	opponent.game_played += 1
-	opponent.save()
+	return max(player_score, 0)
 
-# @api_view(['POST'])
-# @login_required
-# @csrf_protect
-# def set_info_game(request):
-# 	prime = request.data.get('prime')
-# 	user = request.user
-# 	user.prime = prime
-# 	user.save()
-# 	return Response({
-# 		'status': 'success',
-# 		'message': 'Prime status updated successfully.',
-# 	}, status=200)
+
+@api_view(['POST'])
+@login_required
+@csrf_protect
+def set_info_game(request):
+    player = request.data.get('player')
+    opponent = request.data.get('opponent')
+    player_score = int(request.data.get('player_score'))
+    opponent_score = int(request.data.get('opponent_score'))
+    date = request.data.get('date')
+    prime = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
+
+    user = User.objects.get(username=player)
+    opponent_user = User.objects.get(username=opponent)
+    
+
+    game = Game(player=user, opponent=opponent_user, player_score=player_score, opponent_score=opponent_score, date=date)
+    game.save()
+    victories = request.user.victories
+    games_played = request.user.games_played
+    if player_score > opponent_score:
+        victories += 1
+    
+    print("prime", prime, file=sys.stderr)
+    games = {
+        'player': player,
+        'opponent': opponent,
+        'player_score': player_score,
+        'opponent_score': opponent_score,
+        'date': date,
+    }
+
+    print("set_game_played", games_played, file=sys.stderr)
+    response = {
+        'victories': victories,
+        'prime': prime,
+		'games_played': games_played,
+        'Game': games,
+    }
+
+    print("request.user", user, file=sys.stderr)
+    form = UpdateStatFrom(response, instance=user)
+    print("set_info_game", form, file=sys.stderr)
+    if form.is_valid():
+        user.prime = prime
+        user.victories = victories
+        user.save()
+
+        return Response({
+            'status': 'success',
+            'message': 'Données de la partie enregistrées avec succès.',
+        }, status=200)
+    else:
+        return Response({
+            'status': 'error',
+            'message': form.errors.get('language', ['Erreur inconnue'])[0],
+        }, status=400)
+
+
+
+
+
+# response = await makeRequest('POST', URLs.USERMANAGEMENT.SETINFOGAME, {'player': 'nico', 'opponent':'nico', 'player_score': 10, 'opponent_score': 5, 'date': '09/01/2025'});
+
+
+
 
 def perform_mfa_stage(request):
 	from allauth.headless.account.inputs import LoginInput

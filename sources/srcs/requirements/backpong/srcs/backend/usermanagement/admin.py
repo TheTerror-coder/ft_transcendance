@@ -1,17 +1,33 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, FriendRequest
+from .models import CustomUser, FriendRequest, Game
+
+
 
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'photo_tag', 'friends_list')
+    # Ajout des nouveaux champs à afficher dans la liste
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'photo_tag', 'friends_list', 'victories', 'prime', 'games_played')
+
+    # Changer les champs en lecture seule si nécessaire
     readonly_fields = ('photo_tag', 'friends_list')
 
+    # Ajout des nouveaux champs au formulaire d'administration
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('photo', 'friend_list')}),
+        (None, {'fields': ('photo', 'friend_list', 'victories', 'prime', 'games_played')}),
     )
+
+    # Méthodes pour afficher les valeurs de `victories`, `prime`, et `games_played` dans la liste
+    def victories(self, obj):
+        return obj.victories
+
+    def prime(self, obj):
+        return obj.prime
+
+    def games_played(self, obj):
+        return obj.games_played
 
 @admin.register(FriendRequest)
 class FriendRequestAdmin(admin.ModelAdmin):
@@ -44,3 +60,26 @@ class FriendRequestAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         return queryset.filter(status='PENDING')
+
+
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+    list_display = ('player', 'opponent', 'player_score', 'opponent_score', 'date', 'game_result')
+    readonly_fields = ('date',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('player', 'opponent', 'player_score', 'opponent_score', 'date')
+        }),
+    )
+
+    # Méthode pour afficher un résultat du jeu sous forme lisible
+    def game_result(self, obj):
+        if obj.player_score > obj.opponent_score:
+            return "Player Wins"
+        elif obj.player_score < obj.opponent_score:
+            return "Opponent Wins"
+        else:
+            return "Draw"
+    game_result.admin_order_field = 'player_score'  # Permet de trier par le score du joueur
+    game_result.short_description = 'Game Result'  # Titre de la colonne dans l'admin

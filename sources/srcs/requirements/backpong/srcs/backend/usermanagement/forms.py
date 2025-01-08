@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.contrib.auth import authenticate
+import sys
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -59,3 +60,30 @@ class UpdateUsernameForm(forms.ModelForm):
         if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         return username
+
+class UpdateStatFrom(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['victories', 'prime', 'games_played']
+    
+    def clean_victories(self):
+        victories = self.cleaned_data.get('victories')
+        if victories < 0:
+            raise ValidationError("Le nombre de victoires ne peut pas être négatif.")
+        return victories
+
+    def clean_prime(self):
+        prime = self.cleaned_data.get('prime')
+        if prime < 0:
+            raise ValidationError("Le nombre de primes ne peut pas être négatif.")
+        return prime
+
+    def clean_games_played(self):
+        games_played = self.cleaned_data.get('games_played')
+        if games_played < 0:
+            raise ValidationError("Le nombre de parties jouées ne peut pas être négatif.")
+        return games_played
+
+
+
+

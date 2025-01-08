@@ -20,18 +20,6 @@
     filter:  contrast(170%) brightness(150%) saturate(50%);
 }
 
-#changeUsernameButton
-{
-    /* opacity: 0.9;
-    transition: all 0.5s; */
-}
-
-#changeUsernameButton:hover
-{
-    /* opacity: 1;
-    filter:  contrast(170%) brightness(150%) saturate(50%); */
-}
-
 .statHistoTitle
 {
     font-size: 70px; 
