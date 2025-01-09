@@ -42,7 +42,14 @@ function initializeGlobalSocket(socket)
         const module = await import ('../pong/pong.js');
         // main(socket, gameCode); // Lancer le jeu
         document.getElementById('background').innerHTML = "";
-        await module.main(savedGameCode, globalSocket);
+        let isFinish = false;
+        console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+        isFinish = await module.main(savedGameCode, globalSocket, currentLanguage);
+        console.log("isFinish  = ", isFinish);
+        while (!isFinish)
+        {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
         console.log("globalSocket dans startGame: ", globalSocket);
     });
     globalSocket.on('TeamsFull', () => {

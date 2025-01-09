@@ -12,15 +12,17 @@ console.log("pong.js loaded");
 let BOAT_MOVE_SPEED = 4;
 let CANNON_MOVE_SPEED = 0.1;
 let CANNON_ROTATION_SPEED = 0.1;
-let FRAME_RATE = 100;
+let FRAME_RATE = 80;
 
 
-export async function main(gameCode, socket) {
+export async function main(gameCode, socket, currentLanguage) {
     console.log('socket : ', socket);
     
     socket.emit('GameStarted', gameCode);
     
     console.log("gameCode : ", gameCode);
+
+    console.log("currentLanguage: ", currentLanguage);
     
     let Team1 = null;
     let Team2 = null;
@@ -107,7 +109,7 @@ export async function main(gameCode, socket) {
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage);
     socket.emit('playerReady', gameCode);
     await waitForGameStarted(currentPlayer);
     setInterval(() => {
@@ -124,21 +126,6 @@ export async function main(gameCode, socket) {
             console.log("Pass in ending clear");
             window.removeEventListener('keydown', keys);
             window.removeEventListener('keyup', keys);
-            
-            // Nettoyer tous les objets de la scène sauf le HUD
-            // scene.children.forEach(child => {
-            //     if (child !== hud.scene) {
-            //         scene.remove(child);
-            //         if (child.geometry) child.geometry.dispose();
-            //         if (child.material) {
-            //             if (Array.isArray(child.material)) {
-            //                 child.material.forEach(material => material.dispose());
-            //             } else {
-            //                 child.material.dispose();
-            //             }
-            //         }
-            //     }
-            // });
 
             scene.remove(boatGroup1);
             scene.remove(boatGroup2);
@@ -147,7 +134,6 @@ export async function main(gameCode, socket) {
             
             // Rendre la scène noire
             scene.background = new THREE.Color(0x000000);
-            // renderer.setClearColor(0x000000, 1);
             
             // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
             const startTime = Date.now();
@@ -187,7 +173,7 @@ export async function main(gameCode, socket) {
             }
             
             renderEndScreen();
-            return;
+            return (true);
         }
         
         // Mise à jour des boîtes de collision

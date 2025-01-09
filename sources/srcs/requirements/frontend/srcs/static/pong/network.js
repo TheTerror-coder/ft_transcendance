@@ -10,7 +10,9 @@ function findTeam(Team1, Team2, teamID)
         return (Team2);
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, ocean, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2, requestAnimationFrameId) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage) {
+    console.log("currentLanguage dans setupSocketListeners", currentLanguage);
+
     socket.on('connect', (data) => {
         var Team = data.Team;
         console.log('Connected to the server');
@@ -49,10 +51,11 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         const teamName = currentTeam.getTeamName();
         
         // Afficher le texte de victoire/défaite
+        console.log("currentLanguage dans winner", currentLanguage);
         if (winner === teamName) {
-            await hud.showEndGameText(true);
+            await hud.showEndGameText(true, currentLanguage);
         } else {
-            await hud.showEndGameText(false);
+            await hud.showEndGameText(false, currentLanguage);
         }
         
         // Attendre un court instant avant de marquer la partie comme terminée
@@ -112,12 +115,12 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         }
     });
 
-    socket.on('scoreUpdate', (data) => {
+    socket.on('scoreUpdate', async (data) => {
         const {team1, team2} = data;
         Team1.setScore(team1);
         Team2.setScore(team2);
         console.log('Score updated - Team 1: ', team1, 'Team 2: ', team2);
-        scoreText.updateHUDText(`Score - Team 1: ${Team1.getScore()}, Team 2: ${Team2.getScore()}`);
+        scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
     });
 }
 
