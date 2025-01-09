@@ -117,21 +117,21 @@ class Game:
             return 0
         
         # Ajouter des logs pour débugger les positions
-        logger.info(f"Ball position: {self.ballPosition}")
-        logger.info(f"Adjusted hitbox: {adjusted_hitbox}")
+        # logger.info(f"Ball position: {self.ballPosition}")
+        # logger.info(f"Adjusted hitbox: {adjusted_hitbox}")
         
         # Vérifier d'abord si on est dans la zone Z
         margin = 2.0
         isInZRange = (adjusted_hitbox['min']['z'] - margin) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin)
         if not isInZRange:
-            logger.info("Not in Z range")
+            # logger.info("Not in Z range")
             return 0
         
         # Vérifier la zone Y
         margin_y = 0.5  # Marge plus petite pour Y
         isInYRange = (adjusted_hitbox['min']['y'] - margin_y) <= self.ballPosition['y'] <= (adjusted_hitbox['max']['y'] + margin_y)
         if not isInYRange:
-            logger.info("Not in Y range")
+            # logger.info("Not in Y range")
             return 0
 
         # Vérification des bords
@@ -149,6 +149,8 @@ class Game:
             isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
                             self.ballPosition['y'] > adjusted_hitbox['min']['y'])
         
+        logger.info(f"ballPosition: {self.ballPosition}")
+        logger.info(f"team.TeamId: {team.TeamId}")
         logger.info(f"hitbox: {adjusted_hitbox}")
 
         logger.info(f"isInZRange: {isInZRange}")
@@ -183,7 +185,7 @@ class Game:
             collision = await self.isColliding(team)
             if collision > 0:
                 return collision
-        return 0
+        return -1
 
     async def handleCollisions(self, sio, gameCode):
         if not self.gameStarted:
@@ -238,7 +240,10 @@ class Game:
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["max"]["x"] + 1.5
             logger.info(f"ballPosition: {self.ballPosition}")
-            self.ballDirection["y"] = -self.ballDirection["y"] # Force vers la gauche
+            if (self.ballDirection["y"] > 0):
+                self.ballDirection["y"] = -self.ballDirection["y"]
+            else:
+                self.ballDirection["y"] = -(self.ballDirection["y"] * 1.2)
             
             # Normaliser le vecteur avec une vitesse minimale
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
@@ -254,7 +259,10 @@ class Game:
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["min"]["x"] - 1.5
             logger.info(f"ballPosition: {self.ballPosition}")
-            self.ballDirection["y"] = -self.ballDirection["y"]
+            if (self.ballDirection["y"] > 0):
+                self.ballDirection["y"] = -self.ballDirection["y"]
+            else:
+                self.ballDirection["y"] = -(self.ballDirection["y"] * 1.2)
             
             # Normaliser le vecteur avec une vitesse minimale
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
