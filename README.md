@@ -1,6 +1,6 @@
 # ft_transcendance
 
-# *This repository specially the Readme is being edited and so is not finished yet.*
+# * <span style="color: red;"> This repository specially the Readme is being edited and so is not finished yet. </span>*
 
 Overview
 
