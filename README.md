@@ -137,58 +137,6 @@ License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 
-
-
-
-
-
-
-Gameplay and User Experience
-
-    Remote Players: Enable remote play with two users on separate computers with a robust experience, addressing network issues like lag or disconnection.
-    Multiple Players: Support games with more than two players. Custom game modes (e.g., 4-player on a square board) are encouraged, allowing for dynamic multiplayer options.
-    Another Game with User History and Matchmaking: Develop a new game besides Pong, with a matchmaking system, user history tracking, and secure data storage.
-    Game Customization Options: Provide customization features for all games (e.g., power-ups, different maps) while maintaining an option for a simpler gameplay version.
-    Live Chat: Allow players to send direct messages, block users, invite others to games, view profiles, and manage tournament notifications.
-
-AI and Algorithms
-
-    AI Opponent: Implement a challenging AI without using A* algorithm, replicating human-like behavior. It should adapt to gameplay and utilize power-ups.
-    User and Game Stats Dashboards: Create dashboards for players and game sessions displaying insightful stats, with user-friendly visuals like graphs and charts.
-
-Cybersecurity
-
-    WAF/ModSecurity and HashiCorp Vault: Protect the platform from web attacks and securely manage sensitive information (e.g., API keys, credentials).
-    Two-Factor Authentication (2FA) and JWT: Enhance security with 2FA and use JSON Web Tokens (JWT) for user authentication and session management.
-
-DevOps
-
-    Log Management with ELK: Implement Elasticsearch, Logstash, and Kibana (ELK stack) for effective log management, troubleshooting, and performance analysis.
-    Microservices: Design the backend with microservices for scalability, flexibility, and independent development of different components.
-
-Gaming Enhancements
-
-    Add Another Game with Matchmaking: Expand the platform by adding a new game with history tracking and matchmaking.
-    Game Customization Options: Allow customization across games (e.g., power-ups, attacks, maps) and provide a simple default game version.
-
-Graphics
-
-    3D Techniques for Pong: Use ThreeJS/WebGL to implement advanced 3D techniques to enhance the visual appeal of Pong and create an immersive experience.
-
-Accessibility
-
-    Device Compatibility: Ensure the platform is responsive, functioning on desktops, tablets, and smartphones.
-    Browser Compatibility: Extend support to additional web browsers.
-    Multiple Language Support: Implement multilingual support (at least 3 languages) with a language switcher.
-    Accessibility for Visually Impaired Users: Improve accessibility for users with visual impairments by supporting screen readers, high-contrast themes, and keyboard navigation.
-    Server-Side Rendering (SSR): Implement SSR for improved performance, faster page loading, and better SEO.
-
-Server-Side Pong
-
-    Server-Side Pong and API: Replace the basic Pong game with server-side logic, and provide an API to interact with the game. The API should handle game initialization, player controls, and game state updates.
-
-    
-
 # Modules
 
 ## • [Web](about/WEB.md/#web)
