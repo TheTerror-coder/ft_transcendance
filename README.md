@@ -119,7 +119,7 @@ npm install
 
 npm start
 
-This will launch the web application on http://localhost:3000.
+This will launch the web application on http://localhost:1443.
 4. Run the Tests
 
 To run tests:
