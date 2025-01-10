@@ -11,53 +11,52 @@ Key Features
 1. Multiplayer Modes
 
     • **Remote Players**: Play the classic Pong game with friends across different devices, maintaining an optimized user experience despite potential network issues (lag, disconnection, etc.).
-    Multiple Players: Supports games with more than two players. Customizable modes allow for dynamic gameplay (e.g., a 4-player game on a square board).
+    • **Multiple Players**: Supports games with more than two players. Customizable modes allow for dynamic gameplay (e.g., a 4-player game on a square board).
 
 2. AI Opponent
 
-    Challenging AI: Play against an AI opponent designed to replicate human-like behavior, providing a competitive challenge without relying on traditional algorithms like A*. The AI also adapts to different gameplay styles and utilizes power-ups if available.
+    • **Challenging AI**: Play against an AI opponent designed to replicate human-like behavior, providing a competitive challenge without relying on traditional algorithms like A*. The AI also adapts to different gameplay styles and utilizes power-ups if available.
 
 3. Customization Options
 
-    Power-ups & Custom Maps: Customize gameplay with power-ups, special abilities, and different game maps to enhance the gaming experience.
+    • **Power-ups & Custom Maps**: Customize gameplay with power-ups, special abilities, and different game maps to enhance the gaming experience.
     Default Simpler Version: For those who prefer a straightforward experience, players can select a basic version of any game.
 
 4. Matchmaking & User History
 
-    Game History: Track and display your gameplay stats and progress, including win/loss records and performance metrics.
-    Matchmaking System: Find opponents for fair and balanced matches, ensuring everyone has a competitive gaming experience.
+    • **Game History**: Track and display your gameplay stats and progress, including win/loss records and performance metrics.
+    • **Matchmaking System**: Find opponents for fair and balanced matches, ensuring everyone has a competitive gaming experience.
 
 5. Live Chat
 
-    Direct Messaging: Send messages, invite players to games, and block unwanted contacts.
-    Player Profiles: Access player profiles and interact with others through the chat interface.
-    Tournament Notifications: Get real-time notifications about upcoming matches in tournaments.
+    • **Direct Messaging**: Send messages, invite players to games, and block unwanted contacts.
+    • **Player Profiles**: Access player profiles and interact with others through the chat interface.
+    • **Tournament Notifications**: Get real-time notifications about upcoming matches in tournaments.
 
 6. Robust Security
 
-    Web Application Firewall (WAF) and ModSecurity: Secure the platform against web-based attacks and threats.
-    Two-Factor Authentication (2FA) and JWT: Secure user accounts with an added layer of security through 2FA, and manage user authentication and sessions using JWT.
+    • **Web Application Firewall (WAF) and ModSecurity**: Secure the platform against web-based attacks and threats.
+    • **Two-Factor Authentication (2FA) and JWT**: Secure user accounts with an added layer of security through 2FA, and manage user authentication and sessions using JWT.
 
 7. Infrastructure and DevOps
 
-    ELK Stack for Logging: Efficiently manage and analyze log data using Elasticsearch, Logstash, and Kibana (ELK).
-    Microservices Architecture: The backend is designed with microservices, enabling flexibility, scalability, and easy maintenance.
-    Prometheus/Grafana Monitoring: Comprehensive system monitoring to ensure uptime and performance.
+    • **ELK Stack for Logging**: Efficiently manage and analyze log data using Elasticsearch, Logstash, and Kibana (ELK).
+    • **Microservices Architecture**: The backend is designed with microservices, enabling flexibility, scalability, and easy maintenance.
 
 8. Advanced Graphics
 
-    3D Visuals with Three.js/WebGL: Enhance the visual experience of the Pong game by introducing advanced 3D techniques, immersing players in the game environment.
+    • **3D Visuals with Three.js/WebGL**: Enhance the visual experience of the Pong game by introducing advanced 3D techniques, immersing players in the game environment.
 
 9. Accessibility
 
-    Responsive Design: Ensure seamless gameplay experience across desktops, tablets, and smartphones.
-    Browser and Language Support: The platform is compatible with multiple browsers and offers multilingual support for a broader international audience.
-    Accessibility for Visually Impaired Users: Built with screen reader support, high-contrast themes, and keyboard navigation.
+    • **Responsive Design**: Ensure seamless gameplay experience across desktops, tablets, and smartphones.
+    • **Browser and Language Support**: The platform is compatible with multiple browsers and offers multilingual support for a broader international audience.
+    • **Accessibility for Visually Impaired Users**: Built with screen reader support, high-contrast themes, and keyboard navigation.
 
 10. Server-Side Pong
 
-    Server-Side Logic: Move the core gameplay mechanics (like ball movement and player actions) to the server, ensuring smoother experiences, faster responses, and better scalability.
-    API Integration: Expose game logic via a well-documented API for programmatic interaction with the game.
+    • **Server-Side Logic**: Move the core gameplay mechanics (like ball movement and player actions) to the server, ensuring smoother experiences, faster responses, and better scalability.
+    • **API Integration**: Expose game logic via a well-documented API for programmatic interaction with the game.
 
 Skills and Technologies
 
