@@ -1,5 +1,7 @@
 # ft_transcendance
 
+# This reposotory specially the Readme is being in edited and so is not finished yet.
+
 Overview
 
 The Pong Platform is an innovative web-based game platform designed to provide an immersive and engaging gaming experience. It is centered around the classic Pong game, but with multiple enhancements such as multiplayer functionality, customization options, AI opponents, and more. The platform also introduces a variety of additional games, robust user features (like history tracking and matchmaking), and several infrastructure and security improvements.
