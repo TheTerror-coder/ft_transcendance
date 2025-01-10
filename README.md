@@ -1,6 +1,6 @@
 # ft_transcendance
-
-<span style="color: red;">This repository specially the Readme is being edited and so is not finished yet.</span>
+![Work in Progress](https://img.shields.io/badge/Work%20In%20Progress-yellow)
+# *This repository specially the Readme is being edited and so is not finished yet.*
 
 Overview
 
