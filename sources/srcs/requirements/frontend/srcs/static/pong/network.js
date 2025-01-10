@@ -24,6 +24,18 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         console.log('Disconnected from the server');
     });
 
+    socket.on('gamePaused', () => {
+        console.log('Game Paused');
+        currentPlayer.setIsPaused(true);
+        console.log('currentPlayer IsPaused : ', currentPlayer.getIsPaused());
+    });
+
+    socket.on('gameUnpaused', () => {
+        console.log('Game Unpaused');
+        currentPlayer.setIsPaused(false);
+        console.log('currentPlayer IsPaused : ', currentPlayer.getIsPaused());
+    })
+
     socket.on('gameStarted', () => {
         console.log('Game Started');
         currentPlayer.setGameStarted(true);

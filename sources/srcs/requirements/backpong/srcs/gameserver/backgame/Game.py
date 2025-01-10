@@ -240,10 +240,13 @@ class Game:
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["max"]["x"] + 1.5
             logger.info(f"ballPosition: {self.ballPosition}")
-            if (self.ballDirection["y"] > 0):
+            if (self.ballDirection["y"] == 0):
                 self.ballDirection["y"] = -self.ballDirection["y"]
             else:
-                self.ballDirection["y"] = -(self.ballDirection["y"] * 1.2)
+                if (self.ballPosition["y"] > 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] + 0.5)
+                elif (self.ballPosition["y"] < 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] - 0.5)
             
             # Normaliser le vecteur avec une vitesse minimale
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
@@ -259,10 +262,13 @@ class Game:
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["min"]["x"] - 1.5
             logger.info(f"ballPosition: {self.ballPosition}")
-            if (self.ballDirection["y"] > 0):
+            if (self.ballDirection["y"] == 0):
                 self.ballDirection["y"] = -self.ballDirection["y"]
             else:
-                self.ballDirection["y"] = -(self.ballDirection["y"] * 1.2)
+                if (self.ballPosition["y"] > 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] + 0.5)
+                elif (self.ballPosition["y"] < 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] - 0.5)
             
             # Normaliser le vecteur avec une vitesse minimale
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
@@ -309,6 +315,12 @@ class Game:
 
     def getBallPosition(self):
         return self.ballPosition
+
+    def setIsPaused(self, isPaused):
+        self.isPaused = isPaused
+
+    def getIsPaused(self):
+        return self.isPaused
 
     def addNbPlayerConnected(self):
         logger.info("addNbPlayerConnected")
@@ -451,7 +463,7 @@ class Game:
             else:
                 logger.error(f"Team {teamId} not found")
 
-    async def sendGameData(self, sio, gameCode):
+    async def sendGameData(self, sio, gameCode, sid):
         logger.info("sendGameData")
         # Convertir les objets Player en format attendu par le client
         team1_players = {
@@ -492,9 +504,17 @@ class Game:
                 'IsFull': self.getTeam(2).isFull,
             }
         }
-        
-        logger.info(f'Sending gameData: {teamsArray}')
-        await sio.emit('gameData', teamsArray, room=gameCode)
+        for team in self.teams.values():
+            for player in team.player.values():
+                if (player.getOnline() and player.getIsInit()):
+                    logger.info(f"player.getOnline(): {player.getOnline()}")
+                    logger.info(f"Sending gameData to the reconnected player with sid : {sid}")
+                    await sio.emit('gameData', teamsArray, room=sid)
+                    # player.setIsInit(True)
+                else:
+                    logger.info(f'Sending gameData: {teamsArray}')
+                    await sio.emit('gameData', teamsArray, room=gameCode)
+                    player.setIsInit(True)
 
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)

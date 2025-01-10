@@ -6,12 +6,39 @@ class Player:
         self.name = name
         self.cameraPos = None
         self.TeamID = TeamID
+        self.online = False
+        self.allowedToReconnect = False
+        self.isInit = False
+
+    def getIsInit(self):
+        return self.isInit
+
+    def setIsInit(self, isInit):
+        self.isInit = isInit
+
+    def getAllowedToReconnect(self):
+        return self.allowedToReconnect
+
+    def setAllowedToReconnect(self, allowedToReconnect):
+        self.allowedToReconnect = allowedToReconnect
+
+    def getOnline(self):
+        return self.online
+
+    def setOnline(self, online):
+        self.online = online
 
     def getId(self):
         return self.id
 
+    def setId(self, id):
+        self.id = id
+
     def getRole(self):
         return self.role
+
+    def setRole(self, role):
+        self.role = role
 
     def getName(self):
         return self.name

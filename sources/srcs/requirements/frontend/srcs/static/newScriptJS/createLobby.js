@@ -55,6 +55,12 @@ function initializeGlobalSocket(socket)
     globalSocket.on('TeamsFull', () => {
         ELEMENTs.PlayButtonInLobby().style.display = "block";
     });
+    globalSocket.on('gameUnpaused', async () => {
+        console.log("gameUnpaused");
+        // const module = await import ('../pong/pong.js');
+        // document.getElementById('background').innerHTML = "";
+        // await module.main(savedGameCode, globalSocket, currentLanguage);
+    });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
         error = data.message;

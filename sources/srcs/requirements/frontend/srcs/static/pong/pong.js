@@ -28,21 +28,24 @@ export async function main(gameCode, socket, currentLanguage) {
     let Team2 = null;
     let currentPlayer = null;
     let currentPlayerTeam = null;
-    socket.on('gameData', async (gameData) => {
-        console.log('Données de la partie:', gameData);
-        if (gameData) {
-            ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
-            console.log('initGame done');
-            console.log('Team1:', Team1);
-            console.log('Team2:', Team2);
-            console.log('currentPlayer:', currentPlayer);
-            console.log('currentPlayerTeam:', currentPlayerTeam);
-        } else {
-            console.error('Aucune donnée de partie trouvée.');
-        }
+    await new Promise(resolve => {
+        socket.on('gameData', async (gameData) => {
+            console.log('Données de la partie:', gameData);
+            if (gameData) {
+                ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
+                console.log('initGame done');
+                console.log('Team1:', Team1);
+                console.log('Team2:', Team2);
+                console.log('currentPlayer:', currentPlayer);
+                console.log('currentPlayerTeam:', currentPlayerTeam);
+                resolve();
+            } else {
+                console.error('Aucune donnée de partie trouvée.');
+            }
+        });
     });
     
-    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene();
+    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2);
     let hud = await createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
@@ -246,6 +249,29 @@ async function initGame(gameData, socketID) {
     // Créer les équipes
     const team1 = new Team(gameData.team1.Name, gameData.team1.MaxNbPlayer, gameData.team1.TeamId);
     const team2 = new Team(gameData.team2.Name, gameData.team2.MaxNbPlayer, gameData.team2.TeamId);
+
+    console.log('team1 : ', team1);
+    console.log('team2 : ', team2);
+
+    console.log('gameData.team1.Boat : ', gameData.team1.Boat);
+    console.log('gameData.team2.Boat : ', gameData.team2.Boat);
+    console.log('gameData.team1.Cannon : ', gameData.team1.Cannon);
+    console.log('gameData.team2.Cannon : ', gameData.team2.Cannon);
+
+    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
+    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+
+    team1.setBoatSavedPos(gameData.team1.Boat);
+    team2.setBoatSavedPos(gameData.team2.Boat);
+    team1.setCannonSavedPos(gameData.team1.Cannon);
+    team2.setCannonSavedPos(gameData.team2.Cannon);
+
+    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
+    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     let currentPlayer = null;
     let currentPlayerTeam = null;

@@ -375,14 +375,14 @@ async function updateMfaBoxStatus(data) {
 	}
 }
 
-function assign_location(url) {
+async function assign_location(url) {
 	window.history.pushState({}, "", url);
-	handleLocation();
+	await handleLocation();
 }
 
-function replace_location(url) {
+async function replace_location(url) {
 	window.history.replaceState({}, "", url);
-	handleLocation();
+	await handleLocation();
 }
 
 function dispose_modals() {
