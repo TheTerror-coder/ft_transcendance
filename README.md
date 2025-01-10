@@ -108,7 +108,7 @@ Accessibility and SEO
 How to Run the Project
 1. Clone the Repository
 
-git clone https://github.com/your-username/pong-platform.git
+git [clone](https://github.com/TheTerror-coder/ft_transcendance.git)
 
 2. Install Dependencies
 
