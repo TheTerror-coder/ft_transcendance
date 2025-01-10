@@ -10,7 +10,7 @@ The project is designed to be scalable, accessible, and user-friendly, supportin
 Key Features
 1. Multiplayer Modes
 
-    Remote Players: Play the classic Pong game with friends across different devices, maintaining an optimized user experience despite potential network issues (lag, disconnection, etc.).
+    • **Remote Players**: Play the classic Pong game with friends across different devices, maintaining an optimized user experience despite potential network issues (lag, disconnection, etc.).
     Multiple Players: Supports games with more than two players. Customizable modes allow for dynamic gameplay (e.g., a 4-player game on a square board).
 
 2. AI Opponent
