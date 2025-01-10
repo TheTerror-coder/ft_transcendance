@@ -1,6 +1,6 @@
 # ft_transcendance
 
-# This reposotory specially the Readme is being in edited and so is not finished yet.
+# This reposotory specially the Readme is being edited and so is not finished yet.
 
 Overview
 
