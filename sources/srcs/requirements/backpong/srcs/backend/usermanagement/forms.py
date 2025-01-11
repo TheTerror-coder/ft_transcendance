@@ -61,26 +61,4 @@ class UpdateUsernameForm(forms.ModelForm):
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         return username
 
-# class UpdateStatFrom(forms.ModelForm):
-#     class Meta:
-#         model = Game
-#         fields = ['player', 'opponent', 'player_score', 'opponent_score']
-#         widgets = {
-#             'player': forms.Select(attrs={'class': 'form-control'}),
-#             'opponent': forms.Select(attrs={'class': 'form-control'}),
-#             'player_score': forms.NumberInput(attrs={'class': 'form-control'}),
-#             'opponent_score': forms.NumberInput(attrs={'class': 'form-control'})
-#         }
-
-#     def clean_player_score(self):
-#         score = self.cleaned_data.get('player_score')
-#         if score < 0:
-#             raise ValidationError("Le score du joueur ne peut pas être négatif.")
-#         return score
-
-#     def clean_opponent_score(self):
-#         score = self.cleaned_data.get('opponent_score')
-#         if score < 0:
-#             raise ValidationError("Le score de l'adversaire ne peut pas être négatif.")
-#         return score
 

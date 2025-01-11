@@ -313,7 +313,8 @@ def get_user_profile(request):
 def game_routing(request):
 	global GLOBAL_TOURNAMENT
 	status = request.data.get('status')
-	player = Players(request.user.id, request.user.username, request.user.is_win)
+	is_win = request.data.get('is_win')
+	player = Players(request.user.id, request.user.username, is_win)
 
 	if GLOBAL_TOURNAMENT['status'] == "WAITING":
 		if player not in GLOBAL_TOURNAMENT['players']:
@@ -355,7 +356,7 @@ def game_routing(request):
 		return {'status': 'END_GAME', 'message': 'The game has ended'}
 	return {'status': GLOBAL_TOURNAMENT['status'], 'message': 'Unexpected status'}
 
-
+#  response = await makeRequest('POST', URLs.USERMANAGEMENT.TOURNAMENT, {'username': 'popo', 'id': 0, 'people': 4, 'is_win': False});
 
 
 @api_view(['GET'])
@@ -545,60 +546,54 @@ def calculate_score(user_username, opponent_username, player_won):
 			player_cote_change = -(player_score - opponent_score) * 1.1
 
 	player_score += player_cote_change
-	# opponent_score += opponent_cote_change
+	opponent_score += opponent_cote_change
 
-	return max(player_score, 0)
+	return max(player_score, 0), max(opponent_score, 0)
 
 
 @api_view(['POST'])
 @login_required
 @csrf_protect
 def set_info_game(request):
-    player = request.data.get('player')
-    opponent = request.data.get('opponent')
-    player_score = int(request.data.get('player_score'))
-    opponent_score = int(request.data.get('opponent_score'))
-    date = request.data.get('date')
-    prime = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
-    
-    try:
-        user = User.objects.get(username=player)
-    except User.DoesNotExist:
-        return Response({'status': 'error', 'message': f"L'utilisateur '{player}' n'existe pas."}, status=400)
+	player = request.data.get('player')
+	opponent = request.data.get('opponent')
+	player_score = int(request.data.get('player_score'))
+	opponent_score = int(request.data.get('opponent_score'))
+	prime_player, prime_opponent = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
 
-    try:
-        opponent_player = User.objects.get(username=opponent)
-    except User.DoesNotExist:
-        return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
-    
-    victories = request.user.victories
-    games_played = request.user.games_played
-    if player_score > opponent_score:
-        victories += 1
-    
-    # games = {
-    #     'player': user,
-    #     'opponent': opponent_player,
-    #     'player_score': player_score,
-    #     'opponent_score': opponent_score,
-    #     'date': date,
-    # }
-    
-    game = Game.objects.create(
-        player=user,
-        opponent=opponent_player,
-        player_score=player_score,
-        opponent_score=opponent_score,
-    )
-    user.prime = prime
-    user.victories = victories
-    user.games_played += 1
-    user.save()
+	try:
+		user = User.objects.get(username=player)
+	except User.DoesNotExist:
+		return Response({'status': 'error', 'message': f"L'utilisateur '{player}' n'existe pas."}, status=400)
 
-    return Response({
-        'status': 'success',
-        'message': 'Données de la partie enregistrées avec succès.',
-    }, status=200)
+	try:
+		opponent_player = User.objects.get(username=opponent)
+	except User.DoesNotExist:
+		return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
+
+	victories = request.user.victories
+	games_played = request.user.games_played
+	if player_score > opponent_score:
+		victories += 1
+
+	game = Game.objects.create(
+		player=user,
+		opponent=opponent_player,
+		player_score=player_score,
+		opponent_score=opponent_score,
+	)
+	opponent_player.prime = prime_opponent
+	user.prime = prime_player
+	user.victories = victories
+	user.games_played += 1
+	opponent_player.games_played += 1
+	user.save()
+	opponent_player.save()
+
+	return Response({
+		'status': 'success',
+		'message': 'Données de la partie enregistrées avec succès.',
+	}, status=200)
 
 
 

@@ -21,7 +21,7 @@ async function statsInProfilePage(game_played, victories)
     progressValue.textContent = `${percentage}%`;
 }
 
-async function getHistoric(game)
+async function getHistoric(game, user)
 {
     console.log("game.length: ", game.length);
     if (game.length === 0)
@@ -56,12 +56,20 @@ async function getHistoric(game)
 
             console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
-
-
-            resultUser.textContent = game.player_score;
-            resultAdvUser.textContent = game.opponent_score;
-            username.textContent = game.player;
-            advUsername.textContent = game.opponent;
+            if (user === game[i].player)
+            {
+                username.textContent = game[i].player;
+                resultUser.textContent = game[i].player_score;
+                resultAdvUser.textContent = game[i].opponent_score;
+                advUsername.textContent = game[i].opponent;
+            }
+            else
+            {
+                username.textContent = game[i].opponent;
+                resultUser.textContent = game[i].opponent_score;
+                resultAdvUser.textContent = game[i].player_score;
+                advUsername.textContent = game[i].player;
+            }
             match.appendChild(username);
             match.appendChild(resultUser);
             match.appendChild(resultAdvUser);

@@ -95,7 +95,7 @@ async function	profileView(title, description, data)
 	ELEMENTs.twoFA().style.display = 'block';
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
-	await getHistoric(response.recent_games);
+	await getHistoric(response.recent_games, response.username);
 	await statsInProfilePage();
 }
 
