@@ -1,0 +1,21 @@
+
+ARG STACK_VERSION=8.14.1
+
+FROM elasticsearch:${STACK_VERSION}
+
+USER 0
+
+RUN <<EOF
+chown -R 1000:1000 /usr/share/elasticsearch
+find /usr/share/elasticsearch -maxdepth 1 -type d -exec chmod 00750 \{\} \;
+find /usr/share/elasticsearch -maxdepth 2 -type f -exec chmod o-rwx \{\} \;
+EOF
+
+COPY --chown=1000:1000 --chmod=777 ./conf/log4j2.properties /usr/share/elasticsearch/config/log4j2.properties
+
+USER 1000
+
+ENTRYPOINT [ "/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh" ]
+CMD [ "eswrapper" ]
+# ENTRYPOINT [ "docker-entrypoint.sh" ]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

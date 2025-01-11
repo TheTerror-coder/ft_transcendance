@@ -1,0 +1,237 @@
+name: ${PROJECT_NAME}
+
+services:
+  setup:
+    image: ${SETUP_IMAGE}
+    container_name: ${SETUP_CONTAINER}
+    build:
+      context: ./requirements/elk/setup/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${SECRET_ELASTIC_PASSWORD}
+      - ELASTICSEARCH_HOSTXPORT=${ELASTICSEARCH_HOSTXPORT}
+      - KIBANA_USER=${KIBANA_USER}
+      - SECRET_KIBANA_PASSWORD=${SECRET_KIBANA_PASSWORD}
+      - LOGSTASH_ES_USER=${LOGSTASH_ES_USER}
+      - LOGSTASH_ES_USERFULLNAME=${LOGSTASH_ES_USERFULLNAME}
+      - SECRET_LOGSTASH_ES_USER_PASSWORD=${SECRET_LOGSTASH_ES_USER_PASSWORD}
+      - LOGSTASH_ES_ROLE=${LOGSTASH_ES_ROLE}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    # secrets:
+    #   - es_passwd_file
+    #   - kibana_passwd_file
+    #   - logstash_es_user_passwd_file
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]"]
+      start_period: 90s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+
+  elasticsearch:
+    depends_on:
+      setup:
+        condition: service_healthy
+    image: ${ES_IMAGE}
+    container_name: ${ES_CONTAINER}
+    build:
+      context: ./requirements/elk/elasticsearch/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+    environment:
+      - discovery.type=single-node
+      - cluster.name=${CLUSTER_NAME}
+      - ELASTIC_PASSWORD=${SECRET_ELASTIC_PASSWORD}
+      # - ELASTIC_KEYSTORE_PASSWORD_FILE=${ELASTIC_KEYSTORE_PASSWORD_FILE}
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.license.self_generated.type=${LICENSE}
+    volumes:
+      # - ./requirements/elk/elasticsearch/conf/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
+      - certs:/usr/share/elasticsearch/config/certs
+      - eslogs:/usr/share/elasticsearch/logs/
+      - esdata:/usr/share/elasticsearch/data
+    # secrets:
+    #   - es_passwd_file
+    #   - es_keystore_passwd_file
+    #   - kibana_passwd_file
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
+    mem_limit: ${ES_MEMLIMIT}
+    # ulimits:
+    #   nofile: 65535
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $ELK_SSL_CERTIFICATE_AUTHORITIES $ELASTICSEARCH_HOSTXPORT | grep -q 'missing authentication credentials'",
+        ]
+      start_period: 90s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+
+  kibana:
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    image: ${KIBANA_IMAGE}
+    container_name: ${KIBANA_CONTAINER}
+    build: 
+      context: ./requirements/elk/kibana/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+    environment:
+      - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTXPORT}
+      - ELASTICSEARCH_USERNAME=${KIBANA_USER}
+      - SECRET_ELASTICSEARCH_PASSWORD=${SECRET_KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_VERIFICATIONMODE=certificate
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
+      - SERVER_SSL_KEY=config/certs/kibana/kibana.key
+      - SERVER_SSL_CERTIFICATE_AUTHORITIES=${ELK_SSL_CERTIFICATE_AUTHORITIES}
+      - TELEMETRY_ENABLED=false
+      - SECRET_RANDOM_ENCRYPT_KEY=${SECRET_RANDOM_ENCRYPT_KEY}
+    volumes:
+      # - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
+      # - ./requirements/elk/kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - certs:/usr/share/kibana/config/certs/
+      - kibanadata:/usr/share/kibana/data/
+      - kibanalogs:/usr/share/kibana/logs/
+    # secrets:
+    #   - kibana_passwd_file
+    #   - random_encrypt_key_file
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - ${KIBANA_PORT}:${KIBANA_PORT}
+    mem_limit: ${KIBANA_MEMLIMIT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $ELK_SSL_CERTIFICATE_AUTHORITIES -I https://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+        ]
+      start_period: 90s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+
+  logstash:
+    depends_on:
+      kibana:
+        condition: service_healthy
+    image: ${LOGSTASH_IMAGE}
+    container_name: ${LOGSTASH_CONTAINER}
+    build: 
+      context: ./requirements/elk/logstash/
+      args:
+        - STACK_VERSION=${STACK_VERSION}
+        - LOGSTASH_DIRS_TO_MAKE=${LOGSTASH_DIRS_TO_MAKE}
+    volumes:
+      # - ./requirements/elk/logstash/conf/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      # - ./requirements/elk/logstash/conf/log4j2.properties:/usr/share/logstash/config/log4j2.properties
+      # - ./requirements/elk/logstash/conf/my-logstash.yml:/usr/share/logstash/config/my-logstash.yml:ro
+      # - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      # - ./requirements/elk/logstash/conf/11-logstash.conf:/usr/share/logstash/pipeline1/11-logstash.conf:ro
+      # - ./requirements/elk/logstash/conf/12-logstash.conf:/usr/share/logstash/pipeline2/12-logstash.conf:ro
+      # - ./requirements/elk/logstash/conf/13-logstash.conf:/usr/share/logstash/pipeline3/13-logstash.conf:ro
+      # - ./requirements/elk/logstash/conf/14-logstash.conf:/usr/share/logstash/pipeline4/14-logstash.conf:ro
+      # - ./test.log:/tmp/test.log # TODO rm
+      - certs:/usr/share/logstash/config/certs/
+      - logstashdata:/usr/share/logstash/data/
+      - logstashlogs:/usr/share/logstash/logs/
+      - eslogs:/usr/share/logstash/elasticsearch/logs/
+      - kibanalogs:/usr/share/logstash/kibana/logs/
+    environment:
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${SECRET_ELASTIC_PASSWORD}
+      - ELASTICSEARCH_HOSTXPORT=${ELASTICSEARCH_HOSTXPORT}
+      - SECRET_LOGSTASH_KEYSTORE_PASS=${SECRET_LOGSTASH_KEYSTORE_PASS}
+      - SECRET_SSL_KEYSTORE_PASS=${SECRET_SSL_KEYSTORE_PASS}
+      - LOGSTASH_ES_USER=${LOGSTASH_ES_USER}
+      - SECRET_LOGSTASH_ES_USER_PASSWORD=${SECRET_LOGSTASH_ES_USER_PASSWORD}
+      - LOGSTASH_ES_CA=${LOGSTASH_ES_CA}
+      - API_SSL_KEYSTORE_PATH=${API_SSL_KEYSTORE_PATH}
+      - LS_JAVA_OPTS=-Xms768m -Xmx768m -Dlog4j2.formatMsgNoLookups=true
+      - xpack.monitoring.elasticsearch.hosts=${ELASTICSEARCH_HOSTXPORT}
+    # secrets:
+    #   - es_passwd_file
+    #   - logstash_keystore_pass_file
+    #   - ssl_keystore_pass_file
+    #   - logstash_es_user_passwd_file
+    networks:
+      - ${NETWORK_NAME}
+    expose:
+      - ${LOGSTASH_PORT}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $ELK_SSL_CERTIFICATE_AUTHORITIES https://localhost:${LOGSTASH_PORT}",
+        ]
+      start_period: 90s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+  elkready:
+    depends_on:
+      logstash:
+        condition: service_healthy
+    image: alpine
+    container_name: elkready_c
+    command: echo "elk stack is ready"
+
+# networks:
+#   transcendance:
+#     driver: bridge
+
+volumes:
+  certs:
+    driver: local
+  esdata:
+    driver: local
+  eslogs:
+    driver: local
+  kibanadata:
+    driver: local
+  kibanalogs:
+    driver: local
+  logstashdata:
+    driver: local
+  logstashlogs:
+    driver: local
+
+# secrets:
+  # es_passwd_file:
+    # file: ${ELASTIC_PASSWORD_SOURCE}
+  # es_keystore_passwd_file:
+  #   file: ${ELASTIC_KEYSTORE_PASSWORD_SOURCE}
+  # kibana_passwd_file:
+  #   file: ${KIBANA_PASSWORD_SOURCE}
+  # logstash_keystore_pass_file:
+  #   file: ${LOGSTASH_KEYSTORE_PASS_SOURCE}
+  # ssl_keystore_pass_file:
+  #   file: ${SSL_KEYSTORE_PASS_SOURCE}
+  # logstash_es_user_passwd_file:
+  #   file: ${LOGSTASH_ES_USER_PASSWORD_SOURCE}
+  # random_encrypt_key_file:
+  #   file: ${RANDOM_ENCRYPT_KEY_SOURCE}
