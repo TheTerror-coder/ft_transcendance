@@ -413,6 +413,19 @@ def profile(request):
 def send_friend_request(request):
 	if request.method == 'POST':
 		username = request.data.get('username')
+    
+		if not username:
+			return Response({
+				'status': 'error',
+				'message': "Le nom d'utilisateur est requis."
+			}, status=400)
+
+		if not isinstance(username, str) or len(username.strip()) == 0:
+			return Response({
+				'status': 'error',
+				'message': "Le nom d'utilisateur doit être une chaîne non vide."
+			}, status=400)
+
 		try:
 			to_user = User.objects.get(username=username)
 			if to_user == request.user:
@@ -460,7 +473,12 @@ def remove_friend(request):
 				'message': "Le nom d'utilisateur est requis."
 			}
 			return Response(response)
-
+		if not isinstance(username, str) or len(username.strip()) == 0:
+			response = {
+				'status': 'error',
+				'message': "Le nom d'utilisateur doit être une chaîne non vide."
+			}
+			return Response(response, status=400)
 		try:
 			friend = User.objects.get(username=username)
 		except User.DoesNotExist:
@@ -503,17 +521,23 @@ def remove_friend(request):
 @permission_classes([IsAuthenticated])
 def get_user_sockets(request):
 	print("get_user_sockets", request.data, file=sys.stderr)
-	if request.data.get('username') in user_sockets:
+	username = request.data.get('username')
+	if not username:
+		return Response({
+			'status': 'error',
+			'message': "'username' est requis dans la requête."
+		}, status=400)
+	if username in user_sockets:
 		return Response({
 			'status': 'success',
-			'sockets': user_sockets[request.data.get('username')]
+			'sockets': user_sockets[username]
 		}, status=200)
 	else:
 		return Response({
 			'status': 'error',
 			'message': 'User not connected'
 		}, status=400)
-	
+
 @api_view(['GET'])
 @login_required
 @csrf_protect
@@ -550,7 +574,7 @@ def calculate_score(user_username, opponent_username, player_won):
 
 	return max(player_score, 0), max(opponent_score, 0)
 
-
+# ajouter les loose en plus des win
 @api_view(['POST'])
 @login_required
 @csrf_protect
@@ -560,6 +584,18 @@ def set_info_game(request):
 	player_score = int(request.data.get('player_score'))
 	opponent_score = int(request.data.get('opponent_score'))
 	prime_player, prime_opponent = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
+
+	if not player or not opponent or player_score is None or opponent_score is None:
+		return Response({
+			'status': 'error',
+			'message': "Données manquantes. Assurez-vous que 'player', 'opponent', 'player_score' et 'opponent_score' sont fournis."
+		}, status=400)
+
+	if player == opponent:
+		return Response({
+			'status': 'error',
+			'message': "Vous ne pouvez pas jouer contre vous-même."
+		}, status=400)
 
 	try:
 		user = User.objects.get(username=player)
@@ -571,8 +607,7 @@ def set_info_game(request):
 	except User.DoesNotExist:
 		return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
 
-	victories = request.user.victories
-	games_played = request.user.games_played
+	victories = user.victories
 	if player_score > opponent_score:
 		victories += 1
 
