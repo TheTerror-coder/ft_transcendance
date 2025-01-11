@@ -8,28 +8,28 @@ PORTS = #-p 8080:443
 all : build run
 
 build :
-	sudo docker build ../ -t  $(SETUP_IMAGE)
+	docker build ../ -t  $(SETUP_IMAGE)
 run :
-	sudo docker run $(ENV) -it --rm --name $(SETUP_CONTAINER) $(PORTS) $(SETUP_IMAGE) 
+	docker run $(ENV) -it --rm --name $(SETUP_CONTAINER) $(PORTS) $(SETUP_IMAGE) 
 exec :
-	sudo docker exec -it  $(SETUP_CONTAINER) bash
+	docker exec -it  $(SETUP_CONTAINER) bash
 clean :
-	sudo docker image rm $(SETUP_IMAGE)
+	docker image rm $(SETUP_IMAGE)
 fclean : stop
-	sudo docker image rm $(SETUP_IMAGE)
+	docker image rm $(SETUP_IMAGE)
 stop :
-	sudo docker stop  $(SETUP_CONTAINER)
+	docker stop  $(SETUP_CONTAINER)
 ps :
-	sudo docker ps -a
+	docker ps -a
 ls :
-	sudo docker image ls
-	sudo docker container ls
+	docker image ls
+	docker container ls
 logs :
-	sudo docker logs $(SETUP_CONTAINER)
+	docker logs $(SETUP_CONTAINER)
 logsf : # follow log output
-	sudo docker logs --follow $(SETUP_CONTAINER)
+	docker logs --follow $(SETUP_CONTAINER)
 
 restart :
-	sudo docker restart $(SETUP_CONTAINER)
+	docker restart $(SETUP_CONTAINER)
 
 re : fclean all

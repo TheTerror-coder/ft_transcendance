@@ -1,14 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    dockerfile                                         :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: jm <jm@student.42lyon.fr>                  +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/06/17 20:20:20 by jm                #+#    #+#              #
-#    Updated: 2024/09/16 22:45:52 by jm               ###   ########lyon.fr    #
-#                                                                              #
-# **************************************************************************** #
 
 ARG STACK_VERSION=8.14.1
 
@@ -27,6 +16,15 @@ EOF
 #In '00777' file permission, 00 allows to unset eventual SUID,GUID,STICKY bit privilegies
 
 COPY --chown=1000:1000 --chmod=500 ./tools/script.sh /usr/share/logstash/script.sh
+COPY --chown=1000:1000 --chmod=777 ./conf/pipelines.yml			/usr/share/logstash/config/pipelines.yml
+COPY --chown=1000:1000 --chmod=777 ./conf/log4j2.properties		/usr/share/logstash/config/log4j2.properties
+COPY --chown=1000:1000 --chmod=777 ./conf/my-logstash.yml		/usr/share/logstash/config/my-logstash.yml
+COPY --chown=1000:1000 --chmod=777 ./conf/logstash.conf			/usr/share/logstash/pipeline/logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/11-logstash.conf		/usr/share/logstash/pipeline1/11-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/12-logstash.conf		/usr/share/logstash/pipeline2/12-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/14-logstash.conf		/usr/share/logstash/pipeline4/14-logstash.conf
+# TODO rm
+COPY --chown=1000:1000 --chmod=777 ./test.log					/tmp/test.log
 
 USER 1000
 

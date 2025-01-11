@@ -1,11 +1,11 @@
 #!/bin/bash -e
 
 essentials_checking() {
-	if [ x$(cat $ELASTIC_PASSWORD_FILE) == x ]; then
-		echo "Set the ELASTIC_PASSWORD_FILE environment variable in the .env file";
+	if [ x$ELASTIC_PASSWORD == x ]; then
+		echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
 		exit 1;
-	elif [ x$( cat $KIBANA_PASSWORD_FILE) == x ]; then
-		echo "Set the KIBANA_PASSWORD_FILE environment variable in the .env file";
+	elif [ x$SECRET_KIBANA_PASSWORD == x ]; then
+		echo "Set the SECRET_KIBANA_PASSWORD environment variable in the .env file";
 		exit 1;
 	fi;
 }
@@ -55,14 +55,14 @@ wait_elastic() {
 	echo "Waiting for Elasticsearch availability";
 	until curl -s --cacert config/certs/ca/ca.crt ${ELASTICSEARCH_HOSTXPORT} | grep -q "missing authentication credentials"; do sleep 30; done;
 	
-	echo "Setting ${KIBANA_USER} password";
-	until curl -s -X POST --cacert config/certs/ca/ca.crt -u "${ELASTIC_USER}:$(cat $ELASTIC_PASSWORD_FILE)" -H "Content-Type: application/json" ${ELASTICSEARCH_HOSTXPORT}/_security/user/${KIBANA_USER}/_password -d "{\"password\":\"$(cat $KIBANA_PASSWORD_FILE)\"}" | grep -q "^{}"; do sleep 10; done;
+	echo "Setting user ${KIBANA_USER} password";
+	until curl -s -X POST --cacert config/certs/ca/ca.crt -u "${ELASTIC_USER}:$(echo $ELASTIC_PASSWORD)" -H "Content-Type: application/json" ${ELASTICSEARCH_HOSTXPORT}/_security/user/${KIBANA_USER}/_password -d "{\"password\":\"$(echo $SECRET_KIBANA_PASSWORD)\"}" | grep -q "^{}"; do sleep 10; done;
 }
 
 logstash_user() {
 	echo "creating logstash_writer role";
 	curl -s -X POST --cacert config/certs/ca/ca.crt \
-		-u "${ELASTIC_USER}:$(cat $ELASTIC_PASSWORD_FILE)" \
+		-u "${ELASTIC_USER}:${ELASTIC_PASSWORD}" \
 		-H "Content-Type: application/json" \
 		${ELASTICSEARCH_HOSTXPORT}/_security/role/${LOGSTASH_ES_ROLE} \
 		-d "{ \
@@ -77,11 +77,11 @@ logstash_user() {
 
 	echo "creating logstash_internal user";
 	curl -s -X POST --cacert config/certs/ca/ca.crt \
-		-u "${ELASTIC_USER}:$(cat $ELASTIC_PASSWORD_FILE)" \
+		-u "${ELASTIC_USER}:${ELASTIC_PASSWORD}" \
 		-H "Content-Type: application/json" \
 		${ELASTICSEARCH_HOSTXPORT}/_security/user/${LOGSTASH_ES_USER} \
 		-d "{ \
-			\"password\" : \"$(cat $LOGSTASH_ES_USER_PASSWORD_FILE)\", \
+			\"password\" : \"${SECRET_LOGSTASH_ES_USER_PASSWORD}\", \
 			\"roles\" : [ \"${LOGSTASH_ES_ROLE}\" ], \
 			\"full_name\" : \"${LOGSTASH_ES_USERFULLNAME}\" \
 		}"

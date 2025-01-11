@@ -434,9 +434,9 @@ longopts=''
 # of 'elasticsearch.password' to set the value from the secret file
 # which is not handled as in the init script of elasticsearch docker image
 
-longopt="--elasticsearch.password=$(cat $ELASTICSEARCH_PASSWORD_FILE)"
+longopt="--elasticsearch.password=$SECRET_ELASTICSEARCH_PASSWORD"
 longopts+=" ${longopt}"
-longopt="--xpack.encryptedSavedObjects.encryptionKey=$(cat $RANDOM_ENCRYPT_KEY_FILE)"
+longopt="--xpack.encryptedSavedObjects.encryptionKey=$SECRET_RANDOM_ENCRYPT_KEY"
 longopts+=" ${longopt}"
 
 ### END CUSTOM ####

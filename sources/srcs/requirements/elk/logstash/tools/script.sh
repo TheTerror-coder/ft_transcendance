@@ -8,11 +8,11 @@ else
 		-in config/certs/logstash/logstash.crt -name "logstash-alias" \
 		-inkey config/certs/logstash/logstash.key \
 		-out config/certs/logstash/logstash.p12 \
-		-passout pass:$(cat $SSL_KEYSTORE_PASS_FILE)
+		-passout pass:$SECRET_SSL_KEYSTORE_PASS
 	echo "Logstash PKCS12 keystore created!"
 fi
 
-export LOGSTASH_KEYSTORE_PASS=$(cat $LOGSTASH_KEYSTORE_PASS_FILE)
+export LOGSTASH_KEYSTORE_PASS=$SECRET_LOGSTASH_KEYSTORE_PASS
 
 if [ -e /usr/share/logstash/config/logstash.keystore ]; then
 	echo "logstash-keystore already exists!"
@@ -20,9 +20,9 @@ else
 	echo "logstash-keystore creation..."
 	/usr/share/logstash/bin/logstash-keystore create
 	echo -e "logstash-keystore created!"
-	cat $LOGSTASH_ES_USER_PASSWORD_FILE | /usr/share/logstash/bin/logstash-keystore add LOGSTASH_ES_USER_PASSWORD_KEYSTORE
-	cat $ELASTIC_PASSWORD_FILE | /usr/share/logstash/bin/logstash-keystore add ELASTIC_PASSWORD_KEYSTORE
-	cat $SSL_KEYSTORE_PASS_FILE | /usr/share/logstash/bin/logstash-keystore add SSL_KEYSTORE_PASSWORD
+	echo $SECRET_LOGSTASH_ES_USER_PASSWORD | /usr/share/logstash/bin/logstash-keystore add LOGSTASH_ES_USER_PASSWORD_KEYSTORE
+	echo $ELASTIC_PASSWORD | /usr/share/logstash/bin/logstash-keystore add ELASTIC_PASSWORD_KEYSTORE
+	echo $SECRET_SSL_KEYSTORE_PASS | /usr/share/logstash/bin/logstash-keystore add SSL_KEYSTORE_PASSWORD
 fi
 
 cat config/my-logstash.yml > config/logstash.yml

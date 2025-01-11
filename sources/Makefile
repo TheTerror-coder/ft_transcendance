@@ -8,58 +8,58 @@ all : build up
 
 build b : # Build or rebuild services
 	-mkdir -p $(PATHTO_WEBAPPS_DATA)
-	-sudo docker compose -f $(COMPOSE_FILE) build
+	-docker compose -f $(COMPOSE_FILE) build
 create cr : # Creates containers for a service
-	-sudo docker compose -f $(COMPOSE_FILE) create --remove-orphans
+	-docker compose -f $(COMPOSE_FILE) create --remove-orphans
 start : # Start services
-	-sudo docker compose -f $(COMPOSE_FILE) start
+	-docker compose -f $(COMPOSE_FILE) start
 up : # Create and start containers
-	-sudo docker compose -f $(COMPOSE_FILE) up -d
+	-docker compose -f $(COMPOSE_FILE) up -d
 exec : # Execute a command in a running container.
-	-sudo docker compose -f $(COMPOSE_FILE) exec
+	-docker compose -f $(COMPOSE_FILE) exec
 
 
 images im : # List images used by the created containers
-	-sudo docker images
-	-sudo docker compose -f $(COMPOSE_FILE) images
+	-docker images
+	-docker compose -f $(COMPOSE_FILE) images
 ls : # List running compose projects
-	sudo docker compose -f $(COMPOSE_FILE) ls
+	docker compose -f $(COMPOSE_FILE) ls
 ps : # List containers
-	sudo docker ps -a
-	sudo docker compose -f $(COMPOSE_FILE) ps -a
+	docker ps -a
+	docker compose -f $(COMPOSE_FILE) ps -a
 logs l : # View output from containers
-	sudo docker compose -f $(COMPOSE_FILE) logs -f
+	docker compose -f $(COMPOSE_FILE) logs -f
 top : # Display the running processes
-	sudo docker compose -f $(COMPOSE_FILE) top
+	docker compose -f $(COMPOSE_FILE) top
 
 
 down : # Stop and remove containers, networks
-	-sudo docker compose -f $(COMPOSE_FILE) down --remove-orphans
+	-docker compose -f $(COMPOSE_FILE) down --remove-orphans
 s stop : # Stop services
-	-sudo docker compose -f $(COMPOSE_FILE) stop
+	-docker compose -f $(COMPOSE_FILE) stop
 rm remove : # Removes stopped service containers
-	-sudo docker compose -f $(COMPOSE_FILE) rm -f
+	-docker compose -f $(COMPOSE_FILE) rm -f
 rmi : # Removes images
-	-sudo docker rmi $$(sudo docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
+	-docker rmi $$(docker images | awk 'NR>1 {print $3}' | tr '\n' ' ')
 rmv : # clean data
 # Remove unused local volumes
-	-sudo docker volume prune -f
+	-docker volume prune -f
 # clean 'webapps' volume directory
-	-sudo rm -rf ./srcs/requirements/web/webapps/*
+	-rm -rf ./srcs/requirements/web/webapps/*
 kill k : # Force stop service containers.
-	-sudo docker compose -f $(COMPOSE_FILE) kill --remove-orphans
+	-docker compose -f $(COMPOSE_FILE) kill --remove-orphans
 
 
 cleanv cv : # clean all volumes
 # Remove unused local volumes
-	-sudo docker volume prune -f
+	-docker volume prune -f
 # Remove all local volumes
-	-sudo docker volume rm $$(sudo docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
+	-docker volume rm $$(docker volume ls | awk 'NR>1 {print $2}' | tr '\n' ' ')
 clean c : down rm rmi rmv
 fclean fc : clean cleanv
-	-yes | sudo docker system prune
+	-yes | docker system prune
 reset : clean all
 freset : fclean all
 
 restart res : # Restart service containers
-	-sudo docker compose -f $(COMPOSE_FILE) restart
+	-docker compose -f $(COMPOSE_FILE) restart
