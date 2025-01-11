@@ -196,6 +196,7 @@ async def connect(sid, environ):
                 await asyncio.sleep(3)
                 logger.info(f"sid of the reconnected player = {sid}")
                 await sio.emit('startGame', room=sid)
+                await sio.emit('gameStarted', room=sid)
                 # await sio.emit('gameUnpaused', room=sid)
         else:
             await sio.emit('error', {'message': 'Partie non trouvée'}, room=sid)

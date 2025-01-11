@@ -2,6 +2,8 @@ import logging
 import sys
 import random
 import math
+import requests
+import os
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -494,7 +496,7 @@ class Game:
                 'IsFull': self.getTeam(1).isFull,
             },
             'team2': {
-                'TeamId': self.getTeam(2).TeamId,
+             'TeamId': self.getTeam(2).TeamId,
                 'Name': self.getTeam(2).name,
                 'MaxNbPlayer': self.getTeam(2).maxNbPlayer,
                 'NbPlayer': self.getTeam(2).nbPlayer,
@@ -524,6 +526,16 @@ class Game:
         if self.teams[1].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[1].name, room=gameCode)
             self.gameStarted = False
+            await self.sendGameInfo(sio, gameCode)
         elif self.teams[2].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
+            await self.sendGameInfo(sio, gameCode)
+
+    async def sendGameInfo(self, sio, gameCode):
+        ROOT_CA = os.getenv("GAMESERVER_ROOT_CA")
+        backendServer_name = os.getenv("HOST_IP")
+        backendServer_port = os.getenv("BACKEND_PORT")
+        payload = {"Test1": "coucou1 " + gameCode, "Test2": "coucou2 " + gameCode}
+        request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/user-management/set-info-game/", verify=ROOT_CA, data=payload)
+        logger.info(f"request: {request}")
