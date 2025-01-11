@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, get_user_model
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm, UpdateStatFrom
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UpdateUsernameForm, UpdateUserLanguageForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .models import FriendRequest, Game
@@ -150,7 +150,7 @@ def update_profile(request):
 		form.save()
 		return Response({
 			'status': 'success',
-			'message': 'Profile picture updated successfully.',
+			'message': 'Profile updated successfully.',
 		}, status=200)
 	else:
 		return Response({
@@ -272,7 +272,6 @@ def get_language(request):
 @csrf_protect
 def get_user_profile(request):
     username = request.data.get('username')
-    prime = request.data.get('prime')
     try:
         to_user = User.objects.get(username=username)
         user_info = {
@@ -284,7 +283,7 @@ def get_user_profile(request):
             'date_joined': to_user.date_joined,
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
-            'prime': prime,
+            'prime': to_user.prime,
             'language': to_user.language,
         }
         if to_user.photo_link:
@@ -365,8 +364,6 @@ def game_routing(request):
 def profile(request):
 	friends = request.user.friend_list.all()
 	friend_list = [{'username': friend.username} for friend in friends]
-	last_three_games = request.user.recent_games()
-	# photo = request.user.photo.url if request.user.photo else None
 	if request.user.photo_link:
 		print("***********DEBUG*********: profile(): photo_link is not empty: ", file=sys.stderr)
 		photo = request.user.photo_link 
@@ -375,16 +372,19 @@ def profile(request):
 	else:
 		photo = None
 	prime = request.user.prime
-
-	recent_games_data = [
-		{
-			"opponent": game.opponent.username,
-			"player_score": game.player_score,
-			"opponent_score": game.opponent_score,
-			"date": game.date.strftime("%Y-%m-%d %H:%M:%S"),
+ 
+	to_user = request.user
+	recent_games = to_user.recent_games()
+	games_data = []
+	for game in recent_games:
+		game_info = {
+			'player': game.player.username,
+			'opponent': game.opponent.username,
+			'player_score': game.player_score,
+			'opponent_score': game.opponent_score,
+			'date': game.date,
 		}
-		for game in last_three_games
-	]
+		games_data.append(game_info)
 
 
 	pending_requests = FriendRequest.objects.filter(
@@ -399,7 +399,7 @@ def profile(request):
 		'user_socket': user_sockets,
 		'pending_requests': pending_request_list,
 		'username': request.user.username,
-		'recent_games': recent_games_data,
+		'recent_games': games_data,
 		'prime': prime,
 	}
 	return Response(response_data)
@@ -545,7 +545,7 @@ def calculate_score(user_username, opponent_username, player_won):
 			player_cote_change = -(player_score - opponent_score) * 1.1
 
 	player_score += player_cote_change
-	opponent_score += opponent_cote_change
+	# opponent_score += opponent_cote_change
 
 	return max(player_score, 0)
 
@@ -560,58 +560,51 @@ def set_info_game(request):
     opponent_score = int(request.data.get('opponent_score'))
     date = request.data.get('date')
     prime = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
-
-    user = User.objects.get(username=player)
-    opponent_user = User.objects.get(username=opponent)
     
+    try:
+        user = User.objects.get(username=player)
+    except User.DoesNotExist:
+        return Response({'status': 'error', 'message': f"L'utilisateur '{player}' n'existe pas."}, status=400)
 
-    game = Game(player=user, opponent=opponent_user, player_score=player_score, opponent_score=opponent_score, date=date)
-    game.save()
+    try:
+        opponent_player = User.objects.get(username=opponent)
+    except User.DoesNotExist:
+        return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
+    
     victories = request.user.victories
     games_played = request.user.games_played
     if player_score > opponent_score:
         victories += 1
     
-    print("prime", prime, file=sys.stderr)
-    games = {
-        'player': player,
-        'opponent': opponent,
-        'player_score': player_score,
-        'opponent_score': opponent_score,
-        'date': date,
-    }
+    # games = {
+    #     'player': user,
+    #     'opponent': opponent_player,
+    #     'player_score': player_score,
+    #     'opponent_score': opponent_score,
+    #     'date': date,
+    # }
+    
+    game = Game.objects.create(
+        player=user,
+        opponent=opponent_player,
+        player_score=player_score,
+        opponent_score=opponent_score,
+    )
+    user.prime = prime
+    user.victories = victories
+    user.games_played += 1
+    user.save()
 
-    print("set_game_played", games_played, file=sys.stderr)
-    response = {
-        'victories': victories,
-        'prime': prime,
-		'games_played': games_played,
-        'Game': games,
-    }
-
-    print("request.user", user, file=sys.stderr)
-    form = UpdateStatFrom(response, instance=user)
-    print("set_info_game", form, file=sys.stderr)
-    if form.is_valid():
-        user.prime = prime
-        user.victories = victories
-        user.save()
-
-        return Response({
-            'status': 'success',
-            'message': 'Données de la partie enregistrées avec succès.',
-        }, status=200)
-    else:
-        return Response({
-            'status': 'error',
-            'message': form.errors.get('language', ['Erreur inconnue'])[0],
-        }, status=400)
+    return Response({
+        'status': 'success',
+        'message': 'Données de la partie enregistrées avec succès.',
+    }, status=200)
 
 
 
 
 
-# response = await makeRequest('POST', URLs.USERMANAGEMENT.SETINFOGAME, {'player': 'nico', 'opponent':'nico', 'player_score': 10, 'opponent_score': 5, 'date': '09/01/2025'});
+# response = await makeRequest('POST', URLs.USERMANAGEMENT.SETINFOGAME, {'player': 'nico', 'opponent':'nico', 'player_score': 10, 'opponent_score': 5});
 
 
 

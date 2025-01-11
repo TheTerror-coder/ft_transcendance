@@ -2,8 +2,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, FriendRequest, Game
-
-
+from django.utils.html import format_html
+from django.urls import reverse
 
 
 @admin.register(CustomUser)
@@ -28,6 +28,11 @@ class CustomUserAdmin(UserAdmin):
 
     def games_played(self, obj):
         return obj.games_played
+    
+    def games_link(self, obj):
+        return format_html('<a href="{}">Voir les jeux</a>', reverse('admin:appname_game_changelist') + f'?player__id={obj.id}')
+    
+    games_link.short_description = "Games"
 
 @admin.register(FriendRequest)
 class FriendRequestAdmin(admin.ModelAdmin):
@@ -64,7 +69,10 @@ class FriendRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
+    # Affichage des champs dans la liste
     list_display = ('player', 'opponent', 'player_score', 'opponent_score', 'date', 'game_result')
+    
+    # Rendre la date en lecture seule
     readonly_fields = ('date',)
 
     fieldsets = (
@@ -83,3 +91,10 @@ class GameAdmin(admin.ModelAdmin):
             return "Draw"
     game_result.admin_order_field = 'player_score'  # Permet de trier par le score du joueur
     game_result.short_description = 'Game Result'  # Titre de la colonne dans l'admin
+
+    # Ajouter un filtre pour les jeux d'un utilisateur en particulier
+    list_filter = ('player', 'opponent', 'date')
+
+    # Si vous souhaitez filtrer par joueur ou adversaire, vous pouvez ajouter une recherche
+    search_fields = ['player__username', 'opponent__username']
+

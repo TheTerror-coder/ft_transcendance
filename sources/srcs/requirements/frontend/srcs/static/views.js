@@ -83,7 +83,7 @@ async function	profileView(title, description, data)
 	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: ", response.photo);
+	console.log("response: de l'utilisateur", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;

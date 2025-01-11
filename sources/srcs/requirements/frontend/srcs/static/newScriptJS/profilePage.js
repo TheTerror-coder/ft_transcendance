@@ -55,23 +55,20 @@ async function getHistoric(game)
 
 
             console.log("game: ", game);
-            console.log("result i: ", i);
             resultUser.className = 'resultDisplayHistoric';
 
 
-            resultUser.textContent = game.resultUser;
-            resultAdvUser.textContent = game.resultAdvUser;
-            username.textContent = game.username;
-            advUsername.textContent = game.advUsername;
+            resultUser.textContent = game.player_score;
+            resultAdvUser.textContent = game.opponent_score;
+            username.textContent = game.player;
+            advUsername.textContent = game.opponent;
             match.appendChild(username);
             match.appendChild(resultUser);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
         }
         //else game 2 v 2
-
     }
-
 }
 
 async function displayWaitingListFriend(friends) {

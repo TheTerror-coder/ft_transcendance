@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import CustomUser
+from .models import CustomUser, Game
 from django.contrib.auth import authenticate
 import sys
 
@@ -61,29 +61,26 @@ class UpdateUsernameForm(forms.ModelForm):
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         return username
 
-class UpdateStatFrom(forms.ModelForm):
-    class Meta:
-        model = CustomUser
-        fields = ['victories', 'prime', 'games_played']
-    
-    def clean_victories(self):
-        victories = self.cleaned_data.get('victories')
-        if victories < 0:
-            raise ValidationError("Le nombre de victoires ne peut pas être négatif.")
-        return victories
+# class UpdateStatFrom(forms.ModelForm):
+#     class Meta:
+#         model = Game
+#         fields = ['player', 'opponent', 'player_score', 'opponent_score']
+#         widgets = {
+#             'player': forms.Select(attrs={'class': 'form-control'}),
+#             'opponent': forms.Select(attrs={'class': 'form-control'}),
+#             'player_score': forms.NumberInput(attrs={'class': 'form-control'}),
+#             'opponent_score': forms.NumberInput(attrs={'class': 'form-control'})
+#         }
 
-    def clean_prime(self):
-        prime = self.cleaned_data.get('prime')
-        if prime < 0:
-            raise ValidationError("Le nombre de primes ne peut pas être négatif.")
-        return prime
+#     def clean_player_score(self):
+#         score = self.cleaned_data.get('player_score')
+#         if score < 0:
+#             raise ValidationError("Le score du joueur ne peut pas être négatif.")
+#         return score
 
-    def clean_games_played(self):
-        games_played = self.cleaned_data.get('games_played')
-        if games_played < 0:
-            raise ValidationError("Le nombre de parties jouées ne peut pas être négatif.")
-        return games_played
-
-
-
+#     def clean_opponent_score(self):
+#         score = self.cleaned_data.get('opponent_score')
+#         if score < 0:
+#             raise ValidationError("Le score de l'adversaire ne peut pas être négatif.")
+#         return score
 
