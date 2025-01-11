@@ -535,7 +535,7 @@ class Game:
     async def sendGameInfo(self, sio, gameCode):
         ROOT_CA = os.getenv("GAMESERVER_ROOT_CA")
         backendServer_name = os.getenv("HOST_IP")
-        backendServer_port = os.getenv("BACKEND_PORT")
+        backendServer_port = os.getenv("PROXYWAF_HTTPS_PORT")
         payload = {"Test1": "coucou1 " + gameCode, "Test2": "coucou2 " + gameCode}
         request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/user-management/set-info-game/", verify=ROOT_CA, data=payload)
         logger.info(f"request: {request}")
