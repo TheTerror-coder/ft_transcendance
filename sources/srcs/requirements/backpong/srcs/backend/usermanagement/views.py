@@ -552,9 +552,11 @@ def calculate_score(user_username, opponent_username, player_won):
 
 
 @api_view(['POST'])
-@login_required
-@csrf_protect
+# @login_required
+# @csrf_protect
+@permission_classes([AllowAny])
 def set_info_game(request):
+	print("set_info_game : ", request.data, file=sys.stderr)
 	player = request.data.get('player')
 	opponent = request.data.get('opponent')
 	player_score = int(request.data.get('player_score'))
@@ -571,8 +573,7 @@ def set_info_game(request):
 	except User.DoesNotExist:
 		return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
 
-	victories = request.user.victories
-	games_played = request.user.games_played
+	victories = user.victories
 	if player_score > opponent_score:
 		victories += 1
 

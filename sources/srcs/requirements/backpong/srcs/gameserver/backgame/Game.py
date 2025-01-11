@@ -532,10 +532,30 @@ class Game:
             self.gameStarted = False
             await self.sendGameInfo(sio, gameCode)
 
+    def createEndGamePayload(self):
+        payload = {
+            'team' : {
+                1 : {
+                    'teamId' : 1,
+                    'player' : self.getTeam(1).player[0].name,
+                    'score' : self.getTeam(1).getScore(),
+                },
+                2 : {
+                    'teamId' : 2,
+                    'player' : self.getTeam(2).player[0].name,
+                    'score' : self.getTeam(2).getScore(),
+                }
+            },
+            'winner' : 1 if self.getTeam(1).getScore() > self.getTeam(2).getScore() else 2
+        }
+        return payload
+    
     async def sendGameInfo(self, sio, gameCode):
+        if (self.nbPlayerPerTeam == 2):
+            return
         ROOT_CA = os.getenv("GAMESERVER_ROOT_CA")
         backendServer_name = os.getenv("HOST_IP")
         backendServer_port = os.getenv("PROXYWAF_HTTPS_PORT")
-        payload = {"Test1": "coucou1 " + gameCode, "Test2": "coucou2 " + gameCode}
-        request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/user-management/set-info-game/", verify=ROOT_CA, data=payload)
+        payload = self.createEndGamePayload()
+        request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/backpong/user-management/set-info-game/", verify=ROOT_CA, data=payload)
         logger.info(f"request: {request}")
