@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .validators import validate_image_extension
 from django.utils.html import mark_safe
+from django.conf import settings
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
@@ -19,12 +20,12 @@ class CustomUser(AbstractUser):
     games_played = models.IntegerField(default=0)
     language = models.CharField(
         blank=True,
-        default="FR",
+        default="en",
         max_length=10,
     )
 
     def recent_games(self):
-        return Game.objects.filter(player=self).order_by('-date')[:3]
+            return Game.objects.filter(models.Q(player=self) | models.Q(opponent=self)).order_by('-date')[:3]
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -41,14 +42,29 @@ class CustomUser(AbstractUser):
 
 
 class Game(models.Model):
-    player = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="games_as_player")
-    opponent = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="games_as_opponent")
+    player = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='games_as_player'
+    )
+    opponent = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='games_as_opponent'
+    )
     player_score = models.IntegerField()
     opponent_score = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
 
+    def winner(self):
+        if self.player_score > self.opponent_score:
+            return self.player
+        elif self.opponent_score > self.player_score:
+            return self.opponent
+        return None
+
     def __str__(self):
-        return f"Game: {self.player.username} vs {self.opponent.username} on {self.date.strftime('%Y-%m-%d')}"
+        return f"{self.player.username} vs {self.opponent.username} on {self.date.strftime('%Y-%m-%d')}"
 
 
 class FriendRequest(models.Model):

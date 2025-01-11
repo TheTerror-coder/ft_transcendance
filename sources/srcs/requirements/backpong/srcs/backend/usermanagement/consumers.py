@@ -90,7 +90,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         message = event['text']
         await self.send(text_data=message)
 
-
     @database_sync_to_async
     def get_user_by_username(self, username):
         User = get_user_model()

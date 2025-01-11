@@ -10,10 +10,10 @@ export ULTIMAPI_REDIRECT_URI_PART2
 export HOST_IP					:=$(shell $(HOST_IP_SCRIPT) $(ENV))
 export ULTIMAPI_REDIRECT_URI	:=$(shell echo $(ULTIMAPI_REDIRECT_URI_PART1)$(HOST_IP)$(ULTIMAPI_REDIRECT_URI_PART2))
 
-all : host_ip build up
+all : build up
 
-host_ip :
-	-@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
+# host_ip :
+# 	-@sh -c '$(HOST_IP_SCRIPT) $(ENV)'
 
 build b : # Build or rebuild services
 	-docker compose -f $(COMPOSE_FILE) build
