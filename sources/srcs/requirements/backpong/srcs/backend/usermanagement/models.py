@@ -16,6 +16,7 @@ class CustomUser(AbstractUser):
     photo_link = models.CharField("42 user photo link", max_length=200, blank=True)
     friend_list = models.ManyToManyField('self', symmetrical=False, blank=True)
     victories = models.IntegerField(default=0)
+    loose = models.IntegerField(default=0)
     prime = models.IntegerField(default=0)
     games_played = models.IntegerField(default=0)
     language = models.CharField(

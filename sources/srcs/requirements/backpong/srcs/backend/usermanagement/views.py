@@ -283,6 +283,7 @@ def get_user_profile(request):
             'date_joined': to_user.date_joined,
             'game played': to_user.recent_games(),
             'victorie': to_user.victories,
+            'loose': to_user.loose,
             'prime': to_user.prime,
             'language': to_user.language,
         }
@@ -400,6 +401,8 @@ def profile(request):
 		'user_socket': user_sockets,
 		'pending_requests': pending_request_list,
 		'username': request.user.username,
+		'loose': request.user.loose,
+		'victories': request.user.victories,
 		'recent_games': games_data,
 		'prime': prime,
 	}
@@ -579,24 +582,6 @@ def calculate_score(user_username, opponent_username, player_won):
 @login_required
 @csrf_protect
 def set_info_game(request):
-	player = request.data.get('player')
-	opponent = request.data.get('opponent')
-	player_score = int(request.data.get('player_score'))
-	opponent_score = int(request.data.get('opponent_score'))
-	prime_player, prime_opponent = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
-
-	if not player or not opponent or player_score is None or opponent_score is None:
-		return Response({
-			'status': 'error',
-			'message': "Données manquantes. Assurez-vous que 'player', 'opponent', 'player_score' et 'opponent_score' sont fournis."
-		}, status=400)
-
-	if player == opponent:
-		return Response({
-			'status': 'error',
-			'message': "Vous ne pouvez pas jouer contre vous-même."
-		}, status=400)
-
 	try:
 		user = User.objects.get(username=player)
 	except User.DoesNotExist:
@@ -607,9 +592,23 @@ def set_info_game(request):
 	except User.DoesNotExist:
 		return Response({'status': 'error', 'message': f"L'adversaire '{opponent}' n'existe pas."}, status=400)
 
-	victories = user.victories
-	if player_score > opponent_score:
-		victories += 1
+	player = request.data.get('player')
+	opponent = request.data.get('opponent')
+	player_score = int(request.data.get('player_score'))
+	opponent_score = int(request.data.get('opponent_score'))
+	prime_player, prime_opponent = calculate_score(player, opponent, player if player_score > opponent_score else opponent)
+	
+	if not player or not opponent or player_score is None or opponent_score is None:
+		return Response({
+			'status': 'error',
+			'message': "Données manquantes. Assurez-vous que 'player', 'opponent', 'player_score' et 'opponent_score' sont fournis."
+		}, status=400)
+  
+	if player == opponent:
+		return Response({
+			'status': 'error',
+			'message': "Vous ne pouvez pas jouer contre vous-même."
+		}, status=400)
 
 	game = Game.objects.create(
 		player=user,
@@ -617,11 +616,13 @@ def set_info_game(request):
 		player_score=player_score,
 		opponent_score=opponent_score,
 	)
+
 	opponent_player.prime = prime_opponent
 	user.prime = prime_player
-	user.victories = victories
+	user.victories += 1
 	user.games_played += 1
 	opponent_player.games_played += 1
+	opponent_player.loose += 1
 	user.save()
 	opponent_player.save()
 
