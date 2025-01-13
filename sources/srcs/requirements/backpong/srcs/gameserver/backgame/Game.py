@@ -334,7 +334,13 @@ class Game:
 
     def addPlayerReady(self):
         logger.info("addPlayerReady")
-        self.playerReady += 1
+        for player in self.teams[1].getAllPlayer().values():
+            if not player.getIsInit():
+                self.playerReady += 1
+        for player in self.teams[2].getAllPlayer().values():
+            if not player.getIsInit():
+                self.playerReady += 1
+        logger.info(f"playerReady: {self.playerReady}")
 
     def removePlayerReady(self):
         logger.info("removePlayerReady")
@@ -516,7 +522,7 @@ class Game:
                 else:
                     logger.info(f'Sending gameData: {teamsArray}')
                     await sio.emit('gameData', teamsArray, room=gameCode)
-                    player.setIsInit(True)
+                    # player.setIsInit(True)
 
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)
@@ -533,20 +539,24 @@ class Game:
             await self.sendGameInfo(sio, gameCode)
 
     def createEndGamePayload(self):
+        # Récupérer le seul joueur de chaque équipe
+        team1_player = next(iter(self.getTeam(1).player.values()))
+        team2_player = next(iter(self.getTeam(2).player.values()))
+        
         payload = {
-            'team' : {
-                1 : {
-                    'teamId' : 1,
-                    'player' : self.getTeam(1).player[0].name,
-                    'score' : self.getTeam(1).getScore(),
+            'team': {
+                1: {
+                    'teamId': 1,
+                    'player': team1_player.name,
+                    'score': self.getTeam(1).getScore(),
                 },
-                2 : {
-                    'teamId' : 2,
-                    'player' : self.getTeam(2).player[0].name,
-                    'score' : self.getTeam(2).getScore(),
+                2: {
+                    'teamId': 2,
+                    'player': team2_player.name,
+                    'score': self.getTeam(2).getScore(),
                 }
             },
-            'winner' : 1 if self.getTeam(1).getScore() > self.getTeam(2).getScore() else 2
+            'winner': 1 if self.getTeam(1).getScore() > self.getTeam(2).getScore() else 2
         }
         return payload
     

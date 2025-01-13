@@ -114,6 +114,7 @@ export async function main(gameCode, socket, currentLanguage) {
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
     network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage);
     socket.emit('playerReady', gameCode);
+    console.log('Player ready sent');
     await waitForGameStarted(currentPlayer);
     setInterval(() => {
         updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED);
