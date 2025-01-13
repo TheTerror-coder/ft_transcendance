@@ -108,7 +108,8 @@ export async function main(gameCode, socket, currentLanguage) {
     }
 
     await waitForBoatGroup(currentPlayerTeam);
-    network.updateServerData(gameCode, socket, currentPlayerTeam);
+    if (currentPlayerTeam.getBoatSavedPos().x == 0 && currentPlayerTeam.getBoatSavedPos().y == 0 && currentPlayerTeam.getBoatSavedPos().z == 0)
+        network.updateServerData(gameCode, socket, currentPlayerTeam);
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
