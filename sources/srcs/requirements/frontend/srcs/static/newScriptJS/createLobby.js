@@ -1,18 +1,21 @@
 // import socketIOClient from 'socket.io-client';
 
-let savedGameCode = {
+let savedGameCode = 
+{
     _code: null, 
-  
-    get code() {
-      return this._code;
+
+    get code()
+    {
+        return this._code;
     },
-  
-    set code(value) {
-      this._code = value;
-      if (document.getElementById("lobbyCode") !== null)
-        document.getElementById("lobbyCode").innerHTML = value;
+
+    set code(value)
+    {
+        this._code = value;
+        if (document.getElementById("lobbyCode") !== null)
+            document.getElementById("lobbyCode").innerHTML = value;
     }
-  };
+};
 let gameStarted = false;
 let ip;
 let globalSocket = null;
