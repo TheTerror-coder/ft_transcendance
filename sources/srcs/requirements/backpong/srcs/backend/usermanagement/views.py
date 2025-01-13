@@ -579,8 +579,9 @@ def calculate_score(user_username, opponent_username, player_won):
 
 
 @api_view(['POST'])
-@login_required
-@csrf_protect
+# @login_required
+# @csrf_protect
+@permission_classes([AllowAny])
 def set_info_game(request):
 	try:
 		user = User.objects.get(username=player)

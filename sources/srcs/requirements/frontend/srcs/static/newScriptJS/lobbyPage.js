@@ -141,6 +141,6 @@ function startGameLobby ()
 {
     console.log("juste avant le changement");
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
-    console.log("savedGameCode: ", savedGameCode);
-    globalSocket.emit('launchGame', savedGameCode);
+    console.log("savedGameCode: ", savedGameCode.code);
+    globalSocket.emit('launchGame', savedGameCode.code);
 }

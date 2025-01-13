@@ -118,7 +118,7 @@ function initializeLobbyTwoVsTwo(gameCode)
 
 async function createLobbyPlay()
 {   
-    await replace_location(URLs.VIEWS.CREATE_LOBBY);
+    await assign_location(URLs.VIEWS.CREATE_LOBBY); 
     refreshLanguage();
     const socket = await initializeSocket();
     initializeGlobalSocket(socket);

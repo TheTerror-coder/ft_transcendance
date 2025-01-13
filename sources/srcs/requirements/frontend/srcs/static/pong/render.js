@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
-export async function initScene() {
+export async function initScene(Team1, Team2, currentTeam) {
     const scene = new THREE.Scene();
     const cameraPlayer = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
@@ -20,7 +20,7 @@ export async function initScene() {
     
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
-    let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene);
+    let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2, currentTeam);
     loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
     let display = [ocean, ambientLight, directionalLight1, directionalLight2];
     return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display };
@@ -150,30 +150,34 @@ export function unloadScene(ball, scene, bateau1, bateau2, display, renderer) {
     }
 }
 
-async function initObject(scene)
+async function initObject(scene, Team1, Team2, currentTeam)
 {
     const GLTFloader = new GLTFLoader();
     let bateau = await initBateaux(scene, GLTFloader);
     console.log('bateau:', bateau);
     let cannonGroup = await initCannons(scene);
     console.log('CannonGroup:', cannonGroup);
-    let boatGroup1 = await CreateBoatGroup(scene, bateau.bateauTeam1, cannonGroup.get('cannonTeam1'), 1);
-    let boatGroup2 = await CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2);
+    let boatGroup1 = await CreateBoatGroup(scene, bateau.bateauTeam1, cannonGroup.get('cannonTeam1'), 1, Team1.getBoatSavedPos(), Team1.getCannonSavedPos());
+    let boatGroup2 = await CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2, Team2.getBoatSavedPos(), Team2.getCannonSavedPos());
     console.log('boatGroup1 : ', boatGroup1);
     console.log('boatGroup2 : ', boatGroup2);
     let ocean = await initOceans(scene, new THREE.TextureLoader());
-    let ball = await initBall();
+    let ball = await initBall(currentTeam.getBallSavedPos());
 
     return {boatGroup1, boatGroup2, ocean, ball};
 }
 
-function initBall() {
+function initBall(ballSavedPos) {
     return new Promise((resolve, reject) => {
         try {
             const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
             const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             console.log('Ball initialized successfully');
+            if (ballSavedPos.x != 0 && ballSavedPos.y != 0 && ballSavedPos.z != 0)
+                ball.position.set(ballSavedPos.x, ballSavedPos.y, ballSavedPos.z);
+            else
+                ball.position.set(0, 0, 0);
             resolve(ball);
         } catch (error) {
             console.error('Error initializing ball:', error);
@@ -362,7 +366,7 @@ async function initCannons(scene) {
     }
 }
 
-async function CreateBoatGroup(scene, bateau, cannon, teamId)
+async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cannonSavedPos)
 {
     let boatGroup = new THREE.Group();
     bateau.name = `bateauTeam${teamId}`;
@@ -373,12 +377,24 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId)
     
     // Positionner et orienter le canon
     if (teamId === 1) {
-        boatGroup.position.set(0, 35, -1);
-        boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
+        if (boatSavedPos.x != 0 && boatSavedPos.y != 0 && boatSavedPos.z != 0)
+            boatGroup.position.set(boatSavedPos.x, 35, -1);
+        else
+            boatGroup.position.set(0, 35, -1);
+        if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, cannonSavedPos.y, cannonSavedPos.z);
+        else
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
     } else if (teamId === 2) {
-        boatGroup.position.set(0, -35, -1);
-        boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
+        if (boatSavedPos.x != 0 && boatSavedPos.y != 0 && boatSavedPos.z != 0)
+            boatGroup.position.set(boatSavedPos.x, -35, -1);
+        else
+            boatGroup.position.set(0, -35, -1);
+        if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, cannonSavedPos.y, cannonSavedPos.z);
+        else
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
     }
     console.log('cannonTeam : ', boatGroup.getObjectByName(`cannonTeam${teamId}`).position);

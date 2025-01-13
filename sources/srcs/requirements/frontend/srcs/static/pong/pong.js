@@ -9,39 +9,44 @@ import { createHUD } from './HUD.js';
 
 console.log("pong.js loaded");
 
-let BOAT_MOVE_SPEED = 1.5;
+let BOAT_MOVE_SPEED = 4;
 let CANNON_MOVE_SPEED = 0.1;
 let CANNON_ROTATION_SPEED = 0.1;
-let FRAME_RATE = 110;
+let FRAME_RATE = 80;
 
 
-export async function main(gameCode, socket) {
+export async function main(gameCode, socket, currentLanguage) {
     console.log('socket : ', socket);
     
     socket.emit('GameStarted', gameCode);
     
     console.log("gameCode : ", gameCode);
+
+    console.log("currentLanguage: ", currentLanguage);
     
     let Team1 = null;
     let Team2 = null;
     let currentPlayer = null;
     let currentPlayerTeam = null;
-    socket.on('gameData', async (gameData) => {
-        console.log('Données de la partie:', gameData);
-        if (gameData) {
-            ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
-            console.log('initGame done');
-            console.log('Team1:', Team1);
-            console.log('Team2:', Team2);
-            console.log('currentPlayer:', currentPlayer);
-            console.log('currentPlayerTeam:', currentPlayerTeam);
-        } else {
-            console.error('Aucune donnée de partie trouvée.');
-        }
+    await new Promise(resolve => {
+        socket.on('gameData', async (gameData) => {
+            console.log('Données de la partie:', gameData);
+            if (gameData) {
+                ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
+                console.log('initGame done');
+                console.log('Team1:', Team1);
+                console.log('Team2:', Team2);
+                console.log('currentPlayer:', currentPlayer);
+                console.log('currentPlayerTeam:', currentPlayerTeam);
+                resolve();
+            } else {
+                console.error('Aucune donnée de partie trouvée.');
+            }
+        });
     });
     
-    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene();
-    let hud = createHUD(renderer);
+    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
+    let hud = await createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
     let boat1Hitbox = new THREE.Box3Helper(boat1BoundingBox, 0xffff00); // TODO : remove for production
@@ -107,7 +112,9 @@ export async function main(gameCode, socket) {
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage);
+    socket.emit('playerReady', gameCode);
+    console.log('Player ready sent');
     await waitForGameStarted(currentPlayer);
     setInterval(() => {
         updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED);
@@ -118,6 +125,62 @@ export async function main(gameCode, socket) {
     async function animate() {
         let requestAnimationFrameId = requestAnimationFrame(animate);
         
+        if (currentPlayer.getGameStarted() === false) {
+            cancelAnimationFrame(requestAnimationFrameId);
+            console.log("Pass in ending clear");
+            window.removeEventListener('keydown', keys);
+            window.removeEventListener('keyup', keys);
+
+            scene.remove(boatGroup1);
+            scene.remove(boatGroup2);
+            scene.remove(ball);
+            scene.remove(display[0])
+            
+            // Rendre la scène noire
+            scene.background = new THREE.Color(0x000000);
+            
+            // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
+            const startTime = Date.now();
+            function renderEndScreen() {
+                if (Date.now() - startTime < 5000) {
+                    requestAnimationFrame(renderEndScreen);
+                    renderer.render(scene, cameraPlayer);
+                    renderer.autoClear = false;
+                    renderer.render(hud.scene, hud.camera);
+                    renderer.autoClear = true;
+                } else {
+                    // Nettoyer complètement après 5 secondes
+                    if (hud) {
+                        hud.scene.clear();
+                        if (hud.camera) hud.camera = null;
+                    }
+                    
+                    // Nettoyer les éléments du DOM et déconnecter
+                    if (displayInfo && displayInfo.parentNode) {
+                        displayInfo.parentNode.removeChild(displayInfo);
+                    }
+                    if (ballPositionDisplay && ballPositionDisplay.parentNode) {
+                        ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
+                    }
+                    
+                    render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
+                    
+                    scene = null;
+                    ball = null;
+                    boatGroup1 = null;
+                    boatGroup2 = null;
+                    renderer = null;
+                    cameraPlayer = null;
+                    
+                    socket.disconnect();
+                }
+            }
+            
+            renderEndScreen();
+            return (true);
+        }
+        
+        // Mise à jour des boîtes de collision
         boat1BoundingBox.setFromObject(boatGroup1);
         boat2BoundingBox.setFromObject(boatGroup2);
 
@@ -133,65 +196,8 @@ export async function main(gameCode, socket) {
         boat2BoundingBox.max.z /= 3;
         boat1Hitbox.updateMatrixWorld(true);
         boat2Hitbox.updateMatrixWorld(true);
-
-        if (currentPlayer.getGameStarted() === false) {
-            cancelAnimationFrame(requestAnimationFrameId);
-            window.removeEventListener('keydown', keys);
-            window.removeEventListener('keyup', keys);
-            
-            // Garder uniquement le texte de victoire dans le HUD
-            if (hud && hud.scene) {
-                hud.scene.children.forEach(child => {
-                    if (child !== hud.scoreText && child !== hud.endGameText.textMesh) {
-                        hud.scene.remove(child);
-                    }
-                });
-            }
-            
-            // Attendre que le texte soit visible avant de nettoyer
-            await new Promise(resolve => setTimeout(resolve, 3000));
-            
-            // Nettoyer la scène mais pas le HUD
-            scene.children.forEach(child => {
-                if (!hud.scene.children.includes(child)) {
-                    scene.remove(child);
-                }
-            });
-            
-            // Attendre avant le nettoyage final
-            await new Promise(resolve => setTimeout(resolve, 7000));
-            
-            // Nettoyer la scène HUD
-            if (hud) {
-                hud.scene.clear();
-                if (hud.camera) hud.camera = null;
-            }
-            
-            // Supprimer les éléments d'affichage du DOM
-            if (displayInfo && displayInfo.parentNode) {
-                displayInfo.parentNode.removeChild(displayInfo);
-            }
-            if (ballPositionDisplay && ballPositionDisplay.parentNode) {
-                ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
-            }
-            
-            render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
-            
-            // Forcer le garbage collector
-            scene = null;
-            ball = null;
-            boatGroup1 = null;
-            boatGroup2 = null;
-            renderer = null;
-            cameraPlayer = null;
-            
-            socket.disconnect();
-            console.log('socket disconnected ', socket);
-
-            return;
-        }
         
-        // Rendre la scène
+        // Rendre la scène normale
         renderer.render(scene, cameraPlayer);
 
         // Rendre la scène HUD
@@ -244,6 +250,40 @@ async function initGame(gameData, socketID) {
     // Créer les équipes
     const team1 = new Team(gameData.team1.Name, gameData.team1.MaxNbPlayer, gameData.team1.TeamId);
     const team2 = new Team(gameData.team2.Name, gameData.team2.MaxNbPlayer, gameData.team2.TeamId);
+
+    console.log('team1 : ', team1);
+    console.log('team2 : ', team2);
+
+    console.log('gameData.team1.Boat : ', gameData.team1.Boat);
+    console.log('gameData.team2.Boat : ', gameData.team2.Boat);
+    console.log('gameData.team1.Cannon : ', gameData.team1.Cannon);
+    console.log('gameData.team2.Cannon : ', gameData.team2.Cannon);
+
+    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
+    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+
+    team1.setBoatSavedPos(gameData.team1.Boat);
+    team2.setBoatSavedPos(gameData.team2.Boat);
+    team1.setCannonSavedPos(gameData.team1.Cannon);
+    team2.setCannonSavedPos(gameData.team2.Cannon);
+
+    if (gameData.team1.Score)
+        team1.setScore(gameData.team1.Score);
+    if (gameData.team2.Score)
+        team2.setScore(gameData.team2.Score);
+    if (gameData.ball)
+    {
+        team1.setBallSavedPos(gameData.ball);
+        team2.setBallSavedPos(gameData.ball);
+    }
+
+
+    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
+    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     let currentPlayer = null;
     let currentPlayerTeam = null;
