@@ -86,7 +86,10 @@ const lobbyTwoPlayerDisplayVAR =
                 <div>
                     <button id="crossButton"><img src="/photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
                 </div>
-            <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
+                <div class="lobbyCode">
+                    <p class="lobbyCodeText">LOBBY: </p>
+                    <p id="lobbyCode" class="lobbyCodeText"></p>
+                </div>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerOne">

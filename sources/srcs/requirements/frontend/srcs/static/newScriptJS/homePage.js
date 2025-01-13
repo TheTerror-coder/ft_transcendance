@@ -1,10 +1,4 @@
 
-function refreshHomePage()
-{
-    replace_location(URLs.VIEWS.HOME);
-}
-
-
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;

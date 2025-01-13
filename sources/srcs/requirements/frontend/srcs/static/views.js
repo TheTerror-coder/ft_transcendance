@@ -31,7 +31,6 @@ async function UserProfileView(username, description, data)
 	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
-	// afficher 0 sir prime == null
 	if (response.user_info.prime === null)
 		ELEMENTs.prime().innerHTML = "0";
 	else
@@ -50,27 +49,22 @@ async function	homeView(title, description, data)
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
-
-	// ELEMENTs.flag().className = "homepageFlag";
-	// ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
-	// ELEMENTs.englandFlag().style.marginRight = "-0.01px";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	ELEMENTs.wantedProfile().onclick = () => {
-		replace_location(URLs.VIEWS.PROFILE);
+	ELEMENTs.wantedProfile().onclick = async () => {
+		await replace_location(URLs.VIEWS.PROFILE);
 	};
 	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
-	console.log('homeView: ');
 }
 
 async function	loginView(title, description, data) {
 	if (await isUserAuthenticated({})) {
-		replace_location(URLs.VIEWS.HOME);
+		await replace_location(URLs.VIEWS.HOME);
 	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
@@ -130,7 +124,7 @@ async function	createLobbyView(title, description, data)
 			ELEMENTs.luffyChibi().style.opacity = 1;
 		}
 	});
-	ELEMENTs.cross().onclick = () => refreshHomePage();
+	// ELEMENTs.cross().onclick = () => await replace_location(URLs.VIEWS.HOME);
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 

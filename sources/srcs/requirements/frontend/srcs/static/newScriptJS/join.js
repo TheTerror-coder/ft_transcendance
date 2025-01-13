@@ -18,13 +18,11 @@ async function joinLobbyGame(gameCode, teamID, role) // surement possible de fai
     {
         console.log("error: ", error);
         error = null;
-        replace_location(URLs.VIEWS.HOME);
+        await replace_location(URLs.VIEWS.HOME);
         return ;
     }
-    document.getElementById("lobbyCode").innerHTML = gameCode;
+    savedGameCode.code = gameCode;
 
-    // meme delire que le 1vs1 si possible d'avoir la meme page
-    // sinon go get le display du lobby 2vs2 et mettre les gens en fonction du joueur
 }
 
 function joinLocalGame()

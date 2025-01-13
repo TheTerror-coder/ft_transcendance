@@ -255,7 +255,7 @@ async function callWebSockets(params) {
 }
 
 
-function handleFriendInvitation(socket, event) {
+async function handleFriendInvitation(socket, event) {
     console.log("Received invitation:");
     var data = JSON.parse(event.data);
     
@@ -268,7 +268,7 @@ function handleFriendInvitation(socket, event) {
             friend_request_id: data.friend_request_id
         }));
 		// actualiser la page ici si nécessaire
-		assign_location(URLs.VIEWS.PROFILE);
+		await assign_location(URLs.VIEWS.PROFILE);
     }
 }
 

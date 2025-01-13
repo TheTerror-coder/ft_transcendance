@@ -17,14 +17,12 @@ async function connect()
 			await mfaAuthMiddlewareJob();
 		}
 		else {
-			replace_location(URLs.VIEWS.LOGIN_VIEW);
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 		}
 	}
 // jm custom end //
-if (response.status === "success") {
-	alert('connecting...');
+if (response.status === "success")
 		await mfaAuthMiddlewareJob();
-    }
     else if (response.status === 'error')
     {
         if (typeof response.errors === 'object') {
