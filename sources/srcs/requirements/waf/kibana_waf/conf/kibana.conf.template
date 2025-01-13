@@ -1,9 +1,9 @@
 # Nginx configuration for both HTTP and SSL
-# Nginx configuration for reverse-proxying vault server
+# Nginx configuration for reverse-proxying kibana server
 
 server_tokens off;
 
-log_format vaultlog '$realip_remote_addr - $remote_user [$time_local] "$request" '
+log_format kibanalog '$realip_remote_addr - $remote_user [$time_local] "$request" '
 			'$status $body_bytes_sent "$http_referer" '
 			'"$http_user_agent" "$http_x_forwarded_for"';
 
@@ -12,24 +12,25 @@ map $http_upgrade $connection_upgrade {
 	'' close;
 }
 
-upstream vaultmediator {
-	server		$VAULT_CONTAINER:$VAULT_API_PORT;
+upstream kibanamediator {
+	# server		vault_c:8200;
+	server		$KIBANA_CONTAINER:$KIBANA_PORT;
 }
 
 server {
-	listen $VAULTWAF_HTTP_PORT;
+	listen $KIBANAWAF_HTTP_PORT;
 
 	server_name localhost $HOST_IP;
-	set $upstream https://vaultmediator;
+	set $upstream https://kibanamediator;
 	set $always_redirect on;
 
-	access_log /var/log/nginx/vault.access.log vaultlog;
+	access_log /var/log/nginx/kibana.access.log kibanalog;
 	
 	location / {
 		client_max_body_size 0; # 0 disables the client request body size checking
 
 		if ($always_redirect = on) {
-			return 301 https://$host:$VAULTWAF_HTTPS_PORT$request_uri;
+			return 301 https://$host:$KIBANAWAF_HTTPS_PORT$request_uri;
 		}
 	}
 
@@ -38,14 +39,14 @@ server {
 }
 
 server {
-	listen $VAULTWAF_HTTPS_PORT ssl;
-	listen [::]:$VAULTWAF_HTTPS_PORT ssl;
+	listen $KIBANAWAF_HTTPS_PORT ssl;
+	listen [::]:$KIBANAWAF_HTTPS_PORT ssl;
 
 	server_name localhost $HOST_IP;
-	set $upstream https://vaultmediator;
+	set $upstream https://kibanamediator;
 
 	access_log /dev/stdout;
-	access_log /var/log/nginx/vault.access.log vaultlog;
+	access_log /var/log/nginx/kibana.access.log kibanalog;
 
 	ssl_certificate /usr/share/nginx/volumes/nginx/certs/nginx.crt;
 	ssl_certificate_key /usr/share/nginx/volumes/nginx/certs/nginx.key;
@@ -84,7 +85,7 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/vault/certs/ca/ca.crt;
+		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/kibana/certs/ca/ca.crt;
 		proxy_ssl_verify	on;
 		proxy_ssl_verify_depth	1;
 

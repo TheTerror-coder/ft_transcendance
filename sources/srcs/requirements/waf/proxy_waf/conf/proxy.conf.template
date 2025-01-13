@@ -13,15 +13,15 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream frontendmediator {
-	server		frontend:$FRONTEND_HTTPS_PORT;
+	server		$FRONTEND_CONTAINER:$FRONTEND_HTTPS_PORT;
 }
 
 upstream backendmediator {
-	server		backend:$BACKEND_PORT;
+	server		$BACKEND_CONTAINER:$BACKEND_PORT;
 }
 
 upstream gameservermediator {
-	server		gameserver:$GAMESERVER_PORT;
+	server		$GAMESERVER_CONTAINER:$GAMESERVER_PORT;
 }
 
 server {

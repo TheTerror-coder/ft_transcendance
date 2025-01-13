@@ -192,10 +192,79 @@ services:
       interval: 10s
       timeout: 5s
       retries: 1
+
+  kibana_waf:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: ${KIBANAWAF_IMAGE}
+    container_name: ${KIBANAWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./kibana_waf/conf/kibana.conf.template
+    environment:
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - KIBANAWAF_HTTP_PORT=${KIBANAWAF_HTTP_PORT}
+      - KIBANAWAF_HTTPS_PORT=${KIBANAWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - KIBANA_PORT=${KIBANA_PORT}
+      - KIBANA_CONTAINER=${KIBANA_CONTAINER}
+      - HOST_IP=${HOST_IP}
+      - CONTAINER_HTTP_PORT=${KIBANAWAF_HTTP_PORT}
+      - CONTAINER_HTTPS_PORT=${KIBANAWAF_HTTPS_PORT}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+    ports:
+      - ${KIBANAWAF_HTTP_PORT}:${KIBANAWAF_HTTP_PORT}
+      - ${KIBANAWAF_HTTPS_PORT}:${KIBANAWAF_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${KIBANAWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
   elkready:
     depends_on:
       logstash:
         condition: service_healthy
+        restart: true
+      kibana_waf:
+        condition: service_healthy
+        restart: true
     image: alpine
     container_name: elkready_c
     command: echo "elk stack is ready"

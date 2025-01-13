@@ -467,6 +467,9 @@ services:
       - BACKEND_PORT=${BACKEND_PORT}
       - GAMESERVER_PORT=${GAMESERVER_PORT}
       - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
+      - BACKEND_CONTAINER=${BACKEND_CONTAINER}
+      - FRONTEND_CONTAINER=${FRONTEND_CONTAINER}
+      - GAMESERVER_CONTAINER=${GAMESERVER_CONTAINER}
     volumes:
       # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - staticfiles:${NGINX_STATICFILES_DIR}
@@ -528,6 +531,7 @@ services:
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
       - VAULT_API_PORT=${VAULT_API_PORT}
+      - VAULT_CONTAINER=${VAULT_CONTAINER}
       - HOST_IP=${HOST_IP}
       - CONTAINER_HTTP_PORT=${VAULTWAF_HTTP_PORT}
       - CONTAINER_HTTPS_PORT=${VAULTWAF_HTTPS_PORT}
