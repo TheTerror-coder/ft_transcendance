@@ -24,6 +24,7 @@ from allauth.account.internal.flows.login import record_authentication
 from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
+from .GameSerializer import GameSerializer
 
 
 GLOBAL_TOURNAMENT = {
@@ -269,6 +270,7 @@ def get_language(request):
 		}, status=400)
 
 
+
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
@@ -281,6 +283,8 @@ def get_user_profile(request):
 		}, status=400)
 	try:
 		to_user = User.objects.get(username=username)
+		recent_games = to_user.recent_games()
+		serialized_games = GameSerializer(recent_games, many=True).data
 		user_info = {
 			'username': to_user.username,
 			'email': to_user.email,
@@ -288,7 +292,7 @@ def get_user_profile(request):
 			'last_name': to_user.last_name,
 			'is_active': to_user.is_active,
 			'date_joined': to_user.date_joined,
-			'game played': to_user.recent_games(),
+			'game played': serialized_games,
 			'victorie': to_user.victories,
 			'loose': to_user.loose,
 			'prime': to_user.prime,

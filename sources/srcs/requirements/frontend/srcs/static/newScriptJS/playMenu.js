@@ -17,6 +17,7 @@ function playDisplayHomepage()
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
+    ELEMENTs.tournamentButton().onclick = () => assign_location(URLs.VIEWS.TOURNAMENT);
 }
 
 
@@ -63,7 +64,6 @@ async function joinLobbyPlay()
         setTimeout(() => {
             if (error === null)
             {
-                console.log("nbPerTeam gang ? = ", nbPerTeam);
                 if (nbPerTeam == 2)
                     joinTwoPlayersDisplay(gameCode);
                 else
@@ -88,8 +88,6 @@ function readyLocalPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
     refreshLanguage();
-
-    // rejoindre le gang
 }
 
 
@@ -97,7 +95,7 @@ function joinTwoPlayersDisplay(gameCode)
 {
     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
 
-    setTimeout(() => {
+    // setTimeout(() => {
         const joinButton = document.getElementById("joinButton");
         const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
         returnButtonPlayMenu.onclick = () => navigationPlayMenu();
@@ -105,7 +103,7 @@ function joinTwoPlayersDisplay(gameCode)
         ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
         joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
         refreshLanguage();
-    }, 40);
+    // }, 40);
 }
 
 function initializeLobbyTwoVsTwo(gameCode)
@@ -127,10 +125,9 @@ async function createLobbyPlay()
     ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
 }
 
-function navigationPlayMenu()
+async function navigationPlayMenu()
 {
     let nav = 0;
-    console.log("ELEMENTs.firstElement() = ", ELEMENTs.firstElement());
     if (ELEMENTs.firstElement() === null && ELEMENTs.secondElement() === null && ELEMENTs.thirdElement() === null)
     {
         nav = 2;
@@ -143,17 +140,12 @@ function navigationPlayMenu()
     else if (ELEMENTs.thirdElement().style.display === "block")
         nav = 1;
 
-    refreshHomePage();
-    setTimeout(() => {
-        if (nav == 1)
-            ELEMENTs.playButtonImg().click();
-        if (nav == 2)
-        {
-            ELEMENTs.playButtonImg().click();
-            setTimeout(() => {
-                ELEMENTs.rapidPlayButton().click();
-            }, 40);
-        }
-    }, 70);
-
+    await replace_location(URLs.VIEWS.HOME);
+    if (nav == 1)
+        ELEMENTs.playButtonImg().click();
+    if (nav == 2)
+    {
+        ELEMENTs.playButtonImg().click();
+        ELEMENTs.rapidPlayButton().click();
+    }
 }

@@ -1,11 +1,4 @@
 
-function refreshHomePage()
-{
-    window.history.pushState({}, "", URLs.VIEWS.HOME);
-    handleLocation();
-}
-
-
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;

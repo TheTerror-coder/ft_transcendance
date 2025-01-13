@@ -45,7 +45,7 @@ export async function main(gameCode, socket, currentLanguage) {
         });
     });
     
-    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2);
+    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
     let hud = await createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
@@ -268,6 +268,17 @@ async function initGame(gameData, socketID) {
     team2.setBoatSavedPos(gameData.team2.Boat);
     team1.setCannonSavedPos(gameData.team1.Cannon);
     team2.setCannonSavedPos(gameData.team2.Cannon);
+
+    if (gameData.team1.Score)
+        team1.setScore(gameData.team1.Score);
+    if (gameData.team2.Score)
+        team2.setScore(gameData.team2.Score);
+    if (gameData.ball)
+    {
+        team1.setBallSavedPos(gameData.ball);
+        team2.setBallSavedPos(gameData.ball);
+    }
+
 
     console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
     console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());

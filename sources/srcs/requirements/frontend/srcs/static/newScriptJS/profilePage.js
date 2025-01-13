@@ -356,7 +356,8 @@ document.addEventListener('click', (event) =>
         return ;
     if (ELEMENTs.fileButton() !== null)
         {
-            if (event.target === ELEMENTs.fileButton()){
+            if (event.target === ELEMENTs.fileButton())
+            {
             console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
@@ -379,11 +380,8 @@ async function changePicture(picture) {
     const data = new FormData();
     data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
-    if (response.status === 'success') {
-        alert('Profile photo updated');
-        console.log("response.photo: ", response.photo);
-        replace_location(PATHs.VIEWS.PROFILE);
-    }
+    if (response.status === 'success') 
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -456,10 +454,8 @@ async function changeUsername(newUsername) {
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
-    if (response.status === 'success') {
-        alert('Username updated');
-        replace_location(PATHs.VIEWS.PROFILE);
-    }
+    if (response.status === 'success')
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -483,11 +479,11 @@ async function changeUsername(newUsername) {
 
 
 
-ELEMENTs.bookProfile().addEventListener('mouseleave', function() 
-{
-    console.log("je suis dans le mouseleave");
-    if (document.getElementById("dropdownMenu"))
-        document.getElementById("dropdownMenu").innerHTML = '';
-    if (document.getElementById("waitingFriendDropdownMenu"))
-        document.getElementById('waitingFriendDropdownMenu').innerHTML = '';
-});
+// ELEMENTs.bookProfile().addEventListener('mouseleave', function() 
+// {
+//     console.log("je suis dans le mouseleave");
+//     if (document.getElementById("dropdownMenu"))
+//         document.getElementById("dropdownMenu").innerHTML = '';
+//     if (document.getElementById("waitingFriendDropdownMenu"))
+//         document.getElementById('waitingFriendDropdownMenu').innerHTML = '';
+// });

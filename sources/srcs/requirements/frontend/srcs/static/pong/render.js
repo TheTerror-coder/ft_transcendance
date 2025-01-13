@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
-export async function initScene(Team1, Team2) {
+export async function initScene(Team1, Team2, currentTeam) {
     const scene = new THREE.Scene();
     const cameraPlayer = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
@@ -20,7 +20,7 @@ export async function initScene(Team1, Team2) {
     
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
-    let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2);
+    let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2, currentTeam);
     loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
     let display = [ocean, ambientLight, directionalLight1, directionalLight2];
     return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display };
@@ -150,7 +150,7 @@ export function unloadScene(ball, scene, bateau1, bateau2, display, renderer) {
     }
 }
 
-async function initObject(scene, Team1, Team2)
+async function initObject(scene, Team1, Team2, currentTeam)
 {
     const GLTFloader = new GLTFLoader();
     let bateau = await initBateaux(scene, GLTFloader);
@@ -162,18 +162,22 @@ async function initObject(scene, Team1, Team2)
     console.log('boatGroup1 : ', boatGroup1);
     console.log('boatGroup2 : ', boatGroup2);
     let ocean = await initOceans(scene, new THREE.TextureLoader());
-    let ball = await initBall();
+    let ball = await initBall(currentTeam.getBallSavedPos());
 
     return {boatGroup1, boatGroup2, ocean, ball};
 }
 
-function initBall() {
+function initBall(ballSavedPos) {
     return new Promise((resolve, reject) => {
         try {
             const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
             const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             console.log('Ball initialized successfully');
+            if (ballSavedPos.x != 0 && ballSavedPos.y != 0 && ballSavedPos.z != 0)
+                ball.position.set(ballSavedPos.x, ballSavedPos.y, ballSavedPos.z);
+            else
+                ball.position.set(0, 0, 0);
             resolve(ball);
         } catch (error) {
             console.error('Error initializing ball:', error);
