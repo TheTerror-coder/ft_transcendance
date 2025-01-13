@@ -118,10 +118,6 @@ class Game:
         if adjusted_hitbox == -1:
             return 0
         
-        # Ajouter des logs pour débugger les positions
-        # logger.info(f"Ball position: {self.ballPosition}")
-        # logger.info(f"Adjusted hitbox: {adjusted_hitbox}")
-        
         # Vérifier d'abord si on est dans la zone Z
         margin = 2.0
         isInZRange = (adjusted_hitbox['min']['z'] - margin) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin)
@@ -278,18 +274,9 @@ class Game:
                 length = 1.0
             self.ballDirection["x"] /= length
             self.ballDirection["y"] /= length
-
-        # if collision <= 0:
-        #     pass
-        # elif collision == 1:
-        #     self.ballDirection["y"] = -self.ballDirection["y"]
-        # elif collision == 2:
-        #     self.ballDirection["x"] = -self.ballDirection["x"]
-        #     self.ballDirection["y"] = -self.ballDirection["y"]
             
         # Points marqués
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
-            # self.gameStarted = False
             self.resetBall()
             self.teams[1].addPoint()
             await sio.emit('scoreUpdate', {
@@ -297,10 +284,8 @@ class Game:
                 'team2': self.teams[2].getScore()
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
-            # self.gameStarted = True
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
         elif self.ballPosition["y"] >= self.FIELD_HEIGHT / 2:
-            # self.gameStarted = False
             self.resetBall()
             self.teams[2].addPoint()
             await sio.emit('scoreUpdate', {
@@ -308,7 +293,6 @@ class Game:
                 'team2': self.teams[2].getScore()
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
-            # self.gameStarted = True
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
             
     def resetBall(self):
@@ -376,6 +360,27 @@ class Game:
                 logger.info(f"Boat not found for team {teamId}")
         else:
             logger.info(f"Team {teamId} not found")
+
+    def findPlayerById(self, playerId):
+        for team in self.teams.values():
+            for player in team.player.values():
+                if player.id == playerId:
+                    return player
+        return None
+
+    def findPlayerByName(self, playerName):
+        for team in self.teams.values():
+            for player in team.player.values():
+                if player.name == playerName:
+                    return player
+        return None
+    
+    def findTeamByPlayerName(self, playerName):
+        for team in self.teams.values():
+            for player in team.player.values():
+                if player.name == playerName:
+                    return team
+        return None
 
     async def updateCannonPosition(self, teamId, x):
         team = self.getTeam(teamId)
@@ -582,26 +587,25 @@ class Game:
             await self.sendGameInfo(sio, gameCode)
 
     def createEndGamePayload(self):
-        # Récupérer le seul joueur de chaque équipe
-        team1_player = next(iter(self.getTeam(1).player.values()))
-        team2_player = next(iter(self.getTeam(2).player.values()))
-        
-        payload = {
-            'team': {
-                1: {
-                    'teamId': 1,
-                    'player': team1_player.name,
-                    'score': self.getTeam(1).getScore(),
-                },
-                2: {
-                    'teamId': 2,
-                    'player': team2_player.name,
-                    'score': self.getTeam(2).getScore(),
-                }
-            },
-            'winner': 1 if self.getTeam(1).getScore() > self.getTeam(2).getScore() else 2
-        }
-        return payload
+            team1_player = next(iter(self.getTeam(1).player.values()))
+            team2_player = next(iter(self.getTeam(2).player.values()))
+
+            team1_score = self.getTeam(1).getScore()
+            team2_score = self.getTeam(2).getScore()
+
+            if team1_score > team2_score:
+                winner = team1_player.name
+            else:
+                winner = team2_player.name
+
+            payload = {
+                'player': team1_player.name,
+                'opponent': team2_player.name,
+                'player_score': team1_score,
+                'opponent_score': team2_score,
+                'winner': winner
+            }
+            return payload
     
     async def sendGameInfo(self, sio, gameCode):
         if (self.nbPlayerPerTeam == 2):

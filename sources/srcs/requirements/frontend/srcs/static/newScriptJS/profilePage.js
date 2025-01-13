@@ -39,7 +39,6 @@ async function getHistoric(game, user)
         result.dataset.translate = "NoGamePlayed";
         match.appendChild(result);
         ELEMENTs.historicMatch().appendChild(match);
-        return ;
     }
     else
     {
@@ -56,6 +55,7 @@ async function getHistoric(game, user)
 
             console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
+            console.log("YOOOOOO gang game[i].player yeah: ", game[i].player);
             if (user === game[i].player)
             {
                 username.textContent = game[i].player;
@@ -74,6 +74,7 @@ async function getHistoric(game, user)
             match.appendChild(resultUser);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
+            ELEMENTs.historicMatch().appendChild(match);
         }
         //else game 2 v 2
     }
