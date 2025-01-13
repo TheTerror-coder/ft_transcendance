@@ -401,18 +401,7 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
     
     // Créer la hitbox pour les collisions
     const boundingBox = new THREE.Box3().setFromObject(bateau);
-    // boatGroup.userData.hitbox = {
-    //     min: {
-    //         x: boundingBox.min.x + 7,
-    //         y: boundingBox.min.y + (teamId === 1 ? 2 : 0),
-    //         z: boundingBox.min.z
-    //     },
-    //     max: {
-    //         x: boundingBox.max.x,
-    //         y: boundingBox.max.y - (teamId === 2 ? 2 : 0),
-    //         z: boundingBox.max.z / 3
-    //     }
-    // };
+    // const boundingBox = new THREE.Box3().setFromObject(boatGroup);
 
     boatGroup.userData.hitbox = {
         min: {
