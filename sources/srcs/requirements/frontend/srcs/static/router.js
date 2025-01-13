@@ -85,10 +85,6 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		refreshHomePage();
 	}
-	// else if (target.id === ELEMENTs.playButtonImg()?.id){
-	// 	event.preventDefault();
-	// 	playDisplayHomepage();
-	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
