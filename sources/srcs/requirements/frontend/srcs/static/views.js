@@ -32,7 +32,7 @@ async function UserProfileView(username, description, data)
 	// console.log("photo :  ", response.user_info.photo);
 	// console.log("prime :  ", response.user_info.prime);
 	const photoUrl = response.user_info.photo;
-	const imgElement = ELEMENTs.photoUser ();
+	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
 	ELEMENTs.prime().innerHTML = response.user_info.prime;
