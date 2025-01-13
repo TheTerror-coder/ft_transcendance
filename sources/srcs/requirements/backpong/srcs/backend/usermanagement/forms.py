@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from .models import CustomUser
+from .models import CustomUser, Game
 from django.contrib.auth import authenticate
+import sys
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -59,3 +60,5 @@ class UpdateUsernameForm(forms.ModelForm):
         if CustomUser.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         return username
+
+
