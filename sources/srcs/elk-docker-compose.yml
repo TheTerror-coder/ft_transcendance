@@ -21,10 +21,6 @@ services:
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-    # secrets:
-    #   - es_passwd_file
-    #   - kibana_passwd_file
-    #   - logstash_es_user_passwd_file
     networks:
       - ${NETWORK_NAME}
     healthcheck:
@@ -62,10 +58,6 @@ services:
       - certs:/usr/share/elasticsearch/config/certs
       - eslogs:/usr/share/elasticsearch/logs/
       - esdata:/usr/share/elasticsearch/data
-    # secrets:
-    #   - es_passwd_file
-    #   - es_keystore_passwd_file
-    #   - kibana_passwd_file
     networks:
       - ${NETWORK_NAME}
     ports:
@@ -116,9 +108,6 @@ services:
       - certs:/usr/share/kibana/config/certs/
       - kibanadata:/usr/share/kibana/data/
       - kibanalogs:/usr/share/kibana/logs/
-    # secrets:
-    #   - kibana_passwd_file
-    #   - random_encrypt_key_file
     networks:
       - ${NETWORK_NAME}
     ports:
@@ -173,11 +162,6 @@ services:
       - API_SSL_KEYSTORE_PATH=${API_SSL_KEYSTORE_PATH}
       - LS_JAVA_OPTS=-Xms768m -Xmx768m -Dlog4j2.formatMsgNoLookups=true
       - xpack.monitoring.elasticsearch.hosts=${ELASTICSEARCH_HOSTXPORT}
-    # secrets:
-    #   - es_passwd_file
-    #   - logstash_keystore_pass_file
-    #   - ssl_keystore_pass_file
-    #   - logstash_es_user_passwd_file
     networks:
       - ${NETWORK_NAME}
     expose:
@@ -269,10 +253,6 @@ services:
     container_name: elkready_c
     command: echo "elk stack is ready"
 
-# networks:
-#   transcendance:
-#     driver: bridge
-
 volumes:
   certs:
     driver: local
@@ -288,19 +268,3 @@ volumes:
     driver: local
   logstashlogs:
     driver: local
-
-# secrets:
-  # es_passwd_file:
-    # file: ${ELASTIC_PASSWORD_SOURCE}
-  # es_keystore_passwd_file:
-  #   file: ${ELASTIC_KEYSTORE_PASSWORD_SOURCE}
-  # kibana_passwd_file:
-  #   file: ${KIBANA_PASSWORD_SOURCE}
-  # logstash_keystore_pass_file:
-  #   file: ${LOGSTASH_KEYSTORE_PASS_SOURCE}
-  # ssl_keystore_pass_file:
-  #   file: ${SSL_KEYSTORE_PASS_SOURCE}
-  # logstash_es_user_passwd_file:
-  #   file: ${LOGSTASH_ES_USER_PASSWORD_SOURCE}
-  # random_encrypt_key_file:
-  #   file: ${RANDOM_ENCRYPT_KEY_SOURCE}

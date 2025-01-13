@@ -91,8 +91,6 @@ services:
       - vault_healthiness:${VAULT_HOME}/healthiness
     expose:
       - ${VAULT_API_PORT}
-    ports:
-      - ${VAULT_API_PORT}:${VAULT_API_PORT}
     networks:
       - transcendance
     healthcheck:
@@ -297,8 +295,6 @@ services:
       - ${BACKEND_PORT}
     networks:
       - ${NETWORK_NAME}
-    ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
     restart: on-failure
 
   gameserver:
@@ -360,8 +356,6 @@ services:
       - ${GAMESERVER_PORT}
     networks:
       - ${NETWORK_NAME}
-    ports:
-      - ${GAMESERVER_PORT}:${GAMESERVER_PORT}
     restart: on-failure
 
   frontend:
@@ -403,9 +397,6 @@ services:
       - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
       - mediafiles:${FRONTEND_HOME}/volumes/media
       - gameserver_staticfiles:${FRONTEND_HOME}/volumes/www/gameserver
-    ports:
-      - ${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}
-      - ${FRONTEND_HTTPS_PORT}:${FRONTEND_HTTPS_PORT}
     networks:
       - ${NETWORK_NAME}
     healthcheck:
