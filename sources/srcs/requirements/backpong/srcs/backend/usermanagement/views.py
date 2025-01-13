@@ -577,7 +577,7 @@ def calculate_score(user_username, opponent_username, player_won):
 
 	return max(player_score, 0), max(opponent_score, 0)
 
-# ajouter les loose en plus des win
+
 @api_view(['POST'])
 @login_required
 @csrf_protect
