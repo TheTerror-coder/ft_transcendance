@@ -118,16 +118,13 @@ function initializeLobbyTwoVsTwo(gameCode)
     joinLobbyGame(gameCode, teamID, role);
 }
 
-function createLobbyPlay()
+async function createLobbyPlay()
 {   
-    window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
-    handleLocation();
-    setTimeout(async() => {
-        refreshLanguage();
-        const socket = await initializeSocket();
-        initializeGlobalSocket(socket);
-        ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
-    }, 70);
+    await assign_location(URLs.VIEWS.CREATE_LOBBY); 
+    refreshLanguage();
+    const socket = await initializeSocket();
+    initializeGlobalSocket(socket);
+    ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
 }
 
 function navigationPlayMenu()

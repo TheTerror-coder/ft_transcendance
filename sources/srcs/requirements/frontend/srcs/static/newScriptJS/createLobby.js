@@ -12,6 +12,7 @@ let error = null;
 
 function initializeGlobalSocket(socket)
 {
+    console.log("initializeGlobalSocket");
     globalSocket = socket;
     console.log("GLOBAL SOCKET: ", globalSocket);
     globalSocket.on('gameCreated', (data) => {
@@ -28,25 +29,19 @@ function initializeGlobalSocket(socket)
         gameFound = true;
         console.log("gameFound: ", gameFound);
     });
-    globalSocket.on('AvailableOptions', (data) => {
+    globalSocket.on('AvailableOptions', AvailableOptionsEvent);
+    
+    globalSocket.on('updatePlayerLists', UpdatePlayerListEvent);
 
-        console.log("Reception des options disponibles :", data);
-        console.log("AvailableOptions: data: ",data);
-    });
-    globalSocket.on('updatePlayerLists', (data) => {
-        dataDav = data;
-        console.log("Reception des listes des joueurs :", data);
-        updateLobby(data);
-    });
-    globalSocket.on('startGame', async (data) => {
-        const module = await import ('../pong/pong.js');
-        // main(socket, gameCode); // Lancer le jeu
-        document.getElementById('background').innerHTML = "";
-        await module.main(savedGameCode, globalSocket);
-        console.log("globalSocket dans startGame: ", globalSocket);
-    });
-    globalSocket.on('TeamsFull', () => {
-        ELEMENTs.PlayButtonInLobby().style.display = "block";
+    globalSocket.on('startGame', StartGameEvent);
+
+    globalSocket.on('TeamsFull', TeamsFullEvent);
+
+    globalSocket.on('gameUnpaused', async () => {
+        console.log("gameUnpaused");
+        // const module = await import ('../pong/pong.js');
+        // document.getElementById('background').innerHTML = "";
+        // await module.main(savedGameCode, globalSocket, currentLanguage);
     });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
@@ -55,14 +50,34 @@ function initializeGlobalSocket(socket)
     });
 }
 
-// function initializeGameEvent()
-// {
-//     globalSocket.on('gameCreated', (data) => {
-//         console.log('Partie créée avec le code:', data.gameCode);
-//         savedGameCode = data.gameCode; // Sauvegarder le code de la partie
-//         console.log("savedGameCode: ", savedGameCode);
-//     });
-// }
+const AvailableOptionsEvent = (data) => {
+    console.log("Reception des options disponibles :", data);
+    // globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+}
+
+const UpdatePlayerListEvent = (data) => {
+    dataDav = data;
+    console.log("Reception des listes des joueurs :", data);
+    updateLobby(data);
+    // globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+}
+
+const TeamsFullEvent = () => {
+    ELEMENTs.PlayButtonInLobby().style.display = "block";
+    // globalSocket.off('TeamsFull', TeamsFullEvent);
+}
+
+const StartGameEvent = async (data) => {
+    const module = await import ('../pong/pong.js');
+    document.getElementById('background').innerHTML = "";
+    console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+    await module.main(savedGameCode, globalSocket, currentLanguage);
+    console.log("globalSocket dans startGame: ", globalSocket);
+    globalSocket.off('startGame', StartGameEvent);
+    globalSocket.off('TeamsFull', TeamsFullEvent);
+    globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+    globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+}
 
 async function createLobbyDisplay()
 {

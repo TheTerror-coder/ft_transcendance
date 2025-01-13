@@ -53,7 +53,7 @@ function createScoreText() {
     context.textBaseline = 'middle';
     
     // Écrire le texte
-    context.fillText('Score team 1: 0 - Score team 2: 0', canvas.width / 2, canvas.height / 2);
+    context.fillText('0 - 0', canvas.width / 2, canvas.height / 2);
     
     // Créer une texture à partir du canvas
     const texture = new THREE.CanvasTexture(canvas);
@@ -99,47 +99,65 @@ function createScoreText() {
     };
 }
 
-function createEndGameText() {
-    // Créer un canvas temporaire pour le texte
+async function createEndGameText() {
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    canvas.width = 1024;
-    canvas.height = 1024;
+    canvas.width = 2048;  // Augmenter la taille du canvas
+    canvas.height = 2048;
     
     // Configurer le style du texte
-    context.font = 'Bold 60px Arial';
+    context.font = 'Bold 120px Arial';  // Augmenter la taille de la police
     context.fillStyle = 'white';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     
-    // Créer une texture à partir du canvas
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true
     });
     
-    const geometry = new THREE.PlaneGeometry(10, 10);
+    const geometry = new THREE.PlaneGeometry(20, 20);  // Augmenter la taille du plan
     const textMesh = new THREE.Mesh(geometry, material);
     
-    async function updateEndGameText(isWinner) {
+    async function updateEndGameText(isWinner, currentLanguage) {
         const canvas = textMesh.material.map.image;
         const context = canvas.getContext('2d');
         
         context.clearRect(0, 0, canvas.width, canvas.height);
-        
+        let winText = "VICTORY !";
+        let loseText = "DEFEAT...";
+        console.log("currentLanguage: ", currentLanguage);
+
+        if (currentLanguage === 'en')
+        {
+            winText = "VICTORY !";
+            loseText = "DEFEAT...";
+        }
+        else if (currentLanguage === 'fr')
+        {
+            winText = "VICTOIRE !";
+            loseText = "DÉFAITE...";
+        }
+        else if (currentLanguage === 'es')
+        {
+            winText = "VICTORIA !";
+            loseText = "DERROTA...";
+        }
+
         if (isWinner)
-            await context.fillText('VICTOIRE !', canvas.width/2, canvas.height/2);
+            await context.fillText(winText, canvas.width/2, canvas.height/2);
         else
-            await context.fillText('DÉFAITE...', canvas.width/2, canvas.height/2);
+            await context.fillText(loseText, canvas.width/2, canvas.height/2);
         
         textMesh.material.map.needsUpdate = true;
     }
 
-    // Positionner le texte au centre
-    textMesh.position.set(0, 0, 0);
-    textMesh.scale.set(100, 100, 100);
+    // Positionner le texte au centre et plus proche de la caméra
+    textMesh.position.set(0, 0, -10);
+    textMesh.scale.set(200, 200, 200);
     
     return {
         textMesh: textMesh,
@@ -190,7 +208,7 @@ function createHealthBar(sx, sy, sz, x, y, z) {
     };
 }
 
-export function createHUD(renderer) {
+export async function createHUD(renderer) {
     // Créer une scène et une caméra orthographique pour le HUD
     const hudScene = new THREE.Scene();
     const hudCamera = new THREE.OrthographicCamera(
@@ -221,7 +239,7 @@ export function createHUD(renderer) {
     hudScene.add(healthBar2.group);
 
     // Créer le texte de fin de partie
-    const endGameText = createEndGameText();
+    const endGameText = await createEndGameText();
 
     // Fonction pour redimensionner le HUD
     function onWindowResize() {
@@ -275,9 +293,9 @@ export function createHUD(renderer) {
         scoreText: scoreText,
         updateHUDText: scoreText.updateHUDText,
         endGameText: endGameText,
-        showEndGameText: (isWinner) => {
+        showEndGameText: (isWinner, currentLanguage) => {
             hudScene.add(endGameText.textMesh);
-            endGameText.updateEndGameText(isWinner);
+            endGameText.updateEndGameText(isWinner, currentLanguage);
         },
         healthBar: healthBar,
         healthBar2 : healthBar2,

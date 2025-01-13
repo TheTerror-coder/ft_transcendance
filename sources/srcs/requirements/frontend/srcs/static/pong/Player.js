@@ -11,6 +11,17 @@ class Player
         this.TeamID = TeamID;
         this.gameStarted = false;
         this.cameraPlayer = null;
+        this.isPaused = false;
+    }
+
+    setIsPaused(isPaused)
+    {
+        this.isPaused = isPaused;
+    }
+
+    getIsPaused()
+    {
+        return (this.isPaused);
     }
 
     setCameraPlayer(cameraPlayer)

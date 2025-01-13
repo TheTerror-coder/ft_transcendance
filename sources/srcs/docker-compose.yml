@@ -340,6 +340,7 @@ services:
       - HOST_IP=${HOST_IP}
       - GAMESERVER_PORT=${GAMESERVER_PORT}
       - VAULT_API_PORT=${VAULT_API_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
     volumes:
       # - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
       - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs

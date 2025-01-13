@@ -11,9 +11,31 @@ class Team
         this.player = new Map();
         this.boat = null;
         this.cannon = null;
+        this.boatSavedPos = {x: 0, y: 0, z: 0};
+        this.cannonSavedPos = {x: 0, y: 0, z: 0};
         this.isFull = false;
         this.score = 0;
         this.gameStarted = false;
+    }
+
+    setBoatSavedPos(boatSavedPos)
+    {
+        this.boatSavedPos = boatSavedPos;
+    }
+
+    getBoatSavedPos()
+    {
+        return (this.boatSavedPos);
+    }
+
+    setCannonSavedPos(cannonSavedPos)
+    {
+        this.cannonSavedPos = cannonSavedPos;
+    }
+
+    getCannonSavedPos()
+    {
+        return (this.cannonSavedPos);
     }
 
     setGameStarted(gameStarted)

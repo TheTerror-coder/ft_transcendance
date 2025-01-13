@@ -1,5 +1,9 @@
 import logging
 import sys
+import random
+import math
+import requests
+import os
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -19,16 +23,18 @@ class Game:
         self.teams = {}
         self.nbPlayerPerTeam = 0
         self.nbPlayerConnected = 0
+        self.playerReady = 0
         self.isPaused = False
         
         # Constantes pour la balle
-        self.BALL_SPEED = 0.8
+        self.BALL_SPEED = 1
         self.SPEED_INCREASE_FACTOR = 1.1
+        self.BALL_MAX_SPEED = 1.8
         self.BALL_UPDATE_INTERVAL = 50
-        self.FIELD_WIDTH = 160
-        self.FIELD_HEIGHT = 110
+        self.FIELD_WIDTH = 150
+        self.FIELD_HEIGHT = 105
 
-        self.WINNING_SCORE = 10
+        self.WINNING_SCORE = 1
 
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
@@ -37,34 +43,13 @@ class Game:
     def initializeBallPosition(self):
         return {"x": 0, "y": 0, "z": 2}
 
-    # def initializeBallDirection(self):
-    #     import random
-    #     import math
-    #     random_direction_x = 0
-    #     random_direction_y = 0
-    #     while random_direction_x == 0 and random_direction_y == 0:
-    #         random_direction_x = random.random() * 2 - 1
-    #         random_direction_y = random.random() * 2 - 1
-
-    #     length = math.sqrt(random_direction_x ** 2 + random_direction_y ** 2)
-    #     random_direction_x /= length
-    #     random_direction_y /= length
-
-    #     return {
-    #         "x": random_direction_x,
-    #         "y": random_direction_y,
-    #         "z": 2
-    #     }
-
     def initializeBallDirection(self):
-        import random
-        import math
         
         # Génération de x entre -1 et 1
         random_direction_x = random.random() * 2 - 1
         
-        # Génération de y entre 0.5 et 1 ou -1 et -0.5 pour assurer un mouvement vertical significatif
-        random_direction_y = random.random() * 0.5 + 0.5  # Entre 0.5 et 1
+        # Génération de y entre 0.4 et 0.8 pour un mouvement vertical plus modéré
+        random_direction_y = random.random() * 0.4 + 0.4  # Entre 0.4 et 0.8
         if random.random() < 0.5:  # 50% de chance d'aller vers le bas
             random_direction_y = -random_direction_y
 
@@ -79,14 +64,31 @@ class Game:
             "z": 2
         }
 
+        # return {
+        #     "x": 0,
+        #     "y": 1,
+        #     "z": 2
+        # }
+
     async def updateBallPosition(self):
         if self.gameStarted:
+            # Vérifier que la balle a une vitesse minimale
+            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
+            if length < 0.1:
+                # Normaliser avec une vitesse minimale
+                self.ballDirection["x"] *= 1.0 / length
+                self.ballDirection["y"] *= 1.0 / length
+                
             self.ballPosition["x"] += self.ballDirection["x"] * self.BALL_SPEED
             self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
+            
+            # Ajouter des logs pour le debugging
+            logger.info(f"Ball direction: {self.ballDirection}")
+            logger.info(f"Ball speed: {self.BALL_SPEED}")
+            
         return self.ballPosition
-
-    async def isColliding(self, team):
-        ballRadius = 0.5
+    
+    def getAdjustedHitbox(self, team):
         hitbox = team.getBoatHitbox()
         boatPos = team.getBoat()
         
@@ -109,19 +111,72 @@ class Game:
                 'z': hitbox['max']['z']
             }
         }
+        return adjusted_hitbox
+
+    async def isColliding(self, team):
+        adjusted_hitbox = self.getAdjustedHitbox(team)
+        if adjusted_hitbox == -1:
+            return 0
         
+        # Ajouter des logs pour débugger les positions
+        # logger.info(f"Ball position: {self.ballPosition}")
+        # logger.info(f"Adjusted hitbox: {adjusted_hitbox}")
+        
+        # Vérifier d'abord si on est dans la zone Z
+        margin = 2.0
+        isInZRange = (adjusted_hitbox['min']['z'] - margin) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin)
+        if not isInZRange:
+            # logger.info("Not in Z range")
+            return 0
+        
+        # Vérifier la zone Y
+        margin_y = 0.5  # Marge plus petite pour Y
+        isInYRange = (adjusted_hitbox['min']['y'] - margin_y) <= self.ballPosition['y'] <= (adjusted_hitbox['max']['y'] + margin_y)
+        if not isInYRange:
+            # logger.info("Not in Y range")
+            return 0
+
+        # Vérification des bords
+        margin_edges = 3.0  # Marge plus grande pour les bords
+        # Pour team 1 (bateau en bas)
+        if team.TeamId == 1:
+            isOnLeftSide = (abs(self.ballPosition['x'] - adjusted_hitbox['min']['x']) <= margin_edges and 
+                           self.ballPosition['y'] < adjusted_hitbox['max']['y'])
+            isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
+                            self.ballPosition['y'] < adjusted_hitbox['max']['y'])
+        # Pour team 2 (bateau en haut)
+        else:
+            isOnLeftSide = (abs(self.ballPosition['x'] - adjusted_hitbox['min']['x']) <= margin_edges and 
+                           self.ballPosition['y'] > adjusted_hitbox['min']['y'])
+            isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
+                            self.ballPosition['y'] > adjusted_hitbox['min']['y'])
+        
+        logger.info(f"ballPosition: {self.ballPosition}")
+        logger.info(f"team.TeamId: {team.TeamId}")
+        logger.info(f"hitbox: {adjusted_hitbox}")
+
+        logger.info(f"isInZRange: {isInZRange}")
+        logger.info(f"isInYRange: {isInYRange}")
+        logger.info(f"isOnLeftSide: {isOnLeftSide}")
+        logger.info(f"isOnRightSide: {isOnRightSide}")
+
+        if isOnLeftSide:
+            return 4
+        if isOnRightSide:
+            return 5
+
+        # Vérifier les collisions normales
         isInXRange = adjusted_hitbox['min']['x'] <= self.ballPosition['x'] <= adjusted_hitbox['max']['x']
-        isInYRange = adjusted_hitbox['min']['y'] <= self.ballPosition['y'] <= adjusted_hitbox['max']['y']
-        
-        if isInXRange and isInYRange:
-            # Vérifier si la balle touche les bords droit ou gauche du bateau ou les bords haut ou bas
-            isOnLeftSide = self.ballPosition['x'] <= adjusted_hitbox['min']['x']
-            isOnRightSide = self.ballPosition['x'] >= adjusted_hitbox['max']['x']
-            # isOnTopSide = self.ballPosition['y'] >= adjusted_hitbox['max']['y']
-            # isOnBottomSide = self.ballPosition['y'] <= adjusted_hitbox['min']['y']
-            if isOnRightSide or isOnLeftSide:
+        if isInXRange:
+            leftThird = adjusted_hitbox['min']['x'] + (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x']) / 3
+            rightThird = adjusted_hitbox['max']['x'] - (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x']) / 3
+
+            if self.ballPosition['x'] <= leftThird:
                 return 2
+            elif self.ballPosition['x'] >= rightThird:
+                return 3
             return 1
+
         return 0
 
     async def detectCollisionWithBoats(self):
@@ -132,7 +187,7 @@ class Game:
             collision = await self.isColliding(team)
             if collision > 0:
                 return collision
-        return 0
+        return -1
 
     async def handleCollisions(self, sio, gameCode):
         if not self.gameStarted:
@@ -140,19 +195,97 @@ class Game:
         # Collision avec les murs latéraux
         if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2 or self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
             self.ballDirection["x"] = -self.ballDirection["x"]
-            if self.BALL_SPEED < 1.5:
+            if self.BALL_SPEED < self.BALL_MAX_SPEED:
                 self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR
             logger.info(f"Nouvelle vitesse de la balle: {self.BALL_SPEED}")
 
         # Collision avec les bateaux
         collision = await self.detectCollisionWithBoats()
+
         if collision <= 0:
             pass
-        elif collision == 1:
+        elif collision == 1:  # Collision centrale
+            logger.info(f"collision: {collision}")
             self.ballDirection["y"] = -self.ballDirection["y"]
-        elif collision == 2:
-            self.ballDirection["x"] = -self.ballDirection["x"]
+        elif collision == 2:  # Collision côté gauche
+            logger.info(f"collision: {collision}")
+            # Ajuster l'angle en fonction de la direction d'origine
+            if abs(self.ballDirection["x"]) < 0.2:  # Si la balle arrive presque verticalement
+                self.ballDirection["x"] = -0.5  # Force un angle vers la gauche
+            else:
+                self.ballDirection["x"] = -abs(self.ballDirection["x"]) * 1.2  # Accentue l'angle vers la gauche
             self.ballDirection["y"] = -self.ballDirection["y"]
+            
+            # Normaliser le vecteur de direction
+            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
+            self.ballDirection["x"] /= length
+            self.ballDirection["y"] /= length
+            
+        elif collision == 3:  # Collision côté droit
+            logger.info(f"collision: {collision}")
+            # Ajuster l'angle en fonction de la direction d'origine
+            if abs(self.ballDirection["x"]) < 0.2:  # Si la balle arrive presque verticalement
+                self.ballDirection["x"] = 0.5  # Force un angle vers la droite
+            else:
+                self.ballDirection["x"] = abs(self.ballDirection["x"]) * 1.2  # Accentue l'angle vers la droite
+            self.ballDirection["y"] = -self.ballDirection["y"]
+            
+            # Normaliser le vecteur de direction
+            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
+            self.ballDirection["x"] /= length
+            self.ballDirection["y"] /= length
+
+        elif collision == 4:  # Collision sur le bord droit
+            logger.info(f"collision: {collision}")
+            hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
+            # Déplacer la balle légèrement à l'extérieur de la hitbox
+            logger.info(f"ballPosition: {self.ballPosition}")
+            self.ballPosition["x"] = hitbox["max"]["x"] + 1.5
+            logger.info(f"ballPosition: {self.ballPosition}")
+            if (self.ballDirection["y"] == 0):
+                self.ballDirection["y"] = -self.ballDirection["y"]
+            else:
+                if (self.ballPosition["y"] > 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] + 0.5)
+                elif (self.ballPosition["y"] < 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] - 0.5)
+            
+            # Normaliser le vecteur avec une vitesse minimale
+            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
+            if length < 0.1:
+                length = 1.0
+            self.ballDirection["x"] /= length
+            self.ballDirection["y"] /= length
+
+        elif collision == 5:  # Collision sur le bord gauche
+            logger.info(f"collision: {collision}")
+            hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
+            # Déplacer la balle légèrement à l'extérieur de la hitbox
+            logger.info(f"ballPosition: {self.ballPosition}")
+            self.ballPosition["x"] = hitbox["min"]["x"] - 1.5
+            logger.info(f"ballPosition: {self.ballPosition}")
+            if (self.ballDirection["y"] == 0):
+                self.ballDirection["y"] = -self.ballDirection["y"]
+            else:
+                if (self.ballPosition["y"] > 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] + 0.5)
+                elif (self.ballPosition["y"] < 0):
+                    self.ballDirection["y"] = -(self.ballDirection["y"] - 0.5)
+            
+            # Normaliser le vecteur avec une vitesse minimale
+            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
+            if length < 0.1:
+                length = 1.0
+            self.ballDirection["x"] /= length
+            self.ballDirection["y"] /= length
+
+        # if collision <= 0:
+        #     pass
+        # elif collision == 1:
+        #     self.ballDirection["y"] = -self.ballDirection["y"]
+        # elif collision == 2:
+        #     self.ballDirection["x"] = -self.ballDirection["x"]
+        #     self.ballDirection["y"] = -self.ballDirection["y"]
             
         # Points marqués
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
@@ -185,6 +318,12 @@ class Game:
     def getBallPosition(self):
         return self.ballPosition
 
+    def setIsPaused(self, isPaused):
+        self.isPaused = isPaused
+
+    def getIsPaused(self):
+        return self.isPaused
+
     def addNbPlayerConnected(self):
         logger.info("addNbPlayerConnected")
         self.nbPlayerConnected += 1
@@ -192,6 +331,18 @@ class Game:
     def removeNbPlayerConnected(self):
         logger.info("removeNbPlayerConnected")
         self.nbPlayerConnected -= 1
+
+    def addPlayerReady(self):
+        logger.info("addPlayerReady")
+        self.playerReady += 1
+
+    def removePlayerReady(self):
+        logger.info("removePlayerReady")
+        self.playerReady -= 1
+
+    def getPlayerReady(self):
+        logger.info("getPlayerReady")
+        return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):
         logger.info("setNbPlayerPerTeam")
@@ -314,7 +465,7 @@ class Game:
             else:
                 logger.error(f"Team {teamId} not found")
 
-    async def sendGameData(self, sio, gameCode):
+    async def sendGameData(self, sio, gameCode, sid):
         logger.info("sendGameData")
         # Convertir les objets Player en format attendu par le client
         team1_players = {
@@ -345,7 +496,7 @@ class Game:
                 'IsFull': self.getTeam(1).isFull,
             },
             'team2': {
-                'TeamId': self.getTeam(2).TeamId,
+             'TeamId': self.getTeam(2).TeamId,
                 'Name': self.getTeam(2).name,
                 'MaxNbPlayer': self.getTeam(2).maxNbPlayer,
                 'NbPlayer': self.getTeam(2).nbPlayer,
@@ -355,9 +506,17 @@ class Game:
                 'IsFull': self.getTeam(2).isFull,
             }
         }
-        
-        logger.info(f'Sending gameData: {teamsArray}')
-        await sio.emit('gameData', teamsArray, room=gameCode)
+        for team in self.teams.values():
+            for player in team.player.values():
+                if (player.getOnline() and player.getIsInit()):
+                    logger.info(f"player.getOnline(): {player.getOnline()}")
+                    logger.info(f"Sending gameData to the reconnected player with sid : {sid}")
+                    await sio.emit('gameData', teamsArray, room=sid)
+                    # player.setIsInit(True)
+                else:
+                    logger.info(f'Sending gameData: {teamsArray}')
+                    await sio.emit('gameData', teamsArray, room=gameCode)
+                    player.setIsInit(True)
 
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)
@@ -367,6 +526,39 @@ class Game:
         if self.teams[1].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[1].name, room=gameCode)
             self.gameStarted = False
+            await self.sendGameInfo(sio, gameCode)
         elif self.teams[2].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
+            await self.sendGameInfo(sio, gameCode)
+
+    def createEndGamePayload(self):
+        team1_player = next(iter(self.getTeam(1).player.values()))
+        team2_player = next(iter(self.getTeam(2).player.values()))
+
+        team1_score = self.getTeam(1).getScore()
+        team2_score = self.getTeam(2).getScore()
+
+        if team1_score > team2_score:
+            winner = team1_player.name
+        else:
+            winner = team2_player.name
+
+        payload = {
+            'player': team1_player.name,
+            'opponent': team2_player.name,
+            'player_score': team1_score,
+            'opponent_score': team2_score,
+            'winner': winner
+        }
+        return payload
+    
+    async def sendGameInfo(self, sio, gameCode):
+        if (self.nbPlayerPerTeam == 2):
+            return
+        ROOT_CA = os.getenv("GAMESERVER_ROOT_CA")
+        backendServer_name = os.getenv("HOST_IP")
+        backendServer_port = os.getenv("PROXYWAF_HTTPS_PORT")
+        payload = self.createEndGamePayload()
+        request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/backpong/user-management/set-info-game/", verify=ROOT_CA, data=payload)
+        logger.info(f"request: {request}")
