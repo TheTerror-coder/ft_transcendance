@@ -334,12 +334,7 @@ class Game:
 
     def addPlayerReady(self):
         logger.info("addPlayerReady")
-        for player in self.teams[1].getAllPlayer().values():
-            if not player.getIsInit():
-                self.playerReady += 1
-        for player in self.teams[2].getAllPlayer().values():
-            if not player.getIsInit():
-                self.playerReady += 1
+        self.playerReady += 1
         logger.info(f"playerReady: {self.playerReady}")
 
     def removePlayerReady(self):
@@ -471,9 +466,8 @@ class Game:
             else:
                 logger.error(f"Team {teamId} not found")
 
-    async def sendGameData(self, sio, gameCode, sid):
-        logger.info("sendGameData")
-        # Convertir les objets Player en format attendu par le client
+    def createConnectGameData(self):
+        logger.info("createGameData")
         team1_players = {
             player.id: {  # Utiliser directement l'id comme clé
                 'id': player.id,
@@ -502,7 +496,7 @@ class Game:
                 'IsFull': self.getTeam(1).isFull,
             },
             'team2': {
-             'TeamId': self.getTeam(2).TeamId,
+                'TeamId': self.getTeam(2).TeamId,
                 'Name': self.getTeam(2).name,
                 'MaxNbPlayer': self.getTeam(2).maxNbPlayer,
                 'NbPlayer': self.getTeam(2).nbPlayer,
@@ -512,17 +506,66 @@ class Game:
                 'IsFull': self.getTeam(2).isFull,
             }
         }
-        for team in self.teams.values():
-            for player in team.player.values():
-                if (player.getOnline() and player.getIsInit()):
-                    logger.info(f"player.getOnline(): {player.getOnline()}")
-                    logger.info(f"Sending gameData to the reconnected player with sid : {sid}")
-                    await sio.emit('gameData', teamsArray, room=sid)
-                    # player.setIsInit(True)
-                else:
-                    logger.info(f'Sending gameData: {teamsArray}')
-                    await sio.emit('gameData', teamsArray, room=gameCode)
-                    # player.setIsInit(True)
+        return (teamsArray)
+    
+    def createReconnectGameData(self):
+        logger.info("createReconnectGameData")
+        team1_players = {
+            player.id: {  # Utiliser directement l'id comme clé
+                'id': player.id,
+                'role': player.role,
+                'name': player.name
+            } for player in self.getTeam(1).player.values()
+        }
+        
+        team2_players = {
+            player.id: {  # Utiliser directement l'id comme clé
+                'id': player.id,
+                'role': player.role,
+                'name': player.name
+            } for player in self.getTeam(2).player.values()
+        }
+
+        gameData = {
+            'team1': {
+                'TeamId': self.getTeam(1).TeamId,
+                'Name': self.getTeam(1).name,
+                'MaxNbPlayer': self.getTeam(1).maxNbPlayer,
+                'NbPlayer': self.getTeam(1).nbPlayer,
+                'Boat': self.getTeam(1).boat,
+                'Cannon': self.getTeam(1).cannon,
+                'Player': team1_players,
+                'IsFull': self.getTeam(1).isFull,
+                'Score': self.getTeam(1).score,
+            },
+            'team2': {
+                'TeamId': self.getTeam(2).TeamId,
+                'Name': self.getTeam(2).name,
+                'MaxNbPlayer': self.getTeam(2).maxNbPlayer,
+                'NbPlayer': self.getTeam(2).nbPlayer,
+                'Boat': self.getTeam(2).boat,
+                'Cannon': self.getTeam(2).cannon,
+                'Player': team2_players,
+                'IsFull': self.getTeam(2).isFull,
+                'Score': self.getTeam(2).score,
+            },
+            'ball': self.ballPosition
+        }
+        return (gameData)
+
+    async def sendGameData(self, sio, gameCode, sid):
+        logger.info("sendGameData")
+        # Convertir les objets Player en format attendu par le client
+        
+        if (sid):
+            gameData = self.createReconnectGameData()
+            logger.info(f"Sending gameData to the reconnected player with sid : {sid}")
+            await sio.emit('gameData', gameData, room=sid)
+            # player.setIsInit(True)
+        else:
+            teamsArray = self.createConnectGameData()
+            logger.info(f'Sending gameData: {teamsArray}')
+            await sio.emit('gameData', teamsArray, room=gameCode)
 
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)
@@ -567,5 +610,6 @@ class Game:
         backendServer_name = os.getenv("HOST_IP")
         backendServer_port = os.getenv("PROXYWAF_HTTPS_PORT")
         payload = self.createEndGamePayload()
+        logger.info(f"payload: {payload}")
         request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/backpong/user-management/set-info-game/", verify=ROOT_CA, data=payload)
         logger.info(f"request: {request}")

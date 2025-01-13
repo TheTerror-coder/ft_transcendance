@@ -67,6 +67,8 @@ async def disconnect(sid):
         channel = ChannelList[gameCode]
         game = channel.getGame()
         game.removeNbPlayerConnected()
+        game.removePlayerReady()
+        await sendPlayerLists(game, gameCode, sid)
         
         await sio.leave_room(sid, gameCode)
         # Vérifier les deux équipes
@@ -168,10 +170,25 @@ async def connect(sid, environ):
                         player.setId(sid)
                         player.setRole(choices['role'])
                         player.setTeamID(int(choices['teamID']))
+                        logger.info(f"player.getOnline() dans join confirmChoices {player.getOnline()}")
+                        logger.info(f"game.getIsPaused() dans joinGame dans index.py {game.getIsPaused()}")
                     else:
                         team.setPlayer(Player(sid, choices['role'], choices['userName'], int(choices['teamID'])))
                         team.getPlayerById(sid).setOnline(True)
                     await sendPlayerLists(game, gameCode, sid)
+                    if (game.getIsPaused()):
+                        for team in game.teams.values():
+                            for player in team.player.values():
+                                if (player.getId() == sid):
+                                    player.setOnline(True)
+                                    # await game.sendGameData(sio, gameCode, sid)
+                                    await asyncio.sleep(5)
+                                    # await sio.emit('gameStarted', room=sid)
+                                    await sio.emit('startGame', room=sid)
+                                    # game.gameStarted = True
+                                    # game.setIsPaused(False)
+                                    logger.info(f"startGame sent to {sid}")
+                                    return
                 else:
                     logger.info("Équipe non trouvée")
                     await sio.emit('error', {'message': 'Équipe non trouvée'}, room=sid)
@@ -186,18 +203,7 @@ async def connect(sid, environ):
                     await asyncio.sleep(1)
             
             asyncio.create_task(check_game_full())
-            if (game.getIsPaused()):
-                # game.setIsPaused(False)
-                logger.info("Game unpaused")
-                for team in game.teams.values():
-                    for player in team.player.values():
-                        if (player.getId() == sid):
-                            player.setOnline(True)
-                await asyncio.sleep(3)
-                logger.info(f"sid of the reconnected player = {sid}")
-                await sio.emit('startGame', room=sid)
-                # await sio.emit('gameStarted', room=sid)
-                # await sio.emit('gameUnpaused', room=sid)
+            
         else:
             await sio.emit('error', {'message': 'Partie non trouvée'}, room=sid)
 
@@ -239,7 +245,10 @@ async def connect(sid, environ):
             game = ChannelList[gameCode].getGame()
             game.addNbPlayerConnected()
             if game.nbPlayerConnected == game.nbPlayerPerTeam * 2:
-                await game.sendGameData(sio, gameCode, sid)
+                if (game.getIsPaused()):
+                    await game.sendGameData(sio, gameCode, sid)
+                else:
+                    await game.sendGameData(sio, gameCode, None)
             else:
                 logger.info(f"Game {gameCode} not started because not enough players connected, {game.nbPlayerConnected} / {game.nbPlayerPerTeam * 2}")
                 game.gameStarted = False
@@ -355,13 +364,9 @@ async def ReadyToStart(gameCode, game):
         logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
         if game.nbPlayerConnected == game.nbPlayerPerTeam * 2 and game.getPlayerReady() == game.nbPlayerPerTeam * 2:
             game.gameStarted = True
-            game.isPaused = False
+            game.setIsPaused(False)
             await sio.emit('gameStarted', room=gameCode)
-        j = 0
-        for i in game.teams.values():
-            logger.info(f"team {i.TeamId} isFull: {i.getIsFull()}")
-            j += 1
-        logger.info(f"j: {j}")
+            break
         await asyncio.sleep(0.1)
 
 async def startGame(gameCode, game):
@@ -391,8 +396,8 @@ async def startGame(gameCode, game):
         logger.info(f"game.getIsPaused() dans index.py {game.getIsPaused()}")
         if (game.getIsPaused()):
             await ReadyToStart(gameCode, game)
-        if (game.gameStarted == False):
-            logger.info(f"Game started is False so we break the loop")
+        if (game.gameStarted == False and game.getIsPaused() == False):
+            logger.info(f"Game started is False and game is not paused so we break the loop")
             break
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
     
