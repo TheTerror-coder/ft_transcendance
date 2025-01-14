@@ -115,8 +115,8 @@ async def connect(sid, environ):
         game = channel.getGame()
         game.setNbPlayerPerTeam(int(numPlayersPerTeam))
         
-        game.setTeam(Team("L'equipage du chapeau de paille", int(numPlayersPerTeam), 1))
-        game.setTeam(Team("L'equipage de Barbe-Noire", int(numPlayersPerTeam), 2))
+        game.setTeam(Team("Black-Beard", int(numPlayersPerTeam), 1))
+        game.setTeam(Team("White-Beard", int(numPlayersPerTeam), 2))
         
         await sio.enter_room(sid, gameCode)
         await sio.emit('gameCreated', {'gameCode': gameCode}, room=sid)
@@ -152,7 +152,7 @@ async def connect(sid, environ):
                 
             await sio.enter_room(sid, gameCode)
             logger.info(f"game.getNbPlayerPerTeam() dans joinGame dans index.py {game.getNbPlayerPerTeam()}")
-            await sio.emit('gameJoined', {'gameCode': gameCode, 'nbPlayerPerTeam': game.getNbPlayerPerTeam() }, room=sid)
+            await sio.emit('gameJoined', {'gameCode': gameCode, 'nbPlayerPerTeam': game.getNbPlayerPerTeam(), 'creator': channel.getCreator() }, room=sid)
             await updateGameOptions(game, gameCode, sid)
 
             # Définir un gestionnaire d'événements imbriqué pour confirmChoices

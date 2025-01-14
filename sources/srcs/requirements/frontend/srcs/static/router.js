@@ -82,6 +82,9 @@ const eventManager = async (event) => {
 			globalSocket = null;
 			console.log("mis a null de global socket = ", globalSocket);
 		}
+		teamAvailable = 0;
+		roleAvailableBlackBeard = 0;
+		roleAvailableWhiteBeard = 0;
 		event.preventDefault();
 		await replace_location(URLs.VIEWS.HOME);
 	}
