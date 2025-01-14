@@ -12,18 +12,24 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         if (cannon) {
             if (keys && keys['d'] && keys['d'].pressed && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 6 && TeamID === 2)))
             {
+                if (currentPlayer.getIsPaused())
+                    return;
                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
                 cannonTubeMoved = true;
             }
             if (keys && keys['a'] && keys['a'].pressed && ((cannon.position.x < 6 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
             {
+                if (currentPlayer.getIsPaused())
+                    return;
                 cannon.position.x -= CANNON_MOVE_SPEED * directionMove;
                 cannonTubeMoved = true;
             }
         }
-        let connonPosInTheWorld = currentPlayerTeam.getCannonPosInTheWorld();
+        // let cannonPosInTheWorld = currentPlayerTeam.getCannonPosInTheWorld();
+        let cannonPos = cannon.position.x;
         if (cannonTubeMoved) {
-            emitCannonPosition(socket, gameCode, TeamID, connonPosInTheWorld.x);
+            console.log('cannonTubeMoved : ', cannonPos);
+            emitCannonPosition(socket, gameCode, TeamID, cannonPos);
         }
     }
 }
@@ -47,29 +53,34 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                     let isGoingUp = true;
                     let pause = false;
                     let trajectoryLine = null;
-                    setInterval(async () => {
-                        if (!pause)
+                    setInterval(async () =>
+                    {
+                        if (!currentPlayer.getIsPaused())
                         {
-                            if (cannonTube.rotation.y < -(75 * (Math.PI / 180))) isGoingUp = false;
-                            else if (cannonTube.rotation.y > 0) isGoingUp = true;
-                            
-                            cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED * directionRotation;
-                            if (keys && keys[' '] && keys[' '].pressed)
+                            if (!pause)
                             {
-                                pause = true;
-                                trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
-                                console.log('trajectoryLine : ', trajectoryLine);
-                                emitBallFired(socket, gameCode, TeamID, trajectoryLine);
-                            }
-                        }
-                        else
-                        {
-                            if (keys && keys['r'] && keys['r'].pressed)
-                            {
-                                if (hud.getPercentage(keys, 'r') >= 100)
+                                if (cannonTube.rotation.y < -(75 * (Math.PI / 180))) isGoingUp = false;
+                                else if (cannonTube.rotation.y > 0) isGoingUp = true;
+                                
+                                cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED * directionRotation;
+                                if (keys && keys[' '] && keys[' '].pressed)
                                 {
-                                    pause = false;
-                                    scene.remove(trajectoryLine);
+                                    pause = true;
+                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                    console.log('trajectoryLine : ', trajectoryLine);
+                                    emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                }
+                            }
+                            else
+                            {
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                                if (keys && keys['r'] && keys['r'].pressed)
+                                {
+                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    {
+                                        pause = false;
+                                        scene.remove(trajectoryLine);
+                                    }
                                 }
                             }
                         }
@@ -80,29 +91,33 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                     let isGoingUp = true;
                     let pause = false;
                     let trajectoryLine = null;
-                    setInterval(async () => {
-                        if (!pause)
+                    setInterval(async () =>
+                    {
+                        if (!currentPlayer.getIsPaused())
                         {
-                            if (cannonTube.rotation.y >= 0) isGoingUp = false;
-                            if (cannonTube.rotation.y <= -(75 * (Math.PI / 180))) isGoingUp = true;
-                            
-                            cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
-                            if (keys && keys[' '] && keys[' '].pressed)
+                            if (!pause)
                             {
-                                pause = true;
-                                trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
-                                console.log('trajectoryLine : ', trajectoryLine);
-                                emitBallFired(socket, gameCode, TeamID, trajectoryLine);
-                            }
-                        }
-                        else
-                        {
-                            if (keys && keys['r'] && keys['r'].pressed)
-                            {
-                                if (hud.getPercentage(keys, 'r') >= 100)
+                                if (cannonTube.rotation.y >= 0) isGoingUp = false;
+                                if (cannonTube.rotation.y <= -(75 * (Math.PI / 180))) isGoingUp = true;
+                                
+                                cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
+                                if (keys && keys[' '] && keys[' '].pressed)
                                 {
-                                    pause = false;
-                                    scene.remove(trajectoryLine);
+                                    pause = true;
+                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                    console.log('trajectoryLine : ', trajectoryLine);
+                                    emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                }
+                            }
+                            else
+                            {
+                                if (keys && keys['r'] && keys['r'].pressed)
+                                {
+                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    {
+                                        pause = false;
+                                        scene.remove(trajectoryLine);
+                                    }
                                 }
                             }
                         }
@@ -132,11 +147,17 @@ export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayer
 
         let boatMoved = false;
 
-        if (keys && keys['d'] && keys['d'].pressed && ((boatGroup.position.x > -55 && TeamID === 1) || (boatGroup.position.x < 55 && TeamID === 2))) {
+        if (keys && keys['d'] && keys['d'].pressed && ((boatGroup.position.x > -55 && TeamID === 1) || (boatGroup.position.x < 55 && TeamID === 2)))
+        {
+            if (currentPlayer.getIsPaused())
+                return;
             boatGroup.position.x += BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }
-        if (keys && keys['a'] && keys['a'].pressed && ((boatGroup.position.x < 55 && TeamID === 1) || (boatGroup.position.x > -55 && TeamID === 2))) {
+        if (keys && keys['a'] && keys['a'].pressed && ((boatGroup.position.x < 55 && TeamID === 1) || (boatGroup.position.x > -55 && TeamID === 2)))
+        {
+            if (currentPlayer.getIsPaused())
+                return;
             boatGroup.position.x -= BOAT_MOVE_SPEED * directionMove;
             boatMoved = true;
         }

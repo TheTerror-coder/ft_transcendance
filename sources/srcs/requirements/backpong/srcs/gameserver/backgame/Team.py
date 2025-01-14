@@ -120,19 +120,14 @@ class Team:
     def setCannon(self, cannon):
         self.cannon = cannon
 
-    # def setCannonPosition(self, x, y, z):
     def setCannonPosition(self, x):
         self.cannon['x'] = x
-        # self.cannon['y'] = y
-        # self.cannon['z'] = z
 
     def setCannonPosClient(self, x, y, z):
         self.cannon['x'] = x
         self.cannon['y'] = y
         self.cannon['z'] = z
 
-    # def setCannonRotation(self, y):
-    #     self.cannon['y'] = y
 
     def removePlayer(self, id):
         if id in self.player:

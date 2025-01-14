@@ -21,7 +21,9 @@ export async function initScene(Team1, Team2, currentTeam) {
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
     let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2, currentTeam);
-    loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
+    await loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
+    if (!loadScene)
+        return (false);
     let display = [ocean, ambientLight, directionalLight1, directionalLight2];
     return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display };
 }
@@ -56,17 +58,57 @@ function initBoundaryLines() {
     return lines;
 }
 
-function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
-    const boundaryLines = initBoundaryLines();
-    
-    scene.add(ball);
-    scene.add(ocean);
-    scene.add(ambientLight);
-    scene.add(directionalLight1);
-    scene.add(directionalLight2);
-    scene.add(bateau1);
-    scene.add(bateau2);
-    scene.add(boundaryLines); // Ajouter les lignes de délimitation
+async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
+    return new Promise((resolve, reject) => {
+        const boundaryLines = initBoundaryLines();
+        
+        try {
+            if (!ball || !ocean || !ambientLight || !directionalLight1 || !directionalLight2 || !bateau1 || !bateau2) {
+                reject(new Error('Error: One or more elements are missing'));
+                return;
+            }
+
+            scene.add(ball);
+            scene.add(ocean);
+            scene.add(ambientLight);
+            scene.add(directionalLight1);
+            scene.add(directionalLight2);
+            scene.add(bateau1);
+            scene.add(bateau2);
+            scene.add(boundaryLines);
+
+            // Vérification que tous les éléments sont visibles
+            const elements = [
+                { name: 'Balle', obj: ball },
+                { name: 'Océan', obj: ocean },
+                { name: 'Bateau 1', obj: bateau1 },
+                { name: 'Bateau 2', obj: bateau2 }
+            ];
+
+            const invisibleElements = elements.filter(el => !el.obj.visible);
+            if (invisibleElements.length > 0) {
+                reject(new Error(`Error: Elements not visible: ${invisibleElements.map(el => el.name).join(', ')}`));
+                return;
+            }
+
+            // Vérification que tous les éléments sont dans la scène
+            const sceneElements = scene.children;
+            const allElementsInScene = elements.every(el => 
+                sceneElements.includes(el.obj)
+            );
+
+            if (!allElementsInScene) {
+                reject(new Error('Error: Elements not in scene'));
+                return;
+            }
+
+            console.log('✅ All elements are loaded and visible');
+            resolve(true);
+        } catch (error) {
+            console.error('❌ Error loading the scene:', error);
+            reject(error);
+        }
+    });
 }
 
 export function unloadScene(ball, scene, bateau1, bateau2, display, renderer) {
@@ -382,7 +424,7 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
         else
             boatGroup.position.set(0, 35, -1);
         if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
-            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, cannonSavedPos.y, cannonSavedPos.z);
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         else
             boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
@@ -392,7 +434,7 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
         else
             boatGroup.position.set(0, -35, -1);
         if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
-            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, cannonSavedPos.y, cannonSavedPos.z);
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         else
             boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
@@ -417,12 +459,6 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
     };
 
     return boatGroup;
-}
-
-function showBoundingBox(object, scene) {
-    const boundingBox = new THREE.Box3().setFromObject(object);
-    const helper = new THREE.Box3Helper(boundingBox, 0xffff00);
-    scene.add(helper);
 }
 
 export function createCannonBall() {

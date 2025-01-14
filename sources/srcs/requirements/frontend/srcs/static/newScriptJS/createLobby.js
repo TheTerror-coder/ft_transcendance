@@ -1,5 +1,3 @@
-// import socketIOClient from 'socket.io-client';
-
 let savedGameCode = {
     _code: null, 
   
@@ -48,12 +46,6 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsFull', TeamsFullEvent);
 
-    globalSocket.on('gameUnpaused', async () => {
-        console.log("gameUnpaused");
-        // const module = await import ('../pong/pong.js');
-        // document.getElementById('background').innerHTML = "";
-        // await module.main(savedGameCode.code, globalSocket, currentLanguage);
-    });
     globalSocket.on('error', (data) => {
         console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
         error = data.message;
@@ -74,7 +66,8 @@ const UpdatePlayerListEvent = (data) => {
 }
 
 const TeamsFullEvent = () => {
-    ELEMENTs.PlayButtonInLobby().style.display = "block";
+    if (ELEMENTs.PlayButtonInLobby())
+        ELEMENTs.PlayButtonInLobby().style.display = "block";
     // globalSocket.off('TeamsFull', TeamsFullEvent);
 }
 
