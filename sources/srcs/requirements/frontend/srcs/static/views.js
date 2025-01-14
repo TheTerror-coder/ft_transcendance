@@ -35,8 +35,8 @@ async function UserProfileView(username, description, data)
 		ELEMENTs.prime().innerHTML = "0";
 	else
 		ELEMENTs.prime().innerHTML = response.user_info.prime;
-	await getHistoric(response.user_info['game played']);
-	await statsInProfilePage();
+	await getHistoric(response.user_info.recent_games, response.user_info.username);
+	await statsInProfilePage(response.user_info.nbr_of_games, response.user_info.victorie, response.user_info.loose);
 }
 
 
@@ -102,7 +102,8 @@ async function	profileView(title, description, data)
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games, response.username);
-	await statsInProfilePage();
+	console.log("response: de l'utilisateur", response);
+	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
 }
 
 async function	createLobbyView(title, description, data) 

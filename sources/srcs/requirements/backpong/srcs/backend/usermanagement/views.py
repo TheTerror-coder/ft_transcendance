@@ -24,7 +24,6 @@ from allauth.account.internal.flows.login import record_authentication
 from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
-from .GameSerializer import GameSerializer
 
 
 GLOBAL_TOURNAMENT = {
@@ -284,15 +283,26 @@ def get_user_profile(request):
 	try:
 		to_user = User.objects.get(username=username)
 		recent_games = to_user.recent_games()
-		serialized_games = GameSerializer(recent_games, many=True).data
+		games_data = []
+		for game in recent_games:
+			game_info = {
+				'player': game.player.username,
+				'opponent': game.opponent.username,
+				'player_score': game.player_score,
+				'opponent_score': game.opponent_score,
+				'date': game.date,
+			}
+			games_data.append(game_info)
 		user_info = {
+			'id': to_user.id,
 			'username': to_user.username,
 			'email': to_user.email,
 			'first_name': to_user.first_name,
 			'last_name': to_user.last_name,
 			'is_active': to_user.is_active,
 			'date_joined': to_user.date_joined,
-			'game played': serialized_games,
+			'nbr_of_games': to_user.games_played,
+			'recent_games': games_data,
 			'victorie': to_user.victories,
 			'loose': to_user.loose,
 			'prime': to_user.prime,
@@ -414,6 +424,7 @@ def profile(request):
 		'loose': request.user.loose,
 		'victories': request.user.victories,
 		'recent_games': games_data,
+		'nbr_of_games': request.user.games_played,
 		'prime': prime,
 	}
 	return Response(response_data)
@@ -566,6 +577,10 @@ def calculate_score(user_username, opponent_username, player_won):
 	opponent = User.objects.get(username=opponent_username)
 	player_score = (user.victories / user.games_played) * 100 if user.games_played > 0 else 0
 	opponent_score = (opponent.victories / opponent.games_played) * 100 if opponent.games_played > 0 else 0
+	if player_score == 0 and user.username == player_won:
+		opponent_score = 100
+	if opponent_score == 0 and opponent.username == player_won:
+		player_score = 100
 
 	if player_won:
 		if player_score < opponent_score:

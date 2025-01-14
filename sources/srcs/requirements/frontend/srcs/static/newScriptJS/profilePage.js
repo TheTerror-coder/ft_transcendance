@@ -1,12 +1,21 @@
 
-async function statsInProfilePage(game_played, victories)
+async function statsInProfilePage(game_played, victories, lose)
 {
     let percentage = 0;
-    
+    if (victories === undefined)
+        victories = 0;
+    if (lose === undefined)
+        lose = 0;
+    if (game_played === undefined)
+        game_played = 0;
     if (game_played > 0) {
         percentage = (victories / game_played) * 100;
     }
     
+    console.log("victory: ", victories);
+    console.log("lose: ", lose);
+    console.log("game_played: ", game_played);
+
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
@@ -19,6 +28,10 @@ async function statsInProfilePage(game_played, victories)
     )`;
 
     progressValue.textContent = `${percentage}%`;
+
+    document.getElementById('numberOfGamePlayedProfileDisplay').textContent = game_played;
+    document.getElementById('numberOfGameWinProfileDisplay').textContent = victories;
+    document.getElementById('numberOfGameLosesProfileDisplay').textContent = lose;
 }
 
 async function getHistoric(game, user)
@@ -42,7 +55,6 @@ async function getHistoric(game, user)
     }
     else
     {
-        //if () game 1 v 1
         for (let i = 0; i < game.length; i++)
         {
             const match = document.createElement('div');
@@ -76,7 +88,6 @@ async function getHistoric(game, user)
             match.appendChild(advUsername);
             ELEMENTs.historicMatch().appendChild(match);
         }
-        //else game 2 v 2
     }
 }
 
