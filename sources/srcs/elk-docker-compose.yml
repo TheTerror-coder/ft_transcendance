@@ -135,6 +135,7 @@ services:
       args:
         - STACK_VERSION=${STACK_VERSION}
         - LOGSTASH_DIRS_TO_MAKE=${LOGSTASH_DIRS_TO_MAKE}
+        - SHARED_GID=${SHARED_GID}
     volumes:
       # - ./requirements/elk/logstash/conf/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
       # - ./requirements/elk/logstash/conf/log4j2.properties:/usr/share/logstash/config/log4j2.properties
@@ -150,6 +151,9 @@ services:
       - logstashlogs:/usr/share/logstash/logs/
       - eslogs:/usr/share/logstash/elasticsearch/logs/
       - kibanalogs:/usr/share/logstash/kibana/logs/
+      - kibana_waf_logs:/usr/share/logstash/kibana_waf/logs/
+      - vault_waf_logs:/usr/share/logstash/vault_waf/logs/
+      - proxy_waf_logs:/usr/share/logstash/proxy_waf/logs/
     environment:
       - ELASTIC_USER=${ELASTIC_USER}
       - ELASTIC_PASSWORD=${SECRET_ELASTIC_PASSWORD}
@@ -179,7 +183,7 @@ services:
 
   kibana_waf:
     depends_on:
-      vault:
+      kibana:
         condition: service_healthy
         restart: true
     image: ${KIBANAWAF_IMAGE}
@@ -201,13 +205,13 @@ services:
         - NGINX_LOG_FILES=${NGINX_LOG_FILES}
         - REVERSEPROXY_CONF_FILE=./kibana_waf/conf/kibana.conf.template
     environment:
+      - ALLOWED_METHODS=${KIBANAWAF_MODSEC_ALLOWED_METHODS}
+      - ANOMALY_INBOUND=${KIBANAWAF_ANOMALY_INBOUND}
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_HOME=${MODSEC_HOME}
       - NGINX_ROOT_CA=${NGINX_ROOT_CA}
       - KIBANAWAF_HTTP_PORT=${KIBANAWAF_HTTP_PORT}
       - KIBANAWAF_HTTPS_PORT=${KIBANAWAF_HTTPS_PORT}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
@@ -224,6 +228,8 @@ services:
       # - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+      - certs:${MODSEC_HOME}/volumes/elk/certs/
+      - kibana_waf_logs:${MODSEC_LOGS_ROOT}/
     ports:
       - ${KIBANAWAF_HTTP_PORT}:${KIBANAWAF_HTTP_PORT}
       - ${KIBANAWAF_HTTPS_PORT}:${KIBANAWAF_HTTPS_PORT}
@@ -267,4 +273,6 @@ volumes:
   logstashdata:
     driver: local
   logstashlogs:
+    driver: local
+  kibana_waf_logs:
     driver: local

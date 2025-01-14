@@ -88,6 +88,7 @@ fclean fc : clean cleanv
 	-docker system prune -f
 re : clean all
 reset : clean cleanv all
+reset-onepong : clean cleanv onepong
 freset : fclean all
 
 valerie: cleanv all

@@ -29,6 +29,7 @@ create_certs() {
 		"  - name: kibana\n"\
 		"    dns:\n"\
 		"      - kibana\n"\
+		"      - kibanamediator\n"\
 		"      - localhost\n"\
 		"    ip:\n"\
 		"      - 127.0.0.1\n"\
@@ -47,8 +48,8 @@ create_certs() {
 permissions() {
 	echo "Setting file/directory permissions"
 	chown -R 1000:1000 config/certs;
-	find . -type d -exec chmod 700 \{\} \;;
-	find . -type f -exec chmod 600 \{\} \;;
+	find . -type d -exec chmod 755 \{\} \;;
+	find . -type f -exec chmod 644 \{\} \;;
 }
 
 wait_elastic() {

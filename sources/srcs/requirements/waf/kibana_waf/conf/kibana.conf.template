@@ -3,9 +3,9 @@
 
 server_tokens off;
 
-log_format kibanalog '$realip_remote_addr - $remote_user [$time_local] "$request" '
-			'$status $body_bytes_sent "$http_referer" '
-			'"$http_user_agent" "$http_x_forwarded_for"';
+log_format kibanalog '{ "realip_remote_addr" : "$realip_remote_addr", "remote_user" : "$remote_user", "time_local": "[$time_local]", "request" : "$request", '
+			'"status" : $status, "body_bytes_sent" : $body_bytes_sent, "http_referer" : "$http_referer", '
+			'"http_user_agent" : "$http_user_agent", "http_x_forwarded_for" : "$http_x_forwarded_for"}';
 
 map $http_upgrade $connection_upgrade {
 	default upgrade;
@@ -13,7 +13,6 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream kibanamediator {
-	# server		vault_c:8200;
 	server		$KIBANA_CONTAINER:$KIBANA_PORT;
 }
 
@@ -85,7 +84,7 @@ server {
 ### between the proxy and Upstream server that should be running with tls enabled, hence update $upstream to 'https'.
 ### This will make the proxy to verify Upstream server's Certificate Authority
 ###########################################################
-		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/kibana/certs/ca/ca.crt;
+		proxy_ssl_trusted_certificate	/usr/share/nginx/volumes/elk/certs/ca/ca.crt;
 		proxy_ssl_verify	on;
 		proxy_ssl_verify_depth	1;
 

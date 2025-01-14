@@ -441,14 +441,12 @@ services:
         - NGINX_LOG_FILES=${NGINX_LOG_FILES}
         - REVERSEPROXY_CONF_FILE=./proxy_waf/conf/proxy.conf.template
     environment:
-      - ALLOWED_METHODS=${MODSEC_ALLOWED_METHODS}
+      - ALLOWED_METHODS=${PROXYWAF_MODSEC_ALLOWED_METHODS}
       - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       - MODSEC_HOME=${MODSEC_HOME}
       - NGINX_ROOT_CA=${NGINX_ROOT_CA}
       - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
       - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
@@ -470,6 +468,7 @@ services:
       # - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+      - proxy_waf_logs:${MODSEC_LOGS_ROOT}/
     ports:
       - ${PROXYWAF_HTTP_PORT}:${PROXYWAF_HTTP_PORT}
       - ${PROXYWAF_HTTPS_PORT}:${PROXYWAF_HTTPS_PORT}
@@ -516,8 +515,6 @@ services:
       - NGINX_ROOT_CA=${NGINX_ROOT_CA}
       - VAULTWAF_HTTP_PORT=${VAULTWAF_HTTP_PORT}
       - VAULTWAF_HTTPS_PORT=${VAULTWAF_HTTPS_PORT}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
-      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
       # - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
       # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
       # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
@@ -534,6 +531,7 @@ services:
       # - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+      - vault_waf_logs:${MODSEC_LOGS_ROOT}/
     ports:
       - ${VAULTWAF_HTTP_PORT}:${VAULTWAF_HTTP_PORT}
       - ${VAULTWAF_HTTPS_PORT}:${VAULTWAF_HTTPS_PORT}
@@ -602,4 +600,8 @@ volumes:
   redis_certs:
     driver: local
   gameserver_staticfiles:
+    driver: local
+  proxy_waf_logs:
+    driver: local
+  vault_waf_logs:
     driver: local

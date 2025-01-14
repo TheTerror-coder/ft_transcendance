@@ -28,6 +28,7 @@ mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
 touch ${NGINX_LOG_FILES}
 chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes ${MODSEC_HOME}/container-init.d
 chmod 770 ${NGINX_STATICFILES_DIR}
+chmod 777 ${MODSEC_HOME}/volumes/elk/certs
 chown -R ${NGINX_UID}:${SHARED_GID} ${MODSEC_HOME}
 find ${MODSEC_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
 find ${MODSEC_LOGS_ROOT} -type f -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;

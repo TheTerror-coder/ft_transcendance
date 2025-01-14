@@ -4,10 +4,13 @@ ARG STACK_VERSION=8.14.1
 FROM logstash:${STACK_VERSION}
 
 ARG LOGSTASH_DIRS_TO_MAKE=.
+ARG SHARED_GID=1010
 
 USER 0
 
 RUN <<EOF
+addgroup --gid ${SHARED_GID} transcendance
+addgroup logstash transcendance
 mkdir -p ${LOGSTASH_DIRS_TO_MAKE}
 chown -R 1000:1000 /usr/share/logstash
 find /usr/share/logstash -maxdepth 1 -type d -exec chmod 00750 \{\} \;
