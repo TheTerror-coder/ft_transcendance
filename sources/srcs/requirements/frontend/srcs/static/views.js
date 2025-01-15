@@ -1,6 +1,4 @@
 
-//TODO: Nico: ?? this one is not used
-//metre a joue les infos, si le user change de nom
 
 async function tournamentView(title, description, data) 
 {

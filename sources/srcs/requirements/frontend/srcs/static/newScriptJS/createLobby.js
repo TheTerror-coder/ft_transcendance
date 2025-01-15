@@ -109,11 +109,29 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsFull', TeamsFullEvent);
 
+    // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
+
+    // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
+
+    // globalSocket.on('tournamentFull', tournamentFullEvent);
+
     globalSocket.on('error', (data) => {
         error = data.message;
         alert(data.message);
     });
 }
+
+// const tournamentCreatedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentJoinedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentFullEvent = (data) => {
+//     console.log("TOURNAMENT FULL: ", data);
+// }
 
 const AvailableOptionsEvent = (data) => {
     if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)

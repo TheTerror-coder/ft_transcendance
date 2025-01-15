@@ -16,7 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class Game:
-    def __init__(self, gameId):
+    def __init__(self, gameId, isGameTournament, tournament):
         self.gameId = gameId
         self.gameInterval = None
         self.tickRate = 1000 / 60
@@ -27,7 +27,8 @@ class Game:
         self.playerReady = 0
         self.isPaused = False
         self.winner = None
-        
+        self.isGameTournament = isGameTournament
+        self.tournament = tournament
         # Constantes pour la balle
         self.BALL_SPEED = 1
         self.SPEED_INCREASE_FACTOR = 1.1
@@ -41,6 +42,15 @@ class Game:
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
+
+    def getIsGameTournament(self):
+        return self.isGameTournament
+    
+    def getTournament(self):
+        return self.tournament
+    
+    def getWinner(self):
+        return self.winner
 
     def getGameId(self):
         return self.gameId
@@ -595,7 +605,7 @@ class Game:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
             self.winner = self.teams[2].name
-            await self.sendGameInfo(sio, gameCode)
+            await self.sendGameInfo(sio, gameCode)                
 
     def createEndGamePayload(self):
             team1_player = next(iter(self.getTeam(1).player.values()))

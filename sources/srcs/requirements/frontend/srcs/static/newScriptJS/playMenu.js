@@ -116,20 +116,11 @@ function initializeLobbyTwoVsTwo(gameCode)
     else 
         teamID = teamChosen ? 2 : 1;
     if ((teamID === 1 && roleChosen === false && roleAvailableBlackBeard.role === "gunner") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "gunner"))
-    {
-        console.log("!!!!!!!!TESTGANG2");
         role = "Cannoneer";
-    }
     else if ((teamID === 1 && roleChosen && roleAvailableBlackBeard.role === "captain") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "captain"))
-    {
-        console.log("???????????TEST GANG 3");
         role = "captain";
-    }
     else
-    {
-        console.log("role = roleChosen ? Cannoneer : captain;");
         role = roleChosen ? "Cannoneer" : "captain";
-    }
 
     console.log("initializeLobbyTwoVsTwo, role: ", role, ", teamID: ", teamID);
     joinLobbyGame(gameCode, teamID, role);
