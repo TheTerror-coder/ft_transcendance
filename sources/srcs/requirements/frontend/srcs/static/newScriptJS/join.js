@@ -1,5 +1,5 @@
 
-async function joinLobbyGame(gameCode, teamID, role) // surement possible de faire une seule fonction pour les deux join
+async function joinLobbyGame(gameCode, teamID, role)
 {
     console.log(" join lobby");
 

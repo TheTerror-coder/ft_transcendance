@@ -17,11 +17,12 @@ async function connect()
 			await mfaAuthMiddlewareJob();
 		}
 		else {
+            // alert("Invalid credentials.");
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 		}
 	}
 // jm custom end //
-if (response.status === "success")
+    if (response.status === "success")
 		await mfaAuthMiddlewareJob();
     else if (response.status === 'error')
     {

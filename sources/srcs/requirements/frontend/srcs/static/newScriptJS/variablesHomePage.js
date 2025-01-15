@@ -8,7 +8,7 @@ const joinTwoPlayersVAR =
 </div>
 <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column;">
     <div style="align-self: center;">
-        <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
+        <p data-translate="ChooseYourTeam" style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
     </div>
     <div>
         <div style="display:flex; justify-content: space-between;">
@@ -29,18 +29,18 @@ const joinTwoPlayersVAR =
 </div>
 <div id="chooseRoleDisplay" style="display: flex; flex-direction: column;">
     <div style="align-self: center;">
-        <p style="font-size: 30px;font-weight: bolder;margin-bottom:0px;"> Choose Your Role ! </p>
+        <p data-translate="ChooseRole" style="font-size: 30px;font-weight: bolder;margin-bottom:0px;"> Choose Your Role ! </p>
     </div>
     <div style="display:flex; justify-content: space-between; height: 140px;">
         <div id="helmsmanRoleDisplay">
-            <p class="teamChooseFontHomePage" style="font-size: 25px; margin-top: 10px;"> Helmsman </p>
+            <p data-translate="Helmsman" class="teamChooseFontHomePage" style="font-size: 25px; margin-top: 10px;"> Helmsman </p>
         </div>
             <div class="container">
                 <input type="checkbox" name="chooseRoleSwitch" id="chooseRoleSwitch" />
                 <label for="chooseRoleSwitch" class="labelJoin"> </label>
             </div>
         <div id="gunnerRoleDisplay">
-            <p class="teamChooseFontHomePage" style="display:flex; justify-content: center; font-size: 25px;"> Gunner </p>
+            <p data-translate="Gunner" class="teamChooseFontHomePage" style="display:flex; justify-content: center; font-size: 25px;"> Gunner </p>
         </div>
     </div>
 </div>

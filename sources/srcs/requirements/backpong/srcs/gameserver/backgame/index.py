@@ -160,8 +160,8 @@ async def connect(sid, environ):
         game = channel.getGame()
         game.setNbPlayerPerTeam(int(numPlayersPerTeam))
         
-        game.setTeam(Team("L'equipage du chapeau de paille", int(numPlayersPerTeam), 1))
-        game.setTeam(Team("L'equipage de Barbe-Noire", int(numPlayersPerTeam), 2))
+        game.setTeam(Team("Black-Beard", int(numPlayersPerTeam), 1))
+        game.setTeam(Team("White-Beard", int(numPlayersPerTeam), 2))
         
         await sio.enter_room(sid, gameCode)
         await sio.emit('gameCreated', {'gameCode': gameCode}, room=sid)

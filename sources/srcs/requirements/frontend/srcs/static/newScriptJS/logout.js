@@ -2,6 +2,9 @@
 async function logout_views()
 {
    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+   roleAvailableBlackBeard = 0;
+   roleAvailableWhiteBeard = 0;
+   teamAvailable = 0;
    await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
    await replace_location(URLs.VIEWS.LOGIN_VIEW);
 }
