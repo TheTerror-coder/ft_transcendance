@@ -51,17 +51,35 @@ async function getHistoric(game, user)
             const advUsername = document.createElement('span');
             const resultUser = document.createElement('span');
             const resultAdvUser = document.createElement('span');
+            const winOrLoseDiv = document.createElement('div');
+
+            const winOrLose = document.createElement('span');
+
 
 
             console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
+            resultAdvUser.className = 'resultDisplayHistoric';
             console.log("YOOOOOO gang game[i].player yeah: ", game[i].player);
+            console.log("game[i].player_score: ", game[i].player_score, " game[i].opponent_score: ", game[i].opponent_score, " game[i].player_score < game[i].opponent_score: ", game[i].player_score < game[i].opponent_score);
             if (user === game[i].player)
             {
                 username.textContent = game[i].player;
                 resultUser.textContent = game[i].player_score;
                 resultAdvUser.textContent = game[i].opponent_score;
                 advUsername.textContent = game[i].opponent;
+                if (game[i].player_score < game[i].opponent_score)
+                {
+                    winOrLose.textContent = "Lose";
+                    winOrLoseDiv.appendChild(winOrLose);
+                    winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/usoppLose.png')";
+                }
+                else
+                {
+                    winOrLose.textContent = "Win";
+                    winOrLoseDiv.appendChild(winOrLose);
+                    winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+                }
             }
             else
             {
@@ -69,14 +87,30 @@ async function getHistoric(game, user)
                 resultUser.textContent = game[i].opponent_score;
                 resultAdvUser.textContent = game[i].player_score;
                 advUsername.textContent = game[i].player;
+                if (game[i].player_score < game[i].opponent_score)
+                {
+                    winOrLose.textContent = "Win";
+                    winOrLoseDiv.appendChild(winOrLose);
+                    winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+                }
+                else
+                {
+                    winOrLose.textContent = "Lose";
+                    winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/usoppLose.png')";
+                    winOrLoseDiv.appendChild(winOrLose);
+                }
             }
+            winOrLoseDiv.style.backgroundSize = "cover";
+            winOrLoseDiv.style.backgroundRepeat = "no-repeat";
+            winOrLoseDiv.style.backgroundPosition = "center";
+            // winOrLoseDiv.style.width = "80px";
             match.appendChild(username);
             match.appendChild(resultUser);
+            match.appendChild(winOrLoseDiv);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
             ELEMENTs.historicMatch().appendChild(match);
         }
-        //else game 2 v 2
     }
 }
 

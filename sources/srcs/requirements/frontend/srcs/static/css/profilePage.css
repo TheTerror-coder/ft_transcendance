@@ -45,8 +45,9 @@
     padding: 45px;
     border-color: #000;
     display:flex;
-    justify-content: center;
     border-radius: 200px;
+    justify-content: space-evenly;
+    margin-bottom: 10px;
 }
 
 .historicMatch

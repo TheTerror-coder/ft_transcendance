@@ -16,15 +16,18 @@ function putFormConnect()
     ELEMENTs.formConnect().style.display = 'flex';
 }
 
-const loginPageDisplayVAR = 
+const loginPageDisplayVAR =
 `<div class="loginPage" id="loginPage">
-    <div id="loginButton" style="display: flex;align-items: center;justify-content: center; height: 290px;">
+    <div id="loginButton" style="display: flex;align-items: center;justify-content: center; height: 290px;margin-top: -25px;">
         <button class="loginButton"><img id="refreshPage" src="/static/photos/picturePng/loginPage/onePong.png" alt="ONE PONG"></button>
     </div>
     <div class="woodPresentation" id="woodPresentation">
         <img src="/static/photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">
         <div class="woodPresentationContent" id="connect">
-            <button data-translate="42SignIn" class="fontConnexionWith42" id="signInWith42Button" type="button"> SIGN IN WITH <img src="/static/photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
+            <div id="signInWith42Button">
+                <button data-translate="42SignIn" class="fontConnexionWith42" id="signInWith42Button" type="button"> SIGN IN WITH </button>
+                <button id="signInWith42Button" class="logo42" type="button"><img src="/static/photos/picturePng/logo42.png" alt="42-logo" class="logo42" id="signInWith42Button"></button>
+            </div>
             <button data-translate="SignIn" class="fontConnexion" id="connectionEmail"  style="margin-top: -8px;">CONNECTION</button>
             <button data-translate="CreateAccount" class="fontConnexion" id="createAnAccount" style="margin-top: -7px;">CREATE AN ACCOUNT</button>
             <form class="createAccount" id="formConnect">

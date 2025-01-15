@@ -23,6 +23,13 @@
     font-size: 80px;
 }
 
+.tournamentCodeDisplay
+{
+    font-family: 'wantedFont';
+    color: black;
+    font-size: 40px;
+}
+
 .tournamentChoseJoinOrCreate
 {
     font-family: 'wantedFont';
