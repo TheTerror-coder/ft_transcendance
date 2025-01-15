@@ -47,9 +47,9 @@ create_certs() {
 
 permissions() {
 	echo "Setting file/directory permissions"
-	chown -R 1000:1000 config/certs;
-	find . -type d -exec chmod 755 \{\} \;;
-	find . -type f -exec chmod 644 \{\} \;;
+	chown -R 1000:$SHARED_GID config/certs/*;
+	# find ./config/certs/ -type d -exec chmod 750 \{\} \;;
+	find ./config/certs/ -type f -exec chmod 640 \{\} \;;
 }
 
 wait_elastic() {
@@ -70,7 +70,7 @@ logstash_user() {
 			\"cluster\": [\"manage_logstash_pipelines\", \"manage_index_templates\", \"monitor\", \"read_ilm\"], \
 			\"indices\": [ \
 				{ \
-				\"names\": [ \"logstash-*\" ], \
+				\"names\": [ \"logstash_-*\" ], \
 				\"privileges\": [\"all\"] \
 				} \
 			] \

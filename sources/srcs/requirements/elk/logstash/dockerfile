@@ -24,10 +24,13 @@ COPY --chown=1000:1000 --chmod=777 ./conf/log4j2.properties		/usr/share/logstash
 COPY --chown=1000:1000 --chmod=777 ./conf/my-logstash.yml		/usr/share/logstash/config/my-logstash.yml
 COPY --chown=1000:1000 --chmod=777 ./conf/logstash.conf			/usr/share/logstash/pipeline/logstash.conf
 COPY --chown=1000:1000 --chmod=777 ./conf/11-logstash.conf		/usr/share/logstash/pipeline1/11-logstash.conf
-COPY --chown=1000:1000 --chmod=777 ./conf/12-logstash.conf		/usr/share/logstash/pipeline2/12-logstash.conf
-COPY --chown=1000:1000 --chmod=777 ./conf/14-logstash.conf		/usr/share/logstash/pipeline4/14-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/12-logstash.conf		/usr/share/logstash/pipeline1/12-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/13-logstash.conf		/usr/share/logstash/pipeline2/13-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/14-logstash.conf		/usr/share/logstash/pipeline2/14-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/15-logstash.conf		/usr/share/logstash/pipeline3/15-logstash.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/16-logstash.conf		/usr/share/logstash/pipeline4/16-logstash.conf
 # TODO rm
-COPY --chown=1000:1000 --chmod=777 ./test.log					/tmp/test.log
+# COPY --chown=1000:1000 --chmod=777 ./test.log					/tmp/test.log
 
 USER 1000
 

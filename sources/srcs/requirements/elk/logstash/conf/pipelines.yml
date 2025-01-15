@@ -6,7 +6,7 @@
   path.config: "/usr/share/logstash/pipeline1"
 - pipeline.id: pipe2
   path.config: "/usr/share/logstash/pipeline2"
-# - pipeline.id: pipe3
-#   path.config: "/usr/share/logstash/pipeline3"
+- pipeline.id: pipe3
+  path.config: "/usr/share/logstash/pipeline3"
 - pipeline.id: pipe4
   path.config: "/usr/share/logstash/pipeline4"

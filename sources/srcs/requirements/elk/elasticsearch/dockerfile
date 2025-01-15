@@ -3,9 +3,13 @@ ARG STACK_VERSION=8.14.1
 
 FROM elasticsearch:${STACK_VERSION}
 
+ARG SHARED_GID=1010
+
 USER 0
 
 RUN <<EOF
+addgroup --gid ${SHARED_GID} transcendance
+addgroup elasticsearch transcendance
 chown -R 1000:1000 /usr/share/elasticsearch
 find /usr/share/elasticsearch -maxdepth 1 -type d -exec chmod 00750 \{\} \;
 find /usr/share/elasticsearch -maxdepth 2 -type f -exec chmod o-rwx \{\} \;
