@@ -23,7 +23,7 @@ const usersProfilePage =
                     <p style="align-self: center; font-size: 40px; margin-bottom: 0; letter-spacing: 2px;">Win rate</p>
                     <div class="progress-container">
                         <div class="circular-progress">
-                            <span class="progress-value">75%</span>
+                            <span class="progress-value"></span>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@ const usersProfilePage =
 const profilePageDisplayVAR = 
 `<div class="profilePage" id="profilePage">
     <div style="display:flex; flex-direction: column; justify-content: space-between; margin-top: 10px; margin-bottom: 10px;">
-        <div class="bookProfile">
+        <div class="bookProfile" id="bookProfile">
             <div class="sideBar">
             </div>
             <div class="profileFriendInBook">
@@ -101,20 +101,20 @@ const profilePageDisplayVAR =
                     <p data-translate="WinRate" style="align-self: center; font-size: 40px; margin-bottom: 0; letter-spacing: 2px;">Win rate</p>
                     <div class="progress-container">
                         <div class="circular-progress">
-                            <span class="progress-value">75%</span>
+                            <span class="progress-value"></span>
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="first-content">
                         <span data-translate="GamePlayed">Games Played:</span>
-                        <span id="numberOfGamePlayedProfileDisplay">0</span>
+                        <span id="numberOfGamePlayedProfileDisplay"></span>
                     </div>
                     <div class="second-content">
                         <span data-translate="GameWin">Games win:</span>
-                        <span id="numberOfGameWinProfileDisplay">0</span>
+                        <span id="numberOfGameWinProfileDisplay"></span>
                         <span data-translate="GameLose" style="margin-top: 10px;">Games lose:</span>
-                        <span id="numberOfGameLosesProfileDisplay">0</span>
+                        <span id="numberOfGameLosesProfileDisplay"></span>
                     </div>
                 </div>
             </div>

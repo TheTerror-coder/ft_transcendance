@@ -8,6 +8,7 @@ const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
 const PATHs = Object.freeze({
 	
 	VIEWS : Object.freeze({
+		TOURNAMENT : '/tournament/',
 		HOME : '/home/',
 		LOGIN_REDIRECT_URL : '/home/',
 		LOGIN : '/frontpong/account/login/',
@@ -31,6 +32,7 @@ const URLs = Object.freeze({
 	
 	// VIEWS \\
 	VIEWS : Object.freeze({
+		TOURNAMENT : BASE_URL + PATHs.VIEWS.TOURNAMENT,
 		HOME : BASE_URL + PATHs.VIEWS.HOME,
 		LOGIN_REDIRECT_URL_VIEW : BASE_URL + PATHs.VIEWS.LOGIN_REDIRECT_URL,
 		LOGIN_VIEW : BASE_URL + PATHs.VIEWS.LOGIN,
@@ -67,8 +69,9 @@ const URLs = Object.freeze({
 		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
 		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
 		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
-		// SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
+		SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
 		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
+		GETLANGUAGE : BACKEND_BASE_URL + '/user-management/get-language/',
 		TOURNAMENT : BACKEND_BASE_URL + '/user-management/tournament/',
 	}),
 
@@ -210,9 +213,9 @@ const ELEMENTs = Object.freeze({
 	nameUser : () => document.getElementById("nameUser"),
 	photoUser : () => document.getElementById("profilPhotoInProfilePage"),
 	prime : () => document.getElementById("prime"),
-
+	
 	// profilePage
-
+	
 	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),
 	changeUsernameButton : () => document.getElementById("changeUsernameButton"),
 	profilPhotoInProfilePage : () => document.getElementById("profilPhotoInProfilePage"),
@@ -223,6 +226,7 @@ const ELEMENTs = Object.freeze({
 	switch2FA : () => document.getElementById("switch2FA"),
 	
 	profilePage : () => document.getElementById("profilePage"),
+	bookProfile : () => document.getElementById("bookProfile"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
@@ -256,6 +260,12 @@ const ELEMENTs = Object.freeze({
 	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
 	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
 	PlayButtonInLobby : () => document.getElementById("PlayButtonInLobby"),
+
+	// TOURNAMENT
+	tournamentButton : () => document.getElementById("tournamentButton"),
+	createTournamentButton : () => document.getElementById("createTournamentButton"),
+	joinTournamentButton : () => document.getElementById("joinTournamentButton"),
+	centerTournament : () => document.getElementById("centerTournament"),
 
 });
 

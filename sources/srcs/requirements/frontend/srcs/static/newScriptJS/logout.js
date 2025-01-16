@@ -1,7 +1,9 @@
 
-async function logout()
+async function logout_views()
 {
-   await makeRequest('GET', URLs.USERNAME.LOGOUT);
+   const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+   await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
+   await replace_location(URLs.VIEWS.LOGIN_VIEW);
 }
 
 function applyAnimationLogoutButton(isHovered) 
@@ -11,7 +13,7 @@ function applyAnimationLogoutButton(isHovered)
       ELEMENTs.logoutButton().style.animation = 'openDoor 0.2s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animationPlayState = 'paused';
-      }, 490);
+      }, 195);
    } 
    else 
    {
@@ -20,7 +22,7 @@ function applyAnimationLogoutButton(isHovered)
       ELEMENTs.logoutButton().style.animation = 'closeDoor 0.1s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animation = 'none';
-      },290);
+      }, 90);
    }
 }
 

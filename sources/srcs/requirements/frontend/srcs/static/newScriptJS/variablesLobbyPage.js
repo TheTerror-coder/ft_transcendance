@@ -86,7 +86,10 @@ const lobbyTwoPlayerDisplayVAR =
                 <div>
                     <button id="crossButton"><img src="/photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
                 </div>
-            <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
+                <div class="lobbyCode">
+                    <p class="lobbyCodeText">LOBBY: </p>
+                    <p id="lobbyCode" class="lobbyCodeText"></p>
+                </div>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerOne">
@@ -187,3 +190,68 @@ const lobbyPageDisplayVAR =
         </div>
     </div>
 </div>`;
+
+const resetBaseHtmlVAR =
+`        
+<div class="headPage" id="headPage">
+            <button style="width: 100px; height:70px;">
+                <div class="logoutDoor" id="logoutDoor">
+                    <div class="doorJamb" id="doorJamp">
+                        <img class="chopperDoor" src="/static/photos/picturePng/chopperDoor.png" alt="logout">
+                        <div id="logoutButton" class="logoutDoorPng">
+                        </div>
+                    </div>
+                </div>
+            </button>
+             <div class="button-container">
+                <div id="twoFA">
+                    <label class="switch">
+                    <input type="checkbox" id="switch2FA"/>
+                    <span>
+                        <em></em>
+                        <strong></strong>
+                    </span>
+                    </label>
+                </div>
+                <button class="buttonHeadPage">
+                    <div id="languageDiv">
+                        <img id="dropDownLanguage" src="/static/photos/picturePng/loginPage/drapeau/flagen.png" alt="flags for change language">
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div id="mainPage" style="flex: 1;">
+        </div>
+        <!-- --------------- PONG FILES LIST START --------------- -->
+        <script src="/static/newScriptJS/socketPong.js"></script>
+        <!-- ----------------- PONG FILES LIST END ----------------- -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 pour le popup de l'invit, voir avec bootstrap-->
+        <script src="/static/newScriptJS/logout.js"></script>
+        <script src="/static/newScriptJS/variablesLoginPage.js"></script>
+        <script src="/static/newScriptJS/lobbyPage.js"></script>
+        <script src="/static/newScriptJS/createLobby.js"></script>
+        <script src="/static/newScriptJS/variablesHomePage.js"></script>
+        <script src="/static/newScriptJS/variablesCreateJoinLobby.js"></script>
+        <script src="/static/newScriptJS/variablesLobbyPage.js"></script>
+        <script src="/static/newScriptJS/variablesProfilePage.js"></script>
+        <script src="/static/newScriptJS/variablesTournamentPage.js"></script>
+        <script src="/static/newScriptJS/homePage.js"></script>
+        <script src="/static/newScriptJS/connectNormal.js"></script>
+        <script src="/static/newScriptJS/formCreateAccount.js"></script>
+        <script src="/static/newScriptJS/playMenu.js"></script>
+        <script src="/static/newScriptJS/lobbyPage.js"></script>
+        <script src="/static/newScriptJS/404Page.js"></script>
+        <script src="/static/newScriptJS/profilePage.js"></script>
+        <script src="/static/newScriptJS/tournament.js"></script>
+        
+        <script src="/static/oauth/alerter.js"></script>
+		<script src="/static/oauth/fragments/mfa.js"></script>
+		<script src="/static/oauth/fragments/email-verification.js"></script>
+		<script src="/static/oauth/fragments/modal.js"></script>
+		<script src="/static/oauth/jobs.js"></script>
+		<script src="/static/oauth/functions.js"></script>
+		<script src="/static/oauth/allauth.js"></script>
+        <script src="/static/newScriptJS/join.js"></script>
+		<script src="/static/views.js"></script>
+		<script src="/static/router.js"></script>
+`;

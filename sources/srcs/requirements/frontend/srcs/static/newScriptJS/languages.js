@@ -13,31 +13,38 @@ let currentLanguage = 'en';
 async function loadLanguages() 
 {
     const response = await fetch('/static/newScriptJS/languages.json');
-    ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${currentLanguage}.png`;
     translations = await response.json();
+    refreshLanguage();
 }
 
 async function refreshLanguage()
 {
-    if (translations[currentLanguage])
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETLANGUAGE, user);
+    if (response.status === 'success')
     {
-        currentLanguage = currentLanguage;
-        updateUI();
+        currentLanguage = response.language;
+        console.log("si ya erreur de response je suis pas al stp");
     }
+    if (translations[currentLanguage])
+        updateUI(currentLanguage);
+    else
+        console.log('Language not found');
 }
 
-// Set current language
 async function setLanguage(lang) 
 {
-    if (lang !== currentLanguage)
+    if (translations[lang])
     {
-        if (translations[lang])
-        {
-            currentLanguage = lang;
-            updateUI();
-        }
-        else
-            console.error(`Language ${lang} not found`);
+        const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+        const data = {
+            "language": lang,
+            "username": user.username,
+        };
+        currentLanguage = lang;
+        const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
+        console.log("Dans set language response gang: ", response);
+        refreshLanguage();
     }
 }
 
@@ -48,10 +55,10 @@ function translate(key)
 }
 
 // Update UI with current language translations
-function updateUI() 
+function updateUI(lang) 
 {
     const translateElements = document.querySelectorAll('[data-translate]');
-    ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${currentLanguage}.png`;
+    ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${lang}.png`;
 
     translateElements.forEach(element => {
         const key = element.getAttribute('data-translate');
@@ -68,7 +75,6 @@ function languagePopOver()
     let frenchFlag;
     let spainFlag;
     popOverLanguage.id = "popOverLanguage";
-    console.log("valeur de current language: ", currentLanguage);
     if (currentLanguage === 'en')
     {
         console.log("dans le if de en");

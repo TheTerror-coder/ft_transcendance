@@ -1,6 +1,19 @@
 
 //TODO: Nico: ?? this one is not used
 //metre a joue les infos, si le user change de nom
+
+async function tournamentView(title, description, data) 
+{
+	document.title = title;
+	ELEMENTs.doorJamp().style.display = 'flex';
+	ELEMENTs.mainPage().innerHTML = tournamentCreateOrJoinVAR;
+	ELEMENTs.twoFA().style.display = 'none';
+	refreshLanguage();
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
+	ELEMENTs.joinTournamentButton().onclick = () => joinTournament();
+	ELEMENTs.createTournamentButton().onclick = () => createTournament();
+}
+
 async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
@@ -9,20 +22,19 @@ async function UserProfileView(username, description, data)
 	ELEMENTs.doorJamp().style.display = 'flex';
 
 	document.title = username +  " | " + PAGE_TITLE;
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
+	// window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	// console.log("user :  ", response);
-	// console.log("game played :  ", response.user_info['game played']);
-	// console.log("victory :  ", response.user_info.victorie);
-	// console.log("photo :  ", response.user_info.photo);
-	// console.log("prime :  ", response.user_info.prime);
+	console.log("user quand on display le goat bite :  ", response);
 	const photoUrl = response.user_info.photo;
-	const imgElement = ELEMENTs.photoUser ();
+	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
 	ELEMENTs.nameUser().innerHTML = username;
-	ELEMENTs.prime().innerHTML = response.user_info.prime;
+	if (response.user_info.prime === null)
+		ELEMENTs.prime().innerHTML = "0";
+	else
+		ELEMENTs.prime().innerHTML = response.user_info.prime;
 	await getHistoric(response.user_info['game played']);
 	await statsInProfilePage();
 }
@@ -36,33 +48,27 @@ async function	homeView(title, description, data)
 	ELEMENTs.mainPage().innerHTML = homePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 	
-	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
-
-	// ELEMENTs.flag().className = "homepageFlag";
-	// ELEMENTs.englandFlagImg().style.transform = "scale(1.2)";
-	// ELEMENTs.englandFlag().style.marginRight = "-0.01px";
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	
 	ELEMENTs.usernameOfWanted().innerHTML = response.username;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
-	ELEMENTs.wantedProfile().onclick = () => {
-		window.history.pushState({}, "", URLs.VIEWS.PROFILE);
-		handleLocation();
+	ELEMENTs.wantedProfile().onclick = async () => {
+		await replace_location(URLs.VIEWS.PROFILE);
 	};
 	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
-	console.log('homeView: ');
 }
 
 async function	loginView(title, description, data) {
 	if (await isUserAuthenticated({})) {
-		replace_location(URLs.VIEWS.HOME);
+		await replace_location(URLs.VIEWS.HOME);
 	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
-	background.style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
@@ -80,10 +86,10 @@ async function	profileView(title, description, data)
 	document.title = title;
 
 	ELEMENTs.doorJamp().style.display = 'flex';
-	background.style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: ", response.photo);
+	console.log("response: de l'utilisateur", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
@@ -95,7 +101,7 @@ async function	profileView(title, description, data)
 	ELEMENTs.twoFA().style.display = 'block';
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
-	await getHistoric(response.recent_games);
+	await getHistoric(response.recent_games, response.username);
 	await statsInProfilePage();
 }
 
@@ -118,7 +124,7 @@ async function	createLobbyView(title, description, data)
 			ELEMENTs.luffyChibi().style.opacity = 1;
 		}
 	});
-	ELEMENTs.cross().onclick = () => refreshHomePage();
+	// ELEMENTs.cross().onclick = () => await replace_location(URLs.VIEWS.HOME);
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 

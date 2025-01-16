@@ -39,30 +39,32 @@ async function updateLobby(data)
         ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
     }
 }
-
+ 
 async function updateLobbyOneVsOne(data)
 {
     const user1 = {"username": data[1][0].name};
-        const responseCreator = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user1);
-        if (data[2].length === 1)
+    const responseCreator = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user1);
+    if (data[2].length === 1)
+    {
+        const user2 = {"username": data[2][0].name};
+        console.log("data[2][0].name", data[2][0].name);
+        if (ELEMENTs.lobbyDisplayRapidPlayPlayerTwo() !== null)
         {
-            const user2 = {"username": data[2][0].name};
-            console.log("data[2][0].name", data[2][0].name);
-        
-            ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
+
+            ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo; // TO DO: check if the guy is on the good page
             if (data[2].length === 1)
             {
-                const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user2);
                 const imgElement2 = document.getElementById("pictureOfWanted2");
-                setTimeout(() =>{
-                    const photoUrl2 = response.user_info.photo;
-                    imgElement2.src = photoUrl2;
-                    document.getElementById("usernameOfWanted2").innerHTML = data[2][0].name;
-                    let primeAmount2 = response.user_info.prime;
-                    if (response.user_info.prime === null)
-                        primeAmount2 = 0;
-                    document.getElementById("primeAmount2").innerHTML = primeAmount2;
-                }, 30);
+                const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user2);
+                // setTimeout(() =>{
+                const photoUrl2 = response.user_info.photo;
+                imgElement2.src = photoUrl2;
+                document.getElementById("usernameOfWanted2").innerHTML = data[2][0].name;
+                let primeAmount2 = response.user_info.prime;
+                if (response.user_info.prime === null)
+                    primeAmount2 = 0;
+                document.getElementById("primeAmount2").innerHTML = primeAmount2;
+                // }, 30);
             }
             const photoUrl1 = responseCreator.user_info.photo;
             const imgElement1 = document.getElementById("pictureOfWanted");
@@ -72,14 +74,15 @@ async function updateLobbyOneVsOne(data)
             if (responseCreator.user_info.prime === null) // TODO: should be in the back
                 document.getElementById("primeAmount").innerHTML = 0;
         }
+    }
 }
 
 async function setwantedProfileInLobby(user, position)
 {
+    const imgElement = document.getElementById(`pictureOfWanted${position}`);
     const userResponse = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 
-    const imgElement = document.getElementById(`pictureOfWanted${position}`);
-    setTimeout(() =>{
+    // setTimeout(() =>{
         const photoUrl = userResponse.user_info.photo;
         imgElement.src = photoUrl;
         document.getElementById(`usernameOfWanted${position}`).innerHTML = user.username;
@@ -87,7 +90,7 @@ async function setwantedProfileInLobby(user, position)
         if (userResponse.user_info.prime === null)
             primeAmount = 0;
         document.getElementById(`primeAmount${position}`).innerHTML = primeAmount;
-    }, 30);
+    // }, 30);
 }
 
 async function updateLobbyTwoVsTwo(data)
@@ -136,6 +139,8 @@ async function updateLobbyTwoVsTwo(data)
 
 function startGameLobby ()
 {
-    console.log("start game lobby OOOOOOOOOOOOOOO");
-    globalSocket.emit('launchGame', savedGameCode);
+    console.log("juste avant le changement");
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
+    console.log("savedGameCode: ", savedGameCode.code);
+    globalSocket.emit('launchGame', savedGameCode.code);
 }

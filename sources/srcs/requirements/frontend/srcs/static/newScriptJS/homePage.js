@@ -1,18 +1,4 @@
 
-function refreshHomePage()
-{
-    window.history.pushState({}, "", URLs.VIEWS.HOME);
-    handleLocation();
-}
-
-// async function setLanguage()
-// {
-//     const language = document.getElementById("EN").value;
-//     const data = {"language": language};
-//     const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
-//     alert(response.message);
-// }
-
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;
@@ -23,7 +9,6 @@ async function addFriend()
     }
     const data = {"username": usernameAddValue};
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    console.log('user:', user);
     const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
     if (resp.status === 'error') {
         socket = new WebSocket("wss://${window.location.host}/websocket/friend_invite/");

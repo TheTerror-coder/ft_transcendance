@@ -21,7 +21,7 @@ async function statsInProfilePage(game_played, victories)
     progressValue.textContent = `${percentage}%`;
 }
 
-async function getHistoric(game)
+async function getHistoric(game, user)
 {
     console.log("game.length: ", game.length);
     if (game.length === 0)
@@ -39,7 +39,6 @@ async function getHistoric(game)
         result.dataset.translate = "NoGamePlayed";
         match.appendChild(result);
         ELEMENTs.historicMatch().appendChild(match);
-        return ;
     }
     else
     {
@@ -55,23 +54,30 @@ async function getHistoric(game)
 
 
             console.log("game: ", game);
-            console.log("result i: ", i);
             resultUser.className = 'resultDisplayHistoric';
-
-
-            resultUser.textContent = game.resultUser;
-            resultAdvUser.textContent = game.resultAdvUser;
-            username.textContent = game.username;
-            advUsername.textContent = game.advUsername;
+            console.log("YOOOOOO gang game[i].player yeah: ", game[i].player);
+            if (user === game[i].player)
+            {
+                username.textContent = game[i].player;
+                resultUser.textContent = game[i].player_score;
+                resultAdvUser.textContent = game[i].opponent_score;
+                advUsername.textContent = game[i].opponent;
+            }
+            else
+            {
+                username.textContent = game[i].opponent;
+                resultUser.textContent = game[i].opponent_score;
+                resultAdvUser.textContent = game[i].player_score;
+                advUsername.textContent = game[i].player;
+            }
             match.appendChild(username);
             match.appendChild(resultUser);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
+            ELEMENTs.historicMatch().appendChild(match);
         }
         //else game 2 v 2
-
     }
-
 }
 
 async function displayWaitingListFriend(friends) {
@@ -162,10 +168,8 @@ async function displayWaitingListFriend(friends) {
                     friend_request_id: friends[i].friend_request_id
                 }));
 
-                // Après rejet, on supprime l'invitation de la liste
                 dropdownMenu.removeChild(listItem);
 
-                // Vérifier si la liste est vide après le rejet
                 if (dropdownMenu.children.length === 0) {
                     const noInvitationsItem = document.createElement('li');
                     noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
@@ -187,7 +191,10 @@ async function displayWaitingListFriend(friends) {
 async function addFriendToFriendList(friend) {
     const friendListMenu = document.getElementById('friendDropdownMenu');
     
-    // Créer l'élément pour l'ami
+    if (document.getElementById("noFriends") !== null)
+    {
+        document.getElementById("noFriends").remove();
+    }
     const listItem = document.createElement('li');
     listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
@@ -210,7 +217,7 @@ async function addFriendToFriendList(friend) {
     actionButton.appendChild(imgButton);
 
     // Ajouter l'ami à la liste des amis dans le DOM
-    buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
+    buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
     buttonDisplayFriend.appendChild(nameSpan);
     listItem.appendChild(circleIsConnect);
     listItem.appendChild(buttonDisplayFriend);
@@ -229,6 +236,7 @@ async function displayFriend(friends, user_socket) {
     // Vérification si la liste d'amis est vide
     if (friends.length === 0) {
         const listItem = document.createElement('li');
+        listItem.id = "noFriends";
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
         const nameSpan = document.createElement('span');
         nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
@@ -269,7 +277,6 @@ async function displayFriend(friends, user_socket) {
                 try {
                     // Suppression de l'ami via une requête
                     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friends[i].username });
-                    console.log("Réponse suppression ami : ", response);
                     alert(`${friends[i].username} ne fait plus partie de vos amis`);
 
                     // Retirer l'ami de la liste affichée
@@ -291,7 +298,7 @@ async function displayFriend(friends, user_socket) {
             });
 
             // Afficher le profil de l'ami
-            buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
+            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
             buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
             listItem.appendChild(buttonDisplayFriend);
@@ -299,27 +306,6 @@ async function displayFriend(friends, user_socket) {
             dropdownMenu.appendChild(listItem);
         }
     }
-}
-
-
-async function userProfileDisplay(username)
-{
-	ELEMENTs.mainPage().innerHTML = usersProfilePage;
-    ELEMENTs.profilePage().style.display = 'flex';
-	document.title = username +  " | " + PAGE_TITLE;
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
-
-
-	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
-
-
-	ELEMENTs.nameUser().innerHTML = username;
-	// update berry gang
-
-	// mettre en parametre les donnees du frero
-	await getHistoric();
-	await statsInProfilePage();
-
 }
 
 // Change Username
@@ -340,9 +326,7 @@ const togglePopover = (event) =>
 
 
     if (existingPopover && event.target !== ELEMENTs.fileButton()) 
-    {
-        existingPopover.remove(); // Remove it if it exists
-    } 
+        existingPopover.remove();
     else 
     {
         // Create a container div and set its content
@@ -372,7 +356,8 @@ document.addEventListener('click', (event) =>
         return ;
     if (ELEMENTs.fileButton() !== null)
         {
-            if (event.target === ELEMENTs.fileButton()){
+            if (event.target === ELEMENTs.fileButton())
+            {
             console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
@@ -395,10 +380,8 @@ async function changePicture(picture) {
     const data = new FormData();
     data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
-    if (response.status === 'success') {
-        alert('Profile photo updated');
-        console.log("response.photo: ", response.photo);
-    }
+    if (response.status === 'success') 
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -471,9 +454,8 @@ async function changeUsername(newUsername) {
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
-    if (response.status === 'success') {
-        alert('Username updated');
-    }
+    if (response.status === 'success')
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -494,3 +476,14 @@ async function changeUsername(newUsername) {
         }
     }
 }
+
+
+
+// ELEMENTs.bookProfile().addEventListener('mouseleave', function() 
+// {
+//     console.log("je suis dans le mouseleave");
+//     if (document.getElementById("dropdownMenu"))
+//         document.getElementById("dropdownMenu").innerHTML = '';
+//     if (document.getElementById("waitingFriendDropdownMenu"))
+//         document.getElementById('waitingFriendDropdownMenu').innerHTML = '';
+// });
