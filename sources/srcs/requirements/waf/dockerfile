@@ -7,6 +7,7 @@ FROM owasp/modsecurity-crs:${MODSECURITY_TAG}
 ARG MODSEC_DEBUG_LOG_DIR=/var/log
 ARG MODSEC_AUDIT_LOG_DIR=/var/log
 ARG NGINX_LOG_FILES=/var/log/access.log
+ARG MODSEC_AUDIT_LOG=/var/log/access.log
 ARG MODSEC_HOME=/usr/share/nginx
 ARG NGINX_STATICFILES_DIR=${MODSEC_HOME}/volumes/www/static
 ARG NGINX_UID=101
@@ -25,7 +26,7 @@ apk add --update --no-cache dumb-init jq
 addgroup -g ${SHARED_GID} transcendance
 addgroup nginx transcendance
 mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
-touch ${NGINX_LOG_FILES}
+touch ${NGINX_LOG_FILES} ${MODSEC_AUDIT_LOG}
 chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes ${MODSEC_HOME}/container-init.d
 chmod 770 ${NGINX_STATICFILES_DIR}
 chmod 777 ${MODSEC_HOME}/volumes/elk/certs
