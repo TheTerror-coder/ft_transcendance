@@ -392,7 +392,7 @@ services:
     volumes:
     #   - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
     #   - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
-      # - frontend_logs:${FRONTEND_LOG_FILES_DIR}
+      - frontend_logs:${FRONTEND_LOGS_ROOT}
       - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
       - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
       - mediafiles:${FRONTEND_HOME}/volumes/media
@@ -606,4 +606,6 @@ volumes:
   proxy_waf_logs:
     driver: local
   vault_waf_logs:
+    driver: local
+  frontend_logs:
     driver: local

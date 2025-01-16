@@ -160,6 +160,7 @@ services:
       - kibana_waf_logs:/usr/share/logstash/kibana_waf/logs/
       - vault_waf_logs:/usr/share/logstash/vault_waf/logs/
       - proxy_waf_logs:/usr/share/logstash/proxy_waf/logs/
+      - frontend_logs:/usr/share/logstash/frontend/logs/
     environment:
       - SHARED_GID=${SHARED_GID}
       - ELASTIC_USER=${ELASTIC_USER}
