@@ -9,6 +9,7 @@ ARG SHARED_GID=1010
 USER 0
 
 RUN <<EOF
+apt-get update && apt-get install -y dumb-init
 addgroup --gid ${SHARED_GID} transcendance
 addgroup logstash transcendance
 mkdir -p ${LOGSTASH_DIRS_TO_MAKE}
@@ -42,6 +43,6 @@ COPY --chown=1000:1000 --chmod=777 ./conf/4-outputs.conf		/usr/share/logstash/pi
 
 USER 1000
 
-# ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-ENTRYPOINT [ "bash", "/usr/share/logstash/script.sh" ]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/bin/bash", "-c", "/usr/share/logstash/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]

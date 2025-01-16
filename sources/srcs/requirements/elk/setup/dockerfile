@@ -10,6 +10,7 @@ USER 0
 COPY --chown=1000:1000 --chmod=500 ./tools/script.sh /usr/share/elasticsearch/script.sh
 
 RUN <<EOF
+apt-get update && apt-get install -y dumb-init
 addgroup --gid ${SHARED_GID} transcendance
 addgroup elasticsearch transcendance
 mkdir -p /usr/share/elasticsearch/config/certs
@@ -21,5 +22,6 @@ EOF
 
 USER 1000
 
-ENTRYPOINT [ "/bin/bash", "/usr/share/elasticsearch/script.sh" ]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/bin/bash", "-c", "/usr/share/elasticsearch/script.sh" ]
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]
