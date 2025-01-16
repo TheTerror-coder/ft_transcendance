@@ -118,7 +118,7 @@ export async function main(gameCode, socket, currentLanguage) {
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode);
     socket.emit('playerReady', gameCode);
     console.log('Player ready sent');
     await waitForGameStarted(currentPlayer);
@@ -178,7 +178,8 @@ export async function main(gameCode, socket, currentLanguage) {
                     renderer = null;
                     cameraPlayer = null;
                     
-                    socket.disconnect();
+                    if (gameCode.length == 4)
+                        socket.disconnect();
                 }
             }
             

@@ -7,6 +7,7 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentFull', tournamentFullEvent);
     globalSocket.on('tournamentPlayerList', tournamentPlayerListEvent);
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
+    globalSocket.on('startTournamentGame', startTournamentGameEvent);
 }
 
 const tournamentCreatedEvent = (data) => {
@@ -31,6 +32,14 @@ const tournamentMatchEvent = (data) => {
     console.log("TOURNAMENT MATCH: ", data);
 }
 
+const startTournamentGameEvent = async (data) => {
+    console.log("START TOURNANT Game")
+    const module = await import('../pong/pong.js');
+    document.getElementById('background').innerHTML = "";
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
+    await module.main(data.gameCode, globalSocket, currentLanguage);
+}
+
 async function joinTournament()
 {
     const socket = await initializeSocket();
@@ -40,11 +49,13 @@ async function joinTournament()
     ELEMENTs.centerTournament().style.justifyItems = "center";
     tournamentCodeJS = "1234";
     console.log("tournamentCodeJS : ", tournamentCodeJS);
-    for (let i = 0; i < 7; i++)
-    {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
-    }
+    // for (let i = 0; i < 7; i++)
+    // {
+        // await new Promise(resolve => setTimeout(resolve, 1000));
+        // globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
+    // }
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: tournamentCodeJS});
 }
 
 async function createTournament()
@@ -54,5 +65,6 @@ async function createTournament()
     console.log("CREATE TOURNAMENT");
     ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
     ELEMENTs.centerTournament().style.justifyItems = "center";
-    globalSocket.emit('createTournament', {teamName: "ben"});
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    globalSocket.emit('createTournament', {teamName: user.username});
 }

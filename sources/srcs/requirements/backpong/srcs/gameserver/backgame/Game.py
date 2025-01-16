@@ -27,6 +27,7 @@ class Game:
         self.playerReady = 0
         self.isPaused = False
         self.winner = None
+        self.loser = None
         self.isGameTournament = isGameTournament
         self.tournament = tournament
         # Constantes pour la balle
@@ -37,7 +38,7 @@ class Game:
         self.FIELD_WIDTH = 150
         self.FIELD_HEIGHT = 105
 
-        self.WINNING_SCORE = 50
+        self.WINNING_SCORE = 10
 
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
@@ -51,6 +52,9 @@ class Game:
     
     def getWinner(self):
         return self.winner
+    
+    def getLoser(self):
+        return self.loser
 
     def getGameId(self):
         return self.gameId
@@ -98,8 +102,8 @@ class Game:
             self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
             
             # Ajouter des logs pour le debugging
-            logger.info(f"Ball direction: {self.ballDirection}")
-            logger.info(f"Ball speed: {self.BALL_SPEED}")
+            # logger.info(f"Ball direction: {self.ballDirection}")
+            # logger.info(f"Ball speed: {self.BALL_SPEED}")
             
         return self.ballPosition
     
@@ -162,14 +166,14 @@ class Game:
             isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
                             self.ballPosition['y'] > adjusted_hitbox['min']['y'])
         
-        logger.info(f"ballPosition: {self.ballPosition}")
-        logger.info(f"team.TeamId: {team.TeamId}")
-        logger.info(f"hitbox: {adjusted_hitbox}")
+        # logger.info(f"ballPosition: {self.ballPosition}")
+        # logger.info(f"team.TeamId: {team.TeamId}")
+        # logger.info(f"hitbox: {adjusted_hitbox}")
 
-        logger.info(f"isInZRange: {isInZRange}")
-        logger.info(f"isInYRange: {isInYRange}")
-        logger.info(f"isOnLeftSide: {isOnLeftSide}")
-        logger.info(f"isOnRightSide: {isOnRightSide}")
+        # logger.info(f"isInZRange: {isInZRange}")
+        # logger.info(f"isInYRange: {isInYRange}")
+        # logger.info(f"isOnLeftSide: {isOnLeftSide}")
+        # logger.info(f"isOnRightSide: {isOnRightSide}")
 
         if isOnLeftSide:
             return 4
@@ -252,9 +256,9 @@ class Game:
             if (hitbox['max']['x'] + 1.5 >= self.FIELD_WIDTH / 2):
                 return
             # Déplacer la balle légèrement à l'extérieur de la hitbox
-            logger.info(f"ballPosition: {self.ballPosition}")
+            # logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["max"]["x"] + 1.5
-            logger.info(f"ballPosition: {self.ballPosition}")
+            # logger.info(f"ballPosition: {self.ballPosition}")
             if (self.ballDirection["y"] == 0):
                 self.ballDirection["y"] = -self.ballDirection["y"]
             else:
@@ -276,9 +280,9 @@ class Game:
             if (hitbox['min']['x'] - 1.5 <= -self.FIELD_WIDTH / 2):
                 return
             # Déplacer la balle légèrement à l'extérieur de la hitbox
-            logger.info(f"ballPosition: {self.ballPosition}")
+            # logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["min"]["x"] - 1.5
-            logger.info(f"ballPosition: {self.ballPosition}")
+            # logger.info(f"ballPosition: {self.ballPosition}")
             if (self.ballDirection["y"] == 0):
                 self.ballDirection["y"] = -self.ballDirection["y"]
             else:
@@ -300,7 +304,8 @@ class Game:
             self.teams[1].addPoint()
             await sio.emit('scoreUpdate', {
                 'team1': self.teams[1].getScore(),
-                'team2': self.teams[2].getScore()
+                'team2': self.teams[2].getScore(),
+                'gameCode': gameCode
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
@@ -309,7 +314,8 @@ class Game:
             self.teams[2].addPoint()
             await sio.emit('scoreUpdate', {
                 'team1': self.teams[1].getScore(),
-                'team2': self.teams[2].getScore()
+                'team2': self.teams[2].getScore(),
+                'gameCode': gameCode
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
@@ -577,7 +583,7 @@ class Game:
         }
         return (gameData)
 
-    async def sendGameData(self, sio, gameCode, sid):
+    async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):
         logger.info("sendGameData")
         # Convertir les objets Player en format attendu par le client
         
@@ -589,8 +595,11 @@ class Game:
         else:
             teamsArray = self.createConnectGameData()
             logger.info(f'Sending gameData: {teamsArray} to the gameCode: {gameCode}')
-            await sio.emit('gameData', teamsArray, room=gameCode)
-
+            if (isTournament):
+                await sio.emit('gameData', teamsArray, room=originalGameCode)
+            else:
+                await sio.emit('gameData', teamsArray, room=gameCode)
+    
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
         await self.updateBoatPosition(teamId, boatX, boatY, boatZ)
         await self.updateCannonPosition(teamId, cannonX, cannonY, cannonZ)
@@ -599,12 +608,14 @@ class Game:
         if self.teams[1].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[1].name, room=gameCode)
             self.gameStarted = False
-            self.winner = self.teams[1].name
+            self.winner = self.teams[1]
+            self.loser = self.teams[2]
             await self.sendGameInfo(sio, gameCode)
         elif self.teams[2].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
-            self.winner = self.teams[2].name
+            self.winner = self.teams[2]
+            self.loser = self.teams[1]
             await self.sendGameInfo(sio, gameCode)                
 
     def createEndGamePayload(self):

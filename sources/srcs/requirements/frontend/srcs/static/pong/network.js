@@ -10,7 +10,7 @@ function findTeam(Team1, Team2, teamID)
         return (Team2);
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
     socket.on('connect', (data) => {
@@ -115,10 +115,10 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     });
 
     socket.on('scoreUpdate', async (data) => {
-        const {team1, team2} = data;
+        const {team1, team2, gameCode} = data;
         Team1.setScore(team1);
         Team2.setScore(team2);
-        console.log('Score updated - Team 1: ', team1, 'Team 2: ', team2);
+        console.log('Score updated for gameCode: ', gameCode, ' - Team 1: ', team1, 'Team 2: ', team2);
         scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
     });
 }
