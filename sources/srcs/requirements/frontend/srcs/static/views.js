@@ -10,7 +10,7 @@ async function tournamentView(title, description, data)
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
-	ELEMENTs.joinTournamentButton().onclick = () => joinTournament();
+	ELEMENTs.joinTournamentButton().onclick = () => joinTournamentDisplay();
 	ELEMENTs.createTournamentButton().onclick = () => createTournament();
 }
 

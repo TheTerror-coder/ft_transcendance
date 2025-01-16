@@ -43,6 +43,7 @@
         "createTournament": "Create Tournament",
         "TournamentCode": "TOURNAMENT CODE : ",
         "StartTournament": "START",
+        "empty": "Empty",
 
         "Logout": "LOGOUT"
     },
@@ -92,6 +93,7 @@
         "createTournament": "Crear Torneo",
         "TournamentCode": "CODIGO TORNEO : ",
         "StartTournament": "INICIAR",
+        "empty": "Vacio",
 
 
         "Logout": "DESCONECTARSE"
@@ -141,6 +143,7 @@
         "createTournament": "Créer un Tournois",
         "TournamentCode": "CODE TOURNOIS : ",
         "StartTournament": "DEMARRER",
+        "empty": "Vide",
         "Logout": "DÉCONNEXION"
     }
 }

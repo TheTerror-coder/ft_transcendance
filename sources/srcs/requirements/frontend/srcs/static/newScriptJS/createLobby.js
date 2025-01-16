@@ -172,18 +172,23 @@ const UpdatePlayerListEvent = async (data) => {
     }
 }
 
-const TeamsFullEvent = () => {
-    // TO DO: creator only !
-
-    if (ELEMENTs.PlayButtonInLobby()) 
-        ELEMENTs.PlayButtonInLobby().style.display = "block";
+const TeamsFullEvent = () => 
+{
+    console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
+    if (creator === null)
+    {
+        if (ELEMENTs.PlayButtonInLobby())
+            ELEMENTs.PlayButtonInLobby().style.display = "block";
+    }
 }
 
-const StartGameEvent = async (data) => {
+const StartGameEvent = async (data) => 
+{
     const module = await import ('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     await module.main(savedGameCode.code, globalSocket, currentLanguage);
+    ELEMENTs.background().style.backgroundImage = '';
     console.log("globalSocket dans startGame: ", globalSocket);
     globalSocket.off('startGame', StartGameEvent);
     globalSocket.off('TeamsFull', TeamsFullEvent);
