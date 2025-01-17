@@ -1,11 +1,4 @@
 
-
-
-//TO DO: fetech the language and keep it in db
-
-
-
-// languageSwitcher.js
 let translations = {};
 let currentLanguage = 'en';
 
@@ -24,7 +17,6 @@ async function refreshLanguage()
     if (response.status === 'success')
     {
         currentLanguage = response.language;
-        console.log("si ya erreur de response je suis pas al stp");
     }
     if (translations[currentLanguage])
         updateUI(currentLanguage);
@@ -43,7 +35,6 @@ async function setLanguage(lang)
         };
         currentLanguage = lang;
         const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
-        console.log("Dans set language response gang: ", response);
         refreshLanguage();
     }
 }

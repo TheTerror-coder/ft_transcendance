@@ -69,7 +69,7 @@ const URLs = Object.freeze({
 		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
 		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
 		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
-		SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
+		// SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
 		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
 		GETLANGUAGE : BACKEND_BASE_URL + '/user-management/get-language/',
 		TOURNAMENT : BACKEND_BASE_URL + '/user-management/tournament/',

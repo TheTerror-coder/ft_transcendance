@@ -24,6 +24,7 @@ from allauth.account.internal.flows.login import record_authentication
 from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
+from django.contrib.auth.models import AnonymousUser
 
 
 GLOBAL_TOURNAMENT = {
@@ -38,7 +39,6 @@ GLOBAL_TOURNAMENT = {
 @permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
-		print("register", request.data, file=sys.stderr)
 		form = CustomUserCreationForm(request.data, request.FILES)
 		if form.is_valid():
 			form.save()
@@ -120,6 +120,7 @@ def login_view(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
+	logout(request)
 	username = request.data.get('username')
 	if not username:
 		return Response({
@@ -134,7 +135,6 @@ def logout_view(request):
 			'status': 'error',
 			'message': 'User not connected'
 		}, status=400)
-	logout(request)
 	return Response({
 		'status': 'success',
 		'redirect': True,
@@ -146,7 +146,6 @@ def logout_view(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-	print("update-profile", request.data, file=sys.stderr)
 	username = request.data.get('username')
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
 	
@@ -182,13 +181,10 @@ def update_photo(request):
 			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
 		}, status=400)
 	fs = FileSystemStorage()
-	print("*******DEBUG********uploaded_file.name: ", uploaded_file.name, file=sys.stderr)
 	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
 	file_url = fs.url(filename)
-	print("*******DEBUG********file_url", file_url, file=sys.stderr)
 	user = request.user
 	user.photo = filename
-	print("*******DEBUG********user.photo: ", user.photo, file=sys.stderr)
 	user.save()
 	if user.photo.url:
 		return Response({
@@ -212,13 +208,6 @@ def update_photo(request):
 def set_language(request):
 	username = request.data.get('username')
 	language = request.data.get('language')
-
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': 'Le nom d\'utilisateur est requis.'
-		}, status=400)
-
 	try:
 		user = User.objects.get(username=username)
 	except User.DoesNotExist:
@@ -228,9 +217,8 @@ def set_language(request):
 		}, status=404)
 
 	form = UpdateUserLanguageForm({'language': language})
-
 	if form.is_valid():
-		user.language = form.cleaned_data['language']
+		user.language = language
 		user.save()
 		
 		return Response({
@@ -309,14 +297,12 @@ def get_user_profile(request):
 			'language': to_user.language,
 		}
 		if to_user.photo_link:
-			print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
 			user_info['photo'] = to_user.photo_link 
 		elif to_user.photo:
 			user_info['photo'] = to_user.photo.url 
 		else:
 			user_info['photo'] = None
 
-		print("User profile info:", user_info, file=sys.stderr)
 		return Response({
 			'status': 'success',
 			'user_info': user_info,
@@ -544,7 +530,6 @@ def remove_friend(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def get_user_sockets(request):
-	print("get_user_sockets", request.data, file=sys.stderr)
 	username = request.data.get('username')
 	if not username:
 		return Response({
@@ -563,9 +548,14 @@ def get_user_sockets(request):
 		}, status=400)
 
 @api_view(['GET'])
-@login_required
 @csrf_protect
+@permission_classes([AllowAny])
 def get_user(request):
+	if isinstance(request.user, AnonymousUser):
+		return Response({
+			'status': 'error',
+			'message': 'User is not authenticated',
+		}, status=401)
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
@@ -604,15 +594,8 @@ def calculate_score(user_username, opponent_username, player_won):
 
 
 @api_view(['POST'])
-# @login_required
-# @csrf_protect
 @permission_classes([AllowAny])
 def set_info_game(request):
-	print("set_info_game", request.data, file=sys.stderr)
-
-	# except Exception as e:
-	# 	return Response({'status': 'error', 'message': str(e)}, status=400)
-
 	if request.data.get('player') == request.data.get('winner'):
 		winner = request.data.get('player')
 		winner_score = int(request.data.get('player_score'))
@@ -637,7 +620,6 @@ def set_info_game(request):
 		}, status=400)
 	
 	prime_winner, prime_looser = calculate_score(winner, looser, request.data.get('winner'))
-	print("prime_winner", prime_winner, "prime_looser", prime_looser, file=sys.stderr)
 	try:
 		user_win = User.objects.get(username=winner)
 		user_loose = User.objects.get(username=looser)
@@ -666,15 +648,6 @@ def set_info_game(request):
 		'status': 'success',
 		'message': 'Données de la partie enregistrées avec succès.',
 	}, status=200)
-
-
-
-
-
-# response = await makeRequest('POST', URLs.USERMANAGEMENT.SETINFOGAME, {'player': 'nico', 'opponent':'nico', 'player_score': 10, 'opponent_score': 5});
-
-
-
 
 def perform_mfa_stage(request):
 	from allauth.headless.account.inputs import LoginInput

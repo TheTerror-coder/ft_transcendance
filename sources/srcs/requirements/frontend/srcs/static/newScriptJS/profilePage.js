@@ -20,7 +20,7 @@ async function statsInProfilePage(game_played, victories, lose)
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
 
-    percentage = Math.min(Math.max(percentage, 0), 100);
+    percentage = Math.round(percentage);
 
     circularProgress.style.background = `conic-gradient(
         #4caf50 0% ${percentage}%, 
@@ -67,7 +67,7 @@ async function getHistoric(game, user)
 
             console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
-            console.log("YOOOOOO gang game[i].player yeah: ", game[i].player);
+            console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
             if (user === game[i].player)
             {
                 username.textContent = game[i].player;
