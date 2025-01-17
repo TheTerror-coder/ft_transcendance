@@ -143,6 +143,9 @@ async function navigationPlayMenu()
         nav = 2;
         if (globalSocket !== null)
         {
+            teamAvailable.team = 0;
+            roleAvailableBlackBeard.role = 0;
+            roleAvailableWhiteBeard.role = 0;
             globalSocket.disconnect();
             globalSocket = null;
         }

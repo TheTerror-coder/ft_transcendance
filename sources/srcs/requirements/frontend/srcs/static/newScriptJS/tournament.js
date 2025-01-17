@@ -1,3 +1,17 @@
+let tournamentAllUsers = 
+{
+    _user: [],
+
+    get users() {
+        return this._user;
+    },
+
+    set users(value) {
+        if (!this._user.includes(value)) {
+            this._user.push(value);
+        }
+    }
+};
 
 async function initializeTournamentGlobalSocket(socket)
 {
@@ -8,6 +22,17 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentPlayerList', tournamentPlayerListEvent);
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
+}
+
+async function joinTournamentDisplay()
+{
+
+    ELEMENTs.centerTournament().innerHTML = joinTournamentVAR;
+    ELEMENTs.centerTournament().style.justifyItems = "center";
+    const socket = await initializeSocket();
+    initializeTournamentGlobalSocket(socket);
+    refreshLanguage();
+    ELEMENTs.joinButtonTournament().onclick = () => joinTournament(ELEMENTs.number().value);
 }
 
 const tournamentCreatedEvent = (data) => {
@@ -26,6 +51,8 @@ const tournamentFullEvent = (data) => {
 
 const tournamentPlayerListEvent = (data) => {
     console.log("TOURNAMENT PLAYER LIST: ", data);
+    console.log("data.length : ", data.length)
+    usersInTournament(data, data.length);
 }
 
 const tournamentMatchEvent = (data) => {
@@ -40,22 +67,34 @@ const startTournamentGameEvent = async (data) => {
     await module.main(data.gameCode, globalSocket, currentLanguage);
 }
 
-async function joinTournament()
+const errorTournamentEvent = (data) => {
+    console.log("ERROR TOURNAMENT: ", data);
+    alert(data.message);
+    error = data.message;
+}
+
+async function joinTournament(code)
 {
-    const socket = await initializeSocket();
-    initializeTournamentGlobalSocket(socket);
     console.log("JOIN TOURNAMENT");
-    ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
-    ELEMENTs.centerTournament().style.justifyItems = "center";
-    tournamentCodeJS = "1234";
-    console.log("tournamentCodeJS : ", tournamentCodeJS);
+    // tournamentCodeJS = "1234";
+    // console.log("tournamentCodeJS : ", tournamentCodeJS);
     // for (let i = 0; i < 7; i++)
     // {
-        // await new Promise(resolve => setTimeout(resolve, 1000));
-        // globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
+    // await new Promise(resolve => setTimeout(resolve, 1000));
+    // globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
     // }
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: tournamentCodeJS});
+    globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
+    setTimeout(() => {
+        if (error !== null)
+        {
+            console.log("error: ", error);
+            error = null;
+            return ;
+        }
+    }, 20);
+    ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
+    ELEMENTs.centerTournament().style.justifyItems = "center";
 }
 
 async function createTournament()
@@ -67,4 +106,71 @@ async function createTournament()
     ELEMENTs.centerTournament().style.justifyItems = "center";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('createTournament', {teamName: user.username});
+    refreshLanguage();
+    // addUserTournament(user.username);
+
+    // for (let i = 0; i < 8; i++)
+    // {
+    //     const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
+    //     console.log("usernameTournament : ", usernameTournament);
+    //     addUserTournament(usernameTournament, i);
+    // }
+    
+}
+
+// i sera le nombre de joueur qui ont rejoins en tout le tournois
+
+async function usersInTournament(usernameTournament, nbPlayer)
+{
+    console.log("usersInTournament");
+    ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
+    usernameTournament.forEach(function(element) {
+        if (!tournamentAllUsers.users.includes(element))
+        {   
+            addUserTournament(element);
+            tournamentAllUsers.users = element;
+        }
+    });
+    if (nbPlayer === 8)
+    {
+        ELEMENTs.startTournament().style.display = "flex";
+        ELEMENTs.startTournament().onclick = () => startTournament();
+        document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
+        ELEMENTs.tournamentWrite().innerHTML = "";
+        displayBinaryTree();
+    }
+}
+
+async function addUserTournament(usernameTournament)
+{
+    const div = document.createElement("div");
+    div.className = "tournamentPlayer";
+    const p = document.createElement("p");
+    p.innerHTML = usernameTournament;
+    p.className = "usernameTournament";
+    div.appendChild(p);
+    ELEMENTs.tournamentContent().appendChild(div);
+}
+
+function displayBinaryTree()
+{
+    console.log("display binary tree");
+    ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
+
+    // document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) { 
+    //     console.log(element);
+    //   });
+    setTimeout(() => {
+        document.querySelectorAll('[data-match="1"]').forEach(function(element) 
+        {
+            element.innerHTML = "dbaule0";
+            if (element.hasAttribute("data-translate"))
+                element.removeAttribute('data-translate');
+        });
+    }, 500);
+}
+
+function startTournament()
+{
+    console.log("start tournament");
 }

@@ -69,7 +69,7 @@ const joinCodeDisplay =
         <p class="fontConnexion">
             <input data-translate="placeholderJoinCode" id="number" type="text" class="form-control" placeholder="Lobby Code" maxlength="4" style="font-family: arial;" required>
         </p>
-        <button data-translate="join" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
+        <button data-translate="joinButton" id="joinButton" class="fontConfirmCreateAccount" type="submit" style="justify-content: center; margin-top: -20px; font-size: 300%;">Join</button>
     </div>
 </div>`;
 

@@ -134,6 +134,7 @@ function initializeGlobalSocket(socket)
 // }
 
 const AvailableOptionsEvent = (data) => {
+    console.log("AvailableOptionsEvent", data);
     if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)
     {
         initializeTeamAvailableJoinLobbyInfo(data)
@@ -190,16 +191,21 @@ const UpdatePlayerListEvent = async (data) => {
     }
 }
 
-const TeamsFullEvent = () => {
-    // TO DO: creator only !
-
-    if (ELEMENTs.PlayButtonInLobby()) 
-        ELEMENTs.PlayButtonInLobby().style.display = "block";
+const TeamsFullEvent = () => 
+{
+    console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
+    if (creator === null)
+    {
+        if (ELEMENTs.PlayButtonInLobby())
+            ELEMENTs.PlayButtonInLobby().style.display = "block";
+    }
 }
 
-const StartGameEvent = async (data) => {
+const StartGameEvent = async (data) => 
+{
     const module = await import ('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
+    ELEMENTs.background().style.backgroundImage = '';
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     try
     {
@@ -375,7 +381,7 @@ async function lobbyTwoPlayer()
     const role = roleChosen ? "Cannoneer" : "captain";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
-    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username }); // TODO: get user name from database
+    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username });
     setTimeout(() => {
         if (error !== null)
         {

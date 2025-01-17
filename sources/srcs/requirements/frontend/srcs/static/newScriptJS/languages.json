@@ -1,6 +1,6 @@
 {
     "en": {
-        "42SignIn": "SIGN IN WITH",
+        "42SignIn": "SIGN IN WITH ",
         "SignIn": "SIGN IN",
         "CreateAccount": "CREATE ACCOUNT",
         "placeholderUser": "Username",
@@ -41,6 +41,13 @@
         "NoGamePlayed": "No Game Played",
         "joinTournament": "Join Tournament",
         "createTournament": "Create Tournament",
+        "TournamentCode": "TOURNAMENT CODE : ",
+        "StartTournament": "START",
+        "empty": "Empty",
+        "final": "Final",
+        "semiFinal": "Semi-Final",
+        "quarterFinal": "Quarter-Final",
+
         "Logout": "LOGOUT"
     },
     "es": {
@@ -87,6 +94,15 @@
 
         "joinTournament": "Unirse al Torneo",
         "createTournament": "Crear Torneo",
+        "TournamentCode": "CODIGO TORNEO : ",
+        "StartTournament": "INICIAR",
+        "empty": "Vacio",
+
+        "final": "Final",
+        "semiFinal": "Semifinal",
+        "quarterFinal": "Cuartos de final",
+
+
         "Logout": "DESCONECTARSE"
     },
     "fr": {
@@ -132,6 +148,14 @@
         "CreateButton": "Créer",
         "joinTournament": "Rejoindre un Tournois",
         "createTournament": "Créer un Tournois",
+        "TournamentCode": "CODE TOURNOIS : ",
+        "StartTournament": "DEMARRER",
+        "empty": "Vide",
+
+        "final": "Final",
+        "semiFinal": "Demie-Finale",
+        "quarterFinal": "Quart de Finale",
+
         "Logout": "DÉCONNEXION"
     }
 }

@@ -129,6 +129,8 @@ async def connect(sid, environ):
         logger.info(f"tournament.getNbTeam() dans createTournament dans index.py {tournament.getNbTeam()}")
         await sio.enter_room(sid, tournamentCode)
         await sio.emit('tournamentCreated', {'tournamentCode': tournamentCode}, room=sid)
+        await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
+
 
     @sio.event
     async def joinTournament(sid, data):

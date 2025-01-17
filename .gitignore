@@ -2,6 +2,7 @@ sources/srcs/requirements/web/srcs/.env/*
 sources/srcs/requirements/backpong/srcs/.env/*
 sources/srcs/requirements/backpong/srcs/backend/.env/*
 sources/srcs/requirements/backpong/srcs/gameserver/.env/*
+sources/srcs/.env
 *migrations*
 *__pycache__*
 *game.log*

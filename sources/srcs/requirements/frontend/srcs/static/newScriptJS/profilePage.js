@@ -1,17 +1,26 @@
 
-async function statsInProfilePage(game_played, victories)
+async function statsInProfilePage(game_played, victories, lose)
 {
     let percentage = 0;
-    
+    if (victories === undefined)
+        victories = 0;
+    if (lose === undefined)
+        lose = 0;
+    if (game_played === undefined)
+        game_played = 0;
     if (game_played > 0) {
         percentage = (victories / game_played) * 100;
     }
     
+    console.log("victory: ", victories);
+    console.log("lose: ", lose);
+    console.log("game_played: ", game_played);
+
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
 
-    percentage = Math.min(Math.max(percentage, 0), 100);
+    percentage = Math.round(percentage);
 
     circularProgress.style.background = `conic-gradient(
         #4caf50 0% ${percentage}%, 
@@ -19,6 +28,10 @@ async function statsInProfilePage(game_played, victories)
     )`;
 
     progressValue.textContent = `${percentage}%`;
+
+    document.getElementById('numberOfGamePlayedProfileDisplay').textContent = game_played;
+    document.getElementById('numberOfGameWinProfileDisplay').textContent = victories;
+    document.getElementById('numberOfGameLosesProfileDisplay').textContent = lose;
 }
 
 async function getHistoric(game, user)
@@ -42,7 +55,6 @@ async function getHistoric(game, user)
     }
     else
     {
-        //if () game 1 v 1
         for (let i = 0; i < game.length; i++)
         {
             const match = document.createElement('div');
@@ -51,17 +63,21 @@ async function getHistoric(game, user)
             const advUsername = document.createElement('span');
             const resultUser = document.createElement('span');
             const resultAdvUser = document.createElement('span');
+            const winOrLoseDiv = document.createElement('div');
+            const vsImg = document.createElement('img');
+            vsImg.src = "/static/photos/picturePng/profilePage/versusLogoStat.png";
+            vsImg.alt = "vs";
 
-
-            console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
-            console.log("YOOOOOO gang game[i].player yeah: ", game[i].player);
+            console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
+            resultAdvUser.className = 'resultDisplayHistoric';
             if (user === game[i].player)
             {
                 username.textContent = game[i].player;
                 resultUser.textContent = game[i].player_score;
                 resultAdvUser.textContent = game[i].opponent_score;
                 advUsername.textContent = game[i].opponent;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].player_score, game[i].opponent_score, match);
             }
             else
             {
@@ -69,14 +85,36 @@ async function getHistoric(game, user)
                 resultUser.textContent = game[i].opponent_score;
                 resultAdvUser.textContent = game[i].player_score;
                 advUsername.textContent = game[i].player;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].opponent_score, game[i].player_score, match);
             }
+            winOrLoseDiv.style.backgroundSize = "cover";
+            winOrLoseDiv.style.backgroundRepeat = "no-repeat";
+            winOrLoseDiv.style.backgroundPosition = "center";
+
+            winOrLoseDiv.className = 'winOrLoseDiv';
+
+            match.appendChild(winOrLoseDiv);
             match.appendChild(username);
             match.appendChild(resultUser);
+            match.appendChild(vsImg);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
             ELEMENTs.historicMatch().appendChild(match);
         }
-        //else game 2 v 2
+    }
+}
+
+function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
+{
+    if (player > opponent)
+    {
+        match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+    }
+    else
+    {
+        match.style.backgroundColor = "rgba(228, 0, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/usoppLose.png')";
     }
 }
 

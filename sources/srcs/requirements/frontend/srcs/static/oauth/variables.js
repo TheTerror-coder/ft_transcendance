@@ -69,7 +69,7 @@ const URLs = Object.freeze({
 		GETUSER : BACKEND_BASE_URL + '/user-management/get-user/',
 		GETUSERPROFILE : BACKEND_BASE_URL + '/user-management/get-user-profile/',
 		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
-		SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
+		// SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
 		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
 		GETLANGUAGE : BACKEND_BASE_URL + '/user-management/get-language/',
 		TOURNAMENT : BACKEND_BASE_URL + '/user-management/tournament/',
@@ -266,7 +266,13 @@ const ELEMENTs = Object.freeze({
 	createTournamentButton : () => document.getElementById("createTournamentButton"),
 	joinTournamentButton : () => document.getElementById("joinTournamentButton"),
 	centerTournament : () => document.getElementById("centerTournament"),
-
+	tournamentContent : () => document.getElementById("tournamentContent"),
+	startTournament : () => document.getElementById("startTournament"),
+	numbersOfPlayersTournament : () => document.getElementById("numbersOfPlayersTournament"),
+	tournamentWrite : () => document.getElementById("tournamentWrite"),
+	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
+	joinButtonTournament : () => document.getElementById("joinButtonTournament"),
+	number : () => document.getElementById("number"),
 });
 
 let N_ALERT = 0;
