@@ -174,7 +174,7 @@
   border-radius: 99rem;
   border-width: 2px;
   overflow: hidden;
-  padding: 0.8rem 3rem;
+  padding: 0.8rem;
   position: relative;
 }
 
@@ -183,7 +183,6 @@
   inset: 0;
   place-items: center;
   position: absolute;
-  width: 60px;
   transition: opacity 0.2s ease;
 }
 

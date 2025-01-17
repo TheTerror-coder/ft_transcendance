@@ -44,6 +44,9 @@
         "TournamentCode": "TOURNAMENT CODE : ",
         "StartTournament": "START",
         "empty": "Empty",
+        "final": "Final",
+        "semiFinal": "Semi-Final",
+        "quarterFinal": "Quarter-Final",
 
         "Logout": "LOGOUT"
     },
@@ -95,6 +98,10 @@
         "StartTournament": "INICIAR",
         "empty": "Vacio",
 
+        "final": "Final",
+        "semiFinal": "Semifinal",
+        "quarterFinal": "Cuartos de final",
+
 
         "Logout": "DESCONECTARSE"
     },
@@ -144,6 +151,11 @@
         "TournamentCode": "CODE TOURNOIS : ",
         "StartTournament": "DEMARRER",
         "empty": "Vide",
+
+        "final": "Final",
+        "semiFinal": "Demie-Finale",
+        "quarterFinal": "Quart de Finale",
+
         "Logout": "DÉCONNEXION"
     }
 }

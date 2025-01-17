@@ -48,9 +48,6 @@ const usersProfilePage =
             </div>
         </div>
     </div>
-    <div style="justify-content: end; display: flex;">
-        <button style="align-self:baseline;"><img src="/static/photos/picturePng/cross.png" id="cross"></button>
-    </div>
     <div class="bottomProfilePage"></div>
 </div>`;
 
@@ -125,9 +122,6 @@ const profilePageDisplayVAR =
                 <div id="historicMatch" class="historicMatch"></div>
             </div>
         </div>
-    </div>
-    <div style="justify-content: end; display: flex;">
-        <button style="align-self:baseline;"><img src="/static/photos/picturePng/cross.png" id="cross"></button>
     </div>
     <div class="bottomProfilePage"></div>
 </div>`;

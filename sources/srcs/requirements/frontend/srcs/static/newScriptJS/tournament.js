@@ -47,9 +47,9 @@ async function addUserTournament(usernameTournament, i)
 function displayBinaryTree()
 {
     console.log("display binary tree");
-    ELEMENTs.forLetPlaceTree().innerHTML = binaryTreeVAR;
+    ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
 
-    // document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) {
+    // document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) { 
     //     console.log(element);
     //   });
     setTimeout(() => {

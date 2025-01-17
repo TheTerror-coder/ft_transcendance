@@ -2,84 +2,100 @@
 // the price will be the mera mera no mi
 const binaryTreeVAR =
 `
-<div class="binaryTree">
-    <div>
-        <p id="winnerOfTheTournament" class="Winner of the tournament"></p>
-    </div>
-    <div id="finalTournament" class="stepInTournament">
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="13" class="text"></span>
-                <span data-match="13" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span data-match="14" class="text"></span>
-                <span data-match="14" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
+<div id="backgroundBinaryTree">
+    <div class="binaryTree">
+        <div>
+            <p id="winnerOfTheTournament" class="Winner of the tournament"></p>
+        </div>
+        <div id="finalTournament" class="stepInTournament">
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="13" class="text"></span>
+                    <span data-match="13" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span data-match="14" class="text"></span>
+                    <span data-match="14" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+        </div>
+        <div>
+            <p data-translate="semiFinal">semi final</p>
+        </div>
+        <div id="secondStepTournament" class="stepInTournament">
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="9" class="text"></span>
+                    <span data-match="9" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span  data-match="10" class="text"></span>
+                    <span  data-match="10"data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span  data-match="11" class="text"></span>
+                    <span  data-match="11"data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span  data-match="12" class="text"></span>
+                    <span  data-match="12" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+        </div>
+        <div>
+            <p data-translate="semiFinal">semi final</p>
+        </div>
+        <div id="firstStepOfTournament" class="stepInTournament">
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="1" class="text"></span>
+                    <span data-match="1" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span data-match="2" class="text"></span>
+                    <span data-match="2" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="3" class="text"></span>
+                    <span data-match="3" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span data-match="4" class="text"></span>
+                    <span data-match="4" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="5" class="text"></span>
+                    <span data-match="5" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span data-match="6" class="text"></span>
+                    <span data-match="6" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+            <div class="matchTournament">
+                <button class="btn-23">
+                    <span data-match="7" class="text"></span>
+                    <span data-match="7" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+                <button class="btn-23">
+                    <span data-match="8" class="text"></span>
+                    <span data-match="8" data-translate="empty" aria-hidden="" class="marquee">empty</span>
+                </button>
+            </div>
+        </div>
+        <div>
+            <p data-translate="quarterFinal"></p>
         </div>
     </div>
-    <div id="secondStepTournament" class="stepInTournament">
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="9" class="text"></span>
-                <span data-match="9" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span  data-match="10" class="text"></span>
-                <span  data-match="10"data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-        </div>
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span  data-match="11" class="text"></span>
-                <span  data-match="11"data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span  data-match="12" class="text"></span>
-                <span  data-match="12" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-        </div>
-    </div>
-    <div id="firstStepOfTournament" class="stepInTournament">
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="1" class="text"></span>
-                <span data-match="1" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span data-match="2" class="text"></span>
-                <span data-match="2" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-        </div>
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="3" class="text"></span>
-                <span data-match="3" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span data-match="4" class="text"></span>
-                <span data-match="4" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-        </div>
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="5" class="text"></span>
-                <span data-match="5" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span data-match="6" class="text"></span>
-                <span data-match="6" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-        </div>
-        <div class="matchTournament">
-            <button class="btn-23">
-                <span data-match="7" class="text"></span>
-                <span data-match="7" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
-            <button class="btn-23">
-                <span data-match="8" class="text"></span>
-                <span data-match="8" data-translate="empty" aria-hidden="" class="marquee">empty</span>
-            </button>
+    <div id="tournamentStartDiv"><button id="startTournament" style="align-self:center;"><p data-translate="StartTournament" style="font-size: 60px;">START</p></button> 
+        <div style="display:flex; align-items: center;"> 
+            <p id="numbersOfPlayersTournament" class="writeNumbersOfPlayers"></p><p class="writeNumbersOfPlayers">/</p><p class="writeNumbersOfPlayers">8</p>
         </div>
     </div>
 </div>
@@ -111,7 +127,6 @@ const tournamentPageDisplayVAR =
             <p class="tournamentCodeDisplay" data-translate="TournamentCode"></p>
             <p class="tournamentCodeDisplay" id="tournamentCode"></p>
         </div>
-        <div style="display:flex; justify-content: end;"><button><img src="/static/photos/picturePng/cross.png" style="display:flex; flex-direction:flex-end; width:60px; height:60px;" id="cross"></button></div>
     </div>
     <div id="forLetPlaceTree">
         <div id="tournamentTitle" style="display:flex;"><p data-translate="Tournament" id="tournamentWrite">TOURNAMENT</p></div>
@@ -128,7 +143,6 @@ const tournamentCreateOrJoinVAR =
 `
 <div style="display:flex; justify-content: center; justify-items: center">
     <div id="centerTournament" style="display:flex;">
-        <div style="display:flex; justify-content: end;"><button><img src="/static/photos/picturePng/cross.png" style="display:flex; flex-direction:flex-end; width:60px; height:60px;" id="cross"></button></div>
         <div style="align-self: center; align-items: center;" id="joinCreateTournament">
             <button id="joinTournamentButton"><p class="tournamentChoseJoinOrCreate" data-translate="joinTournament">JOIN TOURNAMENT</p></button>
             <button id="createTournamentButton"><p class="tournamentChoseJoinOrCreate" data-translate="createTournament">CREATE TOURNAMENT</p></button>
