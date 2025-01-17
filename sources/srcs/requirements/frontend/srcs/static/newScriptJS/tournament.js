@@ -1,4 +1,7 @@
 
+
+let tournamentAllUsername = null;
+
 function joinTournamentDisplay()
 {
     ELEMENTs.centerTournament().innerHTML = joinTournamentVAR;
@@ -17,7 +20,6 @@ function createTournament()
         const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
         console.log("usernameTournament : ", usernameTournament);
         addUserTournament(usernameTournament, i);
-        
     }
     
 }

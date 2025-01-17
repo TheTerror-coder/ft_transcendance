@@ -116,6 +116,7 @@ function initializeGlobalSocket(socket)
 }
 
 const AvailableOptionsEvent = (data) => {
+    console.log("AvailableOptionsEvent", data);
     if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)
     {
         initializeTeamAvailableJoinLobbyInfo(data)
