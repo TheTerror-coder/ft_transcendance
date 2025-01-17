@@ -10,20 +10,20 @@ async function tournamentView(title, description, data)
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
-	ELEMENTs.joinTournamentButton().onclick = () => joinTournament();
+	ELEMENTs.joinTournamentButton().onclick = () => joinTournamentDisplay();
 	ELEMENTs.createTournamentButton().onclick = () => createTournament();
 }
 
 async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
-	ELEMENTs.mainPage().style.display = "flex";
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'flex';
 
 	document.title = username +  " | " + PAGE_TITLE;
 	// window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
+	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 	console.log("user quand on display le goat bite :  ", response);

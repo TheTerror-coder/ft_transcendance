@@ -30,7 +30,6 @@ async function getCsrfToken()
 	let response = await fetch(req);
 	let data = await response.json();
 	
-	console.log('csrf in getcsrfToken(): ' + data.csrf_token);
 	return (data.csrf_token);
 }
 

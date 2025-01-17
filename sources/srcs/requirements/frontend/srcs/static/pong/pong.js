@@ -46,6 +46,11 @@ export async function main(gameCode, socket, currentLanguage) {
     });
     
     let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
+    if (!scene || !cameraPlayer || !renderer || !boatGroup1 || !boatGroup2 || !ball || !display)
+    {
+        console.error('Error loading the scene');
+        return (false);
+    }
     let hud = await createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
@@ -213,6 +218,7 @@ export async function main(gameCode, socket, currentLanguage) {
         updateBallPosition(data.ballPosition, ball);
         displayBallPosition(data.ballPosition, ballPositionDisplay);
     });
+    return (true);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -262,8 +268,8 @@ async function initGame(gameData, socketID) {
 
     console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
     console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
-    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
-    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+    console.log('===================team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('===================team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     team1.setBoatSavedPos(gameData.team1.Boat);
     team2.setBoatSavedPos(gameData.team2.Boat);

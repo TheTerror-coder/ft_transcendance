@@ -1,13 +1,21 @@
 from .Game import Game
-
+from .Tournament import Tournament
 class Channel:
     def __init__(self, channelId, creator):
         self.channelId = channelId
-        self.game = Game()
         self.creator = creator
+        self.isTournament = False
+        self.tournament = None
+        if (self.isTournament):
+            self.tournament = Tournament(channelId)
+        else:
+            self.game = Game(channelId)
 
     def getGame(self):
         return self.game
+    
+    def getTournament(self):
+        return self.tournament
 
     def sendBroadcastGameInfo(self, event, data):
         for team in self.game.teams.values():
@@ -19,4 +27,16 @@ class Channel:
             player.socket.emit(event, data)
 
     def getCreator(self):
-        return self.creator 
+        return self.creator
+
+    def getTournament(self):
+        return self.tournament
+    
+    def setTournament(self, tournament):
+        self.tournament = tournament
+
+    def getIsTournament(self):
+        return self.isTournament
+    
+    def setIsTournament(self, isTournament):
+        self.isTournament = isTournament

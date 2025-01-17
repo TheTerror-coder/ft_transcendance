@@ -75,24 +75,12 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
         currentPlayer.setGameStarted(false);
     });
 
-    // socket.on('gameEnded', () => {
-    //     currentPlayer.setGameStarted(false);
-    //     // unloadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2);
-    // });
-
     socket.on('cannonPosition', async (data) => {
         const {teamID, cannonPosition} = data;
         let team = findTeam(Team1, Team2, teamID);
         if (team && team.getCannon()) {
+            console.log('cannonPosition through socket: ', cannonPosition);
             team.getCannon().position.x = cannonPosition.x;
-        }
-    });
-
-    socket.on('cannonRotation', async (data) => {
-        const {teamID, cannonRotation} = data;
-        let team = findTeam(Team1, Team2, teamID);
-        if (team && team.getCannon()) {
-            team.getCannon().rotation.y = cannonRotation.y;
         }
     });
 
@@ -119,7 +107,6 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
             team.getBoatGroup().position.x = boatPosition.x;
             
             if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
-                console.log('team.getCannonPosInTheWorld() : ', team.getCannonPosInTheWorld());
                 currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
             }
         } else {

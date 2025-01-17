@@ -63,17 +63,21 @@ async function getHistoric(game, user)
             const advUsername = document.createElement('span');
             const resultUser = document.createElement('span');
             const resultAdvUser = document.createElement('span');
+            const winOrLoseDiv = document.createElement('div');
+            const vsImg = document.createElement('img');
+            vsImg.src = "/static/photos/picturePng/profilePage/versusLogoStat.png";
+            vsImg.alt = "vs";
 
-
-            console.log("game: ", game);
             resultUser.className = 'resultDisplayHistoric';
             console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
+            resultAdvUser.className = 'resultDisplayHistoric';
             if (user === game[i].player)
             {
                 username.textContent = game[i].player;
                 resultUser.textContent = game[i].player_score;
                 resultAdvUser.textContent = game[i].opponent_score;
                 advUsername.textContent = game[i].opponent;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].player_score, game[i].opponent_score, match);
             }
             else
             {
@@ -81,13 +85,36 @@ async function getHistoric(game, user)
                 resultUser.textContent = game[i].opponent_score;
                 resultAdvUser.textContent = game[i].player_score;
                 advUsername.textContent = game[i].player;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].opponent_score, game[i].player_score, match);
             }
+            winOrLoseDiv.style.backgroundSize = "cover";
+            winOrLoseDiv.style.backgroundRepeat = "no-repeat";
+            winOrLoseDiv.style.backgroundPosition = "center";
+
+            winOrLoseDiv.className = 'winOrLoseDiv';
+
+            match.appendChild(winOrLoseDiv);
             match.appendChild(username);
             match.appendChild(resultUser);
+            match.appendChild(vsImg);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
             ELEMENTs.historicMatch().appendChild(match);
         }
+    }
+}
+
+function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
+{
+    if (player > opponent)
+    {
+        match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+    }
+    else
+    {
+        match.style.backgroundColor = "rgba(228, 0, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/usoppLose.png')";
     }
 }
 

@@ -266,6 +266,11 @@ const ELEMENTs = Object.freeze({
 	createTournamentButton : () => document.getElementById("createTournamentButton"),
 	joinTournamentButton : () => document.getElementById("joinTournamentButton"),
 	centerTournament : () => document.getElementById("centerTournament"),
+	tournamentContent : () => document.getElementById("tournamentContent"),
+	startTournament : () => document.getElementById("startTournament"),
+	numbersOfPlayersTournament : () => document.getElementById("numbersOfPlayersTournament"),
+	tournamentWrite : () => document.getElementById("tournamentWrite"),
+	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
 
 });
 

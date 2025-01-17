@@ -53,7 +53,10 @@ function updateUI(lang)
 
     translateElements.forEach(element => {
         const key = element.getAttribute('data-translate');
-        element.textContent = translate(key);
+        const translatedText = translate(key);
+        element.textContent = translatedText;
+        if (element.placeholder != null)
+            element.placeholder = translatedText;
     });
 }
 

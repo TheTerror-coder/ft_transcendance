@@ -3,24 +3,6 @@
 // j'applique les modif de stat pour chaqu'un des deux joueurs
 // je fetch les elements de chaque joueur
 
-
-//const response_game = await makeRequest('GET', URLs.USERMANAGEMENT.LOBBY);
-
-//const player = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, player);
-//const opponent = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, opponent);
-
-//const bool player_win = (player === win) == TRUE
-
-// const player_score, opponent_score = calculateScore(player.game_played, player.victories, opponent.game_played, opponent.victories, player_win);
-// player.prime += player_score;
-// opponent.prime += opponent_score;
-
-// const data_player = {"username": player.username, "victorie": player.victorie, "game played": player.gamePlayed, "prime": player.prime};
-// const data_opponent = {"username": opponent.username, "victorie": opponent.victorie, "game played": opponent.gamePlayed, "prime": opponent.prime};
-
-// const resp_player = await makeRequest('GET', URLs.USERMANAGEMENT.SETINFOGAME, data_player);
-// const resp_opponent = await makeRequest('GET', URLs.USERMANAGEMENT.SETINFOGAME, data_opponent);
-
 async function updateLobby(data)
 {
 
@@ -34,9 +16,11 @@ async function updateLobby(data)
     }
     else if (nbPerTeam === 2)
     {
-        console.log("2 joueurs par equipe");
-        await updateLobbyTwoVsTwo(data);
-        ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
+        if (document.getElementById("lobbyCode") !== null)
+        {
+            await updateLobbyTwoVsTwo(data);
+            ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
+        }
     }
 }
  
@@ -82,65 +66,53 @@ async function setwantedProfileInLobby(user, position)
     const imgElement = document.getElementById(`pictureOfWanted${position}`);
     const userResponse = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 
-    // setTimeout(() =>{
-        const photoUrl = userResponse.user_info.photo;
-        imgElement.src = photoUrl;
-        document.getElementById(`usernameOfWanted${position}`).innerHTML = user.username;
-        let primeAmount = userResponse.user_info.prime;
-        if (userResponse.user_info.prime === null)
-            primeAmount = 0;
-        document.getElementById(`primeAmount${position}`).innerHTML = primeAmount;
-    // }, 30);
+    const photoUrl = userResponse.user_info.photo;
+    imgElement.src = photoUrl;
+    document.getElementById(`usernameOfWanted${position}`).innerHTML = user.username;
+    let primeAmount = userResponse.user_info.prime;
+    if (userResponse.user_info.prime === null)
+        primeAmount = 0;
+    document.getElementById(`primeAmount${position}`).innerHTML = primeAmount;
 }
 
 async function updateLobbyTwoVsTwo(data)
 {
     if (data[1] && data[1][0] && data[1][0].name !== undefined)
     {
-        console.log("position 1: ", data[1][0].name);
-        console.log("ROLE: ", data[1][0].role);
         const user = {"username": data[1][0].name};
         const pos = data[1][0].role === "captain" ? 1 : 2;
-        console.log("pos: ", pos);
         pos === 1 ? ELEMENTs.lobbyDisplayRapidPlayPlayerOne().innerHTML = wantedPlayerOne : ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
         await setwantedProfileInLobby(user, pos);
     }
     if (data[1] && data[1][1] && data[1][1].name !== undefined)
     {
-        console.log("position 2: ", data[1][1].name);
         const user = {"username": data[1][1].name};
         ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
 
         const pos = data[1][1].role === "captain" ? 1 : 2;
         pos === 1 ? ELEMENTs.lobbyDisplayRapidPlayPlayerOne().innerHTML = wantedPlayerOne : ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
 
-        console.log("pos: ", pos);
         await setwantedProfileInLobby(user, pos);
     }
     if (data[2] && data[2][0] && data[2][0].name !== undefined)
     {
-        console.log("position 3: ", data[2][0].name);
         const user = {"username": data[2][0].name};
         const pos = data[2][0].role === "captain" ? 3 : 4;
         pos === 3 ? ELEMENTs.lobbyDisplayRapidPlayPlayerThree().innerHTML = wantedPlayerThree : ELEMENTs.lobbyDisplayRapidPlayPlayerFour().innerHTML = wantedPlayerFour;
-        console.log("pos: ", pos);
         await setwantedProfileInLobby(user, pos);
     }
     if (data[2] && data[2][1] && data[2][1].name !== undefined)
     {
-        console.log("position 4: ", data[2][1].name);
         const user = {"username": data[2][1].name};
         const pos = data[2][1].role === "captain" ? 3 : 4;
-        console.log("pos: ", pos);
         pos === 3 ? ELEMENTs.lobbyDisplayRapidPlayPlayerThree().innerHTML = wantedPlayerThree : ELEMENTs.lobbyDisplayRapidPlayPlayerFour().innerHTML = wantedPlayerFour;
         await setwantedProfileInLobby(user, pos);
     }
 }
 
-function startGameLobby ()
+function startGameLobby()
 {
     console.log("juste avant le changement");
-    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     console.log("savedGameCode: ", savedGameCode.code);
     globalSocket.emit('launchGame', savedGameCode.code);
 }

@@ -16,7 +16,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class Game:
-    def __init__(self):
+    def __init__(self, gameId):
+        self.gameId = gameId
         self.gameInterval = None
         self.tickRate = 1000 / 60
         self.gameStarted = False
@@ -25,6 +26,7 @@ class Game:
         self.nbPlayerConnected = 0
         self.playerReady = 0
         self.isPaused = False
+        self.winner = None
         
         # Constantes pour la balle
         self.BALL_SPEED = 1
@@ -34,11 +36,14 @@ class Game:
         self.FIELD_WIDTH = 150
         self.FIELD_HEIGHT = 105
 
-        self.WINNING_SCORE = 10
+        self.WINNING_SCORE = 1
 
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
+
+    def getGameId(self):
+        return self.gameId
 
     def initializeBallPosition(self):
         return {"x": 0, "y": 0, "z": 2}
@@ -234,6 +239,8 @@ class Game:
         elif collision == 4:  # Collision sur le bord droit
             logger.info(f"collision: {collision}")
             hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
+            if (hitbox['max']['x'] + 1.5 >= self.FIELD_WIDTH / 2):
+                return
             # Déplacer la balle légèrement à l'extérieur de la hitbox
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["max"]["x"] + 1.5
@@ -256,6 +263,8 @@ class Game:
         elif collision == 5:  # Collision sur le bord gauche
             logger.info(f"collision: {collision}")
             hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
+            if (hitbox['min']['x'] - 1.5 <= -self.FIELD_WIDTH / 2):
+                return
             # Déplacer la balle légèrement à l'extérieur de la hitbox
             logger.info(f"ballPosition: {self.ballPosition}")
             self.ballPosition["x"] = hitbox["min"]["x"] - 1.5
@@ -564,12 +573,12 @@ class Game:
         
         if (sid):
             gameData = self.createReconnectGameData()
-            logger.info(f"Sending gameData to the reconnected player with sid : {sid}")
+            logger.info(f"Sending gameData {gameData} to the reconnected player with sid : {sid}")
             await sio.emit('gameData', gameData, room=sid)
             # player.setIsInit(True)
         else:
             teamsArray = self.createConnectGameData()
-            logger.info(f'Sending gameData: {teamsArray}')
+            logger.info(f'Sending gameData: {teamsArray} to the gameCode: {gameCode}')
             await sio.emit('gameData', teamsArray, room=gameCode)
 
     async def updateBoatAndCannonPosition(self, teamId, boatX, boatY, boatZ, cannonX, cannonY, cannonZ):
@@ -580,10 +589,12 @@ class Game:
         if self.teams[1].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[1].name, room=gameCode)
             self.gameStarted = False
+            self.winner = self.teams[1].name
             await self.sendGameInfo(sio, gameCode)
         elif self.teams[2].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
+            self.winner = self.teams[2].name
             await self.sendGameInfo(sio, gameCode)
 
     def createEndGamePayload(self):

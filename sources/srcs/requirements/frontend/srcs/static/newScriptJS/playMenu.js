@@ -56,7 +56,6 @@ async function joinLobbyPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
 
-    // TO DO: faire condition en fonction de ce que je vais recevoir comme info de Ben
     joinButton.onclick = () => {
         let gameCode = document.getElementById("number").value;
         console.log("gameCode = ", gameCode);
@@ -70,9 +69,7 @@ async function joinLobbyPlay()
                     joinLobbyGame(gameCode, 2, "captain");
             }
             else
-            {
                 error = null;
-            }
         }, 400);
     };
 }
@@ -91,28 +88,50 @@ function readyLocalPlay()
 }
 
 
-function joinTwoPlayersDisplay(gameCode)
+async function joinTwoPlayersDisplay(gameCode)
 {
     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
 
-    // setTimeout(() => {
-        const joinButton = document.getElementById("joinButton");
-        const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
-        returnButtonPlayMenu.onclick = () => navigationPlayMenu();
-        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
-        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
-        joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
-        refreshLanguage();
-    // }, 40);
+    const joinButton = document.getElementById("joinButton");
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+    await displayAvailableRoleAndTeamJoin();
+    ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+    ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
+    joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
+    refreshLanguage();
 }
+
 
 function initializeLobbyTwoVsTwo(gameCode)
 {
     const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
     const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
+    let teamID;
+    let role;
 
-    const teamID = teamChosen ? 2 : 1;
-    const role = roleChosen ? "Cannoneer" : "captain";
+    console.log("TESTGANG");
+    if ((teamChosen && teamAvailable.team === 1) || (teamChosen === false && teamAvailable.team === 2))
+        teamID = teamAvailable.team;
+    else 
+        teamID = teamChosen ? 2 : 1;
+    if ((teamID === 1 && roleChosen === false && roleAvailableBlackBeard.role === "gunner") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "gunner"))
+    {
+        console.log("!!!!!!!!TESTGANG2");
+        role = "Cannoneer";
+    }
+    else if ((teamID === 1 && roleChosen && roleAvailableBlackBeard.role === "captain") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "captain"))
+    {
+        console.log("???????????TEST GANG 3");
+        role = "captain";
+    }
+    else
+    {
+        console.log("role = roleChosen ? Cannoneer : captain;");
+        role = roleChosen ? "Cannoneer" : "captain";
+    }
+
+    console.log("initializeLobbyTwoVsTwo, role: ", role, ", teamID: ", teamID);
     joinLobbyGame(gameCode, teamID, role);
 }
 
