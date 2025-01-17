@@ -142,13 +142,13 @@ def logout_view(request):
 	}, status=200)
 
 
+#modif dans la socket
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
 	username = request.data.get('username')
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
-	
 	if form.is_valid():
 		form.save()
 		return Response({
@@ -160,6 +160,8 @@ def update_profile(request):
 			'status': 'error',
 			'message': form.errors.get('username', ['Erreur inconnue'])[0],
 		}, status=400)
+
+
 
 User = get_user_model()
 
@@ -562,37 +564,6 @@ def get_user(request):
 		'language': request.user.language,
 	}, status=200)
 
-def calculate_score(user_username, opponent_username, player_won):
-	user = User.objects.get(username=user_username)
-	opponent = User.objects.get(username=opponent_username)
-	player_score = (user.victories / user.games_played) * 100 if user.games_played > 0 else 0
-	opponent_score = (opponent.victories / opponent.games_played) * 100 if opponent.games_played > 0 else 0
-	if player_score == 0 and user.username == player_won:
-		opponent_score = 100
-	if opponent_score == 0 and opponent.username == player_won:
-		player_score = 100
-
-	if player_won:
-		if player_score < opponent_score:
-			player_cote_change = (opponent_score - player_score) * 1.5
-			opponent_cote_change = -(opponent_score - player_score) * 1.2
-		else:
-			player_cote_change = (opponent_score - player_score) * 1.2
-			opponent_cote_change = -(opponent_score - player_score) * 1.1
-	else:
-		if opponent_score < player_score:
-			opponent_cote_change = (player_score - opponent_score) * 1.5
-			player_cote_change = -(player_score - opponent_score) * 1.2
-		else:
-			opponent_cote_change = (player_score - opponent_score) * 1.2
-			player_cote_change = -(player_score - opponent_score) * 1.1
-
-	player_score += player_cote_change
-	opponent_score += opponent_cote_change
-
-	return max(player_score, 0), max(opponent_score, 0)
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def set_info_game(request):
@@ -619,7 +590,6 @@ def set_info_game(request):
 			'message': "Vous ne pouvez pas jouer contre vous-même."
 		}, status=400)
 	
-	prime_winner, prime_looser = calculate_score(winner, looser, request.data.get('winner'))
 	try:
 		user_win = User.objects.get(username=winner)
 		user_loose = User.objects.get(username=looser)
@@ -635,8 +605,8 @@ def set_info_game(request):
 		opponent_score=looser_score,
 	)
 
-	user_loose.prime = prime_looser
-	user_win.prime = prime_winner
+	user_loose.prime = user_loose.prime - 500 if user_loose.prime > 500 else 0
+	user_win.prime = user_win.prime + 1000
 	user_win.victories += 1
 	user_win.games_played += 1
 	user_loose.games_played += 1
