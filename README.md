@@ -117,37 +117,6 @@ This project requires a broad range of skills across various domains. The key te
     WAI-ARIA: Ensuring accessibility for visually impaired users by using ARIA roles and attributes.
     Server-Side Rendering (SSR): Using SSR for faster page load times, improved SEO, and better performance.
 
-How to Run the Project
-1. Clone the Repository
-
-git [clone](https://github.com/TheTerror-coder/ft_transcendance.git)
-
-2. Install Dependencies
-
-cd pong-platform
-npm install
-
-3. Start the Development Server
-
-npm start
-
-This will launch the web application on http://localhost:1443.
-4. Run the Tests
-
-To run tests:
-
-npm run test
-
-5. Deploying to Production
-
-Follow the instructions in the Deployment section of the documentation for detailed steps on deploying the application using Docker, Kubernetes, or your preferred cloud service.
-Contributing
-
-We welcome contributions! Please fork the repository, create a branch, and submit a pull request with your changes. If you're new to the project, feel free to open an issue if you have any questions or suggestions.
-License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 
 # Modules
 
