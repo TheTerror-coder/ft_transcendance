@@ -8,3 +8,4 @@ sources/srcs/requirements/backpong/srcs/gameserver/.env/*
 *.pyc
 *cpython*
 *allauth*
+sources/srcs/.env

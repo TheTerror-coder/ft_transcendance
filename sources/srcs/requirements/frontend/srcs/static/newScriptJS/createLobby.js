@@ -201,12 +201,20 @@ const StartGameEvent = async (data) => {
     const module = await import ('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
-    await module.main(savedGameCode.code, globalSocket, currentLanguage);
-    console.log("globalSocket dans startGame: ", globalSocket);
-    globalSocket.off('startGame', StartGameEvent);
-    globalSocket.off('TeamsFull', TeamsFullEvent);
-    globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
-    globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    try
+    {
+        const isFinish = await module.main(savedGameCode.code, globalSocket, currentLanguage);
+        console.log("globalSocket dans startGame: ", globalSocket);
+        console.log("isFinish dans startGame: ", isFinish);
+        globalSocket.off('startGame', StartGameEvent);
+        globalSocket.off('TeamsFull', TeamsFullEvent);
+        globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+        globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    }
+    catch (error)
+    {
+        console.log("error dans startGame: ", error);
+    }
 }
 
 
