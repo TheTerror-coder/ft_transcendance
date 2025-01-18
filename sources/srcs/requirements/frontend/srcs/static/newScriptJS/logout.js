@@ -1,9 +1,11 @@
 
 async function logout_views()
 {
-   const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-   await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
-   await replace_location(URLs.VIEWS.LOGIN_VIEW);
+	const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+	await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
+	window.sessionStorage.clear();
+	clear_jwt();
+	await replace_location(URLs.VIEWS.LOGIN_VIEW);
 }
 
 function applyAnimationLogoutButton(isHovered) 

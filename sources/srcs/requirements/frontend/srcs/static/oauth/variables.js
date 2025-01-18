@@ -76,6 +76,7 @@ const URLs = Object.freeze({
 	}),
 
 
+	REFRESH_TOKEN : BACKEND_BASE_URL + '/token/refresh/',
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',

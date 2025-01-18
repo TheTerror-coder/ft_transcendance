@@ -44,6 +44,8 @@ async function makeRequest(method, path, data, headers) {
 		}
 	}
 
+	await refresh_jwt();
+
 	access_token = window.localStorage.getItem('jwt_access_token');
 	if (access_token) {
 		options.headers['Authorization'] = 'Bearer ' + access_token;
@@ -152,12 +154,14 @@ async function isUserAuthenticated(params) {
 			if (params){
 				params.flows = response[2].flows;
 			}
+			clear_jwt();
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
 			console.log("****DEBUG**** isUserAuthenticated() -> invalid-session")
 			window.sessionStorage.clear();
-			window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+			clear_jwt();
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 			return (false);
 		}
 		console.log("****DEBUG**** isUserAuthenticated() -> else")
@@ -368,5 +372,23 @@ function dispose_modals() {
 	if (_modal2) {
 		_modal2.dispose();
 		ELEMENTs.oauth_modal2()?.remove();
+	}
+}
+
+function clear_jwt() {
+	window.localStorage.removeItem('jwt_access_token');
+	window.localStorage.removeItem('jwt_refresh_token');
+}
+
+async function refresh_jwt() {
+	const access_token = window.localStorage.getItem('jwt_access_token');
+	if (access_token) {
+		expiration = (await parseJwt(access_token)).exp;
+		if ((expiration - Date.now() / 1000) < 1) {
+			const refresh_token = window.localStorage.getItem('jwt_refresh_token');
+			if (refresh_token) {
+				await refreshTokenJob('POST', URLs.REFRESH_TOKEN, { 'refresh' : refresh_token });
+			}
+		}
 	}
 }
