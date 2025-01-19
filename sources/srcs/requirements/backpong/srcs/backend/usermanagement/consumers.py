@@ -12,7 +12,7 @@ import sys
 
 user_sockets = {}
 
-from channels.generic.websocket import AsyncWebsocketConsumer
+# from channels.generic.websocket import AsyncWebsocketConsumer
 
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
@@ -89,6 +89,13 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     async def send_message(self, event):
         message = event['text']
         await self.send(text_data=message)
+        
+    async def update_username(self, event):
+        new_username = event["new_username"]
+        del user_sockets[self.user.username]
+        user_sockets[new_username] = self.channel_name
+        self.user.username = new_username
+        print(f"WebSocket updated username to {new_username}", file=sys.stderr)
 
     @database_sync_to_async
     def get_user_by_username(self, username):

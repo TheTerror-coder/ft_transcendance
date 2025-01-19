@@ -25,6 +25,7 @@ from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser
+from asgiref.sync import async_to_sync
 
 
 GLOBAL_TOURNAMENT = {
@@ -147,7 +148,25 @@ def logout_view(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
+	print("begin user: ", request.user.username, file=sys.stderr)
 	username = request.data.get('username')
+	if not username:
+		return Response({
+			'status': 'error',
+			'message': 'username not found',
+		}, status=400)
+	else:
+		if request.user.username in user_sockets:
+			socket_value = user_sockets[request.user.username]
+			user_sockets[username] = socket_value
+			channel_layer = get_channel_layer()
+			async_to_sync(channel_layer.send)(
+			socket_value,
+				{
+					"type": "update.username",
+					"new_username": username,
+				},
+            )
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
 	if form.is_valid():
 		form.save()
