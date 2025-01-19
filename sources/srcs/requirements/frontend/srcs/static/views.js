@@ -58,6 +58,7 @@ async function	homeView(title, description, data)
 	};
 	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
+	changeMusic("/static/sound/test2.mp3");
 }
 
 async function	loginView(title, description, data) {
@@ -70,6 +71,7 @@ async function	loginView(title, description, data) {
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
+	changeMusic("/static/sound/test.mp3");
 
 
 	

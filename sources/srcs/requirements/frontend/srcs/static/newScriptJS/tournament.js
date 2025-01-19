@@ -124,28 +124,17 @@ async function createTournament()
 async function usersInTournament(usernameTournament, nbPlayer)
 {
     console.log("usersInTournament");
-    nbPlayer = 8;
     ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
 
-    // usernameTournament.forEach(function(element) {
-    //     if (!tournamentAllUsers.users.includes(element))
-    //     {   
-    //         addUserTournament(element);
-    //         tournamentAllUsers.users = element;
-    //     }
-    // });
-    for (let i = 0; i < 8; i++)
-    {
-        if (!tournamentAllUsers.users.includes("dbaule" + i))
+    usernameTournament.forEach(function(element) {
+        if (!tournamentAllUsers.users.includes(element))
         {   
-            addUserTournament("dbaule" + i);
-            tournamentAllUsers.users = "dbaule" + i;
+            addUserTournament(element);
+            tournamentAllUsers.users = element;
         }
-    }
+    });
     if (nbPlayer === 8)
     {
-        ELEMENTs.startTournament().style.display = "flex";
-        ELEMENTs.startTournament().onclick = () => startTournament();
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
         ELEMENTs.tournamentWrite().innerHTML = "";
         displayBinaryTree();

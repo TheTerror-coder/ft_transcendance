@@ -77,6 +77,10 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await addFriend();
 	}
+	else if (target.id === ELEMENTs.buttonSound()?.id)
+	{
+		OnOffMusic()
+	}
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		teamAvailable.team = 0;

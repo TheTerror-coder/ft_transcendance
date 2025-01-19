@@ -30,6 +30,9 @@
 
     </head>
     <body class="background" id="background">
+		<audio id="musicPlayer" loop>
+			<source src="/static/sound/test.mp3" type="audio/mp3">
+		</audio>
         <div class="headPage" id="headPage">
             <div class="button-container">
                 <button class="buttonHeadPage">
@@ -37,6 +40,9 @@
                         <img id="dropDownLanguage" src="/static/photos/picturePng/loginPage/drapeau/flagen.png" alt="flags for change language">
                     </div>
                 </button>
+				<div id="soundDiv">
+					<button><img id="buttonSound" src="/static/photos/picturePng/soundOn.png" alt="sound is on"></button>
+				</div>
                <div id="twoFA">
                    <label class="switch">
                    <input type="checkbox" id="switch2FA"/>
@@ -80,6 +86,7 @@
         <script src="/static/newScriptJS/404Page.js"></script>
         <script src="/static/newScriptJS/profilePage.js"></script>
         <script src="/static/newScriptJS/tournament.js"></script>
+		<script src="/static/newScriptJS/utils.js"></script>
 
         
         <script src="/static/oauth/alerter.js"></script>

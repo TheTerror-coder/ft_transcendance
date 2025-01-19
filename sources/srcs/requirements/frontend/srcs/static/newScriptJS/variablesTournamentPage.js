@@ -5,7 +5,7 @@ const binaryTreeVAR =
 <div id="backgroundBinaryTree">
     <div class="binaryTree">
         <div id="fruitWinDiv">
-            <p id="winnerOfTheTournament" class="Winner of the tournament"></p>
+            <p id="winnerOfTheTournament"></p>
         </div>
         <div style="align-self: center;">
             <p data-translate="final" class="stageWriteTournament" >final</p>
@@ -127,21 +127,19 @@ const joinTournamentVAR =
 
 const tournamentPageDisplayVAR = 
 `
-    <div style="justify-content: space-between;display: flex;">
-        <div>
-            <p class="tournamentCodeDisplay" data-translate="TournamentCode"></p>
-            <p class="tournamentCodeDisplay" id="tournamentCode"></p>
-        </div>
-    </div>
-    <div id="forLetPlaceTree">
-        <div id="tournamentTitle" style="display:flex;"><p data-translate="Tournament" id="tournamentWrite">TOURNAMENT</p></div>
-        <div id="tournamentContent"></div>
-    </div>
-    <div id="tournamentStartDiv"><button id="startTournament" style="align-self:center;"><p data-translate="StartTournament" style="font-size: 60px;">START</p></button> 
-        <div style="display:flex; align-items: center;"> 
-            <p id="numbersOfPlayersTournament" class="writeNumbersOfPlayers"></p><p class="writeNumbersOfPlayers">/</p><p class="writeNumbersOfPlayers">8</p>
-        </div>
-    </div>
+	<div style="justify-content: space-between;display: flex;">
+		<div>
+			<p class="tournamentCodeDisplay" data-translate="TournamentCode"></p>
+			<p class="tournamentCodeDisplay" id="tournamentCode"></p>
+		</div>
+	</div>
+	<div id="tournamentTitle" style="display:flex;"><p data-translate="Tournament" id="tournamentWrite">TOURNAMENT</p></div>
+	<div id="tournamentContent"></div>
+	<div id="tournamentStartDiv">
+		<div style="display:flex; align-items: center;"> 
+			<p id="numbersOfPlayersTournament" class="writeNumbersOfPlayers"></p><p class="writeNumbersOfPlayers">/</p><p class="writeNumbersOfPlayers">8</p>
+		</div>
+	</div>
 `;
 
 const tournamentCreateOrJoinVAR =
