@@ -203,7 +203,9 @@ async function initObject(scene, Team1, Team2, currentTeam)
     let boatGroup2 = await CreateBoatGroup(scene, bateau.bateauTeam2, cannonGroup.get('cannonTeam2'), 2, Team2.getBoatSavedPos(), Team2.getCannonSavedPos());
     console.log('boatGroup1 : ', boatGroup1);
     console.log('boatGroup2 : ', boatGroup2);
-    let ocean = await initOceans(scene, new THREE.TextureLoader());
+    let ocean = createOcean();
+    let boundaries = createBoundaries();
+    scene.add(boundaries);
     let ball = await initBall(currentTeam.getBallSavedPos());
 
     return {boatGroup1, boatGroup2, ocean, ball};
@@ -231,13 +233,13 @@ function initBall(ballSavedPos) {
 function initBateaux(scene, gltfLoader) {
     return new Promise((resolve, reject) => {
         gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
-            const texture = new THREE.TextureLoader().load('../../static/pong/assets/textures/bateau_texture.png');
-            gltf.scene.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.map = texture;
-                    child.material.needsUpdate = true;
-                }
-            });
+            // const texture = new THREE.TextureLoader().load('../../static/pong/assets/textures/bateau_texture.png');
+            // gltf.scene.traverse((child) => {
+            //     if (child.isMesh) {
+            //         // child.material.map = texture;
+            //         child.material.needsUpdate = true;
+            //     }
+            // });
             const bateauTeam1 = gltf.scene.clone();
             // bateauTeam1.position.set(0, 20, -1);
             bateauTeam1.scale.set(10, 5, 5);
@@ -255,33 +257,80 @@ function initBateaux(scene, gltfLoader) {
     });
 }
 
-function initOceans(scene, textureLoader) {
-    return new Promise((resolve, reject) => {
-        const oceanTexture = textureLoader.load('../../static/pong/assets/textures/ocean_texture.jpg', 
-            function(texture) {
-                const oceanGeometry = new THREE.PlaneGeometry(5000, 5000);
-                const oceanMaterial = new THREE.MeshBasicMaterial({ 
-                    map: texture,
-                    side: THREE.FrontSide
-                });
-                
-                const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
-                ocean.position.y = -1;
-
-                texture.wrapS = THREE.ClampToEdgeWrapping;
-                texture.wrapT = THREE.ClampToEdgeWrapping;
-                texture.repeat.set(1, 1);
-
-                console.log('Plan océanique créé avec succès');
-                resolve(ocean);
-            },
-            undefined,
-            function(error) {
-                console.error('Error loading the ocean texture:', error);
-                reject(error);
-            }
-        );
+function createOcean() {
+    // Création d'un plan avec une grille pour simuler l'océan
+    const oceanGeometry = new THREE.PlaneGeometry(250, 250, 50, 50);
+    const oceanMaterial = new THREE.MeshPhongMaterial({
+        color: 0x006994,
+        transparent: true,
+        opacity: 0.8,
+        specular: 0x004966,
+        shininess: 50,
+        flatShading: true
     });
+
+    // Ajouter des ondulations au plan
+    const vertices = oceanGeometry.attributes.position.array;
+    for (let i = 0; i < vertices.length; i += 3) {
+        vertices[i + 2] = Math.sin(vertices[i] / 10) * 0.5 + Math.cos(vertices[i + 1] / 10) * 0.5;
+    }
+
+    const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+    ocean.position.z = 0;
+
+    return ocean;
+}
+
+function createBoundaries() {
+    const boundariesGroup = new THREE.Group();
+
+    // Matériau pour les bordures principales
+    const mainBoundaryMaterial = new THREE.MeshPhongMaterial({
+        color: 0x8B4513,
+        specular: 0x222222,
+        shininess: 30
+    });
+
+    // Matériau pour les décorations
+    const decorationMaterial = new THREE.MeshPhongMaterial({
+        color: 0xFFD700,
+        specular: 0xFFFFFF,
+        shininess: 100
+    });
+
+    // Création des bordures principales
+    function createMainBoundary(x) {
+        const geometry = new THREE.BoxGeometry(2, 100, 4);
+        const boundary = new THREE.Mesh(geometry, mainBoundaryMaterial);
+        boundary.position.set(x, 0, 0);
+        
+        // Ajouter des décorations
+        for (let i = -40; i <= 40; i += 20) {
+            // Poteau décoratif
+            const postGeometry = new THREE.CylinderGeometry(0.5, 0.5, 4, 8);
+            const post = new THREE.Mesh(postGeometry, decorationMaterial);
+            post.rotation.z = Math.PI / 2;
+            post.position.set(x > 0 ? -1 : 1, i, 2);
+            boundary.add(post);
+
+            // Sphère décorative sur le poteau
+            const sphereGeometry = new THREE.SphereGeometry(0.6, 8, 8);
+            const sphere = new THREE.Mesh(sphereGeometry, decorationMaterial);
+            sphere.position.set(x > 0 ? -1 : 1, i, 4);
+            boundary.add(sphere);
+        }
+
+        return boundary;
+    }
+
+    // Créer les deux bordures
+    const leftBoundary = createMainBoundary(80);
+    const rightBoundary = createMainBoundary(-80);
+
+    boundariesGroup.add(leftBoundary);
+    boundariesGroup.add(rightBoundary);
+
+    return boundariesGroup;
 }
 
 function loadCannons_Support(MTLloader, OBJLoader) {

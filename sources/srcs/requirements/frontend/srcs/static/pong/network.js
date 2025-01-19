@@ -1,6 +1,50 @@
 import { fireEnnemieCannonBall } from './ballistic_cal.js';
 import { unloadScene } from './render.js';
 
+// Ajouter un système d'interpolation pour les positions
+class PositionInterpolator {
+    constructor() {
+        this.targetPosition = { x: 0, y: 0, z: 0 };
+        this.currentPosition = { x: 0, y: 0, z: 0 };
+        this.lerpFactor = 0.1; // Facteur de lissage (0.1 = 10% de la distance par frame)
+        this.isLocalPlayer = false;
+    }
+
+    setIsLocalPlayer(isLocal) {
+        this.isLocalPlayer = isLocal;
+    }
+
+    setTarget(x, y, z) {
+        if (!this.isLocalPlayer) {
+            this.targetPosition = { x, y, z };
+        }
+    }
+
+    update(object) {
+        if (!this.isLocalPlayer) {
+            // Interpolation linéaire entre la position actuelle et la position cible
+            this.currentPosition.x += (this.targetPosition.x - this.currentPosition.x) * this.lerpFactor;
+            this.currentPosition.y += (this.targetPosition.y - this.currentPosition.y) * this.lerpFactor;
+            this.currentPosition.z += (this.targetPosition.z - this.currentPosition.z) * this.lerpFactor;
+
+            // Mise à jour de la position de l'objet
+            object.position.set(
+                this.currentPosition.x,
+                this.currentPosition.y,
+                this.currentPosition.z
+            );
+        }
+    }
+
+    setInitialPosition(x, y, z) {
+        this.currentPosition = { x, y, z };
+        this.targetPosition = { x, y, z };
+    }
+}
+
+// Créer des interpolateurs pour chaque bateau
+const boat1Interpolator = new PositionInterpolator();
+const boat2Interpolator = new PositionInterpolator();
 
 function findTeam(Team1, Team2, teamID)
 {
@@ -157,6 +201,60 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
         cannon: currentPlayerTeam.getCannonPosInTheWorld(),
         boatHitbox: boatGroup.userData.hitbox
     });
+}
+
+export function setupNetworkHandlers(socket, gameCode, Team1, Team2, scene, currentTeam) {
+    socket.on('boatPosition', (data) => {
+        const team = data.team === Team1.getTeamId() ? Team1 : Team2;
+        const interpolator = data.team === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+        
+        // Ne pas interpoler si c'est le joueur local
+        if (team !== currentTeam) {
+            interpolator.setTarget(
+                data.boatPosition.x,
+                team.getBoat().position.y,
+                team.getBoat().position.z
+            );
+        }
+    });
+
+    // ... autres gestionnaires d'événements existants ...
+}
+
+// Fonction d'animation pour mettre à jour les positions
+export function updateBoatPositions(Team1, Team2) {
+    if (!Team1 || !Team2) return;
+
+    const boat1 = Team1.getBoat();
+    const boat2 = Team2.getBoat();
+
+    if (!boat1 || !boat2) return;
+
+    boat1Interpolator.update(boat1);
+    boat2Interpolator.update(boat2);
+}
+
+// Initialiser les positions des interpolateurs
+export function initializeInterpolators(Team1, Team2, currentTeam) {
+    if (!Team1 || !Team2) {
+        console.error('Teams not initialized');
+        return;
+    }
+
+    const boat1 = Team1.getBoat();
+    const boat2 = Team2.getBoat();
+
+    if (!boat1 || !boat2) {
+        console.error('Boats not initialized');
+        return;
+    }
+
+    // Configurer quel bateau est le joueur local
+    boat1Interpolator.setIsLocalPlayer(Team1 === currentTeam);
+    boat2Interpolator.setIsLocalPlayer(Team2 === currentTeam);
+
+    boat1Interpolator.setInitialPosition(boat1.position.x, boat1.position.y, boat1.position.z);
+    boat2Interpolator.setInitialPosition(boat2.position.x, boat2.position.y, boat2.position.z);
 }
 
 export function periodicGameStateUpdate(socket) {
