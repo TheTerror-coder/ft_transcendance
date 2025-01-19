@@ -191,4 +191,6 @@ async function	emailStatusView(title, description, data) {
 async function	error404View(title, description, data) {
 	console.log('error 404 view');
 	document.title = title;
+	ELEMENTs.mainPage().innerHTML = error404PageDisplayVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/errorPage/Background404.jpeg')";
 }

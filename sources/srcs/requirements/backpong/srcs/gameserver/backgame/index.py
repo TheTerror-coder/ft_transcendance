@@ -139,13 +139,13 @@ async def connect(sid, environ):
         if tournamentCode in ChannelList:
             channel = ChannelList[tournamentCode]
             tournament = channel.getTournament()
-            if tournament.getNbTeam() < 4:
+            if tournament.getNbTeam() < 8:
                 tournament.addTournamentTeam(Team(data.get('teamName'), 1, sid, None), sid)
                 logger.info(f"tournament.getNbTeam() dans joinTournament dans index.py {tournament.getNbTeam()}")
                 await sio.enter_room(sid, tournamentCode)
                 await sio.emit('tournamentJoined', {'tournamentCode': "1234"}, room=sid)
                 await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
-                if (tournament.getNbTeam() == 4):
+                if (tournament.getNbTeam() == 8):
                     logger.info(f"Starting tournament {tournamentCode}")
                     await startTournament(sio, tournament, tournamentCode, True)
             else:

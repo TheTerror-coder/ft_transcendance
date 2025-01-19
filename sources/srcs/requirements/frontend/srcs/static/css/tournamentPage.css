@@ -4,114 +4,149 @@
     flex-direction: column;
 }
 
+#fruitWinDiv
+{
+	background-image: url('/static/photos/picturePng/tournament/MeraMeraNoMi.png');
+	background-size: cover;
+	height: 160px;
+	width: 145px;
+	align-self: center;
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
 
 .matchTournament
 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 80px;
+	margin-left: 80px;
 }
 
 .stepInTournament
 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 15px;
 }
 
 #centerTournament
 {
-    flex-direction: column;
-    width: 1400px;
-    height: 700px;
-    margin-top: 50px;
-    background-color: rgba(255,255,255, 0.3);
+	flex-direction: column;
+	width: 1400px;
+	height: 700px;
+	margin-top: 50px;
+	background-color: rgba(255,255,255, 0.3);
 }
 
 
-
+.stageWriteTournament
+{
+	font-family: 'wantedFont';
+	color: #ff6363;
+	font-size: 40px;
+	text-shadow: 1px 1px 1px rgba(0.0.0.1);
+}
 
 #tournamentTitle
 {
-    display: flex;
-    justify-content: center;
+	display: flex;
+	justify-content: center;
 }
 
 #tournamentWrite
 {
-    font-family:'wantedFont';
-    color:black;
-    font-size: 80px;
+	font-family:'wantedFont';
+	color:black;
+	font-size: 80px;
 }
 
 .tournamentPlayer
 {
-    background-color: rgba(255,255,255, 0.7);
-    width: 290px;
-    justify-content: center;
-    display: flex;
-    border-radius: 80%;
-    margin: 15px;
-    display: flex;
+	background-color: rgba(255,255,255, 0.7);
+	width: 290px;
+	justify-content: center;
+	display: flex;
+	border-radius: 80%;
+	margin: 15px;
+	display: flex;
 }
 
 .usernameTournament
 {
-    font-family: 'wantedFont';
-    color: black;
-    font-size: 30px;
-    align-self: center;
+	font-family: 'wantedFont';
+	color: black;
+	font-size: 30px;
+	align-self: center;
 }
 
 .tournamentCodeDisplay
 {
-    font-family: 'wantedFont';
-    color: black;
-    font-size: 40px;
+	font-family: 'wantedFont';
+	color: black;
+	font-size: 40px;
 }
 
 .tournamentChoseJoinOrCreate
 {
-    font-family: 'wantedFont';
-    color: black;
-    font-size: 60px;
+	font-family: 'wantedFont';
+	color: black;
+	font-size: 60px;
 }
 
 
 #tournamentContent
 {
-    width: 640px;
-    height: 350px;
-    align-self: center;
-    display: ruby;
+	width: 640px;
+	height: 350px;
+	align-self: center;
+	display: ruby;
 }
 
 
+.versusImgInTournament
+{
+	height: 25px;
+	align-self: center;
+}
+
 #joinCreateTournament
 {
-    width: -webkit-fill-available;
-    height: -webkit-fill-available;
-    flex-direction: column;
-    justify-content: space-around;
-    display: flex;
+	width: -webkit-fill-available;
+	height: -webkit-fill-available;
+	flex-direction: column;
+	justify-content: space-around;
+	display: flex;
 }
 
 #tournamentStartDiv
 {
     display: flex;
-    justify-content: space-between;
-    height: 138px;
+    justify-content: center;
+	text-shadow: -6px -2px 1px black;
+}
+
+#startButtonTournament
+{
+	align-self: center;
+	text-shadow: -6px -2px 1px black;
 }
 
 #startTournament
 {
     align-self: center;
     width: -webkit-fill-available;
-    display: none;
     justify-content: center;
-    margin-right: -56px;
+	display: flex;
+	font-size: 90px;
+	color: red;
+	transition: all 0.3s;
+}
+
+#startTournament:hover
+{
+	font-size: 100px;
 }
 
 .writeNumbersOfPlayers

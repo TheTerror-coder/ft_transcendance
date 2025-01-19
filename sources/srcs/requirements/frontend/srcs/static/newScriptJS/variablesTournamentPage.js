@@ -4,8 +4,11 @@ const binaryTreeVAR =
 `
 <div id="backgroundBinaryTree">
     <div class="binaryTree">
-        <div>
+        <div id="fruitWinDiv">
             <p id="winnerOfTheTournament" class="Winner of the tournament"></p>
+        </div>
+        <div style="align-self: center;">
+            <p data-translate="final" class="stageWriteTournament" >final</p>
         </div>
         <div id="finalTournament" class="stepInTournament">
             <div class="matchTournament">
@@ -13,14 +16,15 @@ const binaryTreeVAR =
                     <span data-match="13" class="text"></span>
                     <span data-match="13" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span data-match="14" class="text"></span>
                     <span data-match="14" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
             </div>
         </div>
-        <div>
-            <p data-translate="semiFinal">semi final</p>
+        <div style="align-self: center;">
+            <p data-translate="semiFinal" class="stageWriteTournament" >semi final</p>
         </div>
         <div id="secondStepTournament" class="stepInTournament">
             <div class="matchTournament">
@@ -28,6 +32,7 @@ const binaryTreeVAR =
                     <span data-match="9" class="text"></span>
                     <span data-match="9" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span  data-match="10" class="text"></span>
                     <span  data-match="10"data-translate="empty" aria-hidden="" class="marquee">empty</span>
@@ -38,14 +43,15 @@ const binaryTreeVAR =
                     <span  data-match="11" class="text"></span>
                     <span  data-match="11"data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span  data-match="12" class="text"></span>
                     <span  data-match="12" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
             </div>
         </div>
-        <div>
-            <p data-translate="semiFinal">semi final</p>
+        <div style="align-self: center;">
+            <p data-translate="quarterFinal" class="stageWriteTournament" ></p>
         </div>
         <div id="firstStepOfTournament" class="stepInTournament">
             <div class="matchTournament">
@@ -53,6 +59,7 @@ const binaryTreeVAR =
                     <span data-match="1" class="text"></span>
                     <span data-match="1" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span data-match="2" class="text"></span>
                     <span data-match="2" data-translate="empty" aria-hidden="" class="marquee">empty</span>
@@ -63,6 +70,7 @@ const binaryTreeVAR =
                     <span data-match="3" class="text"></span>
                     <span data-match="3" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span data-match="4" class="text"></span>
                     <span data-match="4" data-translate="empty" aria-hidden="" class="marquee">empty</span>
@@ -73,6 +81,7 @@ const binaryTreeVAR =
                     <span data-match="5" class="text"></span>
                     <span data-match="5" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span data-match="6" class="text"></span>
                     <span data-match="6" data-translate="empty" aria-hidden="" class="marquee">empty</span>
@@ -83,20 +92,16 @@ const binaryTreeVAR =
                     <span data-match="7" class="text"></span>
                     <span data-match="7" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
+				<img class="versusImgInTournament" src="/static/photos/picturePng/tournament/versusInTournament.png">
                 <button class="btn-23">
                     <span data-match="8" class="text"></span>
                     <span data-match="8" data-translate="empty" aria-hidden="" class="marquee">empty</span>
                 </button>
             </div>
         </div>
-        <div>
-            <p data-translate="quarterFinal"></p>
-        </div>
     </div>
-    <div id="tournamentStartDiv"><button id="startTournament" style="align-self:center;"><p data-translate="StartTournament" style="font-size: 60px;">START</p></button> 
-        <div style="display:flex; align-items: center;"> 
-            <p id="numbersOfPlayersTournament" class="writeNumbersOfPlayers"></p><p class="writeNumbersOfPlayers">/</p><p class="writeNumbersOfPlayers">8</p>
-        </div>
+    <div id="tournamentStartDiv">
+        <button id="startButtonTournament"><p id="startTournament" data-translate="StartTournament">START</p></button> 
     </div>
 </div>
 `

@@ -46,6 +46,7 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
+
     console.log("TOURNAMENT FULL: ", data);
 }
 
@@ -123,14 +124,24 @@ async function createTournament()
 async function usersInTournament(usernameTournament, nbPlayer)
 {
     console.log("usersInTournament");
+    nbPlayer = 8;
     ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
-    usernameTournament.forEach(function(element) {
-        if (!tournamentAllUsers.users.includes(element))
+
+    // usernameTournament.forEach(function(element) {
+    //     if (!tournamentAllUsers.users.includes(element))
+    //     {   
+    //         addUserTournament(element);
+    //         tournamentAllUsers.users = element;
+    //     }
+    // });
+    for (let i = 0; i < 8; i++)
+    {
+        if (!tournamentAllUsers.users.includes("dbaule" + i))
         {   
-            addUserTournament(element);
-            tournamentAllUsers.users = element;
+            addUserTournament("dbaule" + i);
+            tournamentAllUsers.users = "dbaule" + i;
         }
-    });
+    }
     if (nbPlayer === 8)
     {
         ELEMENTs.startTournament().style.display = "flex";
@@ -157,17 +168,29 @@ function displayBinaryTree()
     console.log("display binary tree");
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
 
-    // document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) { 
-    //     console.log(element);
-    //   });
+    // for (let i = 0; i < 8; i++)
+    // {
+    //     const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
+    //     console.log("usernameTournament : ", usernameTournament);
+    //     addUserTournament(usernameTournament, i);
+    // }
+    let i = 1;
+    refreshLanguage();
     setTimeout(() => {
-        document.querySelectorAll('[data-match="1"]').forEach(function(element) 
+        tournamentAllUsers.users.forEach(function(elements) 
         {
-            element.innerHTML = "dbaule0";
-            if (element.hasAttribute("data-translate"))
-                element.removeAttribute('data-translate');
+            console.log("element dans tournamentAllUsers.users.forEach: ", elements);
+            const user = elements;
+            document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
+            {
+                element.innerHTML = user;
+                if (element.hasAttribute("data-translate"))
+                    element.removeAttribute('data-translate');
+                console.log("e", element, " ET I le goat: ", i);
+            });
+            i++;
         });
-    }, 500);
+    }, 200);
 }
 
 function startTournament()
