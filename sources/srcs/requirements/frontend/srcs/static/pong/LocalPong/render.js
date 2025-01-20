@@ -138,7 +138,7 @@ function createBoundaries() {
 
 async function createBoats(gltfLoader) {
     return new Promise((resolve, reject) => {
-        gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
+        gltfLoader.load('../../../static/pong/assets/models/onepiece.gltf', function (gltf) {
             // Création du bateau 1
             const boat1 = gltf.scene.clone();
             boat1.scale.set(10, 5, 5);

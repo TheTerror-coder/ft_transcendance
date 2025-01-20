@@ -264,9 +264,6 @@ class Game:
             self.ballDirection["x"] /= length
             self.ballDirection["y"] /= length
 
-        logger.info(f"Ball position: {self.ballPosition}")
-        logger.info(f"Ball direction: {self.ballDirection}")
-
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
             self.resetBall()
             self.teams[1].addPoint()
@@ -319,7 +316,7 @@ class Game:
         self.playerReady -= 1
 
     def getPlayerReady(self):
-        logger.info("getPlayerReady")
+        # logger.info("getPlayerReady")
         return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):
@@ -398,45 +395,45 @@ class Game:
         else:
             logger.info(f"Team {teamId} not found")
 
+    def interpolate_points(self, p1, p2, steps=10):
+        points = []
+        for i in range(steps):
+            t = i / steps
+            x = p1['x'] + (p2['x'] - p1['x']) * t
+            y = p1['y'] + (p2['y'] - p1['y']) * t
+            z = p1['z'] + (p2['z'] - p1['z']) * t
+            points.append({'x': x, 'y': y, 'z': z})
+        return points
+
     async def updateBallFired(self, data):
         trajectory = data.get('trajectory')
         team = self.getTeam(data.get('team'))
-        boat = team.getBoat()
-
-        formerBoatPos = team.getFormerBoatPosition()
-        
-        dx = boat['x'] - formerBoatPos['x']
-        
-        hitbox = team.getBoatHitbox()
-        
-        adjusted_hitbox = {
-            'min': {
-                'x': hitbox['min']['x'] + dx,
-                'y': hitbox['min']['y'] + boat['y'],
-                'z': hitbox['min']['z'] + boat['z']
-            },
-            'max': {
-                'x': hitbox['max']['x'] + dx,
-                'y': hitbox['max']['y'] + boat['y'],
-                'z': hitbox['max']['z'] + boat['z']
-            }
-        }
-        
         points_array = trajectory.get('geometries', [])[0].get('data', {}).get('attributes', {}).get('position', {}).get('array', [])
-        logger.info(f"points_array: {points_array}")
-
+        
+        # Convertir le tableau de points en liste de dictionnaires
+        points = []
         for i in range(0, len(points_array), 3):
-            x = points_array[i]  
-            y = points_array[i+1]
-            z = points_array[i+2]
-            
-
-            if (adjusted_hitbox['min']['x'] <= x <= adjusted_hitbox['max']['x'] and
-                adjusted_hitbox['min']['y'] <= y <= adjusted_hitbox['max']['y'] and
-                adjusted_hitbox['min']['z'] <= z <= adjusted_hitbox['max']['z']):
-                logger.info(f"Collision détectée - Point: {x, y, z}")
-                return -1
+            points.append({
+                'x': points_array[i],
+                'y': points_array[i+1],
+                'z': points_array[i+2]
+            })
+        
+        # Vérifier les collisions avec interpolation
+        for i in range(len(points) - 1):
+            interpolated_points = self.interpolate_points(points[i], points[i+1])
+            for point in interpolated_points:
+                if self.check_collision_point(point, team):
+                    return -1
         return 0
+
+    def check_collision_point(self, point, firing_team):
+        target_team = self.teams[1 if firing_team.getTeamId() == 2 else 2]
+        hitbox = self.getAdjustedHitbox(target_team)
+        
+        return (hitbox['min']['x'] <= point['x'] <= hitbox['max']['x'] and
+                hitbox['min']['y'] <= point['y'] <= hitbox['max']['y'] and
+                hitbox['min']['z'] <= point['z'] <= hitbox['max']['z'])
 
     async def updateClientData(self, data):
         teamId = data.get('team')

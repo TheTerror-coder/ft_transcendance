@@ -194,8 +194,10 @@ export function unloadScene(ball, scene, bateau1, bateau2, display, renderer) {
 
 async function initObject(scene, Team1, Team2, currentTeam)
 {
-    const GLTFloader = new GLTFLoader();
-    let bateau = await initBateaux(scene, GLTFloader);
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.setCrossOrigin('anonymous');
+    gltfLoader.setPath('');
+    let bateau = await initBateaux(scene, gltfLoader);
     console.log('bateau:', bateau);
     let cannonGroup = await initCannons(scene);
     console.log('CannonGroup:', cannonGroup);
@@ -230,30 +232,31 @@ function initBall(ballSavedPos) {
     });
 }
 
-function initBateaux(scene, gltfLoader) {
+async function initBateaux(scene, gltfLoader) {
     return new Promise((resolve, reject) => {
-        gltfLoader.load('../../static/pong/assets/models/onepiece.gltf', function (gltf) {
-            // const texture = new THREE.TextureLoader().load('../../static/pong/assets/textures/bateau_texture.png');
-            // gltf.scene.traverse((child) => {
-            //     if (child.isMesh) {
-            //         // child.material.map = texture;
-            //         child.material.needsUpdate = true;
-            //     }
-            // });
+        const modelPath = `../../static/pong/assets/models/onepiece.gltf`;
+        
+        gltfLoader.load(modelPath, function (gltf) {
+            // Cloner les matériaux une seule fois pour le modèle original
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = child.material.clone();
+                    child.material.needsUpdate = true;
+                }
+            });
+
+            // Créer les clones des bateaux
             const bateauTeam1 = gltf.scene.clone();
-            // bateauTeam1.position.set(0, 20, -1);
-            bateauTeam1.scale.set(10, 5, 5);
-
             const bateauTeam2 = gltf.scene.clone();
-            // bateauTeam2.position.set(0, -20, -1);
-            bateauTeam2.scale.set(10, 5, 5);
+            
+            [bateauTeam1, bateauTeam2].forEach((bateau, index) => {
+                bateau.scale.set(10, 5, 5);
+                bateau.rotation.set(Math.PI / 2, 0, 0);
+                bateau.name = `bateauTeam${index + 1}`;
+            });
 
-            console.log('Boat models loaded successfully');
             resolve({ bateauTeam1, bateauTeam2 });
-        }, undefined, function (error) {
-            console.error('Error loading the boat models:', error);
-            reject(error);
-        });
+        }, undefined, reject);
     });
 }
 

@@ -508,7 +508,7 @@ async def sendPlayerLists(game, gameCode, sid):
 async def ReadyToStart(gameCode, game):
      # Attendre que tous les joueurs soient prêts
     while not game.gameStarted or game.getIsPaused():
-        logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
+        # logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
         if game.nbPlayerConnected == game.nbPlayerPerTeam * 2 and game.getPlayerReady() == game.nbPlayerPerTeam * 2:
             game.gameStarted = True
             game.setIsPaused(False)

@@ -22,11 +22,24 @@ async function calculateCannonBallTrajectory(cannonX, cannonY, cannonZ, cannonAn
         trajectory.push(new THREE.Vector3(x, y, z));
     }
 
-    return trajectory;
+    return {
+        geometries: [{
+            data: {
+                attributes: {
+                    position: {
+                        array: trajectory.flatMap(v => [v.x, v.y, v.z])
+                    }
+                }
+            }
+        }]
+    };
 }
 
-async function createTrajectoryLine(points) {
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+async function createTrajectoryLine(trajectoryData) {
+    const points = extractTrajectoryPoints(trajectoryData);
+    const geometry = new THREE.BufferGeometry().setFromPoints(
+        points.map(p => new THREE.Vector3(p.x, p.y, p.z))
+    );
     const material = new THREE.LineBasicMaterial({ 
         color: 0xff0000,
         linewidth: 2
@@ -34,70 +47,48 @@ async function createTrajectoryLine(points) {
     return new THREE.Line(geometry, material);
 }
 
-async function fireCannon(trajectory, scene)
-{
+async function fireCannon(trajectoryData, scene) {
     const ballMesh = createCannonBall();
-    console.log('ballMesh : ', ballMesh);
-
-    ballMesh.position.set(trajectory[0].x, trajectory[0].y, trajectory[0].z);
-    scene.add(ballMesh);
-    for (const point of trajectory)
-    {
-        console.log('point : ', point);
-        ballMesh.position.set(point.x, point.y, point.z);
-        ballMesh.rotation.x += 0.1;
-        ballMesh.rotation.z += 0.1;
-        new Promise(resolve => setTimeout(resolve, 100));
-    }
-    scene.remove(ballMesh);
-    // return ballMesh;
-}
-
-export async function fireEnnemieCannonBall(scene, trajectoryData) {
-    if (!trajectoryData || !trajectoryData.geometries) {
-        console.error('Données de trajectoire invalides:', trajectoryData);
+    const points = extractTrajectoryPoints(trajectoryData);
+    
+    if (points.length === 0) {
+        console.error('Aucun point de trajectoire trouvé');
         return;
     }
 
-    const ballMesh = createCannonBall();
-    console.log('ballMesh : ', ballMesh);
+    scene.add(ballMesh);
+    ballMesh.position.set(points[0].x, points[0].y, points[0].z);
     
-    try {
-        // Extraire le tableau de points de la trajectoire de manière sécurisée
-        const points_array = trajectoryData?.geometries[0]?.data?.attributes?.position?.array || [];
-        const points = [];
+    for (const point of points) {
+        ballMesh.position.set(point.x, point.y, point.z);
+        ballMesh.rotation.x += 0.1;
+        ballMesh.rotation.z += 0.1;
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    scene.remove(ballMesh);
+}
+
+export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 16) {
+    const ballMesh = createCannonBall();
+    const points = extractTrajectoryPoints(trajectoryData);
+    
+    scene.add(ballMesh);
+    
+    for (let i = 0; i < points.length - 1; i++) {
+        const start = points[i];
+        const end = points[i + 1];
+        const interpolated = interpolatePoints(start, end);
         
-        // Convertir le tableau plat en points Vector3
-        for (let i = 0; i < points_array.length; i += 3) {
-            points.push(new THREE.Vector3(
-                points_array[i],     // x
-                points_array[i + 1], // y
-                points_array[i + 2]  // z
-            ));
-        }
-        
-        if (points.length === 0) {
-            console.error('Aucun point de trajectoire trouvé');
-            return;
-        }
-        
-        // Positionner la balle au premier point
-        ballMesh.position.set(points[0].x, points[0].y, points[0].z);
-        scene.add(ballMesh);
-        
-        // Animer la balle le long de la trajectoire
-        for (const point of points) {
+        for (const point of interpolated) {
             ballMesh.position.set(point.x, point.y, point.z);
             ballMesh.rotation.x += 0.1;
             ballMesh.rotation.z += 0.1;
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, speed));
         }
-        
-        scene.remove(ballMesh);
-    } catch (error) {
-        console.error('Erreur lors de l\'animation de la balle:', error);
-        scene.remove(ballMesh);
     }
+    
+    scene.remove(ballMesh);
 }
 
 export async function doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud)
@@ -114,5 +105,38 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryL
     cannonTube.rotation.y = 0;
     hud.scene.add(hud.loadingCircle.group);
     return trajectoryLine;
+}
+
+function interpolatePoints(start, end, steps = 10) {
+    const points = [];
+    for (let i = 0; i < steps; i++) {
+        const t = i / steps;
+        points.push({
+            x: start.x + (end.x - start.x) * t,
+            y: start.y + (end.y - start.y) * t,
+            z: start.z + (end.z - start.z) * t
+        });
+    }
+    return points;
+}
+
+function extractTrajectoryPoints(trajectoryData) {
+    if (!trajectoryData || !trajectoryData.geometries) {
+        console.error('Données de trajectoire invalides:', trajectoryData);
+        return [];
+    }
+
+    const points_array = trajectoryData?.geometries[0]?.data?.attributes?.position?.array || [];
+    const points = [];
+    
+    for (let i = 0; i < points_array.length; i += 3) {
+        points.push({
+            x: points_array[i],
+            y: points_array[i + 1],
+            z: points_array[i + 2]
+        });
+    }
+    
+    return points;
 }
 
