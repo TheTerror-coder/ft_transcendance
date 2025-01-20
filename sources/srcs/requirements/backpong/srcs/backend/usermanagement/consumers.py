@@ -89,13 +89,49 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     async def send_message(self, event):
         message = event['text']
         await self.send(text_data=message)
-        
+
+
+
     async def update_username(self, event):
         new_username = event["new_username"]
         del user_sockets[self.user.username]
         user_sockets[new_username] = self.channel_name
         self.user.username = new_username
         print(f"WebSocket updated username to {new_username}", file=sys.stderr)
+        await self.notify_username_update(new_username)
+
+    async def notify_username_update(self, new_username):
+        # Envoyer un message à tous les utilisateurs connectés pour leur dire de mettre à jour leur nom d'utilisateur
+        for username, channel_name in user_sockets.items():
+            # if channel_name != self.channel_name:
+            print(f"WebSocket sending update_username to pipi {new_username}, {channel_name}, {username}", file=sys.stderr)
+            invitation = {
+                'type': 'invitation',
+                'from': self.user.username,
+                'to': username,
+                'text': f"{self.user.username} wants to be your friend",
+                'friend_request_id': friend_request.id
+            }
+
+            await self.channel_layer.send(
+                channel_name,
+                {
+                    'type': 'send.message',
+                    'text': json.dumps(invitation),
+                    'new_username': new_username
+                }
+            )
+
+
+
+
+
+    # async def update_username(self, event):
+    #     new_username = event["new_username"]
+    #     del user_sockets[self.user.username]
+    #     user_sockets[new_username] = self.channel_name
+    #     self.user.username = new_username
+    #     print(f"WebSocket updated username to {new_username}", file=sys.stderr)
 
     @database_sync_to_async
     def get_user_by_username(self, username):

@@ -240,15 +240,19 @@ async function callWebSockets(params) {
 		console.log("WebSocket connection closed:", event);
 	};
 	socket.onmessage = function(event) {
-		// console.log("Received invitation:");
 		var data = JSON.parse(event.data);
+		console.log("Received invitation:", data);
 		if (data.type === 'invitation') {
-			// console.log("Received invitation:", data);
 			socket.send(JSON.stringify({
 				type: 'response.invitation',
 				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
+		}
+		if (data.type === 'update_name') {
+			console.log("Received new username  CACACACACACACACACa:", data.new_username);
+			const newUsername = data.new_username;
+			document.getElementById('username').innerText = newUsername;
 		}
 	};
 }
