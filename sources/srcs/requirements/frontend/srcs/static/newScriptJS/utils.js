@@ -1,36 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
-            }
-        }
-        </script>
-    <!-- "socket.io-client": "https://cdn.socket.io/4.8.1/socket.io.min.js" -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
-        <link href="/static/css/loginPage.css" rel="stylesheet">
-        <link href="/static/css/homePage.css" rel="stylesheet">
-        <link href="/static/css/lobby.css" rel="stylesheet">
-        <link href="/static/css/profilePage.css" rel="stylesheet">
-        <link href="/static/css/playMenu.css" rel="stylesheet">
-        <link href="/static/css/createJoinLobby.css" rel="stylesheet">
-        <link href="/static/css/tournamentPage.css" rel="stylesheet">
-        <script src="/static/newScriptJS/languages.js"></script>
-        <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-		<script src="/static/oauth/variables.js"></script>
+
+// let currentSound = true;
+
+// function changeMusic(newSource) 
+// {
+//     let newSourceElement = document.createElement('source');
+//     newSourceElement.src = newSource;
+//     newSourceElement.type = 'audio/mp3';
+
+//     ELEMENTs.musicPlayer().innerHTML = '';
+
+//     ELEMENTs.musicPlayer().appendChild(newSourceElement);
+
+//     ELEMENTs.musicPlayer().load();
+// 	console.log("currentSound dans changeMusic: ", currentSound);
+// 	refreshMusic();
+// }
+
+// function OnOffMusic() 
+// {
+// 	if (ELEMENTs.musicPlayer().paused)
+// 	{
+// 		ELEMENTs.musicPlayer().play();
+// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
+// 		ELEMENTs.buttonSound().alt = "sound is on !";
+// 		currentSound = true;
+// 	}
+// 	else
+// 	{
+// 		ELEMENTs.musicPlayer().pause();
+// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
+// 		ELEMENTs.buttonSound().alt = "sound is off !";
+// 		currentSound = false;
+// 	} 
+// }
+
+// function refreshMusic()
+// {
+// 	if (currentSound === true)
+// 		ELEMENTs.musicPlayer().play();
+// 	else
+// 		ELEMENTs.musicPlayer().pause();
+// }
 
 
-        <title>ONE PONG</title>
-        <link rel="icon" type="image/png" href="/static/photos/picturePng/Luffy_flag_icon.png">
-
-    </head>
-    <body class="background" id="background">
-		<audio id="musicPlayer" loop>
+const resetBaseHtmlVAR =
+`        
+<audio id="musicPlayer" loop>
 			<source src="/static/sound/test.mp3" type="audio/mp3">
 		</audio>
         <div class="headPage" id="headPage">
@@ -99,5 +114,4 @@
         <script src="/static/newScriptJS/join.js"></script>
 		<script src="/static/views.js"></script>
 		<script src="/static/router.js"></script>
-    </body>
-</html>
+`;

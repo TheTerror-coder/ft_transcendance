@@ -47,6 +47,7 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
+
     console.log("TOURNAMENT FULL: ", data);
 }
 
@@ -81,7 +82,6 @@ const errorTournamentEvent = (data) => {
 async function joinTournament(code)
 {
     console.log("JOIN TOURNAMENT");
-
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
@@ -108,14 +108,6 @@ async function createTournament()
     refreshLanguage();
 
     // addUserTournament(user.username);
-
-    // for (let i = 0; i < 8; i++)
-    // {
-    //     const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
-    //     console.log("usernameTournament : ", usernameTournament);
-    //     addUserTournament(usernameTournament, i);
-    // }
-    
 }
 
 // i sera le nombre de joueur qui ont rejoins en tout le tournois
@@ -124,6 +116,7 @@ async function usersInTournament(usernameTournament, nbPlayer)
 {
     console.log("usersInTournament");
     ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
+
     usernameTournament.forEach(function(element) {
         if (!tournamentAllUsers.users.includes(element))
         {   
@@ -133,8 +126,6 @@ async function usersInTournament(usernameTournament, nbPlayer)
     });
     if (nbPlayer === 8)
     {
-        ELEMENTs.startTournament().style.display = "flex";
-        ELEMENTs.startTournament().onclick = () => startTournament();
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
         ELEMENTs.tournamentWrite().innerHTML = "";
         displayBinaryTree();
@@ -157,17 +148,23 @@ function displayBinaryTree()
     console.log("display binary tree");
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
 
-    // document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) { 
-    //     console.log(element);
-    //   });
+    let i = 1;
+    refreshLanguage();
     setTimeout(() => {
-        document.querySelectorAll('[data-match="1"]').forEach(function(element) 
+        tournamentAllUsers.users.forEach(function(elements) 
         {
-            element.innerHTML = "dbaule0";
-            if (element.hasAttribute("data-translate"))
-                element.removeAttribute('data-translate');
+            console.log("element dans tournamentAllUsers.users.forEach: ", elements);
+            const user = elements;
+            document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
+            {
+                element.innerHTML = user;
+                if (element.hasAttribute("data-translate"))
+                    element.removeAttribute('data-translate');
+                console.log("e", element, " ET I le goat: ", i);
+            });
+            i++;
         });
-    }, 500);
+    }, 200);
 }
 
 function startTournament()
