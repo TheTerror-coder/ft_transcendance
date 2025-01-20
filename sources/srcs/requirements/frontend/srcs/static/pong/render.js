@@ -197,7 +197,7 @@ async function initObject(scene, Team1, Team2, currentTeam)
     const gltfLoader = new GLTFLoader();
     gltfLoader.setCrossOrigin('anonymous');
     gltfLoader.setPath('');
-    let bateau = await initBateaux(scene, gltfLoader);
+    let bateau = await initBateaux(scene);
     console.log('bateau:', bateau);
     let cannonGroup = await initCannons(scene);
     console.log('CannonGroup:', cannonGroup);
@@ -216,7 +216,7 @@ async function initObject(scene, Team1, Team2, currentTeam)
 function initBall(ballSavedPos) {
     return new Promise((resolve, reject) => {
         try {
-            const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+            const ballGeometry = new THREE.SphereGeometry(1, 32, 32);
             const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             console.log('Ball initialized successfully');
@@ -232,31 +232,40 @@ function initBall(ballSavedPos) {
     });
 }
 
-async function initBateaux(scene, gltfLoader) {
+async function initBateaux(scene) {
     return new Promise((resolve, reject) => {
-        const modelPath = `../../static/pong/assets/models/onepiece.gltf`;
+        const mtlLoader = new MTLLoader();
+        mtlLoader.setPath('../../static/pong/assets/textures/');
         
-        gltfLoader.load(modelPath, function (gltf) {
-            // Cloner les matériaux une seule fois pour le modèle original
-            gltf.scene.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = child.material.clone();
-                    child.material.needsUpdate = true;
-                }
-            });
-
-            // Créer les clones des bateaux
-            const bateauTeam1 = gltf.scene.clone();
-            const bateauTeam2 = gltf.scene.clone();
+        mtlLoader.load('onepiece.mtl', function(materials) {
+            materials.preload();
             
-            [bateauTeam1, bateauTeam2].forEach((bateau, index) => {
-                bateau.scale.set(10, 5, 5);
-                bateau.rotation.set(Math.PI / 2, 0, 0);
-                bateau.name = `bateauTeam${index + 1}`;
-            });
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath('../../static/pong/assets/models/');
+            
+            objLoader.load('onepiece.obj', function(object) {
+                // Création du bateau 1
+                const bateauTeam1 = object.clone();
+                bateauTeam1.scale.set(10, 5, 5);
+                bateauTeam1.rotation.set(Math.PI / 2, 0, 0);
+                bateauTeam1.name = 'bateauTeam1';
+                
+                // Création du bateau 2
+                const bateauTeam2 = object.clone();
+                bateauTeam2.scale.set(10, 5, 5);
+                bateauTeam2.rotation.set(Math.PI / 2, 0, 0);
+                bateauTeam2.name = 'bateauTeam2';
 
-            resolve({ bateauTeam1, bateauTeam2 });
-        }, undefined, reject);
+                resolve({ bateauTeam1, bateauTeam2 });
+            }, undefined, function(error) {
+                console.error('Error loading boat model:', error);
+                reject(error);
+            });
+        }, undefined, function(error) {
+            console.error('Error loading boat materials:', error);
+            reject(error);
+        });
     });
 }
 

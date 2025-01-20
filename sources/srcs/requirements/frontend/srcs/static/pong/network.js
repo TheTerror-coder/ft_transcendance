@@ -85,8 +85,10 @@ const createWinnerEvent = (Team1, Team2, currentPlayer, hud, currentLanguage) =>
     console.log("currentLanguage dans winner", currentLanguage);
     if (winner === teamName) {
         await hud.showEndGameText(true, currentLanguage);
+        currentTeam.setWinner(true);
     } else {
         await hud.showEndGameText(false, currentLanguage);
+        currentTeam.setWinner(false);
     }
     
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -139,6 +141,38 @@ const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (da
     scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
 }
 
+// Ajouter une constante pour la fréquence de mise à jour
+const BALL_UPDATE_INTERVAL = 50; // 50ms = 20fps, ajustable selon les besoins
+
+// Modifier la fonction de mise à jour de la balle pour utiliser l'interpolation
+function updateBallPosition(ballPosition, ball, lastBallPosition) {
+    if (!ball || !ballPosition) return;
+    
+    // Réduire le facteur d'interpolation pour un mouvement plus fluide
+    const lerpFactor = 0.15;  // Réduit de 0.3 à 0.15
+    
+    // Calculer la distance entre la position actuelle et la position cible
+    const distance = {
+        x: ballPosition.x - ball.position.x,
+        y: ballPosition.y - ball.position.y,
+        z: ballPosition.z - ball.position.z
+    };
+    
+    // Si la distance est trop grande, téléporter directement
+    const maxDistance = 10;  // Seuil de téléportation
+    if (Math.abs(distance.x) > maxDistance || 
+        Math.abs(distance.y) > maxDistance || 
+        Math.abs(distance.z) > maxDistance) {
+        ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
+        return;
+    }
+    
+    // Interpolation linéaire plus douce
+    ball.position.x += distance.x * lerpFactor;
+    ball.position.y += distance.y * lerpFactor;
+    ball.position.z += distance.z * lerpFactor;
+}
+
 export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
@@ -148,7 +182,9 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     });
 
     socket.on('disconnect', () => {
-        window.location.href = '/home';
+        // window.location.href = '/home';
+        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+        replace_location(URLs.VIEWS.HOME);
         console.log('Disconnected from the server');
     });
 
@@ -162,6 +198,24 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('updateHealth', createUpdateHealthEvent(Team1, Team2, currentPlayer, hud));
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer));
     socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
+
+    socket.on('gameState', (data) => {
+        if (ball && data.ballPosition) {
+            // Stocker la dernière position reçue du serveur
+            ball.userData.lastServerPosition = {
+                x: data.ballPosition.x,
+                y: data.ballPosition.y,
+                z: data.ballPosition.z,
+                timestamp: Date.now()
+            };
+            
+            // Stocker la vélocité pour la prédiction
+            ball.userData.velocity = data.ballVelocity;
+            
+            // Mettre à jour la position avec interpolation
+            updateBallPosition(data.ballPosition, ball, ball.userData.lastServerPosition);
+        }
+    });
 }
 
 export function removeSocketListeners(socket) {

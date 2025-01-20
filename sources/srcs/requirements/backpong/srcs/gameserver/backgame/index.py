@@ -116,7 +116,7 @@ async def connect(sid, environ):
         # while tournamentCode in ChannelList:
         #     tournamentCode = generateGameCode()
 
-        tournamentCode = "1234"
+        tournamentCode = generateGameCode()
 
         if tournamentCode in ChannelList:
             ChannelList.pop(tournamentCode)
@@ -143,7 +143,7 @@ async def connect(sid, environ):
                 tournament.addTournamentTeam(Team(data.get('teamName'), 1, sid, None), sid)
                 logger.info(f"tournament.getNbTeam() dans joinTournament dans index.py {tournament.getNbTeam()}")
                 await sio.enter_room(sid, tournamentCode)
-                await sio.emit('tournamentJoined', {'tournamentCode': "1234"}, room=sid)
+                await sio.emit('tournamentJoined', {'tournamentCode': tournamentCode}, room=sid)
                 await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
                 if (tournament.getNbTeam() == 4):
                     logger.info(f"Starting tournament {tournamentCode}")
@@ -417,7 +417,7 @@ async def connect(sid, environ):
                 game = ChannelList[gameCode].getGame()
             if (not game):
                 return
-            await sio.emit('ballFired', data['trajectory'], room=gameCode)
+            await sio.emit('ballFired', data['trajectory'], room=gameCode, skip_sid=sid)
             if (await game.updateBallFired(data) == -1):
                 await sio.emit('updateHealth', {
                     'teamID': 1 if team == 2 else 1,
@@ -556,28 +556,26 @@ async def startTournament(sio, tournament, tournamentCode, start):
     
 
 async def startGame(gameCode, game):
-    logger.info(f"En attente que tous les joueurs soient prêts pour la partie {gameCode}")
-
-    # await ReadyToStart(gameCode, game, tournament)
-    
-    logger.info(f"Démarrage de la partie {gameCode} avec {game.nbPlayerConnected} joueurs")
-    logger.info(f"game.getIsPaused() et game.gameStarted dans startGame dans index.py {game.getIsPaused()} et {game.gameStarted}")
-    
     while game.gameStarted and game.getIsPaused() == False:
-        await game.updateBallPosition()
+        ballPosition = await game.updateBallPosition()
         await game.handleCollisions(sio, gameCode)
-        await sio.emit('gameState', {'ballPosition': game.getBallPosition()}, room=gameCode)
-        # logger.info(f"game.getIsPaused() dans index.py {game.getIsPaused()}")
+        
+        # Envoyer la position et la vélocité
+        await sio.emit('gameState', {
+            'ballPosition': game.getBallPosition(),
+            'ballVelocity': game.ball_velocity
+        }, room=gameCode)
+        
         if (game.getIsPaused()):
             await ReadyToStart(gameCode, game)
         if (game.gameStarted == False and game.getIsPaused() == False):
-            logger.info(f"Game started is False and game is not paused so we break the loop")
             break
         await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
 
     if (game.getIsGameTournament() and game.getIsPaused() == False and game.gameStarted == False and game.getWinner()):
         tournament = game.getTournament()
         tournament.updateTournamentTree(game.getWinner())
+        await sio.emit('tournamentWinner', game.getWinner().getName(), room=game.getWinner().getTournamentTeamId())
         game.getWinner().resetPosition()
         tournament.removeTournamentTeam(game.getLoser())
         tournament.getTournamentGames(gameCode).removeNbPlayerConnected()

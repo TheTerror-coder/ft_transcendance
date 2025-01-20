@@ -13,7 +13,7 @@ console.log("pong.js loaded");
 let BOAT_MOVE_SPEED = 2.5;
 let CANNON_MOVE_SPEED = 0.1;
 let CANNON_ROTATION_SPEED = 0.1;
-let FRAME_RATE = 40;
+let FRAME_RATE = 50;
 
 export async function main(gameCode, socket, currentLanguage) {
     console.log('socket : ', socket);
@@ -193,7 +193,12 @@ export async function main(gameCode, socket, currentLanguage) {
                         renderer = null;
                         cameraPlayer = null;
                         
+                        console.log("currentPlayerTeam.getWinner() : ", currentPlayerTeam.getWinner());
+                        console.log("gameCode.length : ", gameCode.length);
+                        console.log("gameCode : ", gameCode);
                         if (gameCode.length == 4)
+                            socket.disconnect();
+                        else if (gameCode.lenght == 5 && currentPlayerTeam.getWinner() === false)
                             socket.disconnect();
                         animationComplete = true;
                         network.removeSocketListeners(socket);
@@ -204,6 +209,15 @@ export async function main(gameCode, socket, currentLanguage) {
                 
                 renderEndScreen();
                 return (true);
+            }
+            
+            if (ball && ball.userData.lastServerPosition && ball.userData.velocity) {
+                const now = Date.now();
+                const deltaTime = (now - ball.userData.lastServerPosition.timestamp) / 1000;
+                
+                if (deltaTime < 1.0) {
+                    predictBallPosition(ball, ball.userData.velocity, deltaTime);
+                }
             }
             
             // Mise à jour des boîtes de collision
@@ -427,4 +441,34 @@ function displayBallPosition(ballPosition, displayElement) {
 // Fonction pour afficher la direction de la balle
 function displayBallDirection(ballDirection, displayElement) {
     displayElement.innerText = `Ball Direction - X: ${ballDirection.x.toFixed(2)}, Y: ${ballDirection.y.toFixed(2)}, Z: ${ballDirection.z.toFixed(2)}`;
+}
+
+function predictBallPosition(ball, velocity, deltaTime) {
+    if (!ball.userData.lastServerPosition) {
+        ball.userData.lastServerPosition = {
+            x: ball.position.x,
+            y: ball.position.y,
+            z: ball.position.z,
+            timestamp: Date.now()
+        };
+        return;
+    }
+
+    // Limiter le deltaTime pour éviter les prédictions trop lointaines
+    const maxDeltaTime = 0.1; // 100ms maximum
+    deltaTime = Math.min(deltaTime, maxDeltaTime);
+
+    // Calculer la position prédite avec amortissement
+    const dampingFactor = 0.9; // Réduire légèrement l'effet de la vélocité
+    const predictedPosition = {
+        x: ball.position.x + velocity.x * deltaTime * dampingFactor,
+        y: ball.position.y + velocity.y * deltaTime * dampingFactor,
+        z: ball.position.z
+    };
+
+    // Appliquer la position prédite avec une interpolation douce
+    const predictionLerpFactor = 0.3;
+    ball.position.x += (predictedPosition.x - ball.position.x) * predictionLerpFactor;
+    ball.position.y += (predictedPosition.y - ball.position.y) * predictionLerpFactor;
+    ball.position.z = predictedPosition.z; // Hauteur fixe
 }

@@ -4,6 +4,7 @@ import random
 import math
 import requests
 import os
+import time
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -31,18 +32,26 @@ class Game:
         self.isGameTournament = isGameTournament
         self.tournament = tournament
         # Constantes pour la balle
-        self.BALL_SPEED = 1
-        self.SPEED_INCREASE_FACTOR = 1.1
-        self.BALL_MAX_SPEED = 1.8
-        self.BALL_UPDATE_INTERVAL = 50
+        self.BALL_INITIAL_SPEED = 1.5     # Vitesse initiale
+        self.BALL_SPEED = self.BALL_INITIAL_SPEED
+        self.SPEED_INCREASE_FACTOR = 1.1  # Facteur d'augmentation (réduit de 1.2 à 1.1)
+        self.BALL_MAX_SPEED = 3.0         # Vitesse maximale augmentée
+        self.BALL_MIN_SPEED = 1.0         # Vitesse minimale
+        self.BALL_UPDATE_INTERVAL = 33    # ~30fps
         self.FIELD_WIDTH = 150
         self.FIELD_HEIGHT = 105
 
-        self.WINNING_SCORE = 10
+        self.WINNING_SCORE = 5
 
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
+        self.last_ball_update = 0
+        self.ball_velocity = {'x': 0, 'y': 0, 'z': 0}
+        self.collision_cooldown = 100  # ms
+        self.last_collision_time = 0
+        self.PREDICTION_BUFFER = []  # Pour stocker les positions futures
+        self.MAX_PREDICTIONS = 3  # Nombre de prédictions à maintenir
 
     def getIsGameTournament(self):
         return self.isGameTournament
@@ -82,16 +91,41 @@ class Game:
 
     async def updateBallPosition(self):
         if self.gameStarted:
-            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
-            if length < 0.1:
-                self.ballDirection["x"] *= 1.0 / length
-                self.ballDirection["y"] *= 1.0 / length
-                
-            self.ballPosition["x"] += self.ballDirection["x"] * self.BALL_SPEED
-            self.ballPosition["y"] += self.ballDirection["y"] * self.BALL_SPEED
+            current_time = time.time() * 1000
+            delta_time = current_time - self.last_ball_update
+            
+            if delta_time < self.BALL_UPDATE_INTERVAL:
+                return self.ballPosition
+            
+            # Calculer la vélocité avec plus de précision
+            self.ball_velocity = {
+                'x': self.ballDirection['x'] * self.BALL_SPEED,
+                'y': self.ballDirection['y'] * self.BALL_SPEED,
+                'z': 0
+            }
+            
+            # Mise à jour de la position avec la vélocité
+            new_position = {
+                'x': self.ballPosition['x'] + self.ball_velocity['x'],
+                'y': self.ballPosition['y'] + self.ball_velocity['y'],
+                'z': self.ballDirection['z']
+            }
+            
+            # Mettre à jour la position actuelle
+            self.ballPosition = new_position
+            self.last_ball_update = current_time
+            
+            # Générer quelques positions futures pour la prédiction
+            self.PREDICTION_BUFFER = [
+                {
+                    'x': new_position['x'] + self.ball_velocity['x'] * i,
+                    'y': new_position['y'] + self.ball_velocity['y'] * i,
+                    'z': new_position['z']
+                } for i in range(1, self.MAX_PREDICTIONS + 1)
+            ]
             
         return self.ballPosition
-    
+
     def getAdjustedHitbox(self, team):
         hitbox = team.getBoatHitbox()
         boatPos = team.getBoat()
@@ -179,6 +213,11 @@ class Game:
         return -1
 
     async def handleCollisions(self, sio, gameCode):
+        current_time = time.time() * 1000
+        
+        if current_time - self.last_collision_time < self.collision_cooldown:
+            return
+            
         if not self.gameStarted:
             return
 
@@ -187,12 +226,20 @@ class Game:
             self.ballPosition["x"] = -self.FIELD_WIDTH / 2 + 0.5
             self.ballDirection["x"] = -self.ballDirection["x"]
             if self.BALL_SPEED < self.BALL_MAX_SPEED:
-                self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR
+                self.BALL_SPEED = min(
+                    self.BALL_SPEED * self.SPEED_INCREASE_FACTOR,
+                    self.BALL_MAX_SPEED
+                )
+                logger.info(f"Ball speed increased to: {self.BALL_SPEED}")
         elif self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
             self.ballPosition["x"] = self.FIELD_WIDTH / 2 - 0.5
             self.ballDirection["x"] = -self.ballDirection["x"]
             if self.BALL_SPEED < self.BALL_MAX_SPEED:
-                self.BALL_SPEED *= self.SPEED_INCREASE_FACTOR
+                self.BALL_SPEED = min(
+                    self.BALL_SPEED * self.SPEED_INCREASE_FACTOR,
+                    self.BALL_MAX_SPEED
+                )
+                logger.info(f"Ball speed increased to: {self.BALL_SPEED}")
 
         collision = await self.detectCollisionWithBoats()
 
@@ -285,9 +332,19 @@ class Game:
             await self.checkWinner(sio, gameCode)
             logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
 
+        # Réduction de la vitesse si la balle va trop vite sans collision
+        if self.BALL_SPEED > self.BALL_MIN_SPEED:
+            self.BALL_SPEED = max(
+                self.BALL_SPEED * 0.999,  # Réduction très progressive
+                self.BALL_MIN_SPEED
+            )
+
+        self.last_collision_time = current_time
+
     def resetBall(self):
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
+        self.BALL_SPEED = self.BALL_INITIAL_SPEED  # Réinitialiser la vitesse
 
     def getBallPosition(self):
         return self.ballPosition
@@ -316,7 +373,6 @@ class Game:
         self.playerReady -= 1
 
     def getPlayerReady(self):
-        # logger.info("getPlayerReady")
         return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):

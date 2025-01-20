@@ -22,6 +22,7 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentPlayerList', tournamentPlayerListEvent);
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
+    globalSocket.on('tournamentWinner', tournamentWinnerEvent);
 }
 
 async function joinTournamentDisplay()
@@ -67,6 +68,10 @@ const startTournamentGameEvent = async (data) => {
     await module.main(data.gameCode, globalSocket, currentLanguage);
 }
 
+const tournamentWinnerEvent = (data) => {
+    console.log("TOURNAMENT WINNER: ", data);
+}
+
 const errorTournamentEvent = (data) => {
     console.log("ERROR TOURNAMENT: ", data);
     alert(data.message);
@@ -76,13 +81,7 @@ const errorTournamentEvent = (data) => {
 async function joinTournament(code)
 {
     console.log("JOIN TOURNAMENT");
-    // tournamentCodeJS = "1234";
-    // console.log("tournamentCodeJS : ", tournamentCodeJS);
-    // for (let i = 0; i < 7; i++)
-    // {
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    // globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
-    // }
+
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
@@ -107,6 +106,7 @@ async function createTournament()
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('createTournament', {teamName: user.username});
     refreshLanguage();
+
     // addUserTournament(user.username);
 
     // for (let i = 0; i < 8; i++)

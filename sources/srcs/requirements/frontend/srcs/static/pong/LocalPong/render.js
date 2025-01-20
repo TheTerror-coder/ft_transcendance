@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 export async function initScene(Team1, Team2, currentTeam) {
     const scene = new THREE.Scene();
@@ -40,7 +42,7 @@ export async function initScene(Team1, Team2, currentTeam) {
 async function initObjects(scene) {
     const ocean = createOcean();
     const GLTFloader = new GLTFLoader();
-    const {boatGroup1, boatGroup2} = await createBoats(GLTFloader);
+    const {boatGroup1, boatGroup2} = await createBoats();
     const ball = createBall();
     const boundaries = createBoundaries();
 
@@ -136,32 +138,46 @@ function createBoundaries() {
     return boundariesGroup;
 }
 
-async function createBoats(gltfLoader) {
+async function createBoats() {
     return new Promise((resolve, reject) => {
-        gltfLoader.load('../../../static/pong/assets/models/onepiece.gltf', function (gltf) {
-            // Création du bateau 1
-            const boat1 = gltf.scene.clone();
-            boat1.scale.set(10, 5, 5);
-            boat1.position.set(0, 35, -3);
-            boat1.rotation.set(Math.PI / 2, 0, 0);
-            boat1.name = 'bateauTeam1';
+        const mtlLoader = new MTLLoader();
+        mtlLoader.setPath('../../../static/pong/assets/textures/');
+        
+        mtlLoader.load('onepiece.mtl', function(materials) {
+            materials.preload();
             
-            // Création du bateau 2
-            const boat2 = gltf.scene.clone();
-            boat2.scale.set(10, 5, 5);
-            boat2.position.set(0, -35, -3);
-            boat2.rotation.set(Math.PI / 2, 0, 0);
-            boat2.name = 'bateauTeam2';
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.setPath('../../../static/pong/assets/models/');
+            
+            objLoader.load('onepiece.obj', function(object) {
+                // Création du bateau 1
+                const boat1 = object.clone();
+                boat1.scale.set(10, 5, 5);
+                boat1.position.set(0, 35, -3);
+                boat1.rotation.set(Math.PI / 2, 0, 0);
+                boat1.name = 'bateauTeam1';
+                
+                // Création du bateau 2
+                const boat2 = object.clone();
+                boat2.scale.set(10, 5, 5);
+                boat2.position.set(0, -35, -3);
+                boat2.rotation.set(Math.PI / 2, 0, 0);
+                boat2.name = 'bateauTeam2';
 
-            // Création des groupes de bateaux
-            const boatGroup1 = new THREE.Group();
-            const boatGroup2 = new THREE.Group();
-            boatGroup1.add(boat1);
-            boatGroup2.add(boat2);
+                // Création des groupes de bateaux
+                const boatGroup1 = new THREE.Group();
+                const boatGroup2 = new THREE.Group();
+                boatGroup1.add(boat1);
+                boatGroup2.add(boat2);
 
-            resolve({ boatGroup1, boatGroup2 });
-        }, undefined, function (error) {
-            console.error('Error loading boat models:', error);
+                resolve({ boatGroup1, boatGroup2 });
+            }, undefined, function(error) {
+                console.error('Error loading boat model:', error);
+                reject(error);
+            });
+        }, undefined, function(error) {
+            console.error('Error loading boat materials:', error);
             reject(error);
         });
     });
