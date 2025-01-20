@@ -240,10 +240,10 @@ async function callWebSockets(params) {
 		console.log("WebSocket connection closed:", event);
 	};
 	socket.onmessage = function(event) {
-		console.log("Received invitation:");
+		// console.log("Received invitation:");
 		var data = JSON.parse(event.data);
 		if (data.type === 'invitation') {
-			console.log("Received invitation:", data);
+			// console.log("Received invitation:", data);
 			socket.send(JSON.stringify({
 				type: 'response.invitation',
 				response: 'pending',
@@ -255,11 +255,11 @@ async function callWebSockets(params) {
 
 
 async function handleFriendInvitation(socket, event) {
-    console.log("Received invitation:");
-    var data = JSON.parse(event.data);
+	var data = JSON.parse(event.data);
+    console.log("Received invitation de handle:", data);
     
     if (data.type === 'invitation') {
-        console.log("Received invitation:", data);
+        // console.log("Received invitation:", data);
 
         socket.send(JSON.stringify({
             type: 'response.invitation',
@@ -284,38 +284,6 @@ function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-//     let player_cote_change = 0;
-//     let opponent_cote_change = 0;
-
-//     if (player_won) {
-//         if (player_score < opponent_score) {
-//             player_cote_change = (opponent_score - player_score) * 1.5;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
-//         } else {
-//             player_cote_change = (opponent_score - player_score) * 1.2;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
-//         }
-//     } else {
-//         if (opponent_score < player_score) {
-//             opponent_cote_change = (player_score - opponent_score) * 1.5;
-//             player_cote_change = -(player_score - opponent_score) * 1.2;
-//         } else {
-//             opponent_cote_change = (player_score - opponent_score) * 1.2;
-//             player_cote_change = -(player_score - opponent_score) * 1.1;
-//         }
-//     }
-
-//     player_score += player_cote_change;
-//     opponent_score += opponent_cote_change;
-
-//     player_score = Math.max(player_score, 0);
-//     opponent_score = Math.max(opponent_score, 0);
-
-//     return { player_score, opponent_score };
-// }
 
 
 async function reauthenticateFirst(flows) {

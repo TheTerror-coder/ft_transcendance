@@ -26,6 +26,7 @@ from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser
 from asgiref.sync import async_to_sync
+from PIL import Image
 
 
 GLOBAL_TOURNAMENT = {
@@ -200,6 +201,16 @@ def update_photo(request):
 		return Response({
 			'status': 'error',
 			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
+		}, status=400)
+
+	try:
+		img = Image.open(uploaded_file)
+		img.verify()
+		img.close()
+	except (IOError, SyntaxError) as e:
+		return Response({
+			'status': 'error',
+			'message': 'Invalid image file.',
 		}, status=400)
 	fs = FileSystemStorage()
 	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
