@@ -85,6 +85,15 @@ function readyLocalPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
     refreshLanguage();
+    readyButton.onclick = () => localPlay();
+}
+
+async function localPlay()
+{
+    document.getElementById('background').innerHTML = "";
+    ELEMENTs.background().style.backgroundImage = '';
+    const module = await import('../pong/LocalPong/pong.js');
+    module.main(currentLanguage);
 }
 
 

@@ -6,13 +6,14 @@ import * as render from './render.js';
 import * as network from './network.js';
 import * as THREE from 'three'; // TODO : remove for production
 import { createHUD } from './HUD.js';
+import { updateBoatPositions, initializeInterpolators } from './network.js';
 
 console.log("pong.js loaded");
 
-let BOAT_MOVE_SPEED = 4;
+let BOAT_MOVE_SPEED = 2.5;
 let CANNON_MOVE_SPEED = 0.1;
 let CANNON_ROTATION_SPEED = 0.1;
-let FRAME_RATE = 80;
+let FRAME_RATE = 40;
 
 export async function main(gameCode, socket, currentLanguage) {
     console.log('socket : ', socket);
@@ -93,6 +94,8 @@ export async function main(gameCode, socket, currentLanguage) {
     Team2.setBoat(boatGroup2);
     Team1.setCannon(boatGroup1.getObjectByName(`cannonTeam1`));
     Team2.setCannon(boatGroup2.getObjectByName(`cannonTeam2`));
+
+    initializeInterpolators(Team1, Team2, currentPlayerTeam);
     
     if (currentPlayerTeam && currentPlayer) {
         let boat = currentPlayerTeam.getBoat();
@@ -220,6 +223,9 @@ export async function main(gameCode, socket, currentLanguage) {
             boat1Hitbox.updateMatrixWorld(true);
             boat2Hitbox.updateMatrixWorld(true);
             
+            // Mettre à jour les positions des bateaux avec interpolation
+            updateBoatPositions(Team1, Team2);
+
             // Rendre la scène normale
             renderer.render(scene, cameraPlayer);
 
@@ -358,7 +364,8 @@ async function initGame(gameData, socketID) {
         console.log('Joueur actuel non trouvé');
     }
 
-    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam }; // Retourner les équipes, le joueur actuel et son équipe
+    // Ne pas initialiser les interpolateurs ici
+    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam };
 }
 
 function initCamera(player, cameraPlayer, cannon, bateau)

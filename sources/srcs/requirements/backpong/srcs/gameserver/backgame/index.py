@@ -420,10 +420,10 @@ async def connect(sid, environ):
             await sio.emit('ballFired', data['trajectory'], room=gameCode)
             if (await game.updateBallFired(data) == -1):
                 await sio.emit('updateHealth', {
-                    'teamID': team,
-                    'health': game.getTeam(team).getPV()
+                    'teamID': 1 if team == 2 else 1,
+                    'health': game.getTeam(1 if team == 2 else 1).getPV()
                 }, room=gameCode)
-                if (game.getTeam(team).removePV(10) == -1):
+                if (game.getTeam(1 if team == 2 else 1).removePV(10) == -1):
                     await sio.emit('winner', game.getTeam(team).getName(), room=gameCode)
                     game.gameStarted = False
 
@@ -508,7 +508,7 @@ async def sendPlayerLists(game, gameCode, sid):
 async def ReadyToStart(gameCode, game):
      # Attendre que tous les joueurs soient prêts
     while not game.gameStarted or game.getIsPaused():
-        logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
+        # logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
         if game.nbPlayerConnected == game.nbPlayerPerTeam * 2 and game.getPlayerReady() == game.nbPlayerPerTeam * 2:
             game.gameStarted = True
             game.setIsPaused(False)
