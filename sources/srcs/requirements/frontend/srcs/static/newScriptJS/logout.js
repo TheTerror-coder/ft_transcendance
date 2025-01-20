@@ -28,8 +28,6 @@ function applyAnimationLogoutButton(isHovered)
    } 
    else 
    {
-      // ici faire animation inverse
-      console.log('animation inverse');
       ELEMENTs.logoutButton().style.animation = 'closeDoor 0.1s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animation = 'none';

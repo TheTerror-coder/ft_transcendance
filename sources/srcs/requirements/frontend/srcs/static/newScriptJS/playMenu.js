@@ -85,6 +85,15 @@ function readyLocalPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
     refreshLanguage();
+    readyButton.onclick = () => localPlay();
+}
+
+async function localPlay()
+{
+    document.getElementById('background').innerHTML = "";
+    ELEMENTs.background().style.backgroundImage = '';
+    const module = await import('../pong/LocalPong/pong.js');
+    module.main(currentLanguage);
 }
 
 
@@ -116,20 +125,11 @@ function initializeLobbyTwoVsTwo(gameCode)
     else 
         teamID = teamChosen ? 2 : 1;
     if ((teamID === 1 && roleChosen === false && roleAvailableBlackBeard.role === "gunner") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "gunner"))
-    {
-        console.log("!!!!!!!!TESTGANG2");
         role = "Cannoneer";
-    }
     else if ((teamID === 1 && roleChosen && roleAvailableBlackBeard.role === "captain") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "captain"))
-    {
-        console.log("???????????TEST GANG 3");
         role = "captain";
-    }
     else
-    {
-        console.log("role = roleChosen ? Cannoneer : captain;");
         role = roleChosen ? "Cannoneer" : "captain";
-    }
 
     console.log("initializeLobbyTwoVsTwo, role: ", role, ", teamID: ", teamID);
     joinLobbyGame(gameCode, teamID, role);
@@ -152,6 +152,9 @@ async function navigationPlayMenu()
         nav = 2;
         if (globalSocket !== null)
         {
+            teamAvailable.team = 0;
+            roleAvailableBlackBeard.role = 0;
+            roleAvailableWhiteBeard.role = 0;
             globalSocket.disconnect();
             globalSocket = null;
         }

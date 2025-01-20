@@ -14,6 +14,8 @@ let savedGameCode =
         this._code = value;
         if (document.getElementById("lobbyCode") !== null)
             document.getElementById("lobbyCode").innerHTML = value;
+        else if (document.getElementById("tournamentCode") !== null)
+            document.getElementById("tournamentCode").innerHTML = value;
     }
 };
 let gameStarted = false;
@@ -109,13 +111,32 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsFull', TeamsFullEvent);
 
+    // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
+
+    // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
+
+    // globalSocket.on('tournamentFull', tournamentFullEvent);
+
     globalSocket.on('error', (data) => {
         error = data.message;
         alert(data.message);
     });
 }
 
+// const tournamentCreatedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentJoinedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentFullEvent = (data) => {
+//     console.log("TOURNAMENT FULL: ", data);
+// }
+
 const AvailableOptionsEvent = (data) => {
+    console.log("AvailableOptionsEvent", data);
     if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)
     {
         initializeTeamAvailableJoinLobbyInfo(data)
@@ -186,14 +207,22 @@ const StartGameEvent = async (data) =>
 {
     const module = await import ('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
-    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
-    await module.main(savedGameCode.code, globalSocket, currentLanguage);
     ELEMENTs.background().style.backgroundImage = '';
-    console.log("globalSocket dans startGame: ", globalSocket);
-    globalSocket.off('startGame', StartGameEvent);
-    globalSocket.off('TeamsFull', TeamsFullEvent);
-    globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
-    globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
+    try
+    {
+        const isFinish = await module.main(savedGameCode.code, globalSocket, currentLanguage);
+        console.log("globalSocket dans startGame: ", globalSocket);
+        console.log("isFinish dans startGame: ", isFinish);
+        globalSocket.off('startGame', StartGameEvent);
+        globalSocket.off('TeamsFull', TeamsFullEvent);
+        globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+        globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    }
+    catch (error)
+    {
+        console.log("error dans startGame: ", error);
+    }
 }
 
 
@@ -354,7 +383,7 @@ async function lobbyTwoPlayer()
     const role = roleChosen ? "Cannoneer" : "captain";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
-    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username }); // TODO: get user name from database
+    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username });
     setTimeout(() => {
         if (error !== null)
         {

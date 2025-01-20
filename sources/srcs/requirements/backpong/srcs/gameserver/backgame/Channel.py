@@ -1,15 +1,15 @@
 from .Game import Game
 from .Tournament import Tournament
 class Channel:
-    def __init__(self, channelId, creator):
+    def __init__(self, channelId, creator, isTournament):
         self.channelId = channelId
         self.creator = creator
-        self.isTournament = False
+        self.isTournament = isTournament
         self.tournament = None
         if (self.isTournament):
             self.tournament = Tournament(channelId)
         else:
-            self.game = Game(channelId)
+            self.game = Game(channelId, False, None)
 
     def getGame(self):
         return self.game
@@ -28,15 +28,9 @@ class Channel:
 
     def getCreator(self):
         return self.creator
-
-    def getTournament(self):
-        return self.tournament
     
     def setTournament(self, tournament):
         self.tournament = tournament
 
     def getIsTournament(self):
         return self.isTournament
-    
-    def setIsTournament(self, isTournament):
-        self.isTournament = isTournament

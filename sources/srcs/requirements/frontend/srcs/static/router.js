@@ -72,32 +72,20 @@ const eventManager = async (event) => {
 		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
 		createAccount();
 	}
-	// else if (target.id === ELEMENTs.cross()?.id)
-	// {
-	// 	if (globalSocket !== null)
-	// 	{
-	// 		console.log("j'ai cliquer sur lq croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
-	// 		globalSocket.disconnect();
-	// 		console.log("apres le disconnect global socket = ", globalSocket);
-	// 		globalSocket = null;
-	// 		console.log("mis a null de global socket = ", globalSocket);
-	// 	}
-	// 	teamAvailable = 0;
-	// 	roleAvailableBlackBeard = 0;
-	// 	roleAvailableWhiteBeard = 0;
-	// 	event.preventDefault();
-	// 	await replace_location(URLs.VIEWS.HOME);
-	// }
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
 	{
 		event.preventDefault();
 		await addFriend();
 	}
+	else if (target.id === ELEMENTs.buttonSound()?.id)
+	{
+		OnOffMusic()
+	}
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
-		teamAvailable = 0;
-		roleAvailableBlackBeard = 0;
-		roleAvailableWhiteBeard = 0;
+		teamAvailable.team = 0;
+		roleAvailableBlackBeard.role = 0;
+		roleAvailableWhiteBeard.role = 0;
 		console.log("ELEMENTs.addFriendButton(): ", ELEMENTs.addFriendButton());
 		event.preventDefault();
 		if (globalSocket !== null)

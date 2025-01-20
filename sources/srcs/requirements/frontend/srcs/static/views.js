@@ -1,6 +1,4 @@
 
-//TODO: Nico: ?? this one is not used
-//metre a joue les infos, si le user change de nom
 
 async function tournamentView(title, description, data) 
 {
@@ -60,6 +58,7 @@ async function	homeView(title, description, data)
 	};
 	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
+	// changeMusic("/static/sound/test2.mp3");
 }
 
 async function	loginView(title, description, data) {
@@ -72,6 +71,7 @@ async function	loginView(title, description, data) {
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
+	// changeMusic("/static/sound/test.mp3");
 
 
 	
@@ -193,4 +193,6 @@ async function	emailStatusView(title, description, data) {
 async function	error404View(title, description, data) {
 	console.log('error 404 view');
 	document.title = title;
+	ELEMENTs.mainPage().innerHTML = error404PageDisplayVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/errorPage/Background404.jpeg')";
 }
