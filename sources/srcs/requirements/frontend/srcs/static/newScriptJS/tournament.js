@@ -77,13 +77,6 @@ const errorTournamentEvent = (data) => {
 async function joinTournament(code)
 {
     console.log("JOIN TOURNAMENT");
-    // tournamentCodeJS = "1234";
-    // console.log("tournamentCodeJS : ", tournamentCodeJS);
-    // for (let i = 0; i < 7; i++)
-    // {
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    // globalSocket.emit('joinTournament', {teamName: "ben" + i, tournamentCode: tournamentCodeJS});
-    // }
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
@@ -108,15 +101,7 @@ async function createTournament()
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('createTournament', {teamName: user.username});
     refreshLanguage();
-    addUserTournament(user.username);
-
-    for (let i = 0; i < 8; i++)
-    {
-        const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
-        console.log("usernameTournament : ", usernameTournament);
-        addUserTournament(usernameTournament, i);
-    }
-    
+    // addUserTournament(user.username);
 }
 
 // i sera le nombre de joueur qui ont rejoins en tout le tournois
@@ -125,15 +110,14 @@ async function usersInTournament(usernameTournament, nbPlayer)
 {
     console.log("usersInTournament");
     ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
-	nbPlayer = 8;
 
-    // usernameTournament.forEach(function(element) {
-    //     if (!tournamentAllUsers.users.includes(element))
-    //     {   
-    //         addUserTournament(element);
-    //         tournamentAllUsers.users = element;
-    //     }
-    // });
+    usernameTournament.forEach(function(element) {
+        if (!tournamentAllUsers.users.includes(element))
+        {   
+            addUserTournament(element);
+            tournamentAllUsers.users = element;
+        }
+    });
     if (nbPlayer === 8)
     {
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
@@ -158,13 +142,7 @@ function displayBinaryTree()
     console.log("display binary tree");
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
 
-    // for (let i = 0; i < 8; i++)
-    // {
-    //     const usernameTournament = "dbaule" + i; // represente le blaze des differents pelo
-    //     console.log("usernameTournament : ", usernameTournament);
-    //     addUserTournament(usernameTournament, i);
-    // }
-    // let i = 1;
+    let i = 1;
     refreshLanguage();
     setTimeout(() => {
         tournamentAllUsers.users.forEach(function(elements) 
