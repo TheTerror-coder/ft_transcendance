@@ -1,5 +1,22 @@
 
 
+
+function tournamentTreeView(title, description, data)
+{
+	
+	if (savedTournamentCode.code)
+	{
+		document.title = title;
+		displayBinaryTree();
+	}
+	else
+	{
+		error404View(title, description, data);
+	}
+
+}
+
+
 async function tournamentView(title, description, data) 
 {
 	document.title = title;

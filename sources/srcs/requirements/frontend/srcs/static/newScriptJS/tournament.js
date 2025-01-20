@@ -13,6 +13,23 @@ let tournamentAllUsers =
     }
 };
 
+let savedTournamentCode = 
+{
+    _code: null, 
+
+    get code()
+    {
+        return this._code;
+    },
+
+    set code(value)
+    {
+        this._code = value;
+        if (document.getElementById("tournamentCode") !== null)
+            document.getElementById("tournamentCode").innerHTML = value;
+    }
+};
+
 async function initializeTournamentGlobalSocket(socket)
 {
     globalSocket = socket;
@@ -37,13 +54,13 @@ async function joinTournamentDisplay()
 }
 
 const tournamentCreatedEvent = (data) => {
-    savedGameCode.code = data.tournamentCode;
-    console.log("savedGameCode.code : ", savedGameCode.code);
+    savedTournamentCode.code = data.tournamentCode;
+    console.log("savedTournamentCode.code : ", savedTournamentCode.code);
 }
 
 const tournamentJoinedEvent = (data) => {
-    savedGameCode.code = data.tournamentCode;
-    console.log("savedGameCode.code : ", savedGameCode.code);
+    savedTournamentCode.code = data.tournamentCode;
+    console.log("savedTournamentCode.code : ", savedTournamentCode.code);
 }
 
 const tournamentFullEvent = (data) => {
@@ -147,27 +164,36 @@ function displayBinaryTree()
 {
     console.log("display binary tree");
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
 
     let i = 1;
     refreshLanguage();
     setTimeout(() => {
         tournamentAllUsers.users.forEach(function(elements) 
         {
-            console.log("element dans tournamentAllUsers.users.forEach: ", elements);
+            // console.log("element dans tournamentAllUsers.users.forEach: ", elements);
             const user = elements;
             document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
             {
                 element.innerHTML = user;
                 if (element.hasAttribute("data-translate"))
                     element.removeAttribute('data-translate');
-                console.log("e", element, " ET I le goat: ", i);
+                // console.log("e", element, " ET I le goat: ", i);
             });
             i++;
         });
     }, 200);
+    document.getElementById('startButtonTournament').onclick = () => startTournament();
 }
 
 function startTournament()
 {
     console.log("start tournament");
+    globalSocket.emit('tournamentStart', savedTournamentCode.code);
+    if (error !== null)
+    {
+        console.log("error: ", error);
+        error = null;
+        return ;
+    }
 }

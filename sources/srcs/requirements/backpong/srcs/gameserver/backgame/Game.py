@@ -599,7 +599,7 @@ class Game:
         return (gameData)
 
     async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):
-        logger.info("sendGameData")
+        logger.info(f"sendGameData to {gameCode} / {originalGameCode}")
         # Convertir les objets Player en format attendu par le client
         
         if (sid):
@@ -609,7 +609,7 @@ class Game:
             # player.setIsInit(True)
         else:
             teamsArray = self.createConnectGameData()
-            logger.info(f'Sending gameData: {teamsArray} to the gameCode: {gameCode}')
+            logger.info(f'Sending gameData: {teamsArray} to the gameCode: {gameCode} / {originalGameCode}')
             if (isTournament):
                 await sio.emit('gameData', teamsArray, room=originalGameCode)
             else:

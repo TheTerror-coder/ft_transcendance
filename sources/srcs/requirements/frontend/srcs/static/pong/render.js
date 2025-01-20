@@ -20,6 +20,10 @@ export async function initScene(Team1, Team2, currentTeam) {
     
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
+    console.log("initScene");
+    console.log("Team1: ", Team1);
+    console.log("Team2: ", Team2);
+    console.log("currentTeam: ", currentTeam);
     let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2, currentTeam);
     await loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
     if (!loadScene)
@@ -208,12 +212,14 @@ async function initObject(scene, Team1, Team2, currentTeam)
     let ocean = createOcean();
     let boundaries = createBoundaries();
     scene.add(boundaries);
+    console.log("currentTeam.getBallSavedPos() : ", currentTeam.getBallSavedPos());
     let ball = await initBall(currentTeam.getBallSavedPos());
 
     return {boatGroup1, boatGroup2, ocean, ball};
 }
 
 function initBall(ballSavedPos) {
+    console.log("ballSavedPos : ", ballSavedPos);
     return new Promise((resolve, reject) => {
         try {
             const ballGeometry = new THREE.SphereGeometry(1, 32, 32);

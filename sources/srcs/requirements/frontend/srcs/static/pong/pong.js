@@ -21,6 +21,13 @@ export async function main(gameCode, socket, currentLanguage) {
     socket.emit('GameStarted', gameCode);
     console.log("gameCode : ", gameCode);
     console.log("currentLanguage: ", currentLanguage);
+
+    socket.on('disconnect', () => {
+        // window.location.href = '/home';
+        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+        replace_location(URLs.VIEWS.HOME);
+        console.log('Disconnected from the server');
+    });
     
     // Créer une Promise pour attendre les données initiales
     const gameInitData = await new Promise((resolve) => {
@@ -198,8 +205,11 @@ export async function main(gameCode, socket, currentLanguage) {
                         console.log("gameCode : ", gameCode);
                         if (gameCode.length == 4)
                             socket.disconnect();
-                        else if (gameCode.lenght == 5 && currentPlayerTeam.getWinner() === false)
-                            socket.disconnect();
+                        else if (gameCode.length == 5)
+                        {
+                            ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                            replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                        }
                         animationComplete = true;
                         network.removeSocketListeners(socket);
                         resolve();
@@ -252,10 +262,10 @@ export async function main(gameCode, socket, currentLanguage) {
         animate();
     });
 
-    socket.on('gameState', (data) => {
-        updateBallPosition(data.ballPosition, ball);
-        displayBallPosition(data.ballPosition, ballPositionDisplay);
-    });
+    // socket.on('gameState', (data) => {
+    //     updateBallPosition(data.ballPosition, ball);
+    //     displayBallPosition(data.ballPosition, ballPositionDisplay);
+    // });
     await animationCompletePromise;
     return (true);
 }
@@ -321,6 +331,8 @@ async function initGame(gameData, socketID) {
         team2.setScore(gameData.team2.Score);
     if (gameData.ball)
     {
+        console.log("PASS IN GAME DATA BALL FOR RECONNECT");
+        console.log("gameData.ball : ", gameData.ball);
         team1.setBallSavedPos(gameData.ball);
         team2.setBallSavedPos(gameData.ball);
     }

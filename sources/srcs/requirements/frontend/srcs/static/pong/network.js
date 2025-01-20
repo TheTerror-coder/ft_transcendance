@@ -141,6 +141,25 @@ const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (da
     scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
 }
 
+const gameStateEvent = (ball) => (data) => {
+    // console.log('gameStateEvent : ', data);
+    if (ball && data.ballPosition) {
+        // Stocker la dernière position reçue du serveur
+        ball.userData.lastServerPosition = {
+            x: data.ballPosition.x,
+            y: data.ballPosition.y,
+            z: data.ballPosition.z,
+            timestamp: Date.now()
+        };
+        
+        // Stocker la vélocité pour la prédiction
+        ball.userData.velocity = data.ballVelocity;
+        
+        // Mettre à jour la position avec interpolation
+        updateBallPosition(data.ballPosition, ball, ball.userData.lastServerPosition);
+    }
+}
+
 // Ajouter une constante pour la fréquence de mise à jour
 const BALL_UPDATE_INTERVAL = 50; // 50ms = 20fps, ajustable selon les besoins
 
@@ -176,17 +195,10 @@ function updateBallPosition(ballPosition, ball, lastBallPosition) {
 export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
-    socket.on('connect', (data) => {
-        var Team = data.Team;
-        console.log('Connected to the server');
-    });
-
-    socket.on('disconnect', () => {
-        // window.location.href = '/home';
-        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
-        replace_location(URLs.VIEWS.HOME);
-        console.log('Disconnected from the server');
-    });
+    // socket.on('connect', (data) => {
+    //     var Team = data.Team;
+    //     console.log('Connected to the server');
+    // });
 
     socket.on('gamePaused', createGamePausedEvent(currentPlayer));
     socket.on('gameUnpaused', createGameUnpausedEvent(currentPlayer));
@@ -198,24 +210,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('updateHealth', createUpdateHealthEvent(Team1, Team2, currentPlayer, hud));
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer));
     socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
-
-    socket.on('gameState', (data) => {
-        if (ball && data.ballPosition) {
-            // Stocker la dernière position reçue du serveur
-            ball.userData.lastServerPosition = {
-                x: data.ballPosition.x,
-                y: data.ballPosition.y,
-                z: data.ballPosition.z,
-                timestamp: Date.now()
-            };
-            
-            // Stocker la vélocité pour la prédiction
-            ball.userData.velocity = data.ballVelocity;
-            
-            // Mettre à jour la position avec interpolation
-            updateBallPosition(data.ballPosition, ball, ball.userData.lastServerPosition);
-        }
-    });
+    socket.on('gameState', gameStateEvent(ball));
 }
 
 export function removeSocketListeners(socket) {

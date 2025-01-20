@@ -13,7 +13,7 @@ class Team
         this.cannon = null;
         this.boatSavedPos = {x: 0, y: 0, z: 0};
         this.cannonSavedPos = {x: 0, y: 0, z: 0};
-        this.ballSavedPos = {x: 0, y: 0, z: 0};
+        this.ballSavedPos = {x: 0, y: 0, z: 2};
         this.isFull = false;
         this.score = 0;
         this.gameStarted = false;

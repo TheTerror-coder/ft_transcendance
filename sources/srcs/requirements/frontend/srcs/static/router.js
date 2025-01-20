@@ -177,6 +177,11 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
 	title : "Tournament | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
+	view : tournamentTreeView,
+	title : "Tournament Tree | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,

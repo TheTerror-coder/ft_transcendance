@@ -23,10 +23,17 @@ class Tournament:
         self.tournamentTeams = {}
         self.tournamentGames = {}
         self.nbTeam = 0
+        self.start = False
 
         self.nodes = []
         self.root = None
         self.returned_matches = set()
+
+    def getStart(self):
+        return self.start
+    
+    def setStart(self, start):
+        self.start = start
 
     def getTournamentId(self):
         return self.tournamentId

@@ -19,6 +19,7 @@ const PATHs = Object.freeze({
 		CREATE_LOBBY : '/create-lobby/',
 		LOBBY : '/lobby/',
 		PROFILE : '/profile/',
+		TOURNAMENT_TREE : '/tournament-tree/',
 	}),
 
 });
@@ -33,6 +34,7 @@ const URLs = Object.freeze({
 	// VIEWS \\
 	VIEWS : Object.freeze({
 		TOURNAMENT : BASE_URL + PATHs.VIEWS.TOURNAMENT,
+		TOURNAMENT_TREE : BASE_URL + PATHs.VIEWS.TOURNAMENT_TREE,
 		HOME : BASE_URL + PATHs.VIEWS.HOME,
 		LOGIN_REDIRECT_URL_VIEW : BASE_URL + PATHs.VIEWS.LOGIN_REDIRECT_URL,
 		LOGIN_VIEW : BASE_URL + PATHs.VIEWS.LOGIN,

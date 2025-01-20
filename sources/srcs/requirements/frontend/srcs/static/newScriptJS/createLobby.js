@@ -14,8 +14,6 @@ let savedGameCode =
         this._code = value;
         if (document.getElementById("lobbyCode") !== null)
             document.getElementById("lobbyCode").innerHTML = value;
-        else if (document.getElementById("tournamentCode") !== null)
-            document.getElementById("tournamentCode").innerHTML = value;
     }
 };
 let gameStarted = false;
