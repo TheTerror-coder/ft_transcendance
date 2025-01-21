@@ -64,8 +64,41 @@ class Tournament:
             self.nbTeam -= 1
     
     def removeTournamentGame(self, game):
-        if game.getGameId() in self.tournamentGames:
+        if game and game.getGameId() in self.tournamentGames:
+            # Nettoyer explicitement les équipes
+            for teamId in list(game.teams.keys()):
+                team = game.teams[teamId]
+                # Nettoyer les joueurs
+                for playerId in list(team.player.keys()):
+                    team.removePlayer(playerId)
+                # Supprimer l'équipe
+                game.removeTeam(team)
+            
+            # Réinitialiser l'état du jeu
+            game.resetGameState()
+            # Supprimer la partie du dictionnaire
             del self.tournamentGames[game.getGameId()]
+            
+            logger.info(f"Game {game.getGameId()} completely cleaned up and removed from tournament")
+
+    def resetGameState(self, game):
+        if not game:
+            return
+        
+        # Nettoyer les équipes
+        for teamId in [1, 2]:
+            team = game.getTeam(teamId)
+            if team:
+                for player in list(team.player.values()):
+                    team.removePlayer(player.getId())
+                game.removeTeam(team)
+        
+        # Réinitialiser les compteurs
+        game.nbPlayerConnected = 0
+        game.playerReady = 0
+        
+        # Réinitialiser l'état du jeu
+        game.resetGameState()
 
     def getNbTeam(self):
         return self.nbTeam

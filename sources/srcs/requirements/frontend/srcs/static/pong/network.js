@@ -118,20 +118,76 @@ const createUpdateHealthEvent = (Team1, Team2, currentPlayer, hud) => (data) => 
         hud.updateHealth2(health);
 }
 
-const createBoatPositionEvent = (Team1, Team2, currentPlayer) => (data) => {
-    const {teamID, boatPosition} = data;
+// Ajouter un système de validation des mises à jour
+const lastUpdateTime = new Map();
+const UPDATE_THRESHOLD = 50; // ms
+
+function isValidUpdate(teamId) {
+    const now = Date.now();
+    const lastUpdate = lastUpdateTime.get(teamId) || 0;
+    
+    if (now - lastUpdate < UPDATE_THRESHOLD) {
+        return false;
+    }
+    
+    lastUpdateTime.set(teamId, now);
+    return true;
+}
+
+// Modifier la fonction createBoatPositionEvent
+const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam) => (data) => {
+    const {teamID, boatPosition, sid} = data;
+    
+    // Vérifier si la mise à jour est valide
+    if (!isValidUpdate(teamID)) {
+        return;
+    }
+    
     let team = findTeam(Team1, Team2, teamID);
+    if (!team || !team.getBoatGroup()) {
+        return;
+    }
+    let OtherTeamID = teamID === Team1.getTeamId() ? Team2.getTeamId() : Team1.getTeamId();
+    let OtherTeam = findTeam(Team1, Team2, OtherTeamID);
+    console.log("OtherTeam dans createBoatPositionEvent", OtherTeam);
+    console.log("OtherTeamID dans createBoatPositionEvent", OtherTeamID);
+    console.log("team dans createBoatPositionEvent", team);
+    console.log("teamID dans createBoatPositionEvent", teamID);
+    
+// TODO: Verifier que le joueur a le droit de contrôler ce bateau
+
+    // Vérifier que le joueur a le droit de contrôler ce bateau
+    console.log("currentPlayer.getTeamID() dans createBoatPositionEvent", currentPlayer.getTeamID());
+    console.log("teamID dans createBoatPositionEvent", teamID);
+    console.log("sid dans createBoatPositionEvent", sid);
+    console.log("currentPlayer.getId() dans createBoatPositionEvent", currentPlayer.getId());
     if (team && team.getBoatGroup()) {
         let boatFormerPosition = team.getBoatGroup().position.x;
-        team.getBoatGroup().position.x = boatPosition.x;
+        if (currentPlayer.getTeamID() != teamID)
+            team.getBoatGroup().position.x = boatPosition.x;
+        else
+            OtherTeam.getBoatGroup().position.x = boatPosition.x;
         
         if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
             currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
         }
-    } else {
-        console.error('Team, boat or cannon not found for team', teamID);
     }
-}
+};
+
+// function getTeamByPlayerId(sid, team1, team2)
+// {
+//     for (const player of team1.getAllPlayer())
+//     {
+//         if (player.getId() === sid)
+//             return (team1);
+//     }
+//     for (const player of team2.getAllPlayer())
+//     {
+//         if (player.getId() === sid)
+//             return (team2);
+//     }
+//     return (null);
+// }
 
 const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (data) => {
     const {team1, team2, gameCode} = data;
@@ -142,21 +198,18 @@ const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (da
 }
 
 const gameStateEvent = (ball) => (data) => {
-    // console.log('gameStateEvent : ', data);
     if (ball && data.ballPosition) {
-        // Stocker la dernière position reçue du serveur
+        const currentTime = Date.now();
         ball.userData.lastServerPosition = {
             x: data.ballPosition.x,
             y: data.ballPosition.y,
             z: data.ballPosition.z,
-            timestamp: Date.now()
+            timestamp: currentTime
         };
         
-        // Stocker la vélocité pour la prédiction
         ball.userData.velocity = data.ballVelocity;
         
-        // Mettre à jour la position avec interpolation
-        updateBallPosition(data.ballPosition, ball, ball.userData.lastServerPosition);
+        updateBallPosition(data.ballPosition, ball);
     }
 }
 
@@ -164,35 +217,47 @@ const gameStateEvent = (ball) => (data) => {
 const BALL_UPDATE_INTERVAL = 50; // 50ms = 20fps, ajustable selon les besoins
 
 // Modifier la fonction de mise à jour de la balle pour utiliser l'interpolation
-function updateBallPosition(ballPosition, ball, lastBallPosition) {
+function updateBallPosition(ballPosition, ball) {
     if (!ball || !ballPosition) return;
     
-    // Réduire le facteur d'interpolation pour un mouvement plus fluide
-    const lerpFactor = 0.15;  // Réduit de 0.3 à 0.15
+    const lerpFactor = 0.15;
     
-    // Calculer la distance entre la position actuelle et la position cible
+    // Calculer la distance entre la position cible et la position actuelle
     const distance = {
         x: ballPosition.x - ball.position.x,
         y: ballPosition.y - ball.position.y,
         z: ballPosition.z - ball.position.z
     };
     
-    // Si la distance est trop grande, téléporter directement
-    const maxDistance = 10;  // Seuil de téléportation
-    if (Math.abs(distance.x) > maxDistance || 
+    // Détecter si c'est un rebond en vérifiant le changement brusque de direction
+    const isRebound = ball.userData.lastPosition && (
+        Math.sign(ball.userData.lastPosition.x - ball.position.x) !== Math.sign(ballPosition.x - ball.position.x) ||
+        Math.sign(ball.userData.lastPosition.y - ball.position.y) !== Math.sign(ballPosition.y - ball.position.y)
+    );
+    
+    // Si c'est un rebond ou si la distance est trop grande, téléporter directement
+    const maxDistance = 10;
+    if (isRebound || 
+        Math.abs(distance.x) > maxDistance || 
         Math.abs(distance.y) > maxDistance || 
         Math.abs(distance.z) > maxDistance) {
         ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
-        return;
+    } else {
+        // Sinon, appliquer l'interpolation
+        ball.position.x += distance.x * lerpFactor;
+        ball.position.y += distance.y * lerpFactor;
+        ball.position.z += distance.z * lerpFactor;
     }
     
-    // Interpolation linéaire plus douce
-    ball.position.x += distance.x * lerpFactor;
-    ball.position.y += distance.y * lerpFactor;
-    ball.position.z += distance.z * lerpFactor;
+    // Sauvegarder la position actuelle pour la prochaine frame
+    ball.userData.lastPosition = {
+        x: ball.position.x,
+        y: ball.position.y,
+        z: ball.position.z
+    };
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
     // socket.on('connect', (data) => {
@@ -208,7 +273,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('cannonPosition', createCannonPositionEvent(Team1, Team2));
     socket.on('ballFired', createBallFiredEvent(scene));
     socket.on('updateHealth', createUpdateHealthEvent(Team1, Team2, currentPlayer, hud));
-    socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer));
+    socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer, currentPlayerTeam));
     socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
     socket.on('gameState', gameStateEvent(ball));
 }

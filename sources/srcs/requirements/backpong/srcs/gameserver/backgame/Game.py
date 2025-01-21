@@ -5,6 +5,8 @@ import math
 import requests
 import os
 import time
+from .Team import Team
+from .Player import Player
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -348,6 +350,8 @@ class Game:
 
     def getBallPosition(self):
         return self.ballPosition
+    
+    
 
     def setIsPaused(self, isPaused):
         self.isPaused = isPaused
@@ -379,12 +383,43 @@ class Game:
         logger.info("setNbPlayerPerTeam")
         self.nbPlayerPerTeam = nbPlayerPerTeam
 
-    def setTeam(self, Team):
-        if len(self.teams) < 2:
-            self.teams[Team.TeamId] = Team
-        else:
-            logger.info("This Game is already full...")
-        logger.info(f"size: {len(self.teams)}")
+    def setTeam(self, team):
+        teamId = team.getTeamId()
+        
+        # Si l'équipe n'a qu'un seul joueur qui vient d'être créé, on l'utilise directement
+        if team.nbPlayer == 1 and len(team.player) == 1 and not team.getTournamentTeamId():
+            self.teams[teamId] = team
+            logger.info(f"Team directly added to game {self.gameId}: {team.getName()} with {len(team.player)} players")
+            return
+
+        # Sinon (cas tournoi), on crée une nouvelle instance
+        newTeam = Team(team.getName(), team.maxNbPlayer, team.getTournamentTeamId(), teamId)
+        
+        # Copier les joueurs depuis l'équipe originale du tournoi
+        if team.getTournamentTeamId() in self.tournament.tournamentTeams:
+            originalTeam = self.tournament.tournamentTeams[team.getTournamentTeamId()]
+            for playerId, player in originalTeam.player.items():
+                newPlayer = Player(
+                    player.getId(),
+                    player.getRole(),
+                    player.getName(),
+                    teamId
+                )
+                newPlayer.setSocket(player.socket)
+                newPlayer.setOnline(player.getOnline())
+                newPlayer.setAllowedToReconnect(player.getAllowedToReconnect())
+                newPlayer.setIsInit(player.getIsInit())
+                newTeam.setPlayer(newPlayer)
+                newTeam.nbPlayer += 1
+        
+        # Copier les autres propriétés importantes
+        newTeam.isFull = team.isFull
+        newTeam.score = team.score
+        newTeam.PV = team.PV
+        
+        # Stocker la nouvelle équipe
+        self.teams[teamId] = newTeam
+        logger.info(f"New team created for game {self.gameId}: {newTeam.getName()} with {len(newTeam.player)} players")
 
     def getTeam(self, TeamID):
         return self.teams.get(TeamID)
@@ -664,3 +699,67 @@ class Game:
         logger.info(f"payload: {payload}")
         request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/backpong/user-management/set-info-game/", verify=ROOT_CA, data=payload)
         logger.info(f"request: {request}")
+
+    def printGameDetails(self):
+        logger.info("\n=== DÉTAILS DE LA PARTIE ===")
+        logger.info(f"ID de la partie: {self.gameId}")
+        logger.info(f"État de la partie: {'En cours' if self.gameStarted else 'Non démarrée'}")
+        logger.info(f"Partie de tournoi: {'Oui' if self.isGameTournament else 'Non'}")
+        logger.info(f"Joueurs connectés: {self.nbPlayerConnected}/{self.nbPlayerPerTeam * 2}")
+        logger.info(f"Joueurs prêts: {self.playerReady}")
+        logger.info(f"Partie en pause: {'Oui' if self.isPaused else 'Non'}")
+        
+        # Informations sur la balle
+        logger.info("\n--- État de la balle ---")
+        logger.info(f"Position: x={self.ballPosition['x']:.2f}, y={self.ballPosition['y']:.2f}, z={self.ballPosition['z']:.2f}")
+        logger.info(f"Vitesse actuelle: {self.BALL_SPEED:.2f}")
+        logger.info(f"Direction: x={self.ballDirection['x']:.2f}, y={self.ballDirection['y']:.2f}, z={self.ballDirection['z']:.2f}")
+        
+        # Informations sur les équipes
+        for team_id, team in self.teams.items():
+            logger.info(f"\n--- ÉQUIPE {team_id} ---")
+            logger.info(f"Nom: {team.name}")
+            logger.info(f"Score: {team.getScore()}")
+            logger.info(f"Nombre de joueurs: {team.nbPlayer}/{team.maxNbPlayer}")
+            
+            # Position du bateau
+            boat_pos = team.getBoat()
+            logger.info(f"Position du bateau: x={boat_pos['x']:.2f}, y={boat_pos['y']:.2f}, z={boat_pos['z']:.2f}")
+            
+            # Position du canon
+            cannon_pos = team.getCannon()
+            logger.info(f"Position du canon: x={cannon_pos['x']:.2f}, y={cannon_pos['y']:.2f}, z={cannon_pos['z']:.2f}")
+            
+            # Détails des joueurs
+            logger.info("\nJoueurs:")
+            for player_id, player in team.player.items():
+                logger.info(f"  - ID: {player.id}")
+                logger.info(f"    Nom: {player.name}")
+                logger.info(f"    Rôle: {player.role}")
+        
+        if self.winner:
+            logger.info(f"\nGagnant: {self.winner.name}")
+            logger.info(f"Perdant: {self.loser.name}")
+        
+        logger.info("\n=== FIN DES DÉTAILS ===\n")
+
+    def resetGameState(self):
+        self.gameStarted = False
+        self.isPaused = False
+        self.winner = None
+        self.loser = None
+        self.playerReady = 0
+        self.nbPlayerConnected = 0
+        self.BALL_SPEED = self.BALL_INITIAL_SPEED
+        self.ballPosition = self.initializeBallPosition()
+        self.ballDirection = self.initializeBallDirection()
+        self.last_ball_update = 0
+        self.ball_velocity = {'x': 0, 'y': 0, 'z': 0}
+        self.last_collision_time = 0
+        self.PREDICTION_BUFFER = []
+        
+        # Réinitialiser les équipes
+        for team in self.teams.values():
+            team.resetPosition()
+            team.PV = 100
+            team.score = 0

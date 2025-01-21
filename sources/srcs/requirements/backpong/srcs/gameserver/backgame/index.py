@@ -56,6 +56,8 @@ sio = socketio.AsyncServer(
 logger.info("**********Server started***********")
 
 ChannelList = {}
+active_games = {}
+player_rooms = {}
 
 def generateGameCode():
     return str(random.randint(1000, 9999))
@@ -63,69 +65,70 @@ def generateGameCode():
 @sio.event
 async def disconnect(sid):
     logger.info(f'Client disconnected: {sid}')
-    channel_codes = list(ChannelList.keys())
     
-    for gameCode in channel_codes:
-        if (ChannelList[gameCode].getIsTournament()):
-            tournament = ChannelList[gameCode].getTournament()
-            game = tournament.getTournamentGames(gameCode)
-        else:
-            channel = ChannelList[gameCode]
-            game = channel.getGame()
-        game.removeNbPlayerConnected()
-        game.removePlayerReady()
+    # Nettoyer toutes les rooms du joueur
+    if sid in player_rooms:
+        for room in player_rooms[sid]:
+            await sio.leave_room(sid, room)
+            if room in ChannelList:
+                if (ChannelList[room].getIsTournament()):
+                    tournament = ChannelList[room].getTournament()
+                    originalGameCode = room[:-1]
+                    game = tournament.getTournamentGames(originalGameCode)
+                else:
+                    game = ChannelList[room].getGame()
+                
+                if game:
+                    game.removeNbPlayerConnected()
+                    game.removePlayerReady()
+                    
+                    for team in game.teams.values():
+                        if team.getPlayerById(sid):
+                            player = team.getPlayerById(sid)
+                            player.setOnline(False)
+                            player.setAllowedToReconnect(True)
+                            team.setIsFull()
+                            break
+                    
+                    if game.gameStarted and game.nbPlayerConnected > 0:
+                        game.gameStarted = False
+                        game.setIsPaused(True)
+                        await sio.emit('gamePaused', room=room)
+                    
+                    if game.nbPlayerConnected == 0:
+                        await cleanup_game(room, game)
         
-        await sio.leave_room(sid, gameCode)
-        # Vérifier les deux équipes
-        for team in game.teams.values():
-            if team.getPlayerById(sid):
-                player = team.getPlayerById(sid)
-                player.setOnline(False)
-                player.setAllowedToReconnect(True)
-                # player.setRole(None)
-                team.setIsFull()
-                break
-            
-        if (game.gameStarted == True and game.nbPlayerConnected > 0):
-            game.gameStarted = False
-            game.setIsPaused(True)
-            await sio.emit('gamePaused', room=gameCode)
-            logger.info("Game Paused")
+        del player_rooms[sid]
 
-        # Si plus aucun joueur connecté
-        if game.nbPlayerConnected == 0:
-            logger.info(f"Closing room {gameCode} because no player is connected")
-            game.gameStarted = False
-            # for team in game.teams.values():
-            #     if team.getPlayerById(sid):
-            #         team.removePlayer(sid)
-            #         break 
-            #     del team
-            for team in game.teams.values():
-                for player in team.player.values():
-                    team.removePlayer(player.getId())
-                del team
-            await sio.close_room(gameCode)
-            ChannelList.pop(gameCode)
-            del game
-        # TODO : Send the player list to the other players
-        # TODO : Add logout for tournament
+# Nouvelle fonction pour nettoyer une partie
+async def cleanup_game(gameCode, game):
+    logger.info(f"Cleaning up game {gameCode}")
+    game.gameStarted = False
+    
+    for team in game.teams.values():
+        for player in list(team.player.values()):
+            if player.getId() in player_rooms:
+                await sio.leave_room(player.getId(), gameCode)
+            team.removePlayer(player.getId())
+    
+    await sio.close_room(gameCode)
+    if gameCode in ChannelList:
+        ChannelList.pop(gameCode)
+    if gameCode in active_games:
+        active_games.pop(gameCode)
 
 @sio.event
 async def connect(sid, environ):
     logger.info(f'Client connected: {sid}')
 
+# TODO: Verifier que les events Listeners sont pas dupliqués a cause de la connexion multiple
+
     @sio.event
     async def createTournament(sid, data):
         logger.info(f"createTournament {sid}, {data}")
-        # tournamentCode = generateGameCode()
-        # while tournamentCode in ChannelList:
-        #     tournamentCode = generateGameCode()
-
         tournamentCode = generateGameCode()
-
-        if tournamentCode in ChannelList:
-            ChannelList.pop(tournamentCode)
+        while tournamentCode in ChannelList:
+            tournamentCode = generateGameCode()
 
         logger.info(f"Tournament code : {tournamentCode}")
         channel = Channel(tournamentCode, sid, True)
@@ -145,13 +148,13 @@ async def connect(sid, environ):
         if tournamentCode in ChannelList:
             channel = ChannelList[tournamentCode]
             tournament = channel.getTournament()
-            if tournament.getNbTeam() < 4:
+            if tournament.getNbTeam() < 8:
                 tournament.addTournamentTeam(Team(data.get('teamName'), 1, sid, None), sid)
                 logger.info(f"tournament.getNbTeam() dans joinTournament dans index.py {tournament.getNbTeam()}")
                 await sio.enter_room(sid, tournamentCode)
                 await sio.emit('tournamentJoined', {'tournamentCode': tournamentCode}, room=sid)
                 await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
-                if (tournament.getNbTeam() == 4):
+                if (tournament.getNbTeam() == 8):
                     logger.info(f"Starting tournament {tournamentCode}")
                     await startTournament(sio, tournament, tournamentCode, True)
             else:
@@ -308,6 +311,7 @@ async def connect(sid, environ):
                     team.getPlayerById(sid).setIsInit(True)
                     logger.info(f"Player {sid} isInit = {team.getPlayerById(sid).getIsInit()}")
             logger.info(f"game.getPlayerReady() dans la fonction playerReady dans index.py {game.getPlayerReady()}")
+            logger.info(f"game.getIsGameTournament() dans la fonction playerReady dans index.py {game.getIsGameTournament()}")
             if (game.getIsGameTournament()):
                 await ReadyToStart(originalGameCode, game)
             else:
@@ -403,14 +407,18 @@ async def connect(sid, environ):
                 return
             await game.updateBoatPosition(data['team'], data['boatPosition']['x'])
             if (game.getIsGameTournament()):
+                logger.info(f"isTournament dans boatPosition dans index.py")
                 await sio.emit('boatPosition', {
                     'teamID': data['team'],
-                    'boatPosition': data['boatPosition']
+                    'boatPosition': data['boatPosition'],
+                    'sid': sid
                 }, room=originalGameCode, skip_sid=sid)
             else:
+                logger.info(f"isNotTournament dans boatPosition dans index.py")
                 await sio.emit('boatPosition', {
                     'teamID': data['team'],
-                    'boatPosition': data['boatPosition']
+                    'boatPosition': data['boatPosition'],
+                    'sid': sid
                 }, room=gameCode, skip_sid=sid)
 
     @sio.event
@@ -529,6 +537,8 @@ async def sendPlayerLists(game, gameCode, sid):
 
 async def ReadyToStart(gameCode, game):
      # Attendre que tous les joueurs soient prêts
+    logger.info(f"game.gameStarted dans ReadyToStart dans index.py {game.gameStarted}")
+    logger.info(f"game.getIsPaused() dans ReadyToStart dans index.py {game.getIsPaused()}")
     while not game.gameStarted or game.getIsPaused():
         # logger.info(f"game.getPlayerReady() dans index.py {game.getPlayerReady()}")
         if game.nbPlayerConnected == game.nbPlayerPerTeam * 2 and game.getPlayerReady() == game.nbPlayerPerTeam * 2:
@@ -545,12 +555,13 @@ async def startTournament(sio, tournament, tournamentCode, start):
     if (start):
         tournament.createTournamentTree()
         await sio.emit('tournamentFull', {'tournamentTree': tournament.getTournamentTreeData()}, room=tournamentCode)
-    # while (not tournament.getStart()):
-    #     await asyncio.sleep(0.1)
-
+    while (not tournament.getStart()):
+        await asyncio.sleep(0.1)
     logger.info(f"tournament.getNbTeam() dans startTournament dans index.py {tournament.getNbTeam()}")
+    logger.info(f"len(tournament.getTournamentGamesList()) dans startTournament dans index.py {len(tournament.getTournamentGamesList())}")
     if (len(tournament.getTournamentGamesList()) == 0):
-        await asyncio.sleep(10)
+        if (not start):
+            await asyncio.sleep(10)
         for i in range(tournament.getNbTeam() // 2):
             logger.info(f"i dans startTournament dans index.py {i}")
             match = tournament.getNextMatch()
@@ -571,9 +582,11 @@ async def startTournament(sio, tournament, tournamentCode, start):
                 team2.setTeamId(2)
                 game.setTeam(team1)
                 game.setTeam(team2)
+                game.printGameDetails()
                 logger.info(f"Game {gameCode} created")
-                # await asyncio.sleep(2)
                 logger.info(f"Starting game {gameCode}")
+                for team in game.teams.values():
+                    logger.info(f"team.getTournamentTeamId() dans startTournament dans index.py {team.getTournamentTeamId()} / {team.getName()} / {gameCode} / {tournamentCode}")
                 # if (start):
                 await sio.emit('startTournamentGame', {'gameCode': gameCode}, room=gameCode)
                 # else:
@@ -581,35 +594,67 @@ async def startTournament(sio, tournament, tournamentCode, start):
     
 
 async def startGame(gameCode, game):
-    while game.gameStarted and game.getIsPaused() == False:
-        ballPosition = await game.updateBallPosition()
-        await game.handleCollisions(sio, gameCode)
+    if gameCode in active_games:
+        logger.warning(f"Game {gameCode} already running")
+        return
         
-        # Envoyer la position et la vélocité
-        await sio.emit('gameState', {
-            'ballPosition': game.getBallPosition(),
-            'ballVelocity': game.ball_velocity
-        }, room=gameCode)
-        
-        if (game.getIsPaused()):
-            await ReadyToStart(gameCode, game)
-        if (game.gameStarted == False and game.getIsPaused() == False):
-            break
-        await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
-
-    if (game.getIsGameTournament() and game.getIsPaused() == False and game.gameStarted == False and game.getWinner()):
-        tournament = game.getTournament()
-        tournament.updateTournamentTree(game.getWinner())
-        await sio.emit('tournamentWinner', game.getWinner().getName(), room=game.getWinner().getTournamentTeamId())
-        game.getWinner().resetPosition()
-        tournament.removeTournamentTeam(game.getLoser())
-        tournamentGames = tournament.getTournamentGames(gameCode)
-        tournamentGames.removeNbPlayerConnected()
-        tournamentGames.removeNbPlayerConnected()
-        tournamentGames.removePlayerReady()
-        tournamentGames.removePlayerReady()
-        await sio.leave_room(game.getLoser().getTournamentTeamId(), gameCode)
-        tournament.removeTournamentGame(game)
-        await startTournament(sio, tournament, tournament.getTournamentId(), False)
+    active_games[gameCode] = True
     
-    logger.info(f"Game {gameCode} ended")
+    try:
+        while game.gameStarted and game.getIsPaused() == False:
+            if gameCode not in active_games:
+                break
+                
+            ballPosition = await game.updateBallPosition()
+            await game.handleCollisions(sio, gameCode)
+            
+            await sio.emit('gameState', {
+                'ballPosition': game.getBallPosition(),
+                'ballVelocity': game.ball_velocity
+            }, room=gameCode)
+            
+            if game.getIsPaused():
+                await ReadyToStart(gameCode, game)
+            if game.gameStarted == False:
+                break
+                
+            await asyncio.sleep(game.BALL_UPDATE_INTERVAL / 1000)
+    
+    finally:
+        if gameCode in active_games:
+            active_games.pop(gameCode)
+        
+        if game.getIsGameTournament() and not game.getIsPaused():
+            await handle_tournament_end(game, gameCode)
+
+# Nouvelle fonction pour gérer la fin d'un tournoi
+async def handle_tournament_end(game, gameCode):
+    if not game.getWinner():
+        return
+        
+    tournament = game.getTournament()
+    winner = game.getWinner()
+    loser = game.getLoser()
+    
+    tournament.updateTournamentTree(winner)
+    await sio.emit('tournamentWinner', winner.getName(), room=winner.getTournamentTeamId())
+    
+    winner.resetPosition()
+    tournament.removeTournamentTeam(loser)
+    
+    originalGameCode = gameCode[:-1]
+    await cleanup_tournament_game(tournament, game, gameCode, originalGameCode, loser)
+    
+    await startTournament(sio, tournament, tournament.getTournamentId(), False)
+
+# Nouvelle fonction pour nettoyer une partie de tournoi
+async def cleanup_tournament_game(tournament, game, gameCode, originalGameCode, loser):
+    await sio.leave_room(loser.getTournamentTeamId(), originalGameCode)
+    
+    for team in game.teams.values():
+        await sio.leave_room(team.getTournamentTeamId(), gameCode)
+        if team.getTournamentTeamId() in player_rooms:
+            player_rooms[team.getTournamentTeamId()].remove(gameCode)
+    
+    tournament.resetGameState(game)
+    tournament.removeTournamentGame(game)

@@ -11,7 +11,8 @@ function tournamentTreeView(title, description, data)
 	}
 	else
 	{
-		error404View(title, description, data);
+		replace_location(URLs.VIEWS.HOME);
+		// error404View(title, description, data);
 	}
 
 }
