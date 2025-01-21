@@ -41,6 +41,7 @@ async function getHistoric(game, user)
     {
         const match = document.createElement('div');
         match.className = 'matchDisplayHistoric';
+		match.style.height = "120px"; 
         const result = document.createElement('span');
         result.style.alignSelf = 'center';
         if (currentLanguage === 'en')
@@ -67,6 +68,9 @@ async function getHistoric(game, user)
             const vsImg = document.createElement('img');
             vsImg.src = "/static/photos/picturePng/profilePage/versusLogoStat.png";
             vsImg.alt = "vs";
+
+			advUsername.style.width = "105px";
+			username.style.width = "105px";
 
             resultUser.className = 'resultDisplayHistoric';
             console.log("YOOOOOO gang game[i].player yeah: ", game[i]);

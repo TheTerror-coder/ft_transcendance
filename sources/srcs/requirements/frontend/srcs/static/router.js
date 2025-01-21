@@ -79,7 +79,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonSound()?.id)
 	{
-		OnOffMusic()
+		OnOffMusic();
 	}
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{

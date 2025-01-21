@@ -47,6 +47,7 @@
         "final": "Final",
         "semiFinal": "Semi-Final",
         "quarterFinal": "Quarter-Final",
+		"redirect": "redirect",
 
         "Logout": "LOGOUT"
     },
@@ -101,6 +102,8 @@
         "final": "Final",
         "semiFinal": "Semifinal",
         "quarterFinal": "Cuartos de final",
+
+		"redirect": "redirect",
 
 
         "Logout": "DESCONECTARSE"

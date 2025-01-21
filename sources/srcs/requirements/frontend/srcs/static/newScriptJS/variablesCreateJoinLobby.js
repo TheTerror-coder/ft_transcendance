@@ -2,8 +2,8 @@
 
 const TeamAndRoleTwoPlayerLobbyVAR =
 `
-<div style="height: 493px; margin-left: 200px; margin-right: 200px;">
-    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
+<div style="align-self: center; width:1300px;">
+    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 220px; margin-right: 220px;">
         <div style="align-self: center;">
             <p data-translate="ChooseYourTeam" style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
         </div>
@@ -53,7 +53,7 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 600px;">
+            <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 700px; justify-content: center;">
                 <div style="display: flex; justify-content: center; height: 200px;">
                     <p data-translate="PlayersPerTeams" style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>

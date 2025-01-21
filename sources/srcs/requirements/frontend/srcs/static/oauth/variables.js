@@ -275,6 +275,15 @@ const ELEMENTs = Object.freeze({
 	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
 	joinButtonTournament : () => document.getElementById("joinButtonTournament"),
 	number : () => document.getElementById("number"),
+
+	//MUSIC
+
+	profilePageMusic : () => "/static/sound/ProfilePageWeDidIt!Party!.mp3",
+	homePageMusic : () => "/static/sound/HomePageWorldsNumberOneOdenStore.mp3",
+	lobbyMusic : () => "/static/sound/LobbyLuffyFierceAttack.mp3",
+	TournamentMusic : () => "/static/sound/TournamentLetsBattle.mp3",
+	loginMusic : () => "/static/sound/LoginPageWeDidIt.mp3",
+
 });
 
 let N_ALERT = 0;

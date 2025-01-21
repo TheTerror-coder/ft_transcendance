@@ -70,7 +70,7 @@ async function joinLobbyPlay()
             }
             else
                 error = null;
-        }, 400);
+        }, 300);
     };
 }
 

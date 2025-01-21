@@ -1,46 +1,119 @@
 
-// let currentSound = true;
+let currentSound = false;
 
-// function changeMusic(newSource) 
+let musicFlood = 0;
+
+
+// async function fadeIn() 
 // {
-//     let newSourceElement = document.createElement('source');
-//     newSourceElement.src = newSource;
-//     newSourceElement.type = 'audio/mp3';
+// 	const fadeDuration = 5000;
+// 	const fadeSteps = 100;
+// 	const fadeInterval = fadeDuration / fadeSteps;
 
-//     ELEMENTs.musicPlayer().innerHTML = '';
+// 	let currentStep = 0;
 
-//     ELEMENTs.musicPlayer().appendChild(newSourceElement);
+// 	const fadeIntervalId = setInterval(() => {
+// 		const volume = 1 + (currentStep / fadeSteps);
+// 		ELEMENTs.musicPlayer().volume = volume;
 
-//     ELEMENTs.musicPlayer().load();
-// 	console.log("currentSound dans changeMusic: ", currentSound);
-// 	refreshMusic();
+// 		// Increment step
+// 		currentStep++;
+
+// 		// Clear the interval when volume reaches 0
+// 		if (currentStep <= fadeSteps) 
+// 		{
+// 			clearInterval(fadeIntervalId);
+// 			ELEMENTs.musicPlayer().volume = 100;
+// 		}
+// 	}, fadeInterval);
 // }
 
-// function OnOffMusic() 
-// {
-// 	if (ELEMENTs.musicPlayer().paused)
-// 	{
-// 		ELEMENTs.musicPlayer().play();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
-// 		ELEMENTs.buttonSound().alt = "sound is on !";
-// 		currentSound = true;
-// 	}
-// 	else
-// 	{
-// 		ELEMENTs.musicPlayer().pause();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
-// 		ELEMENTs.buttonSound().alt = "sound is off !";
-// 		currentSound = false;
-// 	} 
-// }
 
-// function refreshMusic()
-// {
-// 	if (currentSound === true)
-// 		ELEMENTs.musicPlayer().play();
-// 	else
-// 		ELEMENTs.musicPlayer().pause();
-// }
+
+async function fadeOut() 
+{
+	const fadeDuration = 5000;
+	const fadeSteps = 100;
+	const fadeInterval = fadeDuration / fadeSteps;
+	console.log("fadeOut function");
+
+	let currentStep = 0;
+	return new Promise((resolve) => {
+		const fadeIntervalId = setInterval(() => {
+		const volume = 1 - (currentStep / fadeSteps);
+		ELEMENTs.musicPlayer().volume = volume;
+
+		// Increment step
+		currentStep += 2;
+
+		// Clear the interval when volume reaches 0
+		if (currentStep >= fadeSteps) 
+		{
+			clearInterval(fadeIntervalId);
+			ELEMENTs.musicPlayer().pause();
+			resolve();
+		}
+		}, fadeInterval);
+	});
+}
+
+async function changeMusic(newSource) 
+{
+	musicFlood++;
+	return new Promise(async (resolve) => {
+	console.log("musicFlood: ", musicFlood);
+	if (musicFlood > 1)
+	{
+		resolve();
+		return ;
+	}
+	if (!ELEMENTs.musicPlayer().paused)
+		await fadeOut();
+	let newSourceElement = document.createElement('source');
+	newSourceElement.src = newSource;
+	newSourceElement.type = 'audio/mp3';
+	
+	ELEMENTs.musicPlayer().innerHTML = '';
+	
+	ELEMENTs.musicPlayer().appendChild(newSourceElement);
+	
+	ELEMENTs.musicPlayer().load();
+	musicFlood = 0;
+	console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused)
+	refreshMusic();
+	resolve();
+	})
+}
+
+function OnOffMusic() 
+{
+	if (ELEMENTs.musicPlayer().paused)
+	{
+		ELEMENTs.musicPlayer().play();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
+		ELEMENTs.buttonSound().alt = "sound is on !";
+		currentSound = true;
+	}
+	else
+	{
+		ELEMENTs.musicPlayer().pause();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
+		ELEMENTs.buttonSound().alt = "sound is off !";
+		currentSound = false;
+	} 
+}
+
+function refreshMusic()
+{
+	ELEMENTs.musicPlayer().volume = 1;
+	console.log("je suis al lol");
+	if (currentSound === true)
+	{
+		ELEMENTs.musicPlayer().play();
+	}
+	else
+		ELEMENTs.musicPlayer().pause();
+}
 
 
 const resetBaseHtmlVAR =
@@ -115,3 +188,11 @@ const resetBaseHtmlVAR =
 		<script src="/static/views.js"></script>
 		<script src="/static/router.js"></script>
 `;
+
+
+const Page404DisplayVAR = 
+`<div class="404Page">
+    <p style="font-family: arial; font-size: 100px;">ERROR:404</p>
+    <p style="font-family: arial;">WRONG PAGE</p>
+	<button onclick="replace_loction(BASE_URL);" data-translate="redirect" ></button>
+</div>`
