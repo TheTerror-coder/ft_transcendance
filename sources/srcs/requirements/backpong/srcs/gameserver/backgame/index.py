@@ -102,6 +102,7 @@ async def disconnect(sid):
                     break 
             await sio.close_room(gameCode)
             ChannelList.pop(gameCode)
+            del game
         # TODO : Send the player list to the other players
         # TODO : Add logout for tournament
 
@@ -166,6 +167,8 @@ async def connect(sid, environ):
         ChannelList[gameCode] = channel
         game = channel.getGame()
         game.setNbPlayerPerTeam(int(numPlayersPerTeam))
+        logger.info(f"game.getNbPlayerPerTeam() dans createGame dans index.py {game.getNbPlayerPerTeam()}")
+        logger.info(f"game.nbPlayerConnected() dans createGame dans index.py {game.nbPlayerConnected}")
         
         game.setTeam(Team("Black-Beard", int(numPlayersPerTeam), None, 1))
         game.setTeam(Team("White-Beard", int(numPlayersPerTeam), None, 2))

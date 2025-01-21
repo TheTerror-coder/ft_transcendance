@@ -12,9 +12,9 @@ async function statsInProfilePage(game_played, victories, lose)
         percentage = (victories / game_played) * 100;
     }
     
-    console.log("victory: ", victories);
-    console.log("lose: ", lose);
-    console.log("game_played: ", game_played);
+    // console.log("victory: ", victories);
+    // console.log("lose: ", lose);
+    // console.log("game_played: ", game_played);
 
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
@@ -36,7 +36,7 @@ async function statsInProfilePage(game_played, victories, lose)
 
 async function getHistoric(game, user)
 {
-    console.log("game.length: ", game.length);
+    // console.log("game.length: ", game.length);
     if (game.length === 0)
     {
         const match = document.createElement('div');
@@ -73,7 +73,7 @@ async function getHistoric(game, user)
 			username.style.width = "105px";
 
             resultUser.className = 'resultDisplayHistoric';
-            console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
+            // console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
             resultAdvUser.className = 'resultDisplayHistoric';
             if (user === game[i].player)
             {
@@ -124,7 +124,7 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
 
 async function displayWaitingListFriend(friends) {
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    console.log("friends: ", friends);
+    // console.log("friends: ", friends);
 
     // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
@@ -178,6 +178,7 @@ async function displayWaitingListFriend(friends) {
                 // Envoi de l'invitation acceptée au serveur
                 socket.send(JSON.stringify({
                     type: 'response.invitation',
+                    to_user: friends[i].from_user,
                     response: 'accept',
                     friend_request_id: friends[i].friend_request_id
                 }));
@@ -301,7 +302,7 @@ async function displayFriend(friends, user_socket) {
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
-            
+            console.log("USER____SOCKET: ", user_socket);
             // Indicateur de connexion de l'ami
             const circleIsConnect = document.createElement('div');
             circleIsConnect.className = 'circleIsConnect';
@@ -400,7 +401,7 @@ document.addEventListener('click', (event) =>
         {
             if (event.target === ELEMENTs.fileButton())
             {
-            console.log("event dans ma fonction ta capte: ");
+            // console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
                 profilePhoto = event.target.files[0];
@@ -492,7 +493,7 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
-    console.log("newUsername: ", newUsername);
+    // console.log("newUsername: ", newUsername);
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);

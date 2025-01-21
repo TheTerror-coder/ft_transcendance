@@ -240,23 +240,35 @@ async function callWebSockets(params) {
 		console.log("WebSocket connection closed:", event);
 	};
 	socket.onmessage = function(event) {
-		console.log("Received invitation:");
 		var data = JSON.parse(event.data);
+		console.log("Received invitation:", data);
 		if (data.type === 'invitation') {
-			console.log("Received invitation:", data);
 			socket.send(JSON.stringify({
 				type: 'response.invitation',
 				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'update_name') {
+			console.log("Received new username  CACACACACACACACACa:", data.new_username);
+			const newUsername = data.new_username;
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'remove_friend') {
+			console.log("Received remove username  CACACACACACACACACa:");
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
 		}
 	};
 }
 
 
 async function handleFriendInvitation(socket, event) {
-    console.log("Received invitation:");
-    var data = JSON.parse(event.data);
+	var data = JSON.parse(event.data);
+    console.log("Received invitation de handle:", data);
     
     if (data.type === 'invitation') {
         console.log("Received invitation:", data);
@@ -266,56 +278,26 @@ async function handleFriendInvitation(socket, event) {
             response: 'pending',
             friend_request_id: data.friend_request_id
         }));
-		// actualiser la page ici si nécessaire
-		await assign_location(URLs.VIEWS.PROFILE);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'update_name') {
+        console.log("update_name:", data);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'remove_friend') {
+        console.log("remove_friend:", data);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
     }
 }
 
-
-
-// async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:"env variable PROXYWAF_HTTPS_PORT"/hello/');
-// 	if (response.status === 200)
-// 		console.log('request succeeded!!');
-// 	console.log('request failed!!');
-// }
 
 function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-//     let player_cote_change = 0;
-//     let opponent_cote_change = 0;
-
-//     if (player_won) {
-//         if (player_score < opponent_score) {
-//             player_cote_change = (opponent_score - player_score) * 1.5;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
-//         } else {
-//             player_cote_change = (opponent_score - player_score) * 1.2;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
-//         }
-//     } else {
-//         if (opponent_score < player_score) {
-//             opponent_cote_change = (player_score - opponent_score) * 1.5;
-//             player_cote_change = -(player_score - opponent_score) * 1.2;
-//         } else {
-//             opponent_cote_change = (player_score - opponent_score) * 1.2;
-//             player_cote_change = -(player_score - opponent_score) * 1.1;
-//         }
-//     }
-
-//     player_score += player_cote_change;
-//     opponent_score += opponent_cote_change;
-
-//     player_score = Math.max(player_score, 0);
-//     opponent_score = Math.max(opponent_score, 0);
-
-//     return { player_score, opponent_score };
-// }
 
 
 async function reauthenticateFirst(flows) {

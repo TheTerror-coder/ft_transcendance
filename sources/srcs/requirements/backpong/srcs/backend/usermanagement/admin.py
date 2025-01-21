@@ -8,13 +8,16 @@ from django.urls import reverse
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'photo_tag', 'friends_list', 'victories', 'prime', 'games_played')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'photo_tag', 'friends_list', 'victories', 'prime', 'games_played', 'password')
 
     readonly_fields = ('photo_tag', 'friends_list')
 
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('photo', 'friend_list', 'victories', 'prime', 'games_played')}),
     )
+
+    def password(self, obj):
+        return obj.password
 
     def victories(self, obj):
         return obj.victories
