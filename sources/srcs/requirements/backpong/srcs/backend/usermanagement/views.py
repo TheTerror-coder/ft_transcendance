@@ -24,6 +24,9 @@ from allauth.account.internal.flows.login import record_authentication
 from allauth.mfa.adapter import get_adapter as allauth_mfa_get_adapter
 from allauth.headless.internal.decorators import browser_view
 from channels.layers import get_channel_layer
+from django.contrib.auth.models import AnonymousUser
+from asgiref.sync import async_to_sync
+from PIL import Image
 
 
 GLOBAL_TOURNAMENT = {
@@ -38,7 +41,6 @@ GLOBAL_TOURNAMENT = {
 @permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
-		print("register", request.data, file=sys.stderr)
 		form = CustomUserCreationForm(request.data, request.FILES)
 		if form.is_valid():
 			form.save()
@@ -120,6 +122,7 @@ def login_view(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
+	logout(request)
 	username = request.data.get('username')
 	if not username:
 		return Response({
@@ -134,7 +137,6 @@ def logout_view(request):
 			'status': 'error',
 			'message': 'User not connected'
 		}, status=400)
-	logout(request)
 	return Response({
 		'status': 'success',
 		'redirect': True,
@@ -142,14 +144,31 @@ def logout_view(request):
 	}, status=200)
 
 
+#modif dans la socket
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-	print("update-profile", request.data, file=sys.stderr)
+	print("begin user: ", request.user.username, file=sys.stderr)
 	username = request.data.get('username')
+	if not username:
+		return Response({
+			'status': 'error',
+			'message': 'username not found',
+		}, status=400)
+	else:
+		if request.user.username in user_sockets:
+			socket_value = user_sockets[request.user.username]
+			user_sockets[username] = socket_value
+			channel_layer = get_channel_layer()
+			async_to_sync(channel_layer.send)(
+			socket_value,
+				{
+					"type": "update.username",
+					"new_username": username,
+				},
+            )
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
-	
 	if form.is_valid():
 		form.save()
 		return Response({
@@ -161,6 +180,8 @@ def update_profile(request):
 			'status': 'error',
 			'message': form.errors.get('username', ['Erreur inconnue'])[0],
 		}, status=400)
+
+
 
 User = get_user_model()
 
@@ -181,14 +202,21 @@ def update_photo(request):
 			'status': 'error',
 			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
 		}, status=400)
+
+	try:
+		img = Image.open(uploaded_file)
+		img.verify()
+		img.close()
+	except (IOError, SyntaxError) as e:
+		return Response({
+			'status': 'error',
+			'message': 'Invalid image file.',
+		}, status=400)
 	fs = FileSystemStorage()
-	print("*******DEBUG********uploaded_file.name: ", uploaded_file.name, file=sys.stderr)
 	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
 	file_url = fs.url(filename)
-	print("*******DEBUG********file_url", file_url, file=sys.stderr)
 	user = request.user
 	user.photo = filename
-	print("*******DEBUG********user.photo: ", user.photo, file=sys.stderr)
 	user.save()
 	if user.photo.url:
 		return Response({
@@ -212,13 +240,6 @@ def update_photo(request):
 def set_language(request):
 	username = request.data.get('username')
 	language = request.data.get('language')
-
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': 'Le nom d\'utilisateur est requis.'
-		}, status=400)
-
 	try:
 		user = User.objects.get(username=username)
 	except User.DoesNotExist:
@@ -228,9 +249,8 @@ def set_language(request):
 		}, status=404)
 
 	form = UpdateUserLanguageForm({'language': language})
-
 	if form.is_valid():
-		user.language = form.cleaned_data['language']
+		user.language = language
 		user.save()
 		
 		return Response({
@@ -309,14 +329,12 @@ def get_user_profile(request):
 			'language': to_user.language,
 		}
 		if to_user.photo_link:
-			print("***********DEBUG*********: get_user_profile(): photo_link is not empty: ", file=sys.stderr)
 			user_info['photo'] = to_user.photo_link 
 		elif to_user.photo:
 			user_info['photo'] = to_user.photo.url 
 		else:
 			user_info['photo'] = None
 
-		print("User profile info:", user_info, file=sys.stderr)
 		return Response({
 			'status': 'success',
 			'user_info': user_info,
@@ -327,58 +345,6 @@ def get_user_profile(request):
 			'status': 'error',
 			'message': 'User not found',
 		}, status=404)
-
-
-@api_view(['POST', 'GET'])
-@login_required
-@csrf_protect
-def game_routing(request):
-	global GLOBAL_TOURNAMENT
-	status = request.data.get('status')
-	is_win = request.data.get('is_win')
-	player = Players(request.user.id, request.user.username, is_win)
-
-	if GLOBAL_TOURNAMENT['status'] == "WAITING":
-		if player not in GLOBAL_TOURNAMENT['players']:
-			GLOBAL_TOURNAMENT['players'].append(player)            
-		if len(GLOBAL_TOURNAMENT['players']) == request.user.people:
-			GLOBAL_TOURNAMENT['status'] = "START_GAME"
-	if status == 'START_GAME' and GLOBAL_TOURNAMENT['status'] == "START_GAME":
-		if GLOBAL_TOURNAMENT['game'] is None:
-			players = GLOBAL_TOURNAMENT['players']
-			random.shuffle(players)
-			for idx, player in enumerate(players, start=1):
-				player.id = idx
-			game = Tournament()
-			game.create_tree(len(players))
-			game.assign_players(players)
-			GLOBAL_TOURNAMENT['game'] = game
-			GLOBAL_TOURNAMENT['status'] = "IN_GAME"
-			game.print_tournament(game.root)
-		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in players]}
-	elif status == 'IN_GAME' and GLOBAL_TOURNAMENT['status'] == "IN_GAME":
-		game = GLOBAL_TOURNAMENT['game']
-
-		if player.is_win == True:
-			pairs = game.get_players_pair()
-			winners = [pair[0] if pair[0].username == player.username else pair[1] for pair in enumerate(pairs)]
-			calculate_score(player.username, pair[1].username, True)
-
-		# pairs = game.get_players_pair()
-		# winners = [pair[0] if i % 2 == 0 else pair[1] for i, pair in enumerate(pairs)]
-		
-		game.update_tree(winners)
-		game.print_tournament(game.root)
-		GLOBAL_TOURNAMENT['players'] = game.players
-		print("len p: ", len(game.players))
-		if len(game.players) == 1:
-			GLOBAL_TOURNAMENT['status'] = "END_GAME"
-		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in game.players]}
-	elif GLOBAL_TOURNAMENT['status'] == "END_GAME":
-		return {'status': 'END_GAME', 'message': 'The game has ended'}
-	return {'status': GLOBAL_TOURNAMENT['status'], 'message': 'Unexpected status'}
-
-#  response = await makeRequest('POST', URLs.USERMANAGEMENT.TOURNAMENT, {'username': 'popo', 'id': 0, 'people': 4, 'is_win': False});
 
 
 @api_view(['GET'])
@@ -489,6 +455,7 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
+	print("remove friend: ICI et LA", request, file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:
@@ -525,7 +492,20 @@ def remove_friend(request):
 				'message': "Cet utilisateur n'est pas votre ami."
 			}
 			return Response(response)
-
+		if request.user.username in user_sockets:
+			friend_liste = request.user.friend_list.all()
+			for user in friend_liste:
+				if user.username != request.user.username:
+					print("remove friend: ICI", user.username, file=sys.stderr)
+					socket_value = user_sockets[user.username]
+					channel_layer = get_channel_layer()
+					async_to_sync(channel_layer.send)(
+					socket_value,
+						{
+							'type': 'remove.friend',
+							'target_username': user.username,
+						},
+					)
 		request.user.friend_list.remove(friend)
 		friend.friend_list.remove(request.user)
 		response = {
@@ -544,7 +524,6 @@ def remove_friend(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def get_user_sockets(request):
-	print("get_user_sockets", request.data, file=sys.stderr)
 	username = request.data.get('username')
 	if not username:
 		return Response({
@@ -563,56 +542,23 @@ def get_user_sockets(request):
 		}, status=400)
 
 @api_view(['GET'])
-@login_required
 @csrf_protect
+@permission_classes([AllowAny])
 def get_user(request):
+	if isinstance(request.user, AnonymousUser):
+		return Response({
+			'status': 'error',
+			'message': 'User is not authenticated',
+		}, status=401)
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
 		'language': request.user.language,
 	}, status=200)
 
-def calculate_score(user_username, opponent_username, player_won):
-	user = User.objects.get(username=user_username)
-	opponent = User.objects.get(username=opponent_username)
-	player_score = (user.victories / user.games_played) * 100 if user.games_played > 0 else 0
-	opponent_score = (opponent.victories / opponent.games_played) * 100 if opponent.games_played > 0 else 0
-	if player_score == 0 and user.username == player_won:
-		opponent_score = 100
-	if opponent_score == 0 and opponent.username == player_won:
-		player_score = 100
-
-	if player_won:
-		if player_score < opponent_score:
-			player_cote_change = (opponent_score - player_score) * 1.5
-			opponent_cote_change = -(opponent_score - player_score) * 1.2
-		else:
-			player_cote_change = (opponent_score - player_score) * 1.2
-			opponent_cote_change = -(opponent_score - player_score) * 1.1
-	else:
-		if opponent_score < player_score:
-			opponent_cote_change = (player_score - opponent_score) * 1.5
-			player_cote_change = -(player_score - opponent_score) * 1.2
-		else:
-			opponent_cote_change = (player_score - opponent_score) * 1.2
-			player_cote_change = -(player_score - opponent_score) * 1.1
-
-	player_score += player_cote_change
-	opponent_score += opponent_cote_change
-
-	return max(player_score, 0), max(opponent_score, 0)
-
-
 @api_view(['POST'])
-# @login_required
-# @csrf_protect
 @permission_classes([AllowAny])
 def set_info_game(request):
-	print("set_info_game", request.data, file=sys.stderr)
-
-	# except Exception as e:
-	# 	return Response({'status': 'error', 'message': str(e)}, status=400)
-
 	if request.data.get('player') == request.data.get('winner'):
 		winner = request.data.get('player')
 		winner_score = int(request.data.get('player_score'))
@@ -636,8 +582,6 @@ def set_info_game(request):
 			'message': "Vous ne pouvez pas jouer contre vous-même."
 		}, status=400)
 	
-	prime_winner, prime_looser = calculate_score(winner, looser, request.data.get('winner'))
-	print("prime_winner", prime_winner, "prime_looser", prime_looser, file=sys.stderr)
 	try:
 		user_win = User.objects.get(username=winner)
 		user_loose = User.objects.get(username=looser)
@@ -653,8 +597,8 @@ def set_info_game(request):
 		opponent_score=looser_score,
 	)
 
-	user_loose.prime = prime_looser
-	user_win.prime = prime_winner
+	user_loose.prime = user_loose.prime - 500 if user_loose.prime > 500 else 0
+	user_win.prime = user_win.prime + 1000
 	user_win.victories += 1
 	user_win.games_played += 1
 	user_loose.games_played += 1
@@ -666,15 +610,6 @@ def set_info_game(request):
 		'status': 'success',
 		'message': 'Données de la partie enregistrées avec succès.',
 	}, status=200)
-
-
-
-
-
-# response = await makeRequest('POST', URLs.USERMANAGEMENT.SETINFOGAME, {'player': 'nico', 'opponent':'nico', 'player_score': 10, 'opponent_score': 5});
-
-
-
 
 def perform_mfa_stage(request):
 	from allauth.headless.account.inputs import LoginInput

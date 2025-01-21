@@ -1,20 +1,4 @@
 
-// signInWith42Button.onclick = connectAPI42;
-// buttonCreateAccount.onclick = createAnAccount;
-
-// function createAnAccount()
-// {
-//     if (flagSelected === "en")
-//     {
-//         signInWith42Button.style.display = 'none';
-//         buttonConnec.style.display = 'none';
-//         buttonCreateAccount.style.display = 'none';
-//         createAccountChange.style.display = 'flex'; 
-//     }
-// }
-
-
-
 async function createAccount(instance) {
     event.preventDefault();
 
@@ -32,10 +16,8 @@ async function createAccount(instance) {
 
     console.log("registerURL", data);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REGISTER, data);
-    if (response.status === 'success') {
-        alert('Form is valid and passwords match! Submitting...');
+    if (response.status === 'success') 
 		await mfaAuthMiddlewareJob();
-    }
     else if (response.status === 'error') {
         if (typeof response.errors === 'object') {
             let errorMessages = '';
@@ -54,14 +36,3 @@ async function createAccount(instance) {
         ELEMENTs.createConfirmPassword().value = '';
     }
 };
-
-
-async function hashStringSHA256(input) 
-{
-    const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-}

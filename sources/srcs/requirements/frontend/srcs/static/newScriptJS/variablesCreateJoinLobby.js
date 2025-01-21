@@ -10,7 +10,7 @@ const TeamAndRoleTwoPlayerLobbyVAR =
         <div>
             <div style="display:flex; justify-content: space-between; height:246px;">
                 <div style="display:flex; flex-direction: column;" id="KurohigeTeam">
-                    <p data-translate="kurohige" class="teamChooseFont"> Black Beard </p>
+                    <p class="teamChooseFont"> Black Beard </p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
                 </div>
                 <div class="container">
@@ -18,7 +18,7 @@ const TeamAndRoleTwoPlayerLobbyVAR =
                     <label for="chooseTeamSwitch" class="label"> </label>
                 </div>
                 <div style="display:flex; flex-direction: column; width: 190px;" id="ShirohigeTeam">
-                    <p data-translate="shirohige" class="teamChooseFont" style="width: 190px;">White Beard</p>
+                    <p class="teamChooseFont" style="width: 190px;">White Beard</p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
                 </div>
             </div>
@@ -53,11 +53,8 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div >
-                <button id="crossButton"><img id="cross" src="/static/photos/picturePng/cross.png" alt="quit Button"></button>
-            </div>
             <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 600px;">
-                <div style="display: flex; justify-content: center;">
+                <div style="display: flex; justify-content: center; height: 200px;">
                     <p data-translate="PlayersPerTeams" style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>
                 <div class="createLobbySwitch">
