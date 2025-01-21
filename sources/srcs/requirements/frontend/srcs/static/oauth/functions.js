@@ -248,16 +248,19 @@ async function callWebSockets(params) {
 				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
-			assign_location(URLs.VIEWS.PROFILE);
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
 		}
 		else if (data.type === 'update_name') {
 			console.log("Received new username  CACACACACACACACACa:", data.new_username);
 			const newUsername = data.new_username;
-			assign_location(URLs.VIEWS.PROFILE);
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
 		}
 		else if (data.type === 'remove_friend') {
 			console.log("Received remove username  CACACACACACACACACa:");
-			assign_location(URLs.VIEWS.PROFILE);
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
 		}
 	};
 }
@@ -275,15 +278,18 @@ async function handleFriendInvitation(socket, event) {
             response: 'pending',
             friend_request_id: data.friend_request_id
         }));
-		await assign_location(URLs.VIEWS.PROFILE);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
     }
     else if (data.type === 'update_name') {
         console.log("update_name:", data);
-		await assign_location(URLs.VIEWS.PROFILE);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
     }
     else if (data.type === 'remove_friend') {
         console.log("remove_friend:", data);
-		await assign_location(URLs.VIEWS.PROFILE);
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
     }
 }
 
