@@ -193,9 +193,11 @@ async function	emailStatusView(title, description, data) {
 	await _modal.show();
 }
 
-async function	error404View(title, description, data) {
+async function	error404View(title, description, data)
+{
 	console.log('error 404 view');
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
-	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/errorPage/Background404.jpeg')";
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
+	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.HOME);
 }

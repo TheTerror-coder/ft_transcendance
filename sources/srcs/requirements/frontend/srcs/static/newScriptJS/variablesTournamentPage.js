@@ -112,7 +112,7 @@ const binaryTreeVAR =
 
 const joinTournamentVAR =
 `
-<div id="cross" style="margin-top: 5px;">
+<div id="cross" style="margin-top: 5px; align-self: end;">
     <button><img src="/static/photos/picturePng/homePage/miniCross.png" alt="quitButton" id="cross"></button>
 </div>
 <div style="display:flex; justify-content: center; height: 700px; align-self: center; align-items: center;">

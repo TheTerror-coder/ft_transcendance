@@ -177,6 +177,11 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
 	title : "Tournament | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.ERROR404] = {
+	view : error404View,
+	title : "Not Found | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -221,8 +226,10 @@ const handleLocation = async () => {
 	}
 	
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
-	if (routeMatched === urlRoutes["404"]){
-		// call directly 404 error view
+	if (routeMatched === urlRoutes["404"])
+	{
+		console.log("URLs.VIEWS.ERROR404", URLs.VIEWS.ERROR404)
+		replace_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){

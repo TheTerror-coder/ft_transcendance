@@ -4,32 +4,6 @@ let currentSound = false;
 let musicFlood = 0;
 
 
-// async function fadeIn() 
-// {
-// 	const fadeDuration = 5000;
-// 	const fadeSteps = 100;
-// 	const fadeInterval = fadeDuration / fadeSteps;
-
-// 	let currentStep = 0;
-
-// 	const fadeIntervalId = setInterval(() => {
-// 		const volume = 1 + (currentStep / fadeSteps);
-// 		ELEMENTs.musicPlayer().volume = volume;
-
-// 		// Increment step
-// 		currentStep++;
-
-// 		// Clear the interval when volume reaches 0
-// 		if (currentStep <= fadeSteps) 
-// 		{
-// 			clearInterval(fadeIntervalId);
-// 			ELEMENTs.musicPlayer().volume = 100;
-// 		}
-// 	}, fadeInterval);
-// }
-
-
-
 async function fadeOut() 
 {
 	const fadeDuration = 5000;
@@ -61,27 +35,30 @@ async function changeMusic(newSource)
 {
 	musicFlood++;
 	return new Promise(async (resolve) => {
-	console.log("musicFlood: ", musicFlood);
-	if (musicFlood > 1)
-	{
+		if (ELEMENTs.music().src)
+			console.log("test de ELEMENTs.musicPlayer().src:", ELEMENTs.music().src, " et newSource: ", newSource);
+		console.log("musicFlood: ", musicFlood);
+		if (musicFlood > 1 || (ELEMENTs.music().src && ELEMENTs.music().src === BASE_URL + newSource))
+		{
+			resolve();
+			return ;
+		}
+		if (!ELEMENTs.musicPlayer().paused)
+			await fadeOut();
+		let newSourceElement = document.createElement('source');
+		newSourceElement.src = newSource;
+		newSourceElement.type = 'audio/mp3';
+		newSourceElement.id = "music";
+		
+		ELEMENTs.musicPlayer().innerHTML = '';
+		
+		ELEMENTs.musicPlayer().appendChild(newSourceElement);
+		
+		ELEMENTs.musicPlayer().load();
+		musicFlood = 0;
+		console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused);
+		refreshMusic();
 		resolve();
-		return ;
-	}
-	if (!ELEMENTs.musicPlayer().paused)
-		await fadeOut();
-	let newSourceElement = document.createElement('source');
-	newSourceElement.src = newSource;
-	newSourceElement.type = 'audio/mp3';
-	
-	ELEMENTs.musicPlayer().innerHTML = '';
-	
-	ELEMENTs.musicPlayer().appendChild(newSourceElement);
-	
-	ELEMENTs.musicPlayer().load();
-	musicFlood = 0;
-	console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused)
-	refreshMusic();
-	resolve();
 	})
 }
 
@@ -191,8 +168,8 @@ const resetBaseHtmlVAR =
 
 
 const Page404DisplayVAR = 
-`<div class="404Page">
+`<div class="Page404">
     <p style="font-family: arial; font-size: 100px;">ERROR:404</p>
     <p style="font-family: arial;">WRONG PAGE</p>
-	<button onclick="replace_loction(BASE_URL);" data-translate="redirect" ></button>
+	<button data-translate="redirect" id="redirectButton">redirect</button>
 </div>`
