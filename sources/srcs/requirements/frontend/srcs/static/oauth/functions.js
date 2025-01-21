@@ -248,11 +248,16 @@ async function callWebSockets(params) {
 				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
+			assign_location(URLs.VIEWS.PROFILE);
 		}
-		if (data.type === 'update_name') {
+		else if (data.type === 'update_name') {
 			console.log("Received new username  CACACACACACACACACa:", data.new_username);
 			const newUsername = data.new_username;
-			document.getElementById('username').innerText = newUsername;
+			assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'remove_friend') {
+			console.log("Received remove username  CACACACACACACACACa:");
+			assign_location(URLs.VIEWS.PROFILE);
 		}
 	};
 }
@@ -263,26 +268,25 @@ async function handleFriendInvitation(socket, event) {
     console.log("Received invitation de handle:", data);
     
     if (data.type === 'invitation') {
-        // console.log("Received invitation:", data);
+        console.log("Received invitation:", data);
 
         socket.send(JSON.stringify({
             type: 'response.invitation',
             response: 'pending',
             friend_request_id: data.friend_request_id
         }));
-		// actualiser la page ici si nécessaire
+		await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'update_name') {
+        console.log("update_name:", data);
+		await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'remove_friend') {
+        console.log("remove_friend:", data);
 		await assign_location(URLs.VIEWS.PROFILE);
     }
 }
 
-
-
-// async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:"env variable PROXYWAF_HTTPS_PORT"/hello/');
-// 	if (response.status === 200)
-// 		console.log('request succeeded!!');
-// 	console.log('request failed!!');
-// }
 
 function strcmp(str1, str2) {
     return str1 === str2;

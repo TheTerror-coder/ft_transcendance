@@ -46,7 +46,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
    
     async def receive(self, text_data=None):
-        sys.stderr.write("*****************receive" + '\n')
         text_data_json = json.loads(text_data)
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])
@@ -55,13 +54,13 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             friend_request = await self.get_friend_request_by_id(friend_request_id)
             if friend_request:
                 if text_data_json['response'] == 'accept':
-                    friend_request = await self.accept_friend_request(friend_request)
+                    friend_request = await self.accept_friend_request(friend_request, text_data_json['to_user'])
                 elif text_data_json['response'] == 'reject':
                     friend_request = await self.decline_friend_request(friend_request)
+            
 
 
     async def send_invitation(self, username):
-        sys.stderr.write("*****************send_invitation " + username + "\n")
         user = await self.get_user_by_username(username)
         if user is not None:
             friend_request = FriendRequest(from_user=self.user, to_user=user, status='PENDING')
@@ -97,41 +96,48 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         del user_sockets[self.user.username]
         user_sockets[new_username] = self.channel_name
         self.user.username = new_username
-        print(f"WebSocket updated username to {new_username}", file=sys.stderr)
         await self.notify_username_update(new_username)
 
     async def notify_username_update(self, new_username):
-        # Envoyer un message à tous les utilisateurs connectés pour leur dire de mettre à jour leur nom d'utilisateur
         for username, channel_name in user_sockets.items():
-            # if channel_name != self.channel_name:
-            print(f"WebSocket sending update_username to pipi {new_username}, {channel_name}, {username}", file=sys.stderr)
+            if username == self.user.username:
+                continue
             invitation = {
-                'type': 'invitation',
+                'type': 'update_name',
                 'from': self.user.username,
                 'to': username,
-                'text': f"{self.user.username} wants to be your friend",
-                'friend_request_id': friend_request.id
+                'new_username': new_username
             }
-
             await self.channel_layer.send(
                 channel_name,
                 {
                     'type': 'send.message',
                     'text': json.dumps(invitation),
-                    'new_username': new_username
                 }
             )
 
 
+    async def remove_friend(self, event):
+        target_username = event.get('target_username')
+        if not target_username:
+            return
+        print(f"WebSocket remove_friend {event}", file=sys.stderr)
+        target_channel_name = user_sockets.get(target_username)
+        if target_channel_name:
+            invitation = {
+                'type': 'remove_friend',
+                'from': self.user.username,
+            }
 
-
-
-    # async def update_username(self, event):
-    #     new_username = event["new_username"]
-    #     del user_sockets[self.user.username]
-    #     user_sockets[new_username] = self.channel_name
-    #     self.user.username = new_username
-    #     print(f"WebSocket updated username to {new_username}", file=sys.stderr)
+            await self.channel_layer.send(
+                target_channel_name,
+                {
+                    'type': 'send.message',
+                    'text': json.dumps(invitation),
+                }
+            )
+        else:
+            print(f"Error: No WebSocket channel found for {target_username}", file=sys.stderr)
 
     @database_sync_to_async
     def get_user_by_username(self, username):
@@ -149,11 +155,27 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         except FriendRequest.DoesNotExist:
             return None
 
-
     @database_sync_to_async
-    def accept_friend_request(request, friend_request):
+    def accept_friend_request(self, friend_request, username):
         friend_request.accept()
         friend_request.delete()
+        if not username:
+            return
+        target_channel_name = user_sockets.get(username)
+        if target_channel_name:
+            invitation = {
+                'type': 'remove_friend',
+            }
+
+            self.channel_layer.send(
+                target_channel_name,
+                {
+                    'type': 'send.message',
+                    'text': json.dumps(invitation),
+                }
+            )
+        else:
+            print(f"Error: No WebSocket channel found for {username}", file=sys.stderr)
         return None
 
 

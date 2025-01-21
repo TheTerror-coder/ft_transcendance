@@ -174,6 +174,7 @@ async function displayWaitingListFriend(friends) {
                 // Envoi de l'invitation acceptée au serveur
                 socket.send(JSON.stringify({
                     type: 'response.invitation',
+                    to_user: friends[i].from_user,
                     response: 'accept',
                     friend_request_id: friends[i].friend_request_id
                 }));

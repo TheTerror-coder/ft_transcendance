@@ -347,58 +347,6 @@ def get_user_profile(request):
 		}, status=404)
 
 
-@api_view(['POST', 'GET'])
-@login_required
-@csrf_protect
-def game_routing(request):
-	global GLOBAL_TOURNAMENT
-	status = request.data.get('status')
-	is_win = request.data.get('is_win')
-	player = Players(request.user.id, request.user.username, is_win)
-
-	if GLOBAL_TOURNAMENT['status'] == "WAITING":
-		if player not in GLOBAL_TOURNAMENT['players']:
-			GLOBAL_TOURNAMENT['players'].append(player)            
-		if len(GLOBAL_TOURNAMENT['players']) == request.user.people:
-			GLOBAL_TOURNAMENT['status'] = "START_GAME"
-	if status == 'START_GAME' and GLOBAL_TOURNAMENT['status'] == "START_GAME":
-		if GLOBAL_TOURNAMENT['game'] is None:
-			players = GLOBAL_TOURNAMENT['players']
-			random.shuffle(players)
-			for idx, player in enumerate(players, start=1):
-				player.id = idx
-			game = Tournament()
-			game.create_tree(len(players))
-			game.assign_players(players)
-			GLOBAL_TOURNAMENT['game'] = game
-			GLOBAL_TOURNAMENT['status'] = "IN_GAME"
-			game.print_tournament(game.root)
-		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in players]}
-	elif status == 'IN_GAME' and GLOBAL_TOURNAMENT['status'] == "IN_GAME":
-		game = GLOBAL_TOURNAMENT['game']
-
-		if player.is_win == True:
-			pairs = game.get_players_pair()
-			winners = [pair[0] if pair[0].username == player.username else pair[1] for pair in enumerate(pairs)]
-			calculate_score(player.username, pair[1].username, True)
-
-		# pairs = game.get_players_pair()
-		# winners = [pair[0] if i % 2 == 0 else pair[1] for i, pair in enumerate(pairs)]
-		
-		game.update_tree(winners)
-		game.print_tournament(game.root)
-		GLOBAL_TOURNAMENT['players'] = game.players
-		print("len p: ", len(game.players))
-		if len(game.players) == 1:
-			GLOBAL_TOURNAMENT['status'] = "END_GAME"
-		return {'status': GLOBAL_TOURNAMENT['status'], 'players': [(p.username, p.id) for p in game.players]}
-	elif GLOBAL_TOURNAMENT['status'] == "END_GAME":
-		return {'status': 'END_GAME', 'message': 'The game has ended'}
-	return {'status': GLOBAL_TOURNAMENT['status'], 'message': 'Unexpected status'}
-
-#  response = await makeRequest('POST', URLs.USERMANAGEMENT.TOURNAMENT, {'username': 'popo', 'id': 0, 'people': 4, 'is_win': False});
-
-
 @api_view(['GET'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
@@ -507,6 +455,7 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
+	print("remove friend: ICI et LA", request, file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:
@@ -543,7 +492,20 @@ def remove_friend(request):
 				'message': "Cet utilisateur n'est pas votre ami."
 			}
 			return Response(response)
-
+		if request.user.username in user_sockets:
+			friend_liste = request.user.friend_list.all()
+			for user in friend_liste:
+				if user.username != request.user.username:
+					print("remove friend: ICI", user.username, file=sys.stderr)
+					socket_value = user_sockets[user.username]
+					channel_layer = get_channel_layer()
+					async_to_sync(channel_layer.send)(
+					socket_value,
+						{
+							'type': 'remove.friend',
+							'target_username': user.username,
+						},
+					)
 		request.user.friend_list.remove(friend)
 		friend.friend_list.remove(request.user)
 		response = {
