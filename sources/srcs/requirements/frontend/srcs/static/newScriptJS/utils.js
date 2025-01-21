@@ -33,7 +33,10 @@ async function fadeOut()
 
 async function changeMusic(newSource) 
 {
-	musicFlood++;
+	if (currentSound === true)
+		musicFlood++;
+	else
+		musicFlood = 0;
 	return new Promise(async (resolve) => {
 		if (ELEMENTs.music().src)
 			console.log("test de ELEMENTs.musicPlayer().src:", ELEMENTs.music().src, " et newSource: ", newSource);
@@ -173,3 +176,4 @@ const Page404DisplayVAR =
     <p style="font-family: arial;">WRONG PAGE</p>
 	<button data-translate="redirect" id="redirectButton">redirect</button>
 </div>`
+

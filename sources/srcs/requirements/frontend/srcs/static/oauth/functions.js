@@ -304,7 +304,7 @@ async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
 		console.log("Pending flows: Reauthentication required");
 		// await reauthenticateJob(undefined);
-		await logout();
+		await logout_views();
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {
