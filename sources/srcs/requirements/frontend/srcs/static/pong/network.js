@@ -21,18 +21,11 @@ class PositionInterpolator {
     }
 
     update(object) {
-        if (!this.isLocalPlayer) {
+        if (!this.isLocalPlayer && object) {
             // Interpolation linéaire entre la position actuelle et la position cible
-            this.currentPosition.x += (this.targetPosition.x - this.currentPosition.x) * this.lerpFactor;
-            this.currentPosition.y += (this.targetPosition.y - this.currentPosition.y) * this.lerpFactor;
-            this.currentPosition.z += (this.targetPosition.z - this.currentPosition.z) * this.lerpFactor;
-
-            // Mise à jour de la position de l'objet
-            object.position.set(
-                this.currentPosition.x,
-                this.currentPosition.y,
-                this.currentPosition.z
-            );
+            object.position.x += (this.targetPosition.x - object.position.x) * this.lerpFactor;
+            object.position.y += (this.targetPosition.y - object.position.y) * this.lerpFactor;
+            object.position.z += (this.targetPosition.z - object.position.z) * this.lerpFactor;
         }
     }
 
@@ -138,7 +131,6 @@ function isValidUpdate(teamId) {
 const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam) => (data) => {
     const {teamID, boatPosition, sid} = data;
     
-    // Vérifier si la mise à jour est valide
     if (!isValidUpdate(teamID)) {
         return;
     }
@@ -147,47 +139,25 @@ const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam)
     if (!team || !team.getBoatGroup()) {
         return;
     }
-    let OtherTeamID = teamID === Team1.getTeamId() ? Team2.getTeamId() : Team1.getTeamId();
-    let OtherTeam = findTeam(Team1, Team2, OtherTeamID);
-    console.log("OtherTeam dans createBoatPositionEvent", OtherTeam);
-    console.log("OtherTeamID dans createBoatPositionEvent", OtherTeamID);
-    console.log("team dans createBoatPositionEvent", team);
-    console.log("teamID dans createBoatPositionEvent", teamID);
-    
-// TODO: Verifier que le joueur a le droit de contrôler ce bateau
 
-    // Vérifier que le joueur a le droit de contrôler ce bateau
-    console.log("currentPlayer.getTeamID() dans createBoatPositionEvent", currentPlayer.getTeamID());
-    console.log("teamID dans createBoatPositionEvent", teamID);
-    console.log("sid dans createBoatPositionEvent", sid);
-    console.log("currentPlayer.getId() dans createBoatPositionEvent", currentPlayer.getId());
-    if (team && team.getBoatGroup()) {
+    // Mettre à jour l'interpolateur approprié
+    const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+    
+    // Ne mettre à jour que si ce n'est pas le joueur local
+    if (currentPlayer.getTeamID() !== teamID) {
+        interpolator.targetPosition = {
+            x: boatPosition.x,
+            y: team.getBoatGroup().position.y,
+            z: team.getBoatGroup().position.z
+        };
+    }
+
+    // Mise à jour de la caméra pour le canonnier si nécessaire
+    if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
         let boatFormerPosition = team.getBoatGroup().position.x;
-        if (currentPlayer.getTeamID() != teamID)
-            team.getBoatGroup().position.x = boatPosition.x;
-        else
-            OtherTeam.getBoatGroup().position.x = boatPosition.x;
-        
-        if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
-            currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
-        }
+        currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
     }
 };
-
-// function getTeamByPlayerId(sid, team1, team2)
-// {
-//     for (const player of team1.getAllPlayer())
-//     {
-//         if (player.getId() === sid)
-//             return (team1);
-//     }
-//     for (const player of team2.getAllPlayer())
-//     {
-//         if (player.getId() === sid)
-//             return (team2);
-//     }
-//     return (null);
-// }
 
 const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (data) => {
     const {team1, team2, gameCode} = data;
@@ -280,7 +250,6 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
 
 export function removeSocketListeners(socket) {
     socket.off('connect');
-    socket.off('disconnect');
     socket.off('gamePaused');
     socket.off('gameUnpaused');
     socket.off('gameStarted');
@@ -317,35 +286,33 @@ export function updateServerData(gameCode, socket, currentPlayerTeam) {
     });
 }
 
-export function setupNetworkHandlers(socket, gameCode, Team1, Team2, scene, currentTeam) {
-    socket.on('boatPosition', (data) => {
-        const team = data.team === Team1.getTeamId() ? Team1 : Team2;
-        const interpolator = data.team === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+// export function setupNetworkHandlers(socket, gameCode, Team1, Team2, scene, currentTeam) {
+//     socket.on('boatPosition', (data) => {
+//         const team = data.team === Team1.getTeamId() ? Team1 : Team2;
+//         const interpolator = data.team === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
         
-        // Ne pas interpoler si c'est le joueur local
-        if (team !== currentTeam) {
-            interpolator.setTarget(
-                data.boatPosition.x,
-                team.getBoat().position.y,
-                team.getBoat().position.z
-            );
-        }
-    });
+//         // Ne pas interpoler si c'est le joueur local
+//         if (team !== currentTeam) {
+//             interpolator.setTarget(
+//                 data.boatPosition.x,
+//                 team.getBoat().position.y,
+//                 team.getBoat().position.z
+//             );
+//         }
+//     });
 
-    // ... autres gestionnaires d'événements existants ...
-}
+//     // ... autres gestionnaires d'événements existants ...
+// }
 
 // Fonction d'animation pour mettre à jour les positions
 export function updateBoatPositions(Team1, Team2) {
     if (!Team1 || !Team2) return;
 
-    const boat1 = Team1.getBoat();
-    const boat2 = Team2.getBoat();
+    const boat1 = Team1.getBoatGroup();
+    const boat2 = Team2.getBoatGroup();
 
-    if (!boat1 || !boat2) return;
-
-    boat1Interpolator.update(boat1);
-    boat2Interpolator.update(boat2);
+    if (boat1) boat1Interpolator.update(boat1);
+    if (boat2) boat2Interpolator.update(boat2);
 }
 
 // Initialiser les positions des interpolateurs
@@ -355,8 +322,8 @@ export function initializeInterpolators(Team1, Team2, currentTeam) {
         return;
     }
 
-    const boat1 = Team1.getBoat();
-    const boat2 = Team2.getBoat();
+    const boat1 = Team1.getBoatGroup();
+    const boat2 = Team2.getBoatGroup();
 
     if (!boat1 || !boat2) {
         console.error('Boats not initialized');
@@ -367,8 +334,21 @@ export function initializeInterpolators(Team1, Team2, currentTeam) {
     boat1Interpolator.setIsLocalPlayer(Team1 === currentTeam);
     boat2Interpolator.setIsLocalPlayer(Team2 === currentTeam);
 
+    // Initialiser les positions avec les positions actuelles des bateaux
     boat1Interpolator.setInitialPosition(boat1.position.x, boat1.position.y, boat1.position.z);
     boat2Interpolator.setInitialPosition(boat2.position.x, boat2.position.y, boat2.position.z);
+
+    // Définir également la position cible comme la position initiale
+    boat1Interpolator.targetPosition = {
+        x: boat1.position.x,
+        y: boat1.position.y,
+        z: boat1.position.z
+    };
+    boat2Interpolator.targetPosition = {
+        x: boat2.position.x,
+        y: boat2.position.y,
+        z: boat2.position.z
+    };
 }
 
 export function periodicGameStateUpdate(socket) {

@@ -97,9 +97,9 @@ function refreshMusic()
 
 
 const resetBaseHtmlVAR =
-`        
-<audio id="musicPlayer" loop>
-			<source src="/static/sound/test.mp3" type="audio/mp3">
+`
+		<audio id="musicPlayer" loop>
+			<source id="music" src="" type="audio/mp3">
 		</audio>
         <div class="headPage" id="headPage">
             <div class="button-container">

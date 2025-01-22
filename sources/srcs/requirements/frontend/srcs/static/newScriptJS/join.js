@@ -13,7 +13,7 @@ async function joinLobbyGame(gameCode, teamID, role)
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     console.log("user dans joinLobbyGame: ", user, "gameCode: ", gameCode, "teamID: ", teamID, "role: ", role);
-    globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username });
+    globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username, gameCode: gameCode});
     if (error !== null)
     {
         console.log("error: ", error);
@@ -23,10 +23,4 @@ async function joinLobbyGame(gameCode, teamID, role)
     }
     savedGameCode.code = gameCode;
 	await changeMusic(ELEMENTs.lobbyMusic());
-}
-
-function joinLocalGame()
-{
-    console.log("local game");
-    // direct lancer la game en local
 }

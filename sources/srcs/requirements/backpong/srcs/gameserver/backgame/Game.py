@@ -385,40 +385,8 @@ class Game:
 
     def setTeam(self, team):
         teamId = team.getTeamId()
-        
-        # Si l'équipe n'a qu'un seul joueur qui vient d'être créé, on l'utilise directement
-        if team.nbPlayer == 1 and len(team.player) == 1 and not team.getTournamentTeamId():
-            self.teams[teamId] = team
-            logger.info(f"Team directly added to game {self.gameId}: {team.getName()} with {len(team.player)} players")
-            return
-
-        # Sinon (cas tournoi), on crée une nouvelle instance
-        newTeam = Team(team.getName(), team.maxNbPlayer, team.getTournamentTeamId(), teamId)
-        
-        # Copier les joueurs depuis l'équipe originale du tournoi
-        if team.getTournamentTeamId() in self.tournament.tournamentTeams:
-            originalTeam = self.tournament.tournamentTeams[team.getTournamentTeamId()]
-            for playerId, player in originalTeam.player.items():
-                newPlayer = Player(
-                    player.getId(),
-                    player.getRole(),
-                    player.getName(),
-                    teamId
-                )
-                newPlayer.setSocket(player.socket)
-                newPlayer.setOnline(player.getOnline())
-                newPlayer.setAllowedToReconnect(player.getAllowedToReconnect())
-                newPlayer.setIsInit(player.getIsInit())
-                newTeam.setPlayer(newPlayer)
-        
-        # Copier les autres propriétés importantes
-        newTeam.isFull = team.isFull
-        newTeam.score = team.score
-        newTeam.PV = team.PV
-        
-        # Stocker la nouvelle équipe
-        self.teams[teamId] = newTeam
-        logger.info(f"New team created for game {self.gameId}: {newTeam.getName()} with {len(newTeam.player)} players")
+        self.teams[teamId] = team
+        logger.info(f"Team added to game {self.gameId}: {team.getName()} with {len(team.player)} players")
 
     def getTeam(self, TeamID):
         return self.teams.get(TeamID)
@@ -426,9 +394,12 @@ class Game:
     def getNbPlayerPerTeam(self):
         return self.nbPlayerPerTeam
 
-    def removeTeam(self, Team):
-        if Team.TeamId in self.teams:
-            del self.teams[Team.TeamId]
+    def removeTeam(self, team):
+        if team.TeamId in self.teams:
+            del self.teams[team.TeamId]
+            logger.info(f"Team {team.getName()} (ID: {team.TeamId}) removed from game {self.gameId}")
+            return True
+        return False
 
     async def updateBoatPosition(self, teamId, x):
         team = self.getTeam(teamId)
@@ -756,6 +727,8 @@ class Game:
         self.ball_velocity = {'x': 0, 'y': 0, 'z': 0}
         self.last_collision_time = 0
         self.PREDICTION_BUFFER = []
+        self.tournament = None
+        self.isGameTournament = False
         
         # Réinitialiser les équipes
         for team in self.teams.values():

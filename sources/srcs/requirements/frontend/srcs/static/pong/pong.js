@@ -24,9 +24,10 @@ export async function main(gameCode, socket, currentLanguage) {
 
     socket.on('disconnect', () => {
         // window.location.href = '/home';
+        console.log('Disconnected from the server');
         ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
         replace_location(URLs.VIEWS.HOME);
-        console.log('Disconnected from the server');
+        socket.off('disconnect');
     });
     
     // Créer une Promise pour attendre les données initiales
@@ -156,7 +157,8 @@ export async function main(gameCode, socket, currentLanguage) {
         if (currentPlayerTeam.getBoatSavedPos().x == 0 && currentPlayerTeam.getBoatSavedPos().y == 0 && currentPlayerTeam.getBoatSavedPos().z == 0)
             network.updateServerData(gameCode, socket, currentPlayerTeam);
         
-        setupEventListeners(socket, keys);
+        setupEventListeners(socket, keys, cameraPlayer, renderer);
+        setupControls(keys);
         initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
         network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam);
         console.log("Game code : ", gameCode);
@@ -177,8 +179,9 @@ export async function main(gameCode, socket, currentLanguage) {
                 if (currentPlayer.getGameStarted() === false) {
                     cancelAnimationFrame(requestAnimationFrameId);
                     console.log("Pass in ending clear");
-                    window.removeEventListener('keydown', keys);
-                    window.removeEventListener('keyup', keys);
+                    // window.removeEventListener('keydown', keys);
+                    // window.removeEventListener('keyup', keys);
+                    removeControls();
 
                     scene.remove(boatGroup1);
                     scene.remove(boatGroup2);
@@ -224,17 +227,27 @@ export async function main(gameCode, socket, currentLanguage) {
                             console.log("currentPlayerTeam.getWinner() : ", currentPlayerTeam.getWinner());
                             console.log("gameCode.length : ", gameCode.length);
                             console.log("gameCode : ", gameCode);
-                            if (gameCode.length == 4)
-                                socket.disconnect();
-                            else if (gameCode.length == 5)
+                            if (gameCode.length == 4 || (gameCode.length == 5 && currentPlayerTeam.getWinner() === false))
                             {
+                                console.log("currentPlayer.getName() : ", currentPlayer.getName());
+                                console.log("socket.id : ", socket.id);
+                                animationComplete = true;
+                                network.removeSocketListeners(socket);
+                                resolve();
+                                savedGameCode.code = null;
+                                socket.disconnect();
+                                return (true);
+                            }
+                            else if (gameCode.length == 5 && currentPlayerTeam.getWinner() === true)
+                            {
+                                animationComplete = true;
+                                network.removeSocketListeners(socket);
+                                resolve();
+                                savedGameCode.code = null;
                                 ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
                                 replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                                return (true);
                             }
-                            animationComplete = true;
-                            network.removeSocketListeners(socket);
-                            resolve();
-                            return (true);
                         }
                     }
                     
@@ -412,27 +425,67 @@ function initCamera(player, cameraPlayer, cannon, bateau)
     return cameraPlayer;
 }
 
-function setupEventListeners(socket, keys, cameraPlayer) {
+let keyDownHandler = null;
+let keyUpHandler = null;
+
+function setupControls(keys) {
     let lastKeyPressTime = 0;
-    window.addEventListener('keydown', (event) => {
-        if (!keys[event.key] || !keys[event.key].pressed)
-        {
+    // Créer les fonctions de callback
+    keyDownHandler = (event) => {
+        if (!keys[event.key] || !keys[event.key].pressed) {
             keys[event.key] = {pressed: true, time: 0};
             lastKeyPressTime = Date.now();
-        }
-        else
-        {
+        } else {
             keys[event.key].time = Date.now() - lastKeyPressTime;
         }
-    });
-
-    window.addEventListener('keyup', (event) => {
-        if (keys[event.key] && keys[event.key].pressed)
-        {
+    };
+    
+    keyUpHandler = (event) => {
+        if (keys[event.key] && keys[event.key].pressed) {
             const pressDuration = Date.now() - lastKeyPressTime;
             keys[event.key] = {pressed: false, time: pressDuration};
         }
-    });
+    };
+
+    // Ajouter les event listeners
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
+}
+
+function removeControls() {
+    // Vérifier si les handlers existent avant de les supprimer
+    if (keyDownHandler) {
+        document.removeEventListener('keydown', keyDownHandler);
+        keyDownHandler = null;
+    }
+    if (keyUpHandler) {
+        document.removeEventListener('keyup', keyUpHandler);
+        keyUpHandler = null;
+    }
+    console.log("Controls removed");
+}
+
+function setupEventListeners(socket, keys, cameraPlayer, renderer) {
+    // let lastKeyPressTime = 0;
+    // window.addEventListener('keydown', (event) => {
+    //     if (!keys[event.key] || !keys[event.key].pressed)
+    //     {
+    //         keys[event.key] = {pressed: true, time: 0};
+    //         lastKeyPressTime = Date.now();
+    //     }
+    //     else
+    //     {
+    //         keys[event.key].time = Date.now() - lastKeyPressTime;
+    //     }
+    // });
+
+    // window.addEventListener('keyup', (event) => {
+    //     if (keys[event.key] && keys[event.key].pressed)
+    //     {
+    //         const pressDuration = Date.now() - lastKeyPressTime;
+    //         keys[event.key] = {pressed: false, time: pressDuration};
+    //     }
+    // });
 
     window.addEventListener('resize', function () {
         if (cameraPlayer) {
