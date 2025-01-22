@@ -13,7 +13,7 @@ async function joinLobbyGame(gameCode, teamID, role)
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     console.log("user dans joinLobbyGame: ", user, "gameCode: ", gameCode, "teamID: ", teamID, "role: ", role);
-    globalSocket.emit('confirmChoices', { teamID: teamID, role: role, userName: user.username });
+    globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username });
     if (error !== null)
     {
         console.log("error: ", error);

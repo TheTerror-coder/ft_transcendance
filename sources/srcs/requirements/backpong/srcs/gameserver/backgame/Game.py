@@ -410,7 +410,6 @@ class Game:
                 newPlayer.setAllowedToReconnect(player.getAllowedToReconnect())
                 newPlayer.setIsInit(player.getIsInit())
                 newTeam.setPlayer(newPlayer)
-                newTeam.nbPlayer += 1
         
         # Copier les autres propriétés importantes
         newTeam.isFull = team.isFull
@@ -701,7 +700,7 @@ class Game:
         logger.info(f"request: {request}")
 
     def printGameDetails(self):
-        logger.info("\n=== DÉTAILS DE LA PARTIE ===")
+        logger.info("=== DÉTAILS DE LA PARTIE ===")
         logger.info(f"ID de la partie: {self.gameId}")
         logger.info(f"État de la partie: {'En cours' if self.gameStarted else 'Non démarrée'}")
         logger.info(f"Partie de tournoi: {'Oui' if self.isGameTournament else 'Non'}")
@@ -710,14 +709,14 @@ class Game:
         logger.info(f"Partie en pause: {'Oui' if self.isPaused else 'Non'}")
         
         # Informations sur la balle
-        logger.info("\n--- État de la balle ---")
+        logger.info("--- État de la balle ---")
         logger.info(f"Position: x={self.ballPosition['x']:.2f}, y={self.ballPosition['y']:.2f}, z={self.ballPosition['z']:.2f}")
         logger.info(f"Vitesse actuelle: {self.BALL_SPEED:.2f}")
         logger.info(f"Direction: x={self.ballDirection['x']:.2f}, y={self.ballDirection['y']:.2f}, z={self.ballDirection['z']:.2f}")
         
         # Informations sur les équipes
         for team_id, team in self.teams.items():
-            logger.info(f"\n--- ÉQUIPE {team_id} ---")
+            logger.info(f"--- ÉQUIPE {team_id} ---")
             logger.info(f"Nom: {team.name}")
             logger.info(f"Score: {team.getScore()}")
             logger.info(f"Nombre de joueurs: {team.nbPlayer}/{team.maxNbPlayer}")
@@ -731,17 +730,17 @@ class Game:
             logger.info(f"Position du canon: x={cannon_pos['x']:.2f}, y={cannon_pos['y']:.2f}, z={cannon_pos['z']:.2f}")
             
             # Détails des joueurs
-            logger.info("\nJoueurs:")
+            logger.info("Joueurs:")
             for player_id, player in team.player.items():
                 logger.info(f"  - ID: {player.id}")
                 logger.info(f"    Nom: {player.name}")
                 logger.info(f"    Rôle: {player.role}")
         
         if self.winner:
-            logger.info(f"\nGagnant: {self.winner.name}")
+            logger.info(f"Gagnant: {self.winner.name}")
             logger.info(f"Perdant: {self.loser.name}")
         
-        logger.info("\n=== FIN DES DÉTAILS ===\n")
+        logger.info("=== FIN DES DÉTAILS ===")
 
     def resetGameState(self):
         self.gameStarted = False
