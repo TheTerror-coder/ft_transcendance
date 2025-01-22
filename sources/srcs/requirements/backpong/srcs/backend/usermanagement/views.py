@@ -156,7 +156,8 @@ def update_profile(request):
 			'status': 'error',
 			'message': 'username not found',
 		}, status=400)
-	else:
+	form = UpdateUsernameForm({'username': username}, instance=request.user)
+	if form.is_valid():
 		if request.user.username in user_sockets:
 			socket_value = user_sockets[request.user.username]
 			user_sockets[username] = socket_value
@@ -168,8 +169,6 @@ def update_profile(request):
 					"new_username": username,
 				},
             )
-	form = UpdateUsernameForm({'username': username}, instance=request.user)
-	if form.is_valid():
 		form.save()
 		return Response({
 			'status': 'success',
@@ -213,10 +212,18 @@ def update_photo(request):
 			'message': 'Invalid image file.',
 		}, status=400)
 	fs = FileSystemStorage()
-	filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
+	try:
+		filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
+	except ValueError as e:
+		return Response({
+			'status': 'error',
+			'message': str(e),
+		}, status=400)
 	file_url = fs.url(filename)
 	user = request.user
+	print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.photo = filename
+	print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.save()
 	if user.photo.url:
 		return Response({
@@ -496,16 +503,24 @@ def remove_friend(request):
 			friend_liste = request.user.friend_list.all()
 			for user in friend_liste:
 				if user.username != request.user.username:
-					print("remove friend: ICI", user.username, file=sys.stderr)
-					socket_value = user_sockets[user.username]
-					channel_layer = get_channel_layer()
-					async_to_sync(channel_layer.send)(
-					socket_value,
-						{
-							'type': 'remove.friend',
-							'target_username': user.username,
-						},
-					)
+					try:
+						print("remove friend: ICI", user.username, file=sys.stderr)
+						socket_value = user_sockets[user.username]
+						channel_layer = get_channel_layer()
+						async_to_sync(channel_layer.send)(
+						socket_value,
+							{
+								'type': 'remove.friend',
+								'target_username': user.username,
+							},
+						)
+					except Exception as e:
+						request.user.friend_list.remove(friend)
+						friend.friend_list.remove(request.user)
+						return Response({
+							'status': 'error',
+							'message': f"Error: {e}",
+						}, status=400)
 		request.user.friend_list.remove(friend)
 		friend.friend_list.remove(request.user)
 		response = {

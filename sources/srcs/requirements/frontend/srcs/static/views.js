@@ -40,6 +40,11 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
+    // const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+    // const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+    // if (resp.status === 'error' || socket.readyState === undefined) {
+    //     await callWebSockets();
+    // }
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;

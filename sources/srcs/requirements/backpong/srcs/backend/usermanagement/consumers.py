@@ -26,6 +26,8 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         else:
             self.room_group_name = f"friend_invite_{self.user.id}"
             await self.accept()
+            if self.user.username in user_sockets:
+                del user_sockets[self.user.username]
             user_sockets[self.user.username] = self.channel_name
             await self.channel_layer.group_add(
                 self.room_group_name,
@@ -157,6 +159,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def accept_friend_request(self, friend_request, username):
+        print(f"accept_friend_request {friend_request} {username}", file=sys.stderr)
         friend_request.accept()
         friend_request.delete()
         if not username:
@@ -166,7 +169,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             invitation = {
                 'type': 'remove_friend',
             }
-
             self.channel_layer.send(
                 target_channel_name,
                 {
