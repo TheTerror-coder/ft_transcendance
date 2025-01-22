@@ -248,12 +248,17 @@ async function callWebSockets(params) {
 				response: 'pending',
 				friend_request_id: data.friend_request_id
 			}));
+			assign_location(URLs.VIEWS.PROFILE);
 		}
-		if (data.type === 'update_name') {
+		else if (data.type === 'update_name') {
 			console.log("Received new username  CACACACACACACACACa:", data.new_username);
 			const newUsername = data.new_username;
-			document.getElementById('username').innerText = newUsername;
+			assign_location(URLs.VIEWS.PROFILE);
 		}
+		// else if (data.type === 'remove_friend') {
+		// 	console.log("GAAGGAGAGFA:", data);
+		// 	assign_location(URLs.VIEWS.PROFILE);
+		// }
 	};
 }
 
@@ -270,9 +275,18 @@ async function handleFriendInvitation(socket, event) {
             response: 'pending',
             friend_request_id: data.friend_request_id
         }));
-		// actualiser la page ici si nécessaire
 		await assign_location(URLs.VIEWS.PROFILE);
-    }
+	}
+	else if (data.type === 'update_name') {
+		console.log("BIGGGGGGG    Received invitation:", data);
+		const newUsername = data.new_username;
+		await assign_location(URLs.VIEWS.PROFILE);
+	}
+	// else if (data.type === 'remove_friend') {
+	// 	console.log("BIGGGGGGG    GOOODD Received invitation:", data);
+	// 	const newUsername = data.new_username;
+	// 	await assign_location(URLs.VIEWS.PROFILE);
+	//}
 }
 
 

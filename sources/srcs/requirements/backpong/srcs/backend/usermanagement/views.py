@@ -546,6 +546,17 @@ def remove_friend(request):
 
 		request.user.friend_list.remove(friend)
 		friend.friend_list.remove(request.user)
+		# if request.user.username in user_sockets:
+		# 	print("REMOOV*****", file=sys.stderr)
+		# 	socket_value = user_sockets[request.user.username]
+		# 	user_sockets[username] = socket_value
+		# 	channel_layer = get_channel_layer()
+		# 	async_to_sync(channel_layer.send)(
+		# 	socket_value,
+		# 		{
+		# 			"type": "remove.friend",
+		# 		},
+		# 	)
 		response = {
 			'status': 'success',
 			'message': f"{username} a été retiré avec succès."
