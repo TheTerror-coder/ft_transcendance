@@ -1,101 +1,4 @@
 
-let currentSound = false;
-
-let musicFlood = 0;
-
-
-async function fadeOut() 
-{
-	const fadeDuration = 5000;
-	const fadeSteps = 100;
-	const fadeInterval = fadeDuration / fadeSteps;
-	console.log("fadeOut function");
-
-	let currentStep = 0;
-	return new Promise((resolve) => {
-		const fadeIntervalId = setInterval(() => {
-		const volume = 1 - (currentStep / fadeSteps);
-		ELEMENTs.musicPlayer().volume = volume;
-
-		// Increment step
-		currentStep += 2;
-
-		// Clear the interval when volume reaches 0
-		if (currentStep >= fadeSteps) 
-		{
-			clearInterval(fadeIntervalId);
-			ELEMENTs.musicPlayer().pause();
-			resolve();
-		}
-		}, fadeInterval);
-	});
-}
-
-async function changeMusic(newSource) 
-{
-	if (currentSound === true)
-		musicFlood++;
-	else
-		musicFlood = 0;
-	return new Promise(async (resolve) => {
-		if (ELEMENTs.music().src)
-			console.log("test de ELEMENTs.musicPlayer().src:", ELEMENTs.music().src, " et newSource: ", newSource);
-		console.log("musicFlood: ", musicFlood);
-		if (musicFlood > 1 || (ELEMENTs.music().src && ELEMENTs.music().src === BASE_URL + newSource))
-		{
-			resolve();
-			return ;
-		}
-		if (!ELEMENTs.musicPlayer().paused)
-			await fadeOut();
-		let newSourceElement = document.createElement('source');
-		newSourceElement.src = newSource;
-		newSourceElement.type = 'audio/mp3';
-		newSourceElement.id = "music";
-		
-		ELEMENTs.musicPlayer().innerHTML = '';
-		
-		ELEMENTs.musicPlayer().appendChild(newSourceElement);
-		
-		ELEMENTs.musicPlayer().load();
-		musicFlood = 0;
-		console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused);
-		refreshMusic();
-		resolve();
-	})
-}
-
-function OnOffMusic() 
-{
-	if (ELEMENTs.musicPlayer().paused)
-	{
-		ELEMENTs.musicPlayer().play();
-		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
-		ELEMENTs.buttonSound().alt = "sound is on !";
-		currentSound = true;
-	}
-	else
-	{
-		ELEMENTs.musicPlayer().pause();
-		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
-		ELEMENTs.buttonSound().alt = "sound is off !";
-		currentSound = false;
-	} 
-}
-
-function refreshMusic()
-{
-	ELEMENTs.musicPlayer().volume = 1;
-	console.log("je suis al lol");
-	if (currentSound === true)
-	{
-		ELEMENTs.musicPlayer().play();
-	}
-	else
-		ELEMENTs.musicPlayer().pause();
-}
-
-
 const resetBaseHtmlVAR =
 `        
 <audio id="musicPlayer" loop>
@@ -174,6 +77,19 @@ const Page404DisplayVAR =
 `<div class="Page404">
     <p style="font-family: arial; font-size: 100px;">ERROR:404</p>
     <p style="font-family: arial;">WRONG PAGE</p>
-	<button data-translate="redirect" id="redirectButton">redirect</button>
-</div>`
+	<button data-translate="redirect" id="redirectButton" class="redirectButton">redirect</button>
+</div>`;
 
+
+const getLogOutPopUp = 
+`
+	<div class="modal-body">
+		<div style="justify-content: center; display: flex; font-size: 60px;">
+			<p style="font-size: 40px;" data-translate="leavingDoor">Do you wanna leave ?</p>
+		</div>
+		<div class="d-flex justify-content-center align-items-center">
+			<button data-translate="yes" id="yesButton" type="button" class="btn btn-primary" style="margin-right: 160px;">YES</button>
+			<button data-translate="no" id="noButton" type="button" class="btn btn-primary" style="--bs-btn-border-color: red;--bs-btn-hover-bg: #a90000;--bs-btn-hover-border-color: #b30000;--bs-btn-active-bg: #c70000;--bs-btn-bg: red;">NO</button>
+		</div>
+	</div>
+	`;

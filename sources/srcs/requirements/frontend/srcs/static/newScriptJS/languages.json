@@ -48,7 +48,9 @@
         "semiFinal": "Semi-Final",
         "quarterFinal": "Quarter-Final",
 		"redirect": "redirect",
-
+		"leavingDoor": "DO YOU WANT TO LEAVE ?",
+		"yes": "YES",
+		"no": "NO",
         "Logout": "LOGOUT"
     },
     "es": {
@@ -81,7 +83,7 @@
 
 
         "FriendList": "Lista de Amigos",
-        "waitingFriendlist": "Lista de Amigos en Espera",
+        "waitingFriendlist": "Amigos en Espera",
         "Stat": "Estadisticas",
         "WinRate": "Porcentaje de victorias",
         "GamePlayed": "Juegos Jugados",
@@ -104,6 +106,9 @@
         "quarterFinal": "Cuartos de final",
 
 		"redirect": "redirect",
+		"leavingDoor": "¿QUIERES IRTE?",
+		"yes": "SI",
+		"no": "NO",
 
 
         "Logout": "DESCONECTARSE"
@@ -135,7 +140,7 @@
         "Ready": "PRET ?",
 
         "FriendList": "Liste d'Amis",
-        "waitingFriendlist": "Liste d'Amis en Attente",
+        "waitingFriendlist": "Amis en Attente",
         "Stat": "Statistiques",
         "WinRate": "Pourcentage de Victoire",
         "GamePlayed": "Nombre de Parties",
@@ -158,6 +163,9 @@
         "final": "Final",
         "semiFinal": "Demie-Finale",
         "quarterFinal": "Quart de Finale",
+		"leavingDoor": "VOULEZ-VOUS PARTIR ?",
+		"yes": "OUI",
+		"no": "NON",
 
         "Logout": "DÉCONNEXION"
     }

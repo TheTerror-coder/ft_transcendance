@@ -94,6 +94,7 @@ function initializeGlobalSocket(socket)
     console.log("GLOBAL SOCKET: ", globalSocket);
     globalSocket.on('gameCreated', (data) => {
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
+        creator = data.creator;
     });
     globalSocket.on('gameJoined', (data) => {
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
@@ -194,7 +195,7 @@ const UpdatePlayerListEvent = async (data) => {
 const TeamsFullEvent = () => 
 {
     console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
-    if (creator === null)
+    if (creator === globalSocket.id)
     {
         if (ELEMENTs.PlayButtonInLobby())
             ELEMENTs.PlayButtonInLobby().style.display = "block";

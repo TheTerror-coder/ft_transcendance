@@ -57,16 +57,17 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
-		// if ()
-		await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		console.log("ELEMENTs.createAccountChange().style.display: ", ELEMENTs.createAccountChange(), " ELEMENTs.formConnect().style.display: ", ELEMENTs.formConnect())
+		if (ELEMENTs.createAccountChange().hasAttribute('style') || ELEMENTs.formConnect().hasAttribute('style'))
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
-		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
+		event.preventDefault();
 		await connect();
 	}
 	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id)
 	{
-		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
+		event.preventDefault();
 		createAccount();
 	}
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
@@ -75,9 +76,11 @@ const eventManager = async (event) => {
 		await addFriend();
 	}
 	else if (target.id === ELEMENTs.buttonSound()?.id)
-	{
 		OnOffMusic();
-	}
+	else if (target.id === document.getElementById("yesButton")?.id)
+		await logout_views();
+	else if (target.id === document.getElementById("noButton")?.id)
+		await replace_location(URLs.VIEWS.HOME);
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		teamAvailable.team = 0;
@@ -98,25 +101,13 @@ const eventManager = async (event) => {
 			await replace_location(URLs.VIEWS.HOME);
 		else
 		{
-			// TO DO: modal oui ou non ?
-			// await fragment_loadModalTemplate();
-			// // const html;
-			// ELEMENTs.oauth_modal_content().innerHTML = `
-			// <div class="modal-body">
-			// 	<div class="d-flex flex-column justify-content-center align-items-center">
-			// 		<button id="refresh-session-button" type="button" class="btn btn-primary">Refresh session</button>
-			// 	</div>
-			// </div>
-			// `;
-			// const _modal = new bootstrap.Modal('#oauth-modal', {
-			// 	keyboard: false,
-			// });
-			// await _modal.show();
-
-			// en fonction du bail
-			// dispose_modals();
-
-			// await logout_views();
+			await fragment_loadModalTemplate();
+			ELEMENTs.oauth_modal_content().innerHTML = getLogOutPopUp;
+			const _modal = new bootstrap.Modal('#oauth-modal', {
+				keyboard: false,
+			});
+			refreshLanguage();
+			await _modal.show();
 		}
 	}
 	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
@@ -251,7 +242,7 @@ const handleLocation = async () => {
 	if (routeMatched === urlRoutes["404"])
 	{
 		console.log("URLs.VIEWS.ERROR404", URLs.VIEWS.ERROR404)
-		replace_location(URLs.VIEWS.ERROR404);
+		await replace_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){

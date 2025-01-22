@@ -8,7 +8,7 @@ const binaryTreeVAR =
             <p id="winnerOfTheTournament"></p>
         </div>
         <div style="align-self: center;">
-            <p data-translate="final" class="stageWriteTournament" >final</p>
+            <p data-translate="final" class="stageWriteTournament">final</p>
         </div>
         <div id="finalTournament" class="stepInTournament">
             <div class="matchTournament">
@@ -128,7 +128,7 @@ const joinTournamentVAR =
 const tournamentPageDisplayVAR = 
 `
 	<div style="justify-content: space-between;display: flex;">
-		<div>
+		<div style="display:flex;">
 			<p class="tournamentCodeDisplay" data-translate="TournamentCode"></p>
 			<p class="tournamentCodeDisplay" id="tournamentCode"></p>
 		</div>

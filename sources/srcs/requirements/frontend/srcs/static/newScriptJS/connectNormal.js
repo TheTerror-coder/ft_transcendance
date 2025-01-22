@@ -4,7 +4,8 @@ async function connect()
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const bad_input = /^[^<>]+$/;
-    if (!bad_input.test(email) || !bad_input.test(password)) {
+    if (!bad_input.test(email) || !bad_input.test(password))
+	{
         alert("Invalid input.");
         return;
     }
@@ -17,7 +18,7 @@ async function connect()
 			await mfaAuthMiddlewareJob();
 		}
 		else {
-            // alert("Invalid credentials.");
+            alert("Invalid credentials.");
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 		}
 	}

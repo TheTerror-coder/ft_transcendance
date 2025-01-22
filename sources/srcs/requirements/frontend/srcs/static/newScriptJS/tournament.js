@@ -10,7 +10,10 @@ let tournamentAllUsers =
         if (!this._user.includes(value)) {
             this._user.push(value);
         }
-    }
+    },
+	clearUsers() {
+		this._user = [];
+	}
 };
 
 let savedTournamentCode = 
@@ -75,7 +78,8 @@ const tournamentPlayerListEvent = (data) => {
 }
 
 const tournamentMatchEvent = (data) => {
-    console.log("TOURNAMENT MATCH: ", data);
+    console.log("TOURNAMENT MATCH: ", data); // ici lol
+
 }
 
 const startTournamentGameEvent = async (data) => {
@@ -129,7 +133,7 @@ async function createTournament()
 
 // i sera le nombre de joueur qui ont rejoins en tout le tournois
 
-async function usersInTournament(usernameTournament, nbPlayer)
+async function usersInTournament(usernameTournament, nbPlayer) // ca faut le faire avec qund c'est shuffle
 {
     console.log("usersInTournament");
     ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
@@ -145,6 +149,7 @@ async function usersInTournament(usernameTournament, nbPlayer)
     {
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
         ELEMENTs.tournamentWrite().innerHTML = "";
+		tournamentAllUsers.clearUsers();
         displayBinaryTree();
     }
 }
@@ -166,6 +171,7 @@ function displayBinaryTree()
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
 
+	// ici remplir le tournament tournamentAllUsers
     let i = 1;
     refreshLanguage();
     setTimeout(() => {

@@ -7,6 +7,7 @@ function tournamentTreeView(title, description, data)
 	if (savedTournamentCode.code)
 	{
 		document.title = title;
+		ELEMENTs.doorJamp().style.display = "flex";
 		displayBinaryTree();
 	}
 	else
@@ -78,6 +79,7 @@ async function	homeView(title, description, data)
 	};
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
+	refreshLanguage();
 }
 
 async function	loginView(title, description, data) {
@@ -218,4 +220,5 @@ async function	error404View(title, description, data)
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
 	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.HOME);
+	refreshLanguage();
 }
