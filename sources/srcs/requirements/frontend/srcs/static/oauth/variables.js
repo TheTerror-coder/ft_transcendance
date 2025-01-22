@@ -20,6 +20,7 @@ const PATHs = Object.freeze({
 		LOBBY : '/lobby/',
 		PROFILE : '/profile/',
 		TOURNAMENT_TREE : '/tournament-tree/',
+		ERROR404 : '/error-404/'
 	}),
 
 });
@@ -45,6 +46,7 @@ const URLs = Object.freeze({
 		CREATE_LOBBY : BASE_URL + PATHs.VIEWS.CREATE_LOBBY, // a faire
 		LOBBY : BASE_URL + PATHs.VIEWS.LOBBY,
 		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
+		ERROR404 : BASE_URL + PATHs.VIEWS.ERROR404,
 		// TOTP
 		// TOTP_VIEWs : Object.freeze({
 			// 	// Activate TOTP authentication
@@ -124,7 +126,6 @@ const ELEMENTs = Object.freeze({
 	headPage : () => document.getElementById("headPage"),
 	buttonSound : () => document.getElementById("buttonSound"), 
 	doorJamp : () => document.getElementById("doorJamp"),
-	musicPlayer : () => document.getElementById("musicPlayer"),
 	logoutDoor : () => document.getElementById("logoutDoor"),
 	logoutButton : () => document.getElementById("logoutButton"),
 	franceFlag : () => document.getElementById("franceFlag"),
@@ -277,6 +278,20 @@ const ELEMENTs = Object.freeze({
 	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
 	joinButtonTournament : () => document.getElementById("joinButtonTournament"),
 	number : () => document.getElementById("number"),
+
+	//404Page
+	redirectButton : () => document.getElementById("redirectButton"),
+
+	//MUSIC
+	
+	musicPlayer : () => document.getElementById("musicPlayer"),
+	music : () => document.getElementById("music"), 
+	profilePageMusic : () => "/static/sound/ProfilePageWeDidIt!Party!.mp3",
+	homePageMusic : () => "/static/sound/HomePageWorldsNumberOneOdenStore.mp3",
+	lobbyMusic : () => "/static/sound/LobbyLuffyFierceAttack.mp3",
+	TournamentMusic : () => "/static/sound/TournamentLetsBattle.mp3",
+	loginMusic : () => "/static/sound/LoginPageWeDidIt.mp3",
+
 });
 
 let N_ALERT = 0;

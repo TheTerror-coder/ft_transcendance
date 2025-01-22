@@ -22,7 +22,7 @@ async function joinLobbyGame(gameCode, teamID, role)
         return ;
     }
     savedGameCode.code = gameCode;
-
+	await changeMusic(ELEMENTs.lobbyMusic());
 }
 
 function joinLocalGame()

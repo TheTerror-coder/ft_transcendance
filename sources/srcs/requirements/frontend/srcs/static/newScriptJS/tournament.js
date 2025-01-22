@@ -176,6 +176,11 @@ function displayBinaryTree()
             document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
             {
                 element.innerHTML = user;
+				if (user.length > 6)
+				{
+					element.style.setProperty('--spacing', '10em');
+					element.style.setProperty('--end', '10em');
+				}
                 if (element.hasAttribute("data-translate"))
                     element.removeAttribute('data-translate');
                 // console.log("e", element, " ET I le goat: ", i);

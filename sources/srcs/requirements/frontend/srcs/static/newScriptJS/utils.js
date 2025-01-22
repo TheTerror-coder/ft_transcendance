@@ -1,46 +1,99 @@
 
-// let currentSound = true;
+let currentSound = false;
 
-// function changeMusic(newSource) 
-// {
-//     let newSourceElement = document.createElement('source');
-//     newSourceElement.src = newSource;
-//     newSourceElement.type = 'audio/mp3';
+let musicFlood = 0;
 
-//     ELEMENTs.musicPlayer().innerHTML = '';
 
-//     ELEMENTs.musicPlayer().appendChild(newSourceElement);
+async function fadeOut() 
+{
+	const fadeDuration = 5000;
+	const fadeSteps = 100;
+	const fadeInterval = fadeDuration / fadeSteps;
+	console.log("fadeOut function");
 
-//     ELEMENTs.musicPlayer().load();
-// 	console.log("currentSound dans changeMusic: ", currentSound);
-// 	refreshMusic();
-// }
+	let currentStep = 0;
+	return new Promise((resolve) => {
+		const fadeIntervalId = setInterval(() => {
+		const volume = 1 - (currentStep / fadeSteps);
+		ELEMENTs.musicPlayer().volume = volume;
 
-// function OnOffMusic() 
-// {
-// 	if (ELEMENTs.musicPlayer().paused)
-// 	{
-// 		ELEMENTs.musicPlayer().play();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
-// 		ELEMENTs.buttonSound().alt = "sound is on !";
-// 		currentSound = true;
-// 	}
-// 	else
-// 	{
-// 		ELEMENTs.musicPlayer().pause();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
-// 		ELEMENTs.buttonSound().alt = "sound is off !";
-// 		currentSound = false;
-// 	} 
-// }
+		// Increment step
+		currentStep += 2;
 
-// function refreshMusic()
-// {
-// 	if (currentSound === true)
-// 		ELEMENTs.musicPlayer().play();
-// 	else
-// 		ELEMENTs.musicPlayer().pause();
-// }
+		// Clear the interval when volume reaches 0
+		if (currentStep >= fadeSteps) 
+		{
+			clearInterval(fadeIntervalId);
+			ELEMENTs.musicPlayer().pause();
+			resolve();
+		}
+		}, fadeInterval);
+	});
+}
+
+async function changeMusic(newSource) 
+{
+	if (currentSound === true)
+		musicFlood++;
+	else
+		musicFlood = 0;
+	return new Promise(async (resolve) => {
+		if (ELEMENTs.music().src)
+			console.log("test de ELEMENTs.musicPlayer().src:", ELEMENTs.music().src, " et newSource: ", newSource);
+		console.log("musicFlood: ", musicFlood);
+		if (musicFlood > 1 || (ELEMENTs.music().src && ELEMENTs.music().src === BASE_URL + newSource))
+		{
+			resolve();
+			return ;
+		}
+		if (!ELEMENTs.musicPlayer().paused)
+			await fadeOut();
+		let newSourceElement = document.createElement('source');
+		newSourceElement.src = newSource;
+		newSourceElement.type = 'audio/mp3';
+		newSourceElement.id = "music";
+		
+		ELEMENTs.musicPlayer().innerHTML = '';
+		
+		ELEMENTs.musicPlayer().appendChild(newSourceElement);
+		
+		ELEMENTs.musicPlayer().load();
+		musicFlood = 0;
+		console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused);
+		refreshMusic();
+		resolve();
+	})
+}
+
+function OnOffMusic() 
+{
+	if (ELEMENTs.musicPlayer().paused)
+	{
+		ELEMENTs.musicPlayer().play();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
+		ELEMENTs.buttonSound().alt = "sound is on !";
+		currentSound = true;
+	}
+	else
+	{
+		ELEMENTs.musicPlayer().pause();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
+		ELEMENTs.buttonSound().alt = "sound is off !";
+		currentSound = false;
+	} 
+}
+
+function refreshMusic()
+{
+	ELEMENTs.musicPlayer().volume = 1;
+	console.log("je suis al lol");
+	if (currentSound === true)
+	{
+		ELEMENTs.musicPlayer().play();
+	}
+	else
+		ELEMENTs.musicPlayer().pause();
+}
 
 
 const resetBaseHtmlVAR =
@@ -115,3 +168,12 @@ const resetBaseHtmlVAR =
 		<script src="/static/views.js"></script>
 		<script src="/static/router.js"></script>
 `;
+
+
+const Page404DisplayVAR = 
+`<div class="Page404">
+    <p style="font-family: arial; font-size: 100px;">ERROR:404</p>
+    <p style="font-family: arial;">WRONG PAGE</p>
+	<button data-translate="redirect" id="redirectButton">redirect</button>
+</div>`
+

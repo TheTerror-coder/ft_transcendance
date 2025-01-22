@@ -39,7 +39,6 @@ async function addFriend()
 }
 
 
-
 function sendInvitation(username) {
     console.log("Sending invitationnnnnn to:", username);
     socket.send(JSON.stringify({

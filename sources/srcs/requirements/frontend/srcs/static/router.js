@@ -14,10 +14,6 @@ const eventManager = async (event) => {
 		event.preventDefault();
 		await redirectToProvider();
 	}
-	else if (target.id === ELEMENTs.loginPageButton()?.id){
-		event.preventDefault();
-		await replace_location(URLs.VIEWS.LOGIN_VIEW);
-	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
 		event.preventDefault();
 		await verifyEmailJob();
@@ -45,11 +41,11 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
-		await logout();
+		await logout_views();
 	}
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
 		event.preventDefault();
-		await logout();
+		await logout_views();
 	}
 	else if (target.id === ELEMENTs.buttonConnec()?.id){
 		event.preventDefault();
@@ -61,6 +57,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
+		// if ()
 		await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
@@ -79,7 +76,7 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonSound()?.id)
 	{
-		OnOffMusic()
+		OnOffMusic();
 	}
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
@@ -100,7 +97,27 @@ const eventManager = async (event) => {
 		if (ELEMENTs.addFriendButton() === null)
 			await replace_location(URLs.VIEWS.HOME);
 		else
-			await logout_views();
+		{
+			// TO DO: modal oui ou non ?
+			// await fragment_loadModalTemplate();
+			// // const html;
+			// ELEMENTs.oauth_modal_content().innerHTML = `
+			// <div class="modal-body">
+			// 	<div class="d-flex flex-column justify-content-center align-items-center">
+			// 		<button id="refresh-session-button" type="button" class="btn btn-primary">Refresh session</button>
+			// 	</div>
+			// </div>
+			// `;
+			// const _modal = new bootstrap.Modal('#oauth-modal', {
+			// 	keyboard: false,
+			// });
+			// await _modal.show();
+
+			// en fonction du bail
+			// dispose_modals();
+
+			// await logout_views();
+		}
 	}
 	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
 	{
@@ -182,6 +199,11 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
 	title : "Tournament Tree | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.ERROR404] = {
+	view : error404View,
+	title : "Not Found | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -226,8 +248,10 @@ const handleLocation = async () => {
 	}
 	
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
-	if (routeMatched === urlRoutes["404"]){
-		// call directly 404 error view
+	if (routeMatched === urlRoutes["404"])
+	{
+		console.log("URLs.VIEWS.ERROR404", URLs.VIEWS.ERROR404)
+		replace_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
