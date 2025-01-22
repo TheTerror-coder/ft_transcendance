@@ -99,19 +99,19 @@ const eventManager = async (event) => {
 		else
 		{
 			// TO DO: modal oui ou non ?
-			await fragment_loadModalTemplate();
-			// const html;
-			ELEMENTs.oauth_modal_content().innerHTML = `
-			<div class="modal-body">
-				<div class="d-flex flex-column justify-content-center align-items-center">
-					<button id="refresh-session-button" type="button" class="btn btn-primary">Refresh session</button>
-				</div>
-			</div>
-			`;
-			const _modal = new bootstrap.Modal('#oauth-modal', {
-				keyboard: false,
-			});
-			await _modal.show();
+			// await fragment_loadModalTemplate();
+			// // const html;
+			// ELEMENTs.oauth_modal_content().innerHTML = `
+			// <div class="modal-body">
+			// 	<div class="d-flex flex-column justify-content-center align-items-center">
+			// 		<button id="refresh-session-button" type="button" class="btn btn-primary">Refresh session</button>
+			// 	</div>
+			// </div>
+			// `;
+			// const _modal = new bootstrap.Modal('#oauth-modal', {
+			// 	keyboard: false,
+			// });
+			// await _modal.show();
 
 			// en fonction du bail
 			// dispose_modals();
