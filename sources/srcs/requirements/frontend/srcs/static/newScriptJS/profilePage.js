@@ -419,6 +419,7 @@ async function changePicture(picture) {
     const data = new FormData();
     data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
+    console.log("response picture: ", response);
     if (response.status === 'success') 
         await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 

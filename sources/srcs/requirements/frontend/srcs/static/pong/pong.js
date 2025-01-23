@@ -198,8 +198,11 @@ export async function main(gameCode, socket, currentLanguage) {
                         console.log("gameCode : ", gameCode);
                         if (gameCode.length == 4)
                             socket.disconnect();
-                        else if (gameCode.lenght == 5 && currentPlayerTeam.getWinner() === false)
-                            socket.disconnect();
+                        else if (gameCode.length == 5)
+                        {
+                            ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                            replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                        }
                         animationComplete = true;
                         network.removeSocketListeners(socket);
                         resolve();
