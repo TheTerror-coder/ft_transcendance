@@ -88,7 +88,6 @@ async function updateLobbyTwoVsTwo(data)
     {
         const user = {"username": data[1][1].name};
         ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
-
         const pos = data[1][1].role === "captain" ? 1 : 2;
         pos === 1 ? ELEMENTs.lobbyDisplayRapidPlayPlayerOne().innerHTML = wantedPlayerOne : ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
 

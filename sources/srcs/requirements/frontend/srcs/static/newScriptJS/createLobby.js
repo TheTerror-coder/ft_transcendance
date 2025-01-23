@@ -390,6 +390,7 @@ async function lobbyTwoPlayer()
         {
             console.log("error: ", error);
             error = null;
+			replace_location(URLs.VIEWS.HOME);
             return ;
         }
     }, 20);

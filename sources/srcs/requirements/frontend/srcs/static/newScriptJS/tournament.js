@@ -140,7 +140,9 @@ async function joinTournament(code)
         if (error !== null)
         {
             console.log("error: ", error);
+			alert(error)
             error = null;
+			replace_location(URLs.VIEWS.TOURNAMENT);   
             return ;
         }
     }, 20);
@@ -158,7 +160,15 @@ async function createTournament()
     ELEMENTs.centerTournament().style.justifyItems = "center";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('createTournament', {teamName: user.username});
-    refreshLanguage();
+	setTimeout(() => {
+		if (error)
+		{
+			alert(error);
+			error = null;
+			return ;
+		}
+		refreshLanguage();
+	}, 20)
 
     // addUserTournament(user.username);
 }
@@ -229,10 +239,13 @@ function startTournament()
 {
     console.log("start tournament");
     globalSocket.emit('tournamentStart', savedTournamentCode.code);
-    if (error !== null)
-    {
-        console.log("error: ", error);
-        error = null;
-        return ;
-    }
+	setTimeout(() => {
+		if (error !== null)
+		{
+			console.log("error: ", error);
+			error = null;
+			return ;
+		}
+
+	}, 20);
 }

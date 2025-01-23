@@ -18,7 +18,6 @@ async function joinLobbyGame(gameCode, teamID, role)
     {
         console.log("error: ", error);
         error = null;
-        await replace_location(URLs.VIEWS.HOME);
         return ;
     }
     savedGameCode.code = gameCode;

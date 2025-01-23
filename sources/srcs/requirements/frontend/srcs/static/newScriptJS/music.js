@@ -2,7 +2,6 @@ let currentSound = false;
 
 let musicFlood = 0;
 
-
 async function fadeOut() 
 {
 	const fadeDuration = 5000;
@@ -17,7 +16,7 @@ async function fadeOut()
 		ELEMENTs.musicPlayer().volume = volume;
 
 		// Increment step
-		currentStep += 2;
+		currentStep += 4;
 
 		// Clear the interval when volume reaches 0
 		if (currentStep >= fadeSteps) 
