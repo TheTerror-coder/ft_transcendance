@@ -5,14 +5,10 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from .models import FriendRequest
 from asgiref.sync import sync_to_async
-# from django.http import JsonResponse
-# from django.shortcuts import get_object_or_404
-# from django.db.models import Q
 import sys
 
 user_sockets = {}
 
-# from channels.generic.websocket import AsyncWebsocketConsumer
 
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
@@ -103,7 +99,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     async def notify_username_update(self, new_username):
         for username, channel_name in user_sockets.items():
             if channel_name != self.channel_name:
-                print(f"WebSocket sending update_username to pipi {new_username}, {channel_name}, {username}", file=sys.stderr)
                 invitation = {
                     'type': 'update_name',
                     'from': self.user.username,
@@ -117,63 +112,59 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                         'text': json.dumps(invitation),
                     }
                 )
-            if username == self.user.username:
-                continue
-            invitation = {
-                'type': 'update_name',
-                'from': self.user.username,
-                'to': username,
-                'new_username': new_username
-            }
-            await self.channel_layer.send(
-                channel_name,
-                {
-                    'type': 'send.message',
-                    'text': json.dumps(invitation),
+
+
+    async def update_logout(self, event):
+        user = event["username"]
+        for username, channel_name in user_sockets.items():
+            if channel_name == self.channel_name:
+                invitation = {
+                    'type': 'update_logout',
+                    'from': self.user.username,
+                    'to': username,
                 }
-            )
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
+        if user in user_sockets:
+            del user_sockets[user]
 
+    async def update_login(self, event):
+        for username, channel_name in user_sockets.items():
+            if channel_name == self.channel_name:
+                invitation = {
+                    'type': 'update_login',
+                    'from': self.user.username,
+                    'to': username,
+                }
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
 
-    # async def remove_friend(self, event):
-    #     for username, channel_name in user_sockets.items():
-    #         print(f"WebSocket sending remove_friend, {channel_name}, {username}", file=sys.stderr)
-    #         #si on est amis remove.send.socket
-    #         if channel_name == self.channel_name:
-    #             print(f"WebSocket rmv, {channel_name}, {username}", file=sys.stderr)
-    #             invitation = {
-    #                 'type': 'remove_friend',
-    #                 'from': self.user.username,
-    #                 'to': username,
-    #             }
-    #             await self.channel_layer.send(
-    #                 channel_name,
-    #                 {
-    #                     'type': 'send.message',
-    #                     'text': json.dumps(invitation),
-    #                 }
-    #             )
 
     async def remove_friend(self, event):
-        target_username = event.get('target_username')
-        if not target_username:
-            return
-        print(f"WebSocket remove_friend {event}", file=sys.stderr)
-        target_channel_name = user_sockets.get(target_username)
-        if target_channel_name:
-            invitation = {
-                'type': 'remove_friend',
-                'from': self.user.username,
-            }
-
-            await self.channel_layer.send(
-                target_channel_name,
-                {
-                    'type': 'send.message',
-                    'text': json.dumps(invitation),
+        for username, channel_name in user_sockets.items():
+            if channel_name == self.channel_name:
+                invitation = {
+                    'type': 'remove_friend',
+                    'from': self.user.username,
+                    'to': username,
                 }
-            )
-        else:
-            print(f"Error: No WebSocket channel found for {target_username}", file=sys.stderr)
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
 
     @database_sync_to_async
     def get_user_by_username(self, username):
@@ -193,24 +184,19 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def accept_friend_request(self, friend_request, username):
-        print(f"accept_friend_request {friend_request} {username}", file=sys.stderr)
-
         try:
             await database_sync_to_async(friend_request.accept)()
             await database_sync_to_async(friend_request.delete)()
         except Exception as e:
             print(f"Error accepting friend request: {e}", file=sys.stderr)
             return
-
         if not username:
             print("No username provided", file=sys.stderr)
             return
 
         for user, channel_name in user_sockets.items():
             if channel_name != self.channel_name:
-                print(f"Checking user {user} with channel {channel_name}", file=sys.stderr)
                 if user == username:
-                    print(f"Sending WebSocket update to user {user} on channel {channel_name}", file=sys.stderr)
                     invitation = {'type': 'remove_friend'}
                     try:
                         await self.channel_layer.send(
@@ -220,7 +206,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                                 'text': json.dumps(invitation),
                             }
                         )
-                        print("WebSocket message sent successfully", file=sys.stderr)
                     except Exception as e:
                         print(f"Error sending WebSocket message: {e}", file=sys.stderr)
 

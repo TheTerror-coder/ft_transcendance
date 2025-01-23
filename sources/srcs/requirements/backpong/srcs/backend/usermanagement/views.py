@@ -27,6 +27,7 @@ from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser
 from asgiref.sync import async_to_sync
 from PIL import Image
+from time import sleep
 
 
 GLOBAL_TOURNAMENT = {
@@ -46,19 +47,15 @@ def register(request):
 			form.save()
 			user = authenticate(email=request.data['email'], password=request.data['password1'])
 			if user is not None:
-### jm custom beginning ###
 				adapter = allauth_acount_get_adapter()
 				email = user.email
 				primary = setup_user_email(request, user, [EmailAddress(email=email)] if email else [])
 				ret = adapter.confirm_email(request, primary)
 				if ret:
 					adapter.stash_verified_email(request, email)
-### jm custom end ###
 				login(request, user)
-### jm custom beginning ###
 				customObtainJwtTokenPair(request, user)
 				record_authentication(request, "password", username=user.username)
-### jm custom end ###
 			return Response({'status': 'success'})
 		else:
 			error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -86,20 +83,28 @@ def login_view(request):
 			email = form.cleaned_data.get('email')
 			user = authenticate(email=email, password=password)
 			if user is not None:
-### jm custom beginning ###
 				if allauth_mfa_get_adapter().is_mfa_enabled(user, ['totp']):
 					return perform_mfa_stage(request)
-### jm custom end ###
-				if user.username in user_sockets: ###TODO Nico: this can be a concern Nico
+				if user.username in user_sockets:
 					return Response({
 						'status': 'error',
 						'message': f'user: {user.username} is already connected!',
 					}, status=400)
 				login(request, user)
-### jm custom beginning ###
 				record_authentication(request, "password", email=user.email, username=user.username)
 				customObtainJwtTokenPair(request, user)
-### jm custom end ###
+
+				for username, channel_name in user_sockets.items():
+					if username != user:
+						channel_layer = get_channel_layer()
+						async_to_sync(channel_layer.send)(
+							channel_name,
+							{
+								"type": "update.login",
+							}
+						)
+						break
+
 				return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
 			else:
 				error_messages = {field: error_list for field, error_list in form.errors.items()}
@@ -122,6 +127,7 @@ def login_view(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
+	print("logout_view", file=sys.stderr)
 	logout(request)
 	username = request.data.get('username')
 	if not username:
@@ -130,13 +136,17 @@ def logout_view(request):
 			'message': 'Le nom d\'utilisateur est requis.'
 		}, status=400)
 
-	if username in user_sockets:
-		del user_sockets[username]
-	else:
-		return Response({
-			'status': 'error',
-			'message': 'User not connected'
-		}, status=400)
+	channel_layer = get_channel_layer()
+	for user, channel_name in user_sockets.items():
+		if user != username:
+			async_to_sync(channel_layer.send)(
+				channel_name,
+				{
+					"type": "update.logout",
+					"username": username,
+				}
+			)
+			break
 	return Response({
 		'status': 'success',
 		'redirect': True,
@@ -144,13 +154,12 @@ def logout_view(request):
 	}, status=200)
 
 
-#modif dans la socket
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-	print("begin user: ", request.user.username, file=sys.stderr)
 	username = request.data.get('username')
+	before_username = request.user.username
 	if not username:
 		return Response({
 			'status': 'error',
@@ -158,17 +167,17 @@ def update_profile(request):
 		}, status=400)
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
 	if form.is_valid():
-		if request.user.username in user_sockets:
-			socket_value = user_sockets[request.user.username]
-			user_sockets[username] = socket_value
-			channel_layer = get_channel_layer()
-			async_to_sync(channel_layer.send)(
-			socket_value,
-				{
-					"type": "update.username",
-					"new_username": username,
-				},
-            )
+		for user, channel_name in user_sockets.items():
+			if user != username:
+				channel_layer = get_channel_layer()
+				async_to_sync(channel_layer.send)(
+					channel_name,
+					{
+						"type": "update.username",
+						"new_username": username,
+					}
+				)
+				break
 		form.save()
 		return Response({
 			'status': 'success',
@@ -462,7 +471,6 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
-	print("remove friend: ICI et LA", request, file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:
@@ -523,17 +531,6 @@ def remove_friend(request):
 						}, status=400)
 		request.user.friend_list.remove(friend)
 		friend.friend_list.remove(request.user)
-		# if request.user.username in user_sockets:
-		# 	print("REMOOV*****", file=sys.stderr)
-		# 	socket_value = user_sockets[request.user.username]
-		# 	user_sockets[username] = socket_value
-		# 	channel_layer = get_channel_layer()
-		# 	async_to_sync(channel_layer.send)(
-		# 	socket_value,
-		# 		{
-		# 			"type": "remove.friend",
-		# 		},
-		# 	)
 		response = {
 			'status': 'success',
 			'message': f"{username} a été retiré avec succès."
@@ -662,6 +659,5 @@ def resume_login(request, login):
 		if response:
 			return response
 	except ImmediateHttpResponse as e:
-		print ("********DEBUG*********perform_mfa_stage***ImmediateHttpResponse exception ", e, file=sys.stderr)
 		response = e.response
 	return response
