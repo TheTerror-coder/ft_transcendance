@@ -577,8 +577,6 @@ async def startTournament(sio, tournament, tournamentCode, start):
     if (start):
         tournament.createTournamentTree()
     if (len(tournament.getTournamentGamesList()) == 0):
-        if (not start):
-            await asyncio.sleep(10)
         for i in range(tournament.getNbTeam() // 2):
             match = tournament.getNextMatch()
             logger.info(f"match dans startTournament dans index.py {match}")
@@ -617,6 +615,8 @@ async def startTournament(sio, tournament, tournamentCode, start):
                 player_rooms[team2.getTournamentTeamId()].add(gameCode)
         while (not tournament.getStart()):
             await asyncio.sleep(0.1)
+        if (not start):
+            await asyncio.sleep(10)
         for gameCode in tournament.getTournamentGamesList():
             await sio.emit('startTournamentGame', {'gameCode': gameCode}, room=gameCode)
     
