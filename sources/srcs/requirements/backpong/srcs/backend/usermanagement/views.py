@@ -136,17 +136,19 @@ def logout_view(request):
 			'message': 'Le nom d\'utilisateur est requis.'
 		}, status=400)
 
-	channel_layer = get_channel_layer()
-	for user, channel_name in user_sockets.items():
-		if user != username:
-			async_to_sync(channel_layer.send)(
-				channel_name,
-				{
-					"type": "update.logout",
-					"username": username,
-				}
-			)
-			break
+	# channel_layer = get_channel_layer()
+	# for user, channel_name in user_sockets.items():
+	# 	if user != username:
+	# 		async_to_sync(channel_layer.send)(
+	# 			channel_name,
+	# 			{
+	# 				"type": "update.logout",
+	# 				"username": username,
+	# 			}
+	# 		)
+	# 		break
+	if username in user_sockets:
+		del user_sockets[username]
 	return Response({
 		'status': 'success',
 		'redirect': True,
