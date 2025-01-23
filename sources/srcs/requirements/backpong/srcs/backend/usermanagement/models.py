@@ -5,6 +5,7 @@ from django.utils.html import mark_safe
 from django.conf import settings
 
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=10, unique=True)
     email = models.EmailField(unique=True)
     photo = models.ImageField(
         upload_to='photos/',

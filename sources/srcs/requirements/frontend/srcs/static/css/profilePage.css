@@ -39,14 +39,28 @@
     font-size: 30px;
 }
 
+.winOrLoseDiv
+{
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 80px;
+    width: 80px;
+    margin-right: -8%;
+    margin-left: -10%;
+    min-width: 80px;
+    min-height: 80px;
+}
+
 .matchDisplayHistoric
 {
     background-color: rgba(255,255,255,0.4);
-    padding: 45px;
+    padding: 20px;
     border-color: #000;
-    display:flex;
-    justify-content: center;
+    display: flex;
     border-radius: 200px;
+    justify-content: space-evenly;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
 .historicMatch

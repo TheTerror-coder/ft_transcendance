@@ -1,18 +1,23 @@
 // import socketIOClient from 'socket.io-client';
 
-let savedGameCode = {
+let savedGameCode = 
+{
     _code: null, 
-  
-    get code() {
-      return this._code;
+
+    get code()
+    {
+        return this._code;
     },
-  
-    set code(value) {
-      this._code = value;
-      if (document.getElementById("lobbyCode") !== null)
-        document.getElementById("lobbyCode").innerHTML = value;
+
+    set code(value)
+    {
+        this._code = value;
+        if (document.getElementById("lobbyCode") !== null)
+            document.getElementById("lobbyCode").innerHTML = value;
+        else if (document.getElementById("tournamentCode") !== null)
+            document.getElementById("tournamentCode").innerHTML = value;
     }
-  };
+};
 let gameStarted = false;
 let ip;
 let globalSocket = null;
@@ -20,25 +25,83 @@ let nbPerTeam;
 
 
 let error = null;
+let creator = null;
 
+// This one is for the two player lobby when it come to chose for the team to join
+// the value 0 is for all team available, 1 is for only blackbeard available, 2 is for only whitebeard available
+let teamAvailable = {
+    _team: null, 
+
+    get team()
+    {
+        return this._team;
+    },
+
+    set team(value)
+    {
+        this._team = value;
+    }
+};
+
+// This one is for the two player lobby when it come to chose for the role in the team that we join
+// the value 0 is for all role available, 1 is for only captain is available, 2 is for only canonneer available
+
+let roleAvailableBlackBeard = 
+{
+    _role: null, 
+
+    get role()
+    {
+        return this._role;
+    },
+
+    set role(value)
+    {
+        if (value === 0)
+            this._role = "both";
+        else if (value === 1)
+            this._role = "captain";
+        else if (value === 2)
+            this._role = "gunner";
+        else
+            this._role = "none";
+    }
+};
+
+let roleAvailableWhiteBeard = 
+{
+    _role: null, 
+
+    get role()
+    {
+        return this._role;
+    },
+
+    set role(value)
+    {
+        if (value === 0)
+            this._role = "both";
+        else if (value === 1)
+            this._role = "captain";
+        else if (value === 2)
+            this._role = "gunner";
+        else
+            this._role = "none";
+    }
+};
 
 function initializeGlobalSocket(socket)
 {
-    console.log("initializeGlobalSocket");
     globalSocket = socket;
     console.log("GLOBAL SOCKET: ", globalSocket);
     globalSocket.on('gameCreated', (data) => {
-        console.log('Partie créée avec le code:', data.gameCode);
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
     });
     globalSocket.on('gameJoined', (data) => {
-        console.log('Rejoint la partie:', data.gameCode);
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
         nbPerTeam = data.nbPlayerPerTeam;
-        console.log("looooool !!! nbPlayerPerTeam: ", data.nbPlayerPerTeam);
-        console.log("savedGameCode: ", savedGameCode.code);
+        creator = data.creator;
         gameFound = true;
-        console.log("gameFound: ", gameFound);
     });
     globalSocket.on('AvailableOptions', AvailableOptionsEvent);
     
@@ -48,46 +111,220 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsFull', TeamsFullEvent);
 
-    globalSocket.on('gameUnpaused', async () => {
-        console.log("gameUnpaused");
-        // const module = await import ('../pong/pong.js');
-        // document.getElementById('background').innerHTML = "";
-        // await module.main(savedGameCode.code, globalSocket, currentLanguage);
-    });
+    // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
+
+    // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
+
+    // globalSocket.on('tournamentFull', tournamentFullEvent);
+
     globalSocket.on('error', (data) => {
-        console.log("JE SUIS DANS ERROR DE CREATE LOBBY");
         error = data.message;
         alert(data.message);
     });
 }
 
+// const tournamentCreatedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentJoinedEvent = (data) => {
+//     savedGameCode.code = data.tournamentCode;
+// }
+
+// const tournamentFullEvent = (data) => {
+//     console.log("TOURNAMENT FULL: ", data);
+// }
+
 const AvailableOptionsEvent = (data) => {
-    console.log("Reception des options disponibles :", data);
-    // globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    console.log("AvailableOptionsEvent", data);
+    if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)
+    {
+        initializeTeamAvailableJoinLobbyInfo(data)
+        initializeRoleAvailablePerTeamJoinLobbyInfo(data);
+    }
 }
 
-const UpdatePlayerListEvent = (data) => {
-    dataDav = data;
+const UpdatePlayerListEvent = async (data) => {
     console.log("Reception des listes des joueurs :", data);
     updateLobby(data);
-    // globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+
+    if (document.getElementById("lobbyCode") === null)
+    {   
+        if (data[1].length === 2)
+        {
+            teamAvailable.team = 2;
+            if (data[2].length === 0)
+                roleAvailableWhiteBeard.role = 0;
+            else
+            {
+                if (data[2][0].role === "captain")
+                    roleAvailableWhiteBeard.role = 2;
+                else if (data[2][0].role === "Cannoneer")
+                    roleAvailableWhiteBeard.role = 1;
+            }
+        }
+        else if (data[2].length === 2)
+        {
+            console.log("!!!!!data[2] dans updatePlayerList: ", data[2][0])
+            teamAvailable.team = 1;
+            if (data[1].length === 0)
+                roleAvailableBlackBeard.role = 0;
+            else
+            {
+                if (data[1][0].role === "captain")
+                    roleAvailableBlackBeard.role = 2;
+                else if (data[1][0].role === "Cannoneer")
+                    roleAvailableBlackBeard.role = 1;
+            }
+        }
+        else
+        {
+            teamAvailable.team = 0;
+            if (data[1][0].role === "captain")
+                roleAvailableBlackBeard.role = 2;
+            else if (data[1][0].role === "Cannoneer")
+                roleAvailableBlackBeard.role = 1;
+            if (data[2][0].role === "captain")
+                roleAvailableWhiteBeard.role = 2;
+            else if (data[2][0].role === "Cannoneer")
+                roleAvailableWhiteBeard.role = 1;
+        }
+        displayAvailableRoleAndTeamJoin();
+    }
 }
 
-const TeamsFullEvent = () => {
-    ELEMENTs.PlayButtonInLobby().style.display = "block";
-    // globalSocket.off('TeamsFull', TeamsFullEvent);
+const TeamsFullEvent = () => 
+{
+    console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
+    if (creator === null)
+    {
+        if (ELEMENTs.PlayButtonInLobby())
+            ELEMENTs.PlayButtonInLobby().style.display = "block";
+    }
 }
 
-const StartGameEvent = async (data) => {
+const StartGameEvent = async (data) => 
+{
     const module = await import ('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
-    console.log("AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-    await module.main(savedGameCode.code, globalSocket, currentLanguage);
-    console.log("globalSocket dans startGame: ", globalSocket);
-    globalSocket.off('startGame', StartGameEvent);
-    globalSocket.off('TeamsFull', TeamsFullEvent);
-    globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
-    globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    ELEMENTs.background().style.backgroundImage = '';
+    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
+    try
+    {
+        const isFinish = await module.main(savedGameCode.code, globalSocket, currentLanguage);
+        console.log("globalSocket dans startGame: ", globalSocket);
+        console.log("isFinish dans startGame: ", isFinish);
+        globalSocket.off('startGame', StartGameEvent);
+        globalSocket.off('TeamsFull', TeamsFullEvent);
+        globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
+        globalSocket.off('AvailableOptions', AvailableOptionsEvent);
+    }
+    catch (error)
+    {
+        console.log("error dans startGame: ", error);
+    }
+}
+
+
+async function initializeTeamAvailableJoinLobbyInfo(data)
+{
+    if (data.teams[0] && !data.teams[1])
+    {
+        if (data.teams[0].name === "Black-Beard")
+            teamAvailable.team = 1;
+        else
+            teamAvailable.team = 2;
+    }
+    else
+        teamAvailable.team = 0;
+}
+
+function initializeRoleAvailablePerTeamJoinLobbyInfo(data)
+{
+    const blackBeardTeam = data.teamsRoles[0];
+    const whiteBeardTeam = data.teamsRoles[1];
+    if (teamAvailable.team === 0)
+    {
+        initializeBlackBeardRoleAvailable(blackBeardTeam);
+        initializeWhiteBeardRoleAvailable(whiteBeardTeam);
+    }
+    else if (teamAvailable.team === 1)
+        initializeBlackBeardRoleAvailable(blackBeardTeam);
+    else if (teamAvailable.team === 2)
+        initializeWhiteBeardRoleAvailable(whiteBeardTeam);
+}
+
+async function chooseRoleSwitchDisable(roleAvailable)
+{
+    if (roleAvailable === "captain")
+    {
+        ELEMENTs.chooseRoleSwitch().checked = false;
+        ELEMENTs.chooseRoleSwitch().disabled = true;
+    }
+    else if (roleAvailable === "gunner")
+    {
+        ELEMENTs.chooseRoleSwitch().checked = true;
+        ELEMENTs.chooseRoleSwitch().disabled = true;
+    }
+    switchRole();
+}
+
+async function displayAvailableRoleAndTeamJoin()
+{
+    if (teamAvailable.team === 1)
+    {
+        ELEMENTs.chooseTeamSwitch().checked = false;
+        ELEMENTs.chooseTeamSwitch().disabled = true;
+        chooseRoleSwitchDisable(roleAvailableBlackBeard.role);
+    }
+    else if (teamAvailable.team === 2)
+    {
+        ELEMENTs.chooseTeamSwitch().checked = true;
+        ELEMENTs.chooseTeamSwitch().disabled = true;
+        chooseRoleSwitchDisable(roleAvailableWhiteBeard.role);
+    }
+    switchTeam();
+}
+
+function initializeWhiteBeardRoleAvailable(whiteBeardTeam)
+{
+    console.log("dans TeamAvailable.team: ", teamAvailable, ", whiteBeardTeam.roles: ", whiteBeardTeam.roles);
+
+    if (whiteBeardTeam.roles[1] === undefined)
+    {
+        if (whiteBeardTeam.roles[0] !== undefined)
+            whiteBeardTeam.roles[0].value === "captain" ? roleAvailableWhiteBeard.role = 1 : roleAvailableWhiteBeard.role = 2;
+        else
+        {
+            teamAvailable.team = 1;
+            roleAvailableWhiteBeard.role = 0;
+        }
+    }
+    else
+        roleAvailableWhiteBeard.role = 0;
+    console.log("WHITEEEE Apres initializewHITEBeardRoleAvailable: ", roleAvailableWhiteBeard.role);
+
+}
+
+function initializeBlackBeardRoleAvailable(blackBeardTeam)
+{
+    console.log("dans TeamAvailable.team: ", teamAvailable, ", blackBeardTeam.roles: ", blackBeardTeam.roles);
+    console.log("blackBeardTeam.roles[1]: ", blackBeardTeam.roles[1]);
+
+    if (blackBeardTeam.roles[1] === undefined)
+    {
+        console.log("!?!?!??!+!!+!+!)!_!!?!!??!?!?!!??! completement zinzin celui la blackBeardTeam.roles[1]");
+        if (blackBeardTeam.roles[0] !== undefined)
+            blackBeardTeam.roles[0].value === "captain" ? roleAvailableBlackBeard.role = 1 : roleAvailableBlackBeard.role = 2;
+        else
+        {
+            teamAvailable.team = 2;
+            roleAvailableBlackBeard.role = 0;
+        }
+    }
+    else
+        roleAvailableBlackBeard.role = 0;
+    console.log("Apres initializeBlackBeardRoleAvailable: ", roleAvailableBlackBeard.role);
 }
 
 async function createLobbyDisplay()
@@ -99,7 +336,6 @@ async function createLobbyDisplay()
     {
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
 
-        // setTimeout(async () => {
         nbPerTeam = 1;
         globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
         ELEMENTs.usernameOfWanted().innerHTML = response.username;
@@ -131,11 +367,9 @@ function createLobbyforTwoPlayer()
     globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
     // initializeGameEvent();
     ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
-    // setTimeout(() => {
-        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
-        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
-        ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
-    // }, 60);
+    ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+    ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
+    ELEMENTs.buttonCreate().onclick = () => lobbyTwoPlayer();
     refreshLanguage();
 }
 
@@ -149,7 +383,7 @@ async function lobbyTwoPlayer()
     const role = roleChosen ? "Cannoneer" : "captain";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
-    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username }); // TODO: get user name from database
+    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username });
     setTimeout(() => {
         if (error !== null)
         {
@@ -188,21 +422,25 @@ function switchRole()
     }
 }
 
-function switchTeam()
+async function switchTeam()
 {
     const kurohige = document.getElementById("KurohigeTeam");
     if (ELEMENTs.chooseTeamSwitch().checked == true)
     {
+        ELEMENTs.chooseRoleSwitch().disabled = false;
         kurohige.style.opacity = "0.3";
         kurohige.style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeam().style.opacity = "0.9";
+        await chooseRoleSwitchDisable(roleAvailableWhiteBeard.role);
     }
     else
     {
+        ELEMENTs.chooseRoleSwitch().disabled = false;
         kurohige.style.transition = "opacity 0.5s ease";
         kurohige.style.opacity = "0.9";
         ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
         ELEMENTs.ShirohigeTeam().style.opacity = "0.3";
+        await chooseRoleSwitchDisable(roleAvailableBlackBeard.role);
     }
 }

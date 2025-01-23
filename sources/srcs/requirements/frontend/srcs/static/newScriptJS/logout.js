@@ -1,11 +1,19 @@
 
 async function logout_views()
 {
-	const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-	await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
-	window.sessionStorage.clear();
-	clear_jwt();
-	await replace_location(URLs.VIEWS.LOGIN_VIEW);
+	try {
+		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+		const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
+		if (response.status === 'success') {
+		   window.sessionStorage.clear();
+		   clear_jwt();
+		   await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		} else {
+		   console.error('Échec de la déconnexion:', response.message);
+		}
+	 } catch (error) {
+		console.error('Erreur lors de la déconnexion:', error);
+	 }
 }
 
 function applyAnimationLogoutButton(isHovered) 
@@ -19,8 +27,6 @@ function applyAnimationLogoutButton(isHovered)
    } 
    else 
    {
-      // ici faire animation inverse
-      console.log('animation inverse');
       ELEMENTs.logoutButton().style.animation = 'closeDoor 0.1s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animation = 'none';

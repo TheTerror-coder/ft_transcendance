@@ -273,12 +273,13 @@ export async function createHUD(renderer) {
 
     function getPercentage(keys, key)
     {
-        const percentage = Math.min((keys[key].time / 10000) * 100, 100);
+        const percentage = Math.min((keys[key].time / 5000) * 100, 100);
         loadingCircle.updateProgress(percentage);
+        console.log("percentage : ", percentage);
         if (percentage >= 100)
         {
-            hudScene.remove(loadingCircle.group);
             loadingCircle.updateProgress(0);
+            hudScene.remove(loadingCircle.group);
             return percentage;
         }
     }

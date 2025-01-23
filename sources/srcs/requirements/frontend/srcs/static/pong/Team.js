@@ -17,6 +17,17 @@ class Team
         this.isFull = false;
         this.score = 0;
         this.gameStarted = false;
+        this.winner = false;
+    }
+
+    setWinner(winner)
+    {
+        this.winner = winner;
+    }
+
+    getWinner()
+    {
+        return (this.winner);
     }
 
     setBallSavedPos(ballSavedPos)

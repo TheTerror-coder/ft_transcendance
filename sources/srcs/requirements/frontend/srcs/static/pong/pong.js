@@ -6,46 +6,62 @@ import * as render from './render.js';
 import * as network from './network.js';
 import * as THREE from 'three'; // TODO : remove for production
 import { createHUD } from './HUD.js';
+import { updateBoatPositions, initializeInterpolators } from './network.js';
 
 console.log("pong.js loaded");
 
-let BOAT_MOVE_SPEED = 4;
+let BOAT_MOVE_SPEED = 2.5;
 let CANNON_MOVE_SPEED = 0.1;
 let CANNON_ROTATION_SPEED = 0.1;
-let FRAME_RATE = 80;
-
+let FRAME_RATE = 50;
 
 export async function main(gameCode, socket, currentLanguage) {
     console.log('socket : ', socket);
     
     socket.emit('GameStarted', gameCode);
-    
     console.log("gameCode : ", gameCode);
-
     console.log("currentLanguage: ", currentLanguage);
     
-    let Team1 = null;
-    let Team2 = null;
-    let currentPlayer = null;
-    let currentPlayerTeam = null;
-    await new Promise(resolve => {
-        socket.on('gameData', async (gameData) => {
+    // Créer une Promise pour attendre les données initiales
+    const gameInitData = await new Promise((resolve) => {
+        const gameDataListener = async (gameData) => {
             console.log('Données de la partie:', gameData);
             if (gameData) {
-                ({ Team1, Team2, currentPlayer, currentPlayerTeam } = await initGame(gameData, socket.id));
+                const initData = await initGame(gameData, socket.id);
                 console.log('initGame done');
-                console.log('Team1:', Team1);
-                console.log('Team2:', Team2);
-                console.log('currentPlayer:', currentPlayer);
-                console.log('currentPlayerTeam:', currentPlayerTeam);
-                resolve();
+                console.log('Team1:', initData.Team1);
+                console.log('Team2:', initData.Team2);
+                console.log('currentPlayer:', initData.currentPlayer);
+                console.log('currentPlayerTeam:', initData.currentPlayerTeam);
+                // Désactiver le listener une fois les données reçues
+                socket.off('gameData', gameDataListener);
+                resolve(initData);
             } else {
                 console.error('Aucune donnée de partie trouvée.');
+                socket.off('gameData', gameDataListener);
+                resolve(null);
             }
-        });
+        };
+
+        socket.on('gameData', gameDataListener);
     });
+
+    if (!gameInitData) {
+        console.error("Échec de l'initialisation du jeu");
+        return false;
+    }
+
+    let Team1 = gameInitData.Team1;
+    let Team2 = gameInitData.Team2;
+    let currentPlayer = gameInitData.currentPlayer;
+    let currentPlayerTeam = gameInitData.currentPlayerTeam;
     
     let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
+    if (!scene || !cameraPlayer || !renderer || !boatGroup1 || !boatGroup2 || !ball || !display)
+    {
+        console.error('Error loading the scene');
+        return (false);
+    }
     let hud = await createHUD(renderer);
     let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
@@ -78,6 +94,8 @@ export async function main(gameCode, socket, currentLanguage) {
     Team2.setBoat(boatGroup2);
     Team1.setCannon(boatGroup1.getObjectByName(`cannonTeam1`));
     Team2.setCannon(boatGroup2.getObjectByName(`cannonTeam2`));
+
+    initializeInterpolators(Team1, Team2, currentPlayerTeam);
     
     if (currentPlayerTeam && currentPlayer) {
         let boat = currentPlayerTeam.getBoat();
@@ -113,7 +131,7 @@ export async function main(gameCode, socket, currentLanguage) {
     
     setupEventListeners(socket, keys);
     initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage);
+    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode);
     socket.emit('playerReady', gameCode);
     console.log('Player ready sent');
     await waitForGameStarted(currentPlayer);
@@ -123,96 +141,123 @@ export async function main(gameCode, socket, currentLanguage) {
     }, FRAME_RATE);
     updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode);
     
-    async function animate() {
-        let requestAnimationFrameId = requestAnimationFrame(animate);
-        
-        if (currentPlayer.getGameStarted() === false) {
-            cancelAnimationFrame(requestAnimationFrameId);
-            console.log("Pass in ending clear");
-            window.removeEventListener('keydown', keys);
-            window.removeEventListener('keyup', keys);
+    let animationComplete = false;
+    const animationCompletePromise = new Promise((resolve) => {
+        async function animate() {
+            let requestAnimationFrameId = requestAnimationFrame(animate);
+            
+            if (currentPlayer.getGameStarted() === false) {
+                cancelAnimationFrame(requestAnimationFrameId);
+                console.log("Pass in ending clear");
+                window.removeEventListener('keydown', keys);
+                window.removeEventListener('keyup', keys);
 
-            scene.remove(boatGroup1);
-            scene.remove(boatGroup2);
-            scene.remove(ball);
-            scene.remove(display[0])
+                scene.remove(boatGroup1);
+                scene.remove(boatGroup2);
+                scene.remove(ball);
+                scene.remove(display[0])
+                
+                // Rendre la scène noire
+                scene.background = new THREE.Color(0x000000);
+                
+                // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
+                const startTime = Date.now();
+                function renderEndScreen() {
+                    if (Date.now() - startTime < 5000) {
+                        requestAnimationFrame(renderEndScreen);
+                        renderer.render(scene, cameraPlayer);
+                        renderer.autoClear = false;
+                        renderer.render(hud.scene, hud.camera);
+                        renderer.autoClear = true;
+                    } else {
+                        // Nettoyer complètement après 5 secondes
+                        if (hud) {
+                            hud.scene.clear();
+                            if (hud.camera) hud.camera = null;
+                        }
+                        
+                        // Nettoyer les éléments du DOM et déconnecter
+                        if (displayInfo && displayInfo.parentNode) {
+                            displayInfo.parentNode.removeChild(displayInfo);
+                        }
+                        if (ballPositionDisplay && ballPositionDisplay.parentNode) {
+                            ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
+                        }
+                        
+                        render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
+                        
+                        scene = null;
+                        ball = null;
+                        boatGroup1 = null;
+                        boatGroup2 = null;
+                        renderer = null;
+                        cameraPlayer = null;
+                        
+                        console.log("currentPlayerTeam.getWinner() : ", currentPlayerTeam.getWinner());
+                        console.log("gameCode.length : ", gameCode.length);
+                        console.log("gameCode : ", gameCode);
+                        if (gameCode.length == 4)
+                            socket.disconnect();
+                        else if (gameCode.lenght == 5 && currentPlayerTeam.getWinner() === false)
+                            socket.disconnect();
+                        animationComplete = true;
+                        network.removeSocketListeners(socket);
+                        resolve();
+                        return (true);
+                    }
+                }
+                
+                renderEndScreen();
+                return (true);
+            }
             
-            // Rendre la scène noire
-            scene.background = new THREE.Color(0x000000);
-            
-            // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
-            const startTime = Date.now();
-            function renderEndScreen() {
-                if (Date.now() - startTime < 5000) {
-                    requestAnimationFrame(renderEndScreen);
-                    renderer.render(scene, cameraPlayer);
-                    renderer.autoClear = false;
-                    renderer.render(hud.scene, hud.camera);
-                    renderer.autoClear = true;
-                } else {
-                    // Nettoyer complètement après 5 secondes
-                    if (hud) {
-                        hud.scene.clear();
-                        if (hud.camera) hud.camera = null;
-                    }
-                    
-                    // Nettoyer les éléments du DOM et déconnecter
-                    if (displayInfo && displayInfo.parentNode) {
-                        displayInfo.parentNode.removeChild(displayInfo);
-                    }
-                    if (ballPositionDisplay && ballPositionDisplay.parentNode) {
-                        ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
-                    }
-                    
-                    render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
-                    
-                    scene = null;
-                    ball = null;
-                    boatGroup1 = null;
-                    boatGroup2 = null;
-                    renderer = null;
-                    cameraPlayer = null;
-                    
-                    socket.disconnect();
+            if (ball && ball.userData.lastServerPosition && ball.userData.velocity) {
+                const now = Date.now();
+                const deltaTime = (now - ball.userData.lastServerPosition.timestamp) / 1000;
+                
+                if (deltaTime < 1.0) {
+                    predictBallPosition(ball, ball.userData.velocity, deltaTime);
                 }
             }
             
-            renderEndScreen();
-            return (true);
+            // Mise à jour des boîtes de collision
+            boat1BoundingBox.setFromObject(boatGroup1);
+            boat2BoundingBox.setFromObject(boatGroup2);
+
+            boat1BoundingBox.min.x += 7;
+            boat2BoundingBox.min.x += 7;
+            boat1BoundingBox.max.x += 2;
+            boat2BoundingBox.max.x -= 2;
+            boat1BoundingBox.max.y -= 1;
+            boat2BoundingBox.max.y -= 1;
+            boat1BoundingBox.min.y += 1;
+            boat2BoundingBox.min.y += 1;
+            boat1BoundingBox.max.z /= 3;
+            boat2BoundingBox.max.z /= 3;
+            boat1Hitbox.updateMatrixWorld(true);
+            boat2Hitbox.updateMatrixWorld(true);
+            
+            // Mettre à jour les positions des bateaux avec interpolation
+            updateBoatPositions(Team1, Team2);
+
+            // Rendre la scène normale
+            renderer.render(scene, cameraPlayer);
+
+            // Rendre la scène HUD
+            renderer.autoClear = false;
+            renderer.render(hud.scene, hud.camera);
+            renderer.autoClear = true;
         }
-        
-        // Mise à jour des boîtes de collision
-        boat1BoundingBox.setFromObject(boatGroup1);
-        boat2BoundingBox.setFromObject(boatGroup2);
 
-        boat1BoundingBox.min.x += 7;
-        boat2BoundingBox.min.x += 7;
-        boat1BoundingBox.max.x += 2;
-        boat2BoundingBox.max.x -= 2;
-        boat1BoundingBox.max.y -= 1;
-        boat2BoundingBox.max.y -= 1;
-        boat1BoundingBox.min.y += 1;
-        boat2BoundingBox.min.y += 1;
-        boat1BoundingBox.max.z /= 3;
-        boat2BoundingBox.max.z /= 3;
-        boat1Hitbox.updateMatrixWorld(true);
-        boat2Hitbox.updateMatrixWorld(true);
-        
-        // Rendre la scène normale
-        renderer.render(scene, cameraPlayer);
-
-        // Rendre la scène HUD
-        renderer.autoClear = false;
-        renderer.render(hud.scene, hud.camera);
-        renderer.autoClear = true;
-    }
-
-    animate();
+        animate();
+    });
 
     socket.on('gameState', (data) => {
         updateBallPosition(data.ballPosition, ball);
         displayBallPosition(data.ballPosition, ballPositionDisplay);
     });
+    await animationCompletePromise;
+    return (true);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -262,8 +307,8 @@ async function initGame(gameData, socketID) {
 
     console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
     console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
-    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
-    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+    console.log('===================team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('===================team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     team1.setBoatSavedPos(gameData.team1.Boat);
     team2.setBoatSavedPos(gameData.team2.Boat);
@@ -333,7 +378,8 @@ async function initGame(gameData, socketID) {
         console.log('Joueur actuel non trouvé');
     }
 
-    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam }; // Retourner les équipes, le joueur actuel et son équipe
+    // Ne pas initialiser les interpolateurs ici
+    return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam };
 }
 
 function initCamera(player, cameraPlayer, cannon, bateau)
@@ -395,4 +441,34 @@ function displayBallPosition(ballPosition, displayElement) {
 // Fonction pour afficher la direction de la balle
 function displayBallDirection(ballDirection, displayElement) {
     displayElement.innerText = `Ball Direction - X: ${ballDirection.x.toFixed(2)}, Y: ${ballDirection.y.toFixed(2)}, Z: ${ballDirection.z.toFixed(2)}`;
+}
+
+function predictBallPosition(ball, velocity, deltaTime) {
+    if (!ball.userData.lastServerPosition) {
+        ball.userData.lastServerPosition = {
+            x: ball.position.x,
+            y: ball.position.y,
+            z: ball.position.z,
+            timestamp: Date.now()
+        };
+        return;
+    }
+
+    // Limiter le deltaTime pour éviter les prédictions trop lointaines
+    const maxDeltaTime = 0.1; // 100ms maximum
+    deltaTime = Math.min(deltaTime, maxDeltaTime);
+
+    // Calculer la position prédite avec amortissement
+    const dampingFactor = 0.9; // Réduire légèrement l'effet de la vélocité
+    const predictedPosition = {
+        x: ball.position.x + velocity.x * deltaTime * dampingFactor,
+        y: ball.position.y + velocity.y * deltaTime * dampingFactor,
+        z: ball.position.z
+    };
+
+    // Appliquer la position prédite avec une interpolation douce
+    const predictionLerpFactor = 0.3;
+    ball.position.x += (predictedPosition.x - ball.position.x) * predictionLerpFactor;
+    ball.position.y += (predictedPosition.y - ball.position.y) * predictionLerpFactor;
+    ball.position.z = predictedPosition.z; // Hauteur fixe
 }

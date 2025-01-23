@@ -1,6 +1,4 @@
 
-//TODO: Nico: ?? this one is not used
-//metre a joue les infos, si le user change de nom
 
 async function tournamentView(title, description, data) 
 {
@@ -10,20 +8,20 @@ async function tournamentView(title, description, data)
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
-	ELEMENTs.joinTournamentButton().onclick = () => joinTournament();
+	ELEMENTs.joinTournamentButton().onclick = () => joinTournamentDisplay();
 	ELEMENTs.createTournamentButton().onclick = () => createTournament();
 }
 
 async function UserProfileView(username, description, data)
 {
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
-	ELEMENTs.mainPage().style.display = "flex";
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'flex';
 
 	document.title = username +  " | " + PAGE_TITLE;
 	// window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
+	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 	console.log("user quand on display le goat bite :  ", response);
@@ -35,8 +33,8 @@ async function UserProfileView(username, description, data)
 		ELEMENTs.prime().innerHTML = "0";
 	else
 		ELEMENTs.prime().innerHTML = response.user_info.prime;
-	await getHistoric(response.user_info['game played']);
-	await statsInProfilePage();
+	await getHistoric(response.user_info.recent_games, response.user_info.username);
+	await statsInProfilePage(response.user_info.nbr_of_games, response.user_info.victorie, response.user_info.loose);
 }
 
 
@@ -60,6 +58,7 @@ async function	homeView(title, description, data)
 	};
 	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
+	// changeMusic("/static/sound/test2.mp3");
 }
 
 async function	loginView(title, description, data) {
@@ -72,6 +71,7 @@ async function	loginView(title, description, data) {
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
+	// changeMusic("/static/sound/test.mp3");
 
 
 	
@@ -102,7 +102,8 @@ async function	profileView(title, description, data)
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games, response.username);
-	await statsInProfilePage();
+	console.log("response: de l'utilisateur", response);
+	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
 }
 
 async function	createLobbyView(title, description, data) 
@@ -192,4 +193,6 @@ async function	emailStatusView(title, description, data) {
 async function	error404View(title, description, data) {
 	console.log('error 404 view');
 	document.title = title;
+	ELEMENTs.mainPage().innerHTML = error404PageDisplayVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/errorPage/Background404.jpeg')";
 }
