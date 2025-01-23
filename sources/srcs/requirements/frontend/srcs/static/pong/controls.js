@@ -67,18 +67,20 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                     const cannonTubeTipPosition = currentPlayerTeam.getCannonTubeTipPosition();
                                     const angle = -((cannonTube.rotation.y * 180 / Math.PI));
                                     
-                                    calculateCannonBallTrajectory(
+                                    const trajectory = await calculateCannonBallTrajectory(
                                         cannonTubeTipPosition.x,
                                         cannonTubeTipPosition.y,
                                         cannonTubeTipPosition.z,
                                         angle,
                                         27, // v0 (vitesse initiale)
                                         currentPlayerTeam.getTeamId()
-                                    ).then(trajectory => {
-                                        emitBallFired(socket, gameCode, TeamID, trajectory);
-                                        
-                                        doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
-                                    });
+                                    );
+
+                                    emitBallFired(socket, gameCode, TeamID, trajectory);
+                                    
+                                    // trajectoryLine = await createTrajectoryLine(trajectory);
+                                    // scene.add(trajectoryLine);
+                                    await fireCannon(trajectory, scene);
                                 }
                             }
                             else
@@ -117,18 +119,20 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                     const cannonTubeTipPosition = currentPlayerTeam.getCannonTubeTipPosition();
                                     const angle = -((cannonTube.rotation.y * 180 / Math.PI));
                                     
-                                    calculateCannonBallTrajectory(
+                                    const trajectory = await calculateCannonBallTrajectory(
                                         cannonTubeTipPosition.x,
                                         cannonTubeTipPosition.y,
                                         cannonTubeTipPosition.z,
                                         angle,
                                         27, // v0 (vitesse initiale)
                                         currentPlayerTeam.getTeamId()
-                                    ).then(trajectory => {
-                                        emitBallFired(socket, gameCode, TeamID, trajectory);
-                                        
-                                        doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
-                                    });
+                                    );
+
+                                    emitBallFired(socket, gameCode, TeamID, trajectory);
+                                    
+                                    // trajectoryLine = await createTrajectoryLine(trajectory);
+                                    // scene.add(trajectoryLine);
+                                    await fireCannon(trajectory, scene);
                                 }
                             }
                             else
