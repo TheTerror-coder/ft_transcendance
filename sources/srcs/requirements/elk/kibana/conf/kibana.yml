@@ -1,0 +1,22 @@
+
+server.host: "0.0.0.0"
+server.shutdownTimeout: "5s"
+monitoring.ui.container.elasticsearch.enabled: false
+
+#Logging
+logging:
+  appenders:
+    rolling-file:
+      type: rolling-file
+      fileName: /usr/share/kibana/logs/kibana.log
+      policy:
+        type: size-limit
+        size: 512mb
+      strategy:
+        type: numeric
+        pattern: '-%i'
+        max: 2
+      layout:
+        type: json
+  root:
+    appenders: [default, rolling-file]
