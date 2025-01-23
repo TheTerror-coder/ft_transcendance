@@ -172,15 +172,14 @@ export async function main(gameCode, socket, currentLanguage) {
         updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode);
         
         let animationComplete = false;
-        const animationCompletePromise = new Promise((resolve) => {
+        const animationCompletePromise = new Promise(async (resolve) => {
             async function animate() {
                 let requestAnimationFrameId = requestAnimationFrame(animate);
                 
                 if (currentPlayer.getGameStarted() === false) {
                     cancelAnimationFrame(requestAnimationFrameId);
                     console.log("Pass in ending clear");
-                    // window.removeEventListener('keydown', keys);
-                    // window.removeEventListener('keyup', keys);
+
                     removeControls();
 
                     scene.remove(boatGroup1);
@@ -193,7 +192,7 @@ export async function main(gameCode, socket, currentLanguage) {
                     
                     // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
                     const startTime = Date.now();
-                    function renderEndScreen() {
+                    async function renderEndScreen() {
                         if (Date.now() - startTime < 5000) {
                             requestAnimationFrame(renderEndScreen);
                             renderer.render(scene, cameraPlayer);
@@ -245,6 +244,13 @@ export async function main(gameCode, socket, currentLanguage) {
                                 resolve();
                                 savedGameCode.code = null;
                                 ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                if (currentPlayerTeam.getTournamentEnded() === true)
+                                {
+                                    replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    socket.disconnect();
+                                    return (true);
+                                }
                                 replace_location(URLs.VIEWS.TOURNAMENT_TREE);
                                 return (true);
                             }
@@ -344,10 +350,20 @@ async function initGame(gameData, socketID) {
     let currentPlayer = null;
     let currentPlayerTeam = null;
 
-    console.log('socketID : ', socketID);
-    console.log('Structure des joueurs team1:', gameData.team1.Player);
-    console.log('Structure des joueurs team2:', gameData.team2.Player);
+    team1.setBoatSavedPos(gameData.team1.Boat);
+    team2.setBoatSavedPos(gameData.team2.Boat);
+    team1.setCannonSavedPos(gameData.team1.Cannon);
+    team2.setCannonSavedPos(gameData.team2.Cannon);
 
+    if (gameData.team1.Score)
+        team1.setScore(gameData.team1.Score);
+    if (gameData.team2.Score)
+        team2.setScore(gameData.team2.Score);
+    if (gameData.ball)
+    {
+        team1.setBallSavedPos(gameData.ball);
+        team2.setBallSavedPos(gameData.ball);
+    }
     // Fonction helper pour initialiser un joueur
     const initializePlayer = (playerData, team) => {
         if (!playerData) {
