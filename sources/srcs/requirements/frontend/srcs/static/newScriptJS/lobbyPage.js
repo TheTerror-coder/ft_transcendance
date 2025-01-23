@@ -65,6 +65,7 @@ async function setwantedProfileInLobby(user, position)
 {
     const imgElement = document.getElementById(`pictureOfWanted${position}`);
     const userResponse = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
+    console.log('userResponse : ', userResponse);
 
     const photoUrl = userResponse.user_info.photo;
     imgElement.src = photoUrl;
