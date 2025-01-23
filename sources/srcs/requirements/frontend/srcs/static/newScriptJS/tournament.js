@@ -43,6 +43,7 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
     globalSocket.on('tournamentWinner', tournamentWinnerEvent);
+    globalSocket.on('tournamentMatches', tournamentMatchesEvent);
 }
 
 async function joinTournamentDisplay()
@@ -82,12 +83,17 @@ const tournamentMatchEvent = (data) => {
 
 }
 
+const tournamentMatchesEvent = (data) => {
+    console.log("TOURNAMENT MATCHES: ", data);
+}
+
 const startTournamentGameEvent = async (data) => {
     console.log("START TOURNANT Game")
     const module = await import('../pong/pong.js');
     document.getElementById('background').innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     await module.main(data.gameCode, globalSocket, currentLanguage);
+    console.log("Tournament End");
 }
 
 const tournamentWinnerEvent = (data) => {
@@ -145,7 +151,7 @@ async function usersInTournament(usernameTournament, nbPlayer) // ca faut le fai
             tournamentAllUsers.users = element;
         }
     });
-    if (nbPlayer === 8)
+    if (nbPlayer === 4)
     {
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
         ELEMENTs.tournamentWrite().innerHTML = "";

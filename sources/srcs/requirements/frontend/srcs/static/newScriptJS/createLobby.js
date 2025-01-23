@@ -342,7 +342,9 @@ async function createLobbyDisplay()
         const imgElement = ELEMENTs.pictureOfWanted();
         imgElement.src = photoUrl;
         ELEMENTs.primeAmount().innerHTML = response.prime;
-        globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username });
+        setTimeout(() => {
+            globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username, gameCode: savedGameCode.code });
+        }, 200)
         setTimeout(async () => {
             if (error !== null)
             {
@@ -382,7 +384,7 @@ async function lobbyTwoPlayer()
     const role = roleChosen ? "Cannoneer" : "captain";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
-    globalSocket.emit('confirmChoicesCreateGame', { teamID, role, userName: user.username });
+    globalSocket.emit('confirmChoicesCreateGame', { teamID, role, userName: user.username, gameCode: savedGameCode.code });
     setTimeout(() => {
         if (error !== null)
         {
