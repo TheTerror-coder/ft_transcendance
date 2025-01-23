@@ -140,22 +140,24 @@ const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam)
         return;
     }
 
-    // Mettre à jour l'interpolateur approprié
-    const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+    // Sauvegarder la position précédente pour la caméra du canonnier
+    let boatFormerPosition = team.getBoatGroup().position.x;
     
-    // Ne mettre à jour que si ce n'est pas le joueur local
-    if (currentPlayer.getTeamID() !== teamID) {
-        interpolator.targetPosition = {
-            x: boatPosition.x,
-            y: team.getBoatGroup().position.y,
-            z: team.getBoatGroup().position.z
-        };
+    // Mise à jour directe pour les canonniers de la même équipe
+    if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
+        team.getBoatGroup().position.x = boatPosition.x;
+        currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
+        return; // Sortir de la fonction car pas besoin d'interpolation
     }
 
-    // Mise à jour de la caméra pour le canonnier si nécessaire
-    if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
-        let boatFormerPosition = team.getBoatGroup().position.x;
-        currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
+    // Pour tous les autres cas, utiliser l'interpolation
+    if (currentPlayer.getTeamID() !== teamID) {
+        const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+        interpolator.setTarget(
+            boatPosition.x,
+            team.getBoatGroup().position.y,
+            team.getBoatGroup().position.z
+        );
     }
 };
 
@@ -227,6 +229,10 @@ function updateBallPosition(ballPosition, ball) {
     };
 }
 
+const createTournamentEndedEvent = (currentPlayerTeam) => () => {
+    currentPlayerTeam.setTournamentEnded(true);
+}
+
 export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
@@ -246,6 +252,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer, currentPlayerTeam));
     socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
     socket.on('gameState', gameStateEvent(ball));
+    socket.on('tournamentEnded', createTournamentEndedEvent(currentPlayerTeam));
 }
 
 export function removeSocketListeners(socket) {
@@ -260,6 +267,7 @@ export function removeSocketListeners(socket) {
     socket.off('updateHealth');
     socket.off('boatPosition');
     socket.off('scoreUpdate');
+    socket.off('tournamentEnded');
 }
 
 export function updateServerData(gameCode, socket, currentPlayerTeam) {
@@ -311,8 +319,10 @@ export function updateBoatPositions(Team1, Team2) {
     const boat1 = Team1.getBoatGroup();
     const boat2 = Team2.getBoatGroup();
 
-    if (boat1) boat1Interpolator.update(boat1);
-    if (boat2) boat2Interpolator.update(boat2);
+    if (boat1)
+        boat1Interpolator.update(boat1);
+    if (boat2)
+        boat2Interpolator.update(boat2);
 }
 
 // Initialiser les positions des interpolateurs

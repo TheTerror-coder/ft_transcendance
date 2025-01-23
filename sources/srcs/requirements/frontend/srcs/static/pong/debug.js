@@ -103,6 +103,7 @@ export function setupCameraControls(cameraPlayer, displayInfo) {
 
     window.addEventListener('keydown', (event) => {
         if (event.key === 'c') {
+            console.log('isCameraControlActive : ', isCameraControlActive);
             isCameraControlActive = !isCameraControlActive; // Activer ou désactiver le contrôle de la caméra
         }
         keys[event.key] = true;

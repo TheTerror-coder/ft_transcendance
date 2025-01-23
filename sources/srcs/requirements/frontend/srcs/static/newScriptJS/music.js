@@ -89,7 +89,13 @@ function refreshMusic()
 	if (currentSound === true)
 	{
 		ELEMENTs.musicPlayer().play();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
+		ELEMENTs.buttonSound().alt = "sound is on !";
 	}
 	else
+	{
 		ELEMENTs.musicPlayer().pause();
+		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
+		ELEMENTs.buttonSound().alt = "sound is off !";
+	}
 }

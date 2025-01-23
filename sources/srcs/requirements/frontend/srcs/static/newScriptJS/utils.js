@@ -12,7 +12,7 @@ const resetBaseHtmlVAR =
                     </div>
                 </button>
 				<div id="soundDiv">
-					<button><img id="buttonSound" src="/static/photos/picturePng/soundOn.png" alt="sound is on"></button>
+					<button><img id="buttonSound" src="/static/photos/picturePng/soundOff.png" alt="sound is on"></button>
 				</div>
                <div id="twoFA">
                    <label class="switch">

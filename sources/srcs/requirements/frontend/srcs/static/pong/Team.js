@@ -18,6 +18,17 @@ class Team
         this.score = 0;
         this.gameStarted = false;
         this.winner = false;
+        this.tournamentEnded = false;
+    }
+
+    setTournamentEnded(tournamentEnded)
+    {
+        this.tournamentEnded = tournamentEnded;
+    }
+
+    getTournamentEnded()
+    {
+        return (this.tournamentEnded);
     }
 
     setWinner(winner)
@@ -74,9 +85,7 @@ class Team
     {
         for (const player of this.player.values())
         {
-            console.log('Player : ', player);
             player.setCameraPos(x, y, z);
-            console.log('Player camera pos : ', player.getCameraPos());
         }
     }
 

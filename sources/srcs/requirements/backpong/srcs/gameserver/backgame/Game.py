@@ -351,7 +351,13 @@ class Game:
     def getBallPosition(self):
         return self.ballPosition
     
-    
+    def getPlayerByName(self, name):
+        for team in self.teams.values():
+            for player in team.player.values():
+                logger.info(f"player.name dans getPlayerByName {player.name}, {name}")
+                if player.name == name:
+                    return player
+        return None
 
     def setIsPaused(self, isPaused):
         self.isPaused = isPaused
