@@ -564,8 +564,10 @@ async def sendPlayerLists(game, gameCode, sid):
             if (player.getOnline() and player.getAllowedToReconnect() and not player.getIsInit()):
                 await sio.emit('updatePlayerLists', teamsInfo, room=sid)
                 player.setAllowedToReconnect(False)
+                return
             else:
                 await sio.emit('updatePlayerLists', teamsInfo, room=gameCode)
+                return
 
 async def ReadyToStart(gameCode, game):
      # Attendre que tous les joueurs soient prêts

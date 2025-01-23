@@ -23,10 +23,8 @@ export async function main(gameCode, socket, currentLanguage) {
     console.log("currentLanguage: ", currentLanguage);
 
     socket.on('disconnect', () => {
-        // window.location.href = '/home';
         console.log('Disconnected from the server');
         ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
-        replace_location(URLs.VIEWS.HOME);
         socket.off('disconnect');
     });
     
@@ -234,6 +232,9 @@ export async function main(gameCode, socket, currentLanguage) {
                                 network.removeSocketListeners(socket);
                                 resolve();
                                 savedGameCode.code = null;
+                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                replace_location(URLs.VIEWS.HOME);
+                                // await new Promise(resolve => setTimeout(resolve, 200));
                                 socket.disconnect();
                                 return (true);
                             }
@@ -354,6 +355,9 @@ async function initGame(gameData, socketID) {
     team2.setBoatSavedPos(gameData.team2.Boat);
     team1.setCannonSavedPos(gameData.team1.Cannon);
     team2.setCannonSavedPos(gameData.team2.Cannon);
+
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     if (gameData.team1.Score)
         team1.setScore(gameData.team1.Score);

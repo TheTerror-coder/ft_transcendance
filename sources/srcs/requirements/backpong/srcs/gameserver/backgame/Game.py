@@ -475,8 +475,8 @@ class Game:
     async def updateBallFired(self, data):
         trajectory = data.get('trajectory')
         team = self.getTeam(data.get('team'))
-        points_array = trajectory.get('geometries', [])[0].get('data', {}).get('attributes', {}).get('position', {}).get('array', [])
-        
+        # points_array = trajectory.get('geometries', [])[0].get('data', {}).get('attributes', {}).get('position', {}).get('array', [])
+        points_array = trajectory
         # Convertir le tableau de points en liste de dictionnaires
         points = []
         for i in range(0, len(points_array), 3):
