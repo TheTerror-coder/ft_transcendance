@@ -364,8 +364,11 @@ function clear_jwt() {
 async function refresh_jwt() {
 	const access_token = window.localStorage.getItem('jwt_access_token');
 	if (access_token) {
-		expiration = (await parseJwt(access_token)).exp;
-		if ((expiration - Date.now() / 1000) < 1) {
+		const token_payload = await parseJwt(access_token)
+		const expiration = token_payload.exp;
+		const time_now = Math.floor(Date.now() / 1000);
+		const delta = expiration - time_now;
+		if (delta < 2) {
 			const refresh_token = window.localStorage.getItem('jwt_refresh_token');
 			if (refresh_token) {
 				await refreshTokenJob('POST', URLs.REFRESH_TOKEN, { 'refresh' : refresh_token });
