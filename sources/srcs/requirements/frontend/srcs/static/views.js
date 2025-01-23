@@ -80,6 +80,7 @@ async function	homeView(title, description, data)
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
 	refreshLanguage();
+	attachLogoutEvents();
 }
 
 async function	loginView(title, description, data) {

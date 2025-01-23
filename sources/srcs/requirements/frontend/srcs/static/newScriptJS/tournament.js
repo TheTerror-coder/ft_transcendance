@@ -1,3 +1,6 @@
+let winnerEvent = 0;
+let winnerOfTournament = null;
+
 let tournamentAllUsers = 
 {
     _user: [],
@@ -6,11 +9,12 @@ let tournamentAllUsers =
         return this._user;
     },
 
-    set users(value) {
-        if (!this._user.includes(value)) {
-            this._user.push(value);
-        }
-    },
+    set users(value) 
+	{
+		this._user.push(value);
+		if (document.getElementById("winnerOfTheTournament"))
+			displayBinaryTree();
+	},
 	clearUsers() {
 		this._user = [];
 	}
@@ -79,7 +83,12 @@ const tournamentPlayerListEvent = (data) => {
 }
 
 const tournamentMatchEvent = (data) => {
-    console.log("TOURNAMENT MATCH: ", data); // ici lol
+    console.log("TOURNAMENT MATCH: ", data);
+
+	tournamentAllUsers.users = data.team1;
+	tournamentAllUsers.users = data.team2;
+	console.log("TOURNAMENT USERS DANS TOURNAMENT MATCH: ", tournamentAllUsers.users);
+
 
 }
 
@@ -98,12 +107,28 @@ const startTournamentGameEvent = async (data) => {
 
 const tournamentWinnerEvent = (data) => {
     console.log("TOURNAMENT WINNER: ", data);
+	winnerEvent++;
+	if (winnerEvent === 2)
+	{
+		winnerOfTournament = data;
+		refreshWinner();
+	}
+	// document.getElementById("winnerOfTheTournament").innerHTML = data;
 }
 
+
 const errorTournamentEvent = (data) => {
-    console.log("ERROR TOURNAMENT: ", data);
+	console.log("ERROR TOURNAMENT: ", data);
     alert(data.message);
     error = data.message;
+}
+
+function refreshWinner(user)
+{
+	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
+	// console.log("winnerOfTournament: ", winnerOfTournament);
+	// document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
+	// winnerEvent = 0;
 }
 
 async function joinTournament(code)
@@ -121,6 +146,7 @@ async function joinTournament(code)
     }, 20);
     ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
     ELEMENTs.centerTournament().style.justifyItems = "center";
+	refreshLanguage();
 }
 
 async function createTournament()
@@ -173,33 +199,29 @@ async function addUserTournament(usernameTournament)
 
 function displayBinaryTree()
 {
-    console.log("display binary tree");
     ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
 
 	// ici remplir le tournament tournamentAllUsers
     let i = 1;
     refreshLanguage();
-    setTimeout(() => {
-        tournamentAllUsers.users.forEach(function(elements) 
-        {
-            // console.log("element dans tournamentAllUsers.users.forEach: ", elements);
-            const user = elements;
-            document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
-            {
-                element.innerHTML = user;
-				if (user.length > 6)
-				{
-					element.style.setProperty('--spacing', '10em');
-					element.style.setProperty('--end', '10em');
-				}
-                if (element.hasAttribute("data-translate"))
-                    element.removeAttribute('data-translate');
-                // console.log("e", element, " ET I le goat: ", i);
-            });
-            i++;
-        });
-    }, 200);
+	tournamentAllUsers.users.forEach(function(elements) 
+	{
+		// console.log("element dans tournamentAllUsers.users.forEach: ", elements);
+		const user = elements;
+		document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
+		{
+			element.innerHTML = user;
+			if (user.length > 6)
+			{
+				element.style.setProperty('--spacing', '9em');
+				element.style.setProperty('--end', '9em');
+			}
+			if (element.hasAttribute("data-translate"))
+				element.removeAttribute('data-translate');
+		});
+		i++;
+	});
     document.getElementById('startButtonTournament').onclick = () => startTournament();
 }
 

@@ -49,7 +49,8 @@ function translate(key)
 function updateUI(lang) 
 {
     const translateElements = document.querySelectorAll('[data-translate]');
-    ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${lang}.png`;
+	if (ELEMENTs.dropDownLanguage())
+    	ELEMENTs.dropDownLanguage().src = `/static/photos/picturePng/loginPage/drapeau/flag${lang}.png`;
 
     translateElements.forEach(element => {
         const key = element.getAttribute('data-translate');

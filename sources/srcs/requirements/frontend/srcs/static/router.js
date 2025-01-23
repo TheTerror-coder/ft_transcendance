@@ -81,6 +81,8 @@ const eventManager = async (event) => {
 		await logout_views();
 	else if (target.id === document.getElementById("noButton")?.id)
 		await replace_location(URLs.VIEWS.HOME);
+	else if (target.id === document.getElementById("crossJoinTournament")?.id)
+		await assign_location(URLs.VIEWS.HOME);
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		teamAvailable.team = 0;
