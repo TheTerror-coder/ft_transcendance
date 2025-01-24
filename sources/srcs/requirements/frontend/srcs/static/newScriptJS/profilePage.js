@@ -1,17 +1,22 @@
 
-async function statsInProfilePage(game_played, victories)
+async function statsInProfilePage(game_played, victories, lose)
 {
     let percentage = 0;
-    
+    if (victories === undefined)
+        victories = 0;
+    if (lose === undefined)
+        lose = 0;
+    if (game_played === undefined)
+        game_played = 0;
     if (game_played > 0) {
         percentage = (victories / game_played) * 100;
     }
-    
+
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
     const progressValue = document.querySelector('.progress-value');
 
-    percentage = Math.min(Math.max(percentage, 0), 100);
+    percentage = Math.round(percentage);
 
     circularProgress.style.background = `conic-gradient(
         #4caf50 0% ${percentage}%, 
@@ -19,15 +24,19 @@ async function statsInProfilePage(game_played, victories)
     )`;
 
     progressValue.textContent = `${percentage}%`;
+
+    document.getElementById('numberOfGamePlayedProfileDisplay').textContent = game_played;
+    document.getElementById('numberOfGameWinProfileDisplay').textContent = victories;
+    document.getElementById('numberOfGameLosesProfileDisplay').textContent = lose;
 }
 
-async function getHistoric(game)
+async function getHistoric(game, user)
 {
-    console.log("game.length: ", game.length);
     if (game.length === 0)
     {
         const match = document.createElement('div');
         match.className = 'matchDisplayHistoric';
+		match.style.height = "120px"; 
         const result = document.createElement('span');
         result.style.alignSelf = 'center';
         if (currentLanguage === 'en')
@@ -39,11 +48,9 @@ async function getHistoric(game)
         result.dataset.translate = "NoGamePlayed";
         match.appendChild(result);
         ELEMENTs.historicMatch().appendChild(match);
-        return ;
     }
     else
     {
-        //if () game 1 v 1
         for (let i = 0; i < game.length; i++)
         {
             const match = document.createElement('div');
@@ -52,31 +59,65 @@ async function getHistoric(game)
             const advUsername = document.createElement('span');
             const resultUser = document.createElement('span');
             const resultAdvUser = document.createElement('span');
+            const winOrLoseDiv = document.createElement('div');
+            const vsImg = document.createElement('img');
+            vsImg.src = "/static/photos/picturePng/profilePage/versusLogoStat.png";
+            vsImg.alt = "vs";
 
+			advUsername.style.width = "105px";
+			username.style.width = "105px";
 
-            console.log("game: ", game);
-            console.log("result i: ", i);
             resultUser.className = 'resultDisplayHistoric';
+            resultAdvUser.className = 'resultDisplayHistoric';
+            if (user === game[i].player)
+            {
+                username.textContent = game[i].player;
+                resultUser.textContent = game[i].player_score;
+                resultAdvUser.textContent = game[i].opponent_score;
+                advUsername.textContent = game[i].opponent;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].player_score, game[i].opponent_score, match);
+            }
+            else
+            {
+                username.textContent = game[i].opponent;
+                resultUser.textContent = game[i].opponent_score;
+                resultAdvUser.textContent = game[i].player_score;
+                advUsername.textContent = game[i].player;
+                statDisplayWinOrLose(winOrLoseDiv, game[i].opponent_score, game[i].player_score, match);
+            }
+            winOrLoseDiv.style.backgroundSize = "cover";
+            winOrLoseDiv.style.backgroundRepeat = "no-repeat";
+            winOrLoseDiv.style.backgroundPosition = "center";
 
+            winOrLoseDiv.className = 'winOrLoseDiv';
 
-            resultUser.textContent = game.resultUser;
-            resultAdvUser.textContent = game.resultAdvUser;
-            username.textContent = game.username;
-            advUsername.textContent = game.advUsername;
+            match.appendChild(winOrLoseDiv);
             match.appendChild(username);
             match.appendChild(resultUser);
+            match.appendChild(vsImg);
             match.appendChild(resultAdvUser);
             match.appendChild(advUsername);
+            ELEMENTs.historicMatch().appendChild(match);
         }
-        //else game 2 v 2
-
     }
+}
 
+function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
+{
+    if (player > opponent)
+    {
+        match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+    }
+    else
+    {
+        match.style.backgroundColor = "rgba(228, 0, 0, 0.3)";
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/usoppLose.png')";
+    }
 }
 
 async function displayWaitingListFriend(friends) {
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    console.log("friends: ", friends);
 
     // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
@@ -125,11 +166,11 @@ async function displayWaitingListFriend(friends) {
             // Gérer l'acceptation de l'invitation
             actionAddButton.addEventListener('click', async () => {
                 alert(`add ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
 
                 // Envoi de l'invitation acceptée au serveur
                 socket.send(JSON.stringify({
                     type: 'response.invitation',
+                    to_user: friends[i].from_user,
                     response: 'accept',
                     friend_request_id: friends[i].friend_request_id
                 }));
@@ -155,17 +196,14 @@ async function displayWaitingListFriend(friends) {
             // Gérer le rejet de l'invitation
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
                 socket.send(JSON.stringify({
                     type: 'response.invitation',
                     response: 'reject',
                     friend_request_id: friends[i].friend_request_id
                 }));
 
-                // Après rejet, on supprime l'invitation de la liste
                 dropdownMenu.removeChild(listItem);
 
-                // Vérifier si la liste est vide après le rejet
                 if (dropdownMenu.children.length === 0) {
                     const noInvitationsItem = document.createElement('li');
                     noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
@@ -187,7 +225,10 @@ async function displayWaitingListFriend(friends) {
 async function addFriendToFriendList(friend) {
     const friendListMenu = document.getElementById('friendDropdownMenu');
     
-    // Créer l'élément pour l'ami
+    if (document.getElementById("noFriends") !== null)
+    {
+        document.getElementById("noFriends").remove();
+    }
     const listItem = document.createElement('li');
     listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
@@ -210,7 +251,7 @@ async function addFriendToFriendList(friend) {
     actionButton.appendChild(imgButton);
 
     // Ajouter l'ami à la liste des amis dans le DOM
-    buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
+    buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
     buttonDisplayFriend.appendChild(nameSpan);
     listItem.appendChild(circleIsConnect);
     listItem.appendChild(buttonDisplayFriend);
@@ -229,6 +270,7 @@ async function displayFriend(friends, user_socket) {
     // Vérification si la liste d'amis est vide
     if (friends.length === 0) {
         const listItem = document.createElement('li');
+        listItem.id = "noFriends";
         listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
         const nameSpan = document.createElement('span');
         nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
@@ -251,7 +293,6 @@ async function displayFriend(friends, user_socket) {
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
-            
             // Indicateur de connexion de l'ami
             const circleIsConnect = document.createElement('div');
             circleIsConnect.className = 'circleIsConnect';
@@ -269,7 +310,6 @@ async function displayFriend(friends, user_socket) {
                 try {
                     // Suppression de l'ami via une requête
                     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friends[i].username });
-                    console.log("Réponse suppression ami : ", response);
                     alert(`${friends[i].username} ne fait plus partie de vos amis`);
 
                     // Retirer l'ami de la liste affichée
@@ -291,7 +331,7 @@ async function displayFriend(friends, user_socket) {
             });
 
             // Afficher le profil de l'ami
-            buttonDisplayFriend.onclick = () => userProfileDisplay(nameSpan.textContent);
+            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
             buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
             listItem.appendChild(buttonDisplayFriend);
@@ -299,27 +339,6 @@ async function displayFriend(friends, user_socket) {
             dropdownMenu.appendChild(listItem);
         }
     }
-}
-
-
-async function userProfileDisplay(username)
-{
-	ELEMENTs.mainPage().innerHTML = usersProfilePage;
-    ELEMENTs.profilePage().style.display = 'flex';
-	document.title = username +  " | " + PAGE_TITLE;
-	window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
-
-
-	document.getElementsByClassName(".wantedProfileInProfilePage").style.alignSelf = "center";
-
-
-	ELEMENTs.nameUser().innerHTML = username;
-	// update berry gang
-
-	// mettre en parametre les donnees du frero
-	await getHistoric();
-	await statsInProfilePage();
-
 }
 
 // Change Username
@@ -340,9 +359,7 @@ const togglePopover = (event) =>
 
 
     if (existingPopover && event.target !== ELEMENTs.fileButton()) 
-    {
-        existingPopover.remove(); // Remove it if it exists
-    } 
+        existingPopover.remove();
     else 
     {
         // Create a container div and set its content
@@ -372,8 +389,8 @@ document.addEventListener('click', (event) =>
         return ;
     if (ELEMENTs.fileButton() !== null)
         {
-            if (event.target === ELEMENTs.fileButton()){
-            console.log("event dans ma fonction ta capte: ");
+            if (event.target === ELEMENTs.fileButton())
+            {
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
                 profilePhoto = event.target.files[0];
@@ -395,10 +412,8 @@ async function changePicture(picture) {
     const data = new FormData();
     data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
-    if (response.status === 'success') {
-        alert('Profile photo updated');
-        console.log("response.photo: ", response.photo);
-    }
+    if (response.status === 'success') 
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -413,10 +428,8 @@ async function changePicture(picture) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }
 
@@ -427,10 +440,8 @@ document.addEventListener('click', async (event) =>
     {
         if (event.target === ELEMENTs.changeUsernameButton())
         {
-            // console.log("reconnu comme cree ELEMENTs.changeUsernamePopOver(): ", ELEMENTs.changeUsernamePopOver());
             if (ELEMENTs.changeUsernamePopOver() === null)
             {
-                console.log("create le bail");
                 const popoverContainer = document.createElement('div');
                 popoverContainer.id = "changeUsernamePopOver";
                 popoverContainer.innerHTML = popUpUsernameVAR;
@@ -467,13 +478,11 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
-    console.log("newUsername: ", newUsername);
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
-    if (response.status === 'success') {
-        alert('Username updated');
-    }
+    if (response.status === 'success')
+        await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
     {
         if (typeof response.errors === 'object') {
@@ -488,9 +497,7 @@ async function changeUsername(newUsername) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }

@@ -1,0 +1,27 @@
+
+ARG STACK_VERSION=8.14.1
+
+FROM elasticsearch:${STACK_VERSION}
+
+ARG SHARED_GID=1010
+
+USER 0
+
+COPY --chown=1000:1000 --chmod=500 ./tools/script.sh /usr/share/elasticsearch/script.sh
+
+RUN <<EOF
+apt-get update && apt-get install -y dumb-init
+addgroup --gid ${SHARED_GID} transcendance
+addgroup elasticsearch transcendance
+mkdir -p /usr/share/elasticsearch/config/certs
+chown -R 1000:1000 /usr/share/elasticsearch
+find /usr/share/elasticsearch -maxdepth 1 -type d -exec chmod 00750 \{\} \;
+find /usr/share/elasticsearch -maxdepth 2 -type f -exec chmod o-rwx \{\} \;
+chmod 00700 /usr/share/elasticsearch/config/certs
+EOF
+
+USER 1000
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/bin/bash", "-c", "/usr/share/elasticsearch/script.sh" ]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

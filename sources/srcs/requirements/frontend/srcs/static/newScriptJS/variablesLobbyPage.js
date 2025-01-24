@@ -83,10 +83,10 @@ const lobbyTwoPlayerDisplayVAR =
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
             <div style="display:flex; justify-content: space-between;">
-                <div>
-                    <button id="crossButton"><img src="/photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
+                <div class="lobbyCode">
+                    <p class="lobbyCodeText">LOBBY: </p>
+                    <p id="lobbyCode" class="lobbyCodeText"></p>
                 </div>
-            <p id="lobbyCode" class="lobbyCode">LOBBY: 1443</p>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
                 <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerOne">
@@ -149,9 +149,6 @@ const lobbyPageDisplayVAR =
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
             <div style="display:flex; justify-content: space-between;">
-                <div>
-                    <button id="crossButton"><img src="../photos/picturePng/lobbyPage/cross.png" id="cross" alt="quitButton"></button>
-                </div>
                 <div class="lobbyCode">
                     <p class="lobbyCodeText">LOBBY: </p>
                     <p id="lobbyCode" class="lobbyCodeText"></p>

@@ -11,9 +11,64 @@ class Team
         this.player = new Map();
         this.boat = null;
         this.cannon = null;
+        this.boatSavedPos = {x: 0, y: 0, z: 0};
+        this.cannonSavedPos = {x: 0, y: 0, z: 0};
+        this.ballSavedPos = {x: 0, y: 0, z: 2};
         this.isFull = false;
         this.score = 0;
         this.gameStarted = false;
+        this.winner = false;
+        this.tournamentEnded = false;
+    }
+
+    setTournamentEnded(tournamentEnded)
+    {
+        this.tournamentEnded = tournamentEnded;
+    }
+
+    getTournamentEnded()
+    {
+        return (this.tournamentEnded);
+    }
+
+    setWinner(winner)
+    {
+        this.winner = winner;
+    }
+
+    getWinner()
+    {
+        return (this.winner);
+    }
+
+    setBallSavedPos(ballSavedPos)
+    {
+        this.ballSavedPos = ballSavedPos;
+    }
+
+    getBallSavedPos()
+    {
+        return (this.ballSavedPos);
+    }   
+
+    setBoatSavedPos(boatSavedPos)
+    {
+        this.boatSavedPos = boatSavedPos;
+    }
+
+    getBoatSavedPos()
+    {
+        return (this.boatSavedPos);
+    }
+
+    setCannonSavedPos(cannonSavedPos)
+    {
+        this.cannonSavedPos = cannonSavedPos;
+    }
+
+    getCannonSavedPos()
+    {
+        return (this.cannonSavedPos);
     }
 
     setGameStarted(gameStarted)
@@ -30,9 +85,7 @@ class Team
     {
         for (const player of this.player.values())
         {
-            console.log('Player : ', player);
             player.setCameraPos(x, y, z);
-            console.log('Player camera pos : ', player.getCameraPos());
         }
     }
 

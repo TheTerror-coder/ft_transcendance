@@ -1,18 +1,4 @@
 
-function refreshHomePage()
-{
-    window.history.pushState({}, "", URLs.VIEWS.HOME);
-    handleLocation();
-}
-
-// async function setLanguage()
-// {
-//     const language = document.getElementById("EN").value;
-//     const data = {"language": language};
-//     const response = await makeRequest('POST', URLs.USERMANAGEMENT.SETLANGUAGE, data);
-//     alert(response.message);
-// }
-
 async function addFriend()
 {
     const usernameAddValue = document.getElementById("usernameAddFriend").value;
@@ -23,25 +9,22 @@ async function addFriend()
     }
     const data = {"username": usernameAddValue};
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    console.log('user:', user);
     const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-    if (resp.status === 'error') {
-        socket = new WebSocket("wss://${window.location.host}/websocket/friend_invite/");
+    if (resp.status === 'error' || socket.readyState === undefined) {
+        await callWebSockets();
     }
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
     if (response.status === 'success') {
         alert('Friend request sent at ', usernameAddValue);
         if (socket) {
-            if (socket.readyState === WebSocket.OPEN) {
-                console.log("WebSocket already open");
+            if (socket.readyState === WebSocket.OPEN)
                 sendInvitation(data.username);
-            } 
             else if (socket.readyState === WebSocket.CONNECTING) {
-                socket.addEventListener('open', function() {
-                    sendInvitation(data.username);
-                });
+                await waitForSocketOpen(socket);
+                sendInvitation(data.username);
             }
             else {
+                console.error('WebSocket connection is not open. readyState:', socket);
                 console.error('WebSocket connection is not open. readyState:', socket.readyState);
             }
             socket.onmessage = function(event) {
@@ -53,10 +36,24 @@ async function addFriend()
     }
 }
 
+function waitForSocketOpen(socket) {
+    return new Promise((resolve, reject) => {
+        if (socket.readyState === WebSocket.OPEN) {
+            resolve();
+        } else {
+            socket.addEventListener('open', () => {
+                resolve();
+            });
+
+            socket.addEventListener('error', (err) => {
+                reject(new Error('WebSocket connection failed: ' + err));
+            });
+        }
+    });
+}
 
 
 function sendInvitation(username) {
-    console.log("Sending invitationnnnnn to:", username);
     socket.send(JSON.stringify({
         'username': username,
         'type': 'invitation',
@@ -64,10 +61,8 @@ function sendInvitation(username) {
     }));
 
     socket.onmessage = function(event) {
-        console.log('Invitation sent to:', username);
         var data = JSON.parse(event.data);
         if (data.type === 'invitation') {
-            console.log("Received invitation:", data);
             var acceptButton = document.createElement('button');
             acceptButton.textContent = 'Accept';
             acceptButton.onclick = function() {

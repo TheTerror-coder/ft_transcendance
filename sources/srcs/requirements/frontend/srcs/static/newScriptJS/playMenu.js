@@ -5,7 +5,6 @@
 
 function playDisplayHomepage()
 {
-    console.log("je suis cense etre al");
     ELEMENTs.playButton().style.display = 'none';
     ELEMENTs.centerPlayDisplay().style.display = 'flex';
     ELEMENTs.firstElement().innerHTML = rapidPlayHTML;
@@ -17,6 +16,7 @@ function playDisplayHomepage()
     const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     ELEMENTs.rapidPlayButton().onclick = () => rapidPlayLobbyDisplay();
+    ELEMENTs.tournamentButton().onclick = () => assign_location(URLs.VIEWS.TOURNAMENT);
 }
 
 
@@ -55,25 +55,20 @@ async function joinLobbyPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const joinButton = document.getElementById("joinButton");
 
-    // TO DO: faire condition en fonction de ce que je vais recevoir comme info de Ben
     joinButton.onclick = () => {
         let gameCode = document.getElementById("number").value;
-        console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
             if (error === null)
             {
-                console.log("nbPerTeam gang ? = ", nbPerTeam);
                 if (nbPerTeam == 2)
                     joinTwoPlayersDisplay(gameCode);
                 else
                     joinLobbyGame(gameCode, 2, "captain");
             }
             else
-            {
                 error = null;
-            }
-        }, 400);
+        }, 300);
     };
 }
 
@@ -88,57 +83,73 @@ function readyLocalPlay()
     returnButtonPlayMenu.onclick = () => navigationPlayMenu();
     const readyButton = document.getElementById("readyButton");
     refreshLanguage();
+    readyButton.onclick = () => localPlay();
+}
 
-    // rejoindre le gang
+async function localPlay()
+{
+    document.getElementById('background').innerHTML = "";
+    ELEMENTs.background().style.backgroundImage = '';
+    const module = await import('../pong/LocalPong/pong.js');
+    module.main(currentLanguage);
 }
 
 
-function joinTwoPlayersDisplay(gameCode)
+async function joinTwoPlayersDisplay(gameCode)
 {
     ELEMENTs.playDisplay().innerHTML = joinTwoPlayersVAR;
 
-    setTimeout(() => {
-        const joinButton = document.getElementById("joinButton");
-        const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
-        returnButtonPlayMenu.onclick = () => navigationPlayMenu();
-        ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
-        ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
-        joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
-        refreshLanguage();
-    }, 40);
+    const joinButton = document.getElementById("joinButton");
+    const returnButtonPlayMenu = document.getElementById("returnButtonPlayMenu");
+    returnButtonPlayMenu.onclick = () => navigationPlayMenu();
+    await displayAvailableRoleAndTeamJoin();
+    ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
+    ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
+    joinButton.onclick = () => initializeLobbyTwoVsTwo(gameCode);
+    refreshLanguage();
 }
+
 
 function initializeLobbyTwoVsTwo(gameCode)
 {
     const teamChosen = ELEMENTs.chooseTeamSwitch().checked;
     const roleChosen = ELEMENTs.chooseRoleSwitch().checked;
+    let teamID;
+    let role;
 
-    const teamID = teamChosen ? 2 : 1;
-    const role = roleChosen ? "Cannoneer" : "captain";
+    if ((teamChosen && teamAvailable.team === 1) || (teamChosen === false && teamAvailable.team === 2))
+        teamID = teamAvailable.team;
+    else 
+        teamID = teamChosen ? 2 : 1;
+    if ((teamID === 1 && roleChosen === false && roleAvailableBlackBeard.role === "gunner") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "gunner"))
+        role = "Cannoneer";
+    else if ((teamID === 1 && roleChosen && roleAvailableBlackBeard.role === "captain") || (teamID === 2 && roleChosen === false && roleAvailableWhiteBeard.role === "captain"))
+        role = "captain";
+    else
+        role = roleChosen ? "Cannoneer" : "captain";
     joinLobbyGame(gameCode, teamID, role);
 }
 
-function createLobbyPlay()
+async function createLobbyPlay()
 {   
-    window.history.pushState({}, "", URLs.VIEWS.CREATE_LOBBY);
-    handleLocation();
-    setTimeout(async() => {
-        refreshLanguage();
-        const socket = await initializeSocket();
-        initializeGlobalSocket(socket);
-        ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
-    }, 70);
+    await assign_location(URLs.VIEWS.CREATE_LOBBY); 
+    refreshLanguage();
+    const socket = await initializeSocket();
+    initializeGlobalSocket(socket);
+    ELEMENTs.buttonCreate().onclick = () => createLobbyDisplay();
 }
 
-function navigationPlayMenu()
+async function navigationPlayMenu()
 {
     let nav = 0;
-    console.log("ELEMENTs.firstElement() = ", ELEMENTs.firstElement());
     if (ELEMENTs.firstElement() === null && ELEMENTs.secondElement() === null && ELEMENTs.thirdElement() === null)
     {
         nav = 2;
         if (globalSocket !== null)
         {
+            teamAvailable.team = 0;
+            roleAvailableBlackBeard.role = 0;
+            roleAvailableWhiteBeard.role = 0;
             globalSocket.disconnect();
             globalSocket = null;
         }
@@ -146,17 +157,12 @@ function navigationPlayMenu()
     else if (ELEMENTs.thirdElement().style.display === "block")
         nav = 1;
 
-    refreshHomePage();
-    setTimeout(() => {
-        if (nav == 1)
-            ELEMENTs.playButtonImg().click();
-        if (nav == 2)
-        {
-            ELEMENTs.playButtonImg().click();
-            setTimeout(() => {
-                ELEMENTs.rapidPlayButton().click();
-            }, 40);
-        }
-    }, 70);
-
+    await replace_location(URLs.VIEWS.HOME);
+    if (nav == 1)
+        ELEMENTs.playButtonImg().click();
+    if (nav == 2)
+    {
+        ELEMENTs.playButtonImg().click();
+        ELEMENTs.rapidPlayButton().click();
+    }
 }

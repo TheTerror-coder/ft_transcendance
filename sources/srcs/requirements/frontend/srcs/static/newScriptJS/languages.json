@@ -1,6 +1,6 @@
 {
     "en": {
-        "42SignIn": "SIGN IN WITH",
+        "42SignIn": "SIGN IN WITH ",
         "SignIn": "SIGN IN",
         "CreateAccount": "CREATE ACCOUNT",
         "placeholderUser": "Username",
@@ -22,8 +22,6 @@
         
         "ChooseYourTeam": "Choose Your Team",
         "ChooseRole": "Choose Your Role",
-        "kurohige": "Black Beard",
-        "shirohige": "White Beard",
         "Helmsman": "Helmsman",
         "Gunner": "Gunner",
 
@@ -41,7 +39,18 @@
         "NoFriends": "No Friends",
         "NoInvitationsWaiting": "No Invitations Waiting",
         "NoGamePlayed": "No Game Played",
-
+        "joinTournament": "Join Tournament",
+        "createTournament": "Create Tournament",
+        "TournamentCode": "TOURNAMENT CODE : ",
+        "StartTournament": "START",
+        "empty": "Empty",
+        "final": "Final",
+        "semiFinal": "Semi-Final",
+        "quarterFinal": "Quarter-Final",
+		"redirect": "redirect",
+		"leavingDoor": "DO YOU WANT TO LEAVE ?",
+		"yes": "YES",
+		"no": "NO",
         "Logout": "LOGOUT"
     },
     "es": {
@@ -69,14 +78,12 @@
         
         "ChooseYourTeam": "Elige Tu Equipo",
         "ChooseRole": "Elige Tu Papel",
-        "kurohige": "Barbanegra",
-        "shirohige": "Barba blanca",
         "Helmsman": "Timonel",
         "Gunner": "Cañonero",
 
 
         "FriendList": "Lista de Amigos",
-        "waitingFriendlist": "Lista de Amigos en Espera",
+        "waitingFriendlist": "Amigos en Espera",
         "Stat": "Estadisticas",
         "WinRate": "Porcentaje de victorias",
         "GamePlayed": "Juegos Jugados",
@@ -87,6 +94,21 @@
         "NoFriends": "No Amigos",
         "NoInvitationsWaiting": "No Invitaciones Esperando",
         "NoGamePlayed": "No Juegos Jugados",
+
+        "joinTournament": "Unirse al Torneo",
+        "createTournament": "Crear Torneo",
+        "TournamentCode": "CODIGO TORNEO : ",
+        "StartTournament": "INICIAR",
+        "empty": "Vacio",
+
+        "final": "Final",
+        "semiFinal": "Semifinal",
+        "quarterFinal": "Cuartos de final",
+
+		"redirect": "redirect",
+		"leavingDoor": "¿QUIERES IRTE?",
+		"yes": "SI",
+		"no": "NO",
 
 
         "Logout": "DESCONECTARSE"
@@ -112,15 +134,13 @@
         
         "ChooseYourTeam": "Choisi Ton Equipe",
         "ChooseRole": "Choisi Ton Role",
-        "kurohige": "Barbe Noire",
-        "shirohige": "Barbe Blanche",
         "Helmsman": "Timonier",
         "Gunner": "Cannonier",
 
         "Ready": "PRET ?",
 
         "FriendList": "Liste d'Amis",
-        "waitingFriendlist": "Liste d'Amis en Attente",
+        "waitingFriendlist": "Amis en Attente",
         "Stat": "Statistiques",
         "WinRate": "Pourcentage de Victoire",
         "GamePlayed": "Nombre de Parties",
@@ -134,6 +154,19 @@
 
         "PlayersPerTeams": "Joueurs par Equipe",
         "CreateButton": "Créer",
+        "joinTournament": "Rejoindre un Tournois",
+        "createTournament": "Créer un Tournois",
+        "TournamentCode": "CODE TOURNOIS : ",
+        "StartTournament": "DEMARRER",
+        "empty": "Vide",
+
+        "final": "Final",
+        "semiFinal": "Demie-Finale",
+        "quarterFinal": "Quart de Finale",
+		"leavingDoor": "VOULEZ-VOUS PARTIR ?",
+		"yes": "OUI",
+		"no": "NON",
+
         "Logout": "DÉCONNEXION"
     }
 }

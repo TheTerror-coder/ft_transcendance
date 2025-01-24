@@ -92,4 +92,5 @@
     margin-top: 5px; 
     margin-bottom: -45px;
     z-index: 5;
+	align-self: end;
 }

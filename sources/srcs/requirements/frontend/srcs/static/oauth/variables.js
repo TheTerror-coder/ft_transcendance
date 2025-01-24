@@ -8,6 +8,7 @@ const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
 const PATHs = Object.freeze({
 	
 	VIEWS : Object.freeze({
+		TOURNAMENT : '/tournament/',
 		HOME : '/home/',
 		LOGIN_REDIRECT_URL : '/home/',
 		LOGIN : '/frontpong/account/login/',
@@ -18,6 +19,8 @@ const PATHs = Object.freeze({
 		CREATE_LOBBY : '/create-lobby/',
 		LOBBY : '/lobby/',
 		PROFILE : '/profile/',
+		TOURNAMENT_TREE : '/tournament-tree/',
+		ERROR404 : '/error-404/'
 	}),
 
 });
@@ -31,6 +34,8 @@ const URLs = Object.freeze({
 	
 	// VIEWS \\
 	VIEWS : Object.freeze({
+		TOURNAMENT : BASE_URL + PATHs.VIEWS.TOURNAMENT,
+		TOURNAMENT_TREE : BASE_URL + PATHs.VIEWS.TOURNAMENT_TREE,
 		HOME : BASE_URL + PATHs.VIEWS.HOME,
 		LOGIN_REDIRECT_URL_VIEW : BASE_URL + PATHs.VIEWS.LOGIN_REDIRECT_URL,
 		LOGIN_VIEW : BASE_URL + PATHs.VIEWS.LOGIN,
@@ -41,6 +46,7 @@ const URLs = Object.freeze({
 		CREATE_LOBBY : BASE_URL + PATHs.VIEWS.CREATE_LOBBY, // a faire
 		LOBBY : BASE_URL + PATHs.VIEWS.LOBBY,
 		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
+		ERROR404 : BASE_URL + PATHs.VIEWS.ERROR404,
 		// TOTP
 		// TOTP_VIEWs : Object.freeze({
 			// 	// Activate TOTP authentication
@@ -69,10 +75,12 @@ const URLs = Object.freeze({
 		LOGOUT : BACKEND_BASE_URL + '/user-management/logout/',
 		// SETINFOGAME : BACKEND_BASE_URL + '/user-management/set-info-game/',
 		SETLANGUAGE : BACKEND_BASE_URL + '/user-management/set-language/',
+		GETLANGUAGE : BACKEND_BASE_URL + '/user-management/get-language/',
 		TOURNAMENT : BACKEND_BASE_URL + '/user-management/tournament/',
 	}),
 
 
+	REFRESH_TOKEN : BACKEND_BASE_URL + '/token/refresh/',
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
@@ -117,6 +125,7 @@ const AuthenticatorType = Object.freeze({
 
 const ELEMENTs = Object.freeze({
 	headPage : () => document.getElementById("headPage"),
+	buttonSound : () => document.getElementById("buttonSound"), 
 	doorJamp : () => document.getElementById("doorJamp"),
 	logoutDoor : () => document.getElementById("logoutDoor"),
 	logoutButton : () => document.getElementById("logoutButton"),
@@ -210,9 +219,9 @@ const ELEMENTs = Object.freeze({
 	nameUser : () => document.getElementById("nameUser"),
 	photoUser : () => document.getElementById("profilPhotoInProfilePage"),
 	prime : () => document.getElementById("prime"),
-
+	
 	// profilePage
-
+	
 	changeProfilePhotoButton : () => document.getElementById("changeProfilePhotoButton"),
 	changeUsernameButton : () => document.getElementById("changeUsernameButton"),
 	profilPhotoInProfilePage : () => document.getElementById("profilPhotoInProfilePage"),
@@ -223,6 +232,7 @@ const ELEMENTs = Object.freeze({
 	switch2FA : () => document.getElementById("switch2FA"),
 	
 	profilePage : () => document.getElementById("profilePage"),
+	bookProfile : () => document.getElementById("bookProfile"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
@@ -256,6 +266,32 @@ const ELEMENTs = Object.freeze({
 	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
 	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
 	PlayButtonInLobby : () => document.getElementById("PlayButtonInLobby"),
+
+	// TOURNAMENT
+	tournamentButton : () => document.getElementById("tournamentButton"),
+	createTournamentButton : () => document.getElementById("createTournamentButton"),
+	joinTournamentButton : () => document.getElementById("joinTournamentButton"),
+	centerTournament : () => document.getElementById("centerTournament"),
+	tournamentContent : () => document.getElementById("tournamentContent"),
+	startTournament : () => document.getElementById("startTournament"),
+	numbersOfPlayersTournament : () => document.getElementById("numbersOfPlayersTournament"),
+	tournamentWrite : () => document.getElementById("tournamentWrite"),
+	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
+	joinButtonTournament : () => document.getElementById("joinButtonTournament"),
+	number : () => document.getElementById("number"),
+
+	//404Page
+	redirectButton : () => document.getElementById("redirectButton"),
+
+	//MUSIC
+	
+	musicPlayer : () => document.getElementById("musicPlayer"),
+	music : () => document.getElementById("music"), 
+	profilePageMusic : () => "/static/sound/ProfilePageWeDidIt!Party!.mp3",
+	homePageMusic : () => "/static/sound/HomePageWorldsNumberOneOdenStore.mp3",
+	lobbyMusic : () => "/static/sound/LobbyLuffyFierceAttack.mp3",
+	TournamentMusic : () => "/static/sound/TournamentLetsBattle.mp3",
+	loginMusic : () => "/static/sound/LoginPageWeDidIt.mp3",
 
 });
 

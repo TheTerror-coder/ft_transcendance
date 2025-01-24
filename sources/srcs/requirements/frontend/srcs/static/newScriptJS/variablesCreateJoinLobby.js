@@ -2,15 +2,15 @@
 
 const TeamAndRoleTwoPlayerLobbyVAR =
 `
-<div style="height: 493px; margin-left: 200px; margin-right: 200px;">
-    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 140px; margin-right: 140px;">
+<div style="align-self: center; width:1300px;">
+    <div id="chooseTeamSwitchDisplay" style="display: flex; flex-direction: column; margin-left: 220px; margin-right: 220px;">
         <div style="align-self: center;">
             <p data-translate="ChooseYourTeam" style="font-size: 30px;font-weight: bolder;margin-bottom:0px;">Choose Your Team !</p>
         </div>
         <div>
             <div style="display:flex; justify-content: space-between; height:246px;">
                 <div style="display:flex; flex-direction: column;" id="KurohigeTeam">
-                    <p data-translate="kurohige" class="teamChooseFont"> Black Beard </p>
+                    <p class="teamChooseFont"> Black Beard </p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundKurohige.png" id="KurohigeTeamDisplay">
                 </div>
                 <div class="container">
@@ -18,7 +18,7 @@ const TeamAndRoleTwoPlayerLobbyVAR =
                     <label for="chooseTeamSwitch" class="label"> </label>
                 </div>
                 <div style="display:flex; flex-direction: column; width: 190px;" id="ShirohigeTeam">
-                    <p data-translate="shirohige" class="teamChooseFont" style="width: 190px;">White Beard</p>
+                    <p class="teamChooseFont" style="width: 190px;">White Beard</p>
                     <img src="/photos/picturePng/lobbyPage/BackgroundShirohige.png" id="ShirohigeTeamDisplay">
                 </div>
             </div>
@@ -53,11 +53,8 @@ const CreateJoinLobbyDisplayVAR =
     </video>
     <div style="display: flex; justify-content: center; width: -webkit-fill-available;">
         <div class="lobbyRapidPlay" id="lobbyRapidPlay">
-            <div >
-                <button id="crossButton"><img id="cross" src="/static/photos/picturePng/cross.png" alt="quit Button"></button>
-            </div>
-            <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 600px;">
-                <div style="display: flex; justify-content: center;">
+            <div id="contentCreateLobby" style="display: flex; flex-direction: column; height: 700px; justify-content: center;">
+                <div style="display: flex; justify-content: center; height: 200px;">
                     <p data-translate="PlayersPerTeams" style="font-size:70px;">NUMBERS OF PLAYERS PER TEAMS</p>
                 </div>
                 <div class="createLobbySwitch">

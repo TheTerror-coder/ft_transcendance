@@ -12,9 +12,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class Team:
-    def __init__(self, name, maxNbPlayer, TeamId):
+    def __init__(self, name, maxNbPlayer, TournamentTeamId, TeamId):
         self.name = name
         self.maxNbPlayer = int(maxNbPlayer)
+        self.TournamentTeamId = TournamentTeamId
         self.TeamId = TeamId
         self.player = {}
         self.nbPlayer = 0
@@ -28,7 +29,10 @@ class Team:
             'max': {'x': 0, 'y': 0, 'z': 0}
         }
         self.PV = 100
-    
+
+    def getTournamentTeamId(self):
+        return self.TournamentTeamId
+
     def getPV(self):
         return self.PV
 
@@ -71,7 +75,7 @@ class Team:
             # self.hitbox['max']['y'] += dy
             # self.hitbox['max']['z'] += dz
 
-        logger.info(f"Boat updated in setBoatPosition for team {self.TeamId}: pos={self.boat}")
+        # logger.info(f"Boat updated in setBoatPosition for team {self.TeamId}: pos={self.boat}")
 
     def setBoatPosClient(self, x, y, z):
         # Calculer le déplacement
@@ -120,19 +124,14 @@ class Team:
     def setCannon(self, cannon):
         self.cannon = cannon
 
-    # def setCannonPosition(self, x, y, z):
     def setCannonPosition(self, x):
         self.cannon['x'] = x
-        # self.cannon['y'] = y
-        # self.cannon['z'] = z
 
     def setCannonPosClient(self, x, y, z):
         self.cannon['x'] = x
         self.cannon['y'] = y
         self.cannon['z'] = z
 
-    # def setCannonRotation(self, y):
-    #     self.cannon['y'] = y
 
     def removePlayer(self, id):
         if id in self.player:
@@ -141,6 +140,9 @@ class Team:
 
     def getTeamId(self):
         return self.TeamId
+    
+    def setTeamId(self, TeamId):
+        self.TeamId = TeamId
 
     def getBoat(self):
         return self.boat
@@ -165,3 +167,13 @@ class Team:
 
     def getName(self):
         return self.name
+    
+    def resetPosition(self):
+        self.boat = {'x': 0, 'y': 0, 'z': 0}
+        self.cannon = {'x': 0, 'y': 0, 'z': 0}
+        self.formerBoatPosition = {'x': 0, 'y': 0, 'z': 0}
+        self.hitbox = {
+            'min': {'x': 0, 'y': 0, 'z': 0},
+            'max': {'x': 0, 'y': 0, 'z': 0}
+        }
+        self.score = 0

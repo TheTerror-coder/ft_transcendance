@@ -1,7 +1,19 @@
 
-async function logout()
+async function logout_views()
 {
-   await makeRequest('GET', URLs.USERNAME.LOGOUT);
+	try {
+		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+		const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
+		if (response.status === 'success') {
+		   window.sessionStorage.clear();
+		   clear_jwt();
+		   await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		} else {
+		   console.error('Échec de la déconnexion:', response.message);
+		}
+	 } catch (error) {
+		console.error('Erreur lors de la déconnexion:', error);
+	 }
 }
 
 function applyAnimationLogoutButton(isHovered) 
@@ -11,29 +23,25 @@ function applyAnimationLogoutButton(isHovered)
       ELEMENTs.logoutButton().style.animation = 'openDoor 0.2s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animationPlayState = 'paused';
-      }, 490);
+      }, 195);
    } 
    else 
    {
-      // ici faire animation inverse
-      console.log('animation inverse');
       ELEMENTs.logoutButton().style.animation = 'closeDoor 0.1s ease-in-out forwards';
       setTimeout(() => {
          ELEMENTs.logoutButton().style.animation = 'none';
-      },290);
+      }, 90);
    }
 }
 
  // Mouse enter event (hover starts)
 ELEMENTs.logoutDoor().addEventListener('mouseenter', function() 
 {
-   const isHovered = true;
-   applyAnimationLogoutButton(isHovered);
+   applyAnimationLogoutButton(true);
 });
 
  // Mouse leave event (hover ends)
 ELEMENTs.logoutDoor().addEventListener('mouseleave', function() 
 {
-   const isHovered = false;
-   applyAnimationLogoutButton(isHovered); 
+   applyAnimationLogoutButton(false); 
 });

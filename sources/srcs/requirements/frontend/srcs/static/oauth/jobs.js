@@ -195,7 +195,7 @@ async function	validateTotpValueJob(params) {
 	} else if (response.find(data => data === 'totp-authenticator-information')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		await postAuthMiddlewareJob();
 		return ;
@@ -222,7 +222,7 @@ async function	twoFaAuthenticateJob(params) {
 	} else if (response.find(data => data === 'authenticated')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		await postAuthMiddlewareJob();
 		return ;
@@ -271,7 +271,7 @@ async function	mfaReauthenticateJob(params) {
 		return ;
 	} else if (response.find(data => data === 'reauthenticated')){
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');
 		await _modal.dispose();
@@ -279,4 +279,33 @@ async function	mfaReauthenticateJob(params) {
 		ELEMENTs.switch2FA().click();
 		return;
 	}
+}
+
+async function refreshTokenJob(method, path, data, headers) {
+	const options = {
+		method,
+		headers: {
+			...ACCEPT_JSON,
+			...headers,
+			'X-CSRFToken' : await getCsrfToken(),
+		}
+	}
+
+	if (data) {
+		if (data instanceof FormData) {
+		options.body = data;
+	} else {
+		options.body = JSON.stringify(data)
+		options.headers['Content-Type'] = 'application/json'
+	}
+	}
+
+	const resp = await fetch(path, options)
+	const msg = await resp.json()
+
+	if (msg.access && msg.refresh) {
+		window.localStorage.setItem('jwt_access_token', msg.access);
+		window.localStorage.setItem('jwt_refresh_token', msg.refresh);
+	}
+  return (msg);
 }

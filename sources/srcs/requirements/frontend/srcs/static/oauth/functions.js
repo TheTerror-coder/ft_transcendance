@@ -30,7 +30,6 @@ async function getCsrfToken()
 	let response = await fetch(req);
 	let data = await response.json();
 	
-	console.log('csrf in getcsrfToken(): ' + data.csrf_token);
 	return (data.csrf_token);
 }
 
@@ -43,6 +42,8 @@ async function makeRequest(method, path, data, headers) {
 			'X-CSRFToken' : await getCsrfToken(),
 		}
 	}
+
+	await refresh_jwt();
 
 	access_token = window.localStorage.getItem('jwt_access_token');
 	if (access_token) {
@@ -152,12 +153,14 @@ async function isUserAuthenticated(params) {
 			if (params){
 				params.flows = response[2].flows;
 			}
+			clear_jwt();
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
 			console.log("****DEBUG**** isUserAuthenticated() -> invalid-session")
 			window.sessionStorage.clear();
-			window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+			clear_jwt();
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 			return (false);
 		}
 		console.log("****DEBUG**** isUserAuthenticated() -> else")
@@ -241,120 +244,79 @@ async function callWebSockets(params) {
 		console.log("WebSocket connection closed:", event);
 	};
 	socket.onmessage = function(event) {
-		console.log("Received invitation:");
 		var data = JSON.parse(event.data);
 		if (data.type === 'invitation') {
-			console.log("Received invitation:", data);
-			Swal.fire({
-				title: 'Friend Invitation',
-				text: `You have received a friend invitation from ${data.from}.`,
-				icon: 'info',
-				showCancelButton: true,
-				confirmButtonText: 'Accept',
-				cancelButtonText: 'Reject',
-				confirmButtonColor: 'green',
-				cancelButtonColor: 'red',
-			}).then((result) => {
-				if (result.isConfirmed) {
-					socket.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'accept',
-						friend_request_id: data.friend_request_id
-					}));
-				} else if (result.dismiss === Swal.DismissReason.cancel) {
-					socket.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'reject',
-						friend_request_id: data.friend_request_id
-					}));
-				}
-			});
+			socket.send(JSON.stringify({
+				type: 'response.invitation',
+				response: 'pending',
+				friend_request_id: data.friend_request_id
+			}));
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'update_name') {
+			const newUsername = data.new_username;
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'remove_friend') {
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'update_logout') {
+			if (ELEMENTs.profilePage())
+				assign_location(URLs.VIEWS.PROFILE);
+		}
+		else if (data.type === 'update_login') {
+			setTimeout(() => {
+				if (ELEMENTs.profilePage())
+					assign_location(URLs.VIEWS.PROFILE);
+			}, 3000);
 		}
 	};
 }
 
 
-function handleFriendInvitation(socket, event) {
-    console.log("Received invitation:");
-    var data = JSON.parse(event.data);
-    
+async function handleFriendInvitation(socket, event) {
+	var data = JSON.parse(event.data);
     if (data.type === 'invitation') {
-        console.log("Received invitation:", data);
-        
-        // Afficher la boîte de dialogue SweetAlert
-        Swal.fire({
-            title: 'Friend Invitation',
-            text: `You have received a friend invitation from ${data.from}.`,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'Accept',
-            cancelButtonText: 'Reject',
-            confirmButtonColor: 'green',
-            cancelButtonColor: 'red',
-        }).then((result) => {
-            let response = result.isConfirmed ? 'accept' : 'reject';
-            
-            socket.send(JSON.stringify({
-                type: 'response.invitation',
-                response: response,
-                friend_request_id: data.friend_request_id
-            }));
-        });
+        socket.send(JSON.stringify({
+            type: 'response.invitation',
+            response: 'pending',
+            friend_request_id: data.friend_request_id
+        }));
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'update_name') {
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'remove_friend') {
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'update_logout') {
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
+    }
+    else if (data.type === 'update_login') {
+		if (ELEMENTs.profilePage())
+			await assign_location(URLs.VIEWS.PROFILE);
     }
 }
 
-
-
-// async function testRequest() {
-// 	const response = await request('GET', 'https://localhost:"env variable PROXYWAF_HTTPS_PORT"/hello/');
-// 	if (response.status === 200)
-// 		console.log('request succeeded!!');
-// 	console.log('request failed!!');
-// }
 
 function strcmp(str1, str2) {
     return str1 === str2;
 }
 
-// function calculateScore(player_game_played, player_victory, opponent_game_played, opponent_victory, player_won) {
-//     let player_score = player_game_played > 0 ? (player_victory / player_game_played) * 100 : 0;
-//     let opponent_score = opponent_game_played > 0 ? (opponent_victory / opponent_game_played) * 100 : 0;
-//     let player_cote_change = 0;
-//     let opponent_cote_change = 0;
-
-//     if (player_won) {
-//         if (player_score < opponent_score) {
-//             player_cote_change = (opponent_score - player_score) * 1.5;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.2;
-//         } else {
-//             player_cote_change = (opponent_score - player_score) * 1.2;
-//             opponent_cote_change = -(opponent_score - player_score) * 1.1;
-//         }
-//     } else {
-//         if (opponent_score < player_score) {
-//             opponent_cote_change = (player_score - opponent_score) * 1.5;
-//             player_cote_change = -(player_score - opponent_score) * 1.2;
-//         } else {
-//             opponent_cote_change = (player_score - opponent_score) * 1.2;
-//             player_cote_change = -(player_score - opponent_score) * 1.1;
-//         }
-//     }
-
-//     player_score += player_cote_change;
-//     opponent_score += opponent_cote_change;
-
-//     player_score = Math.max(player_score, 0);
-//     opponent_score = Math.max(opponent_score, 0);
-
-//     return { player_score, opponent_score };
-// }
 
 
 async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
-		console.log("Pending flows: Reauthentication required");
 		// await reauthenticateJob(undefined);
-		await logout();
+		await logout_views();
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {
@@ -375,14 +337,14 @@ async function updateMfaBoxStatus(data) {
 	}
 }
 
-function assign_location(url) {
+async function assign_location(url) {
 	window.history.pushState({}, "", url);
-	handleLocation();
+	await handleLocation();
 }
 
-function replace_location(url) {
+async function replace_location(url) {
 	window.history.replaceState({}, "", url);
-	handleLocation();
+	await handleLocation();
 }
 
 function dispose_modals() {
@@ -399,5 +361,26 @@ function dispose_modals() {
 	if (_modal2) {
 		_modal2.dispose();
 		ELEMENTs.oauth_modal2()?.remove();
+	}
+}
+
+function clear_jwt() {
+	window.localStorage.removeItem('jwt_access_token');
+	window.localStorage.removeItem('jwt_refresh_token');
+}
+
+async function refresh_jwt() {
+	const access_token = window.localStorage.getItem('jwt_access_token');
+	if (access_token) {
+		const token_payload = await parseJwt(access_token)
+		const expiration = token_payload.exp;
+		const time_now = Math.floor(Date.now() / 1000);
+		const delta = expiration - time_now;
+		if (delta < 2) {
+			const refresh_token = window.localStorage.getItem('jwt_refresh_token');
+			if (refresh_token) {
+				await refreshTokenJob('POST', URLs.REFRESH_TOKEN, { 'refresh' : refresh_token });
+			}
+		}
 	}
 }

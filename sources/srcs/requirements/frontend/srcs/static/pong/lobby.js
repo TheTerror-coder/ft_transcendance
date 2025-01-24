@@ -2,7 +2,6 @@ import socketIOClient from 'socket.io-client';
 // import socket from './socket.js';
 // import {main as startPongGame} from './pong.js';
 
-let savedGameCode = null;
 let gameStarted = false;
 let ip;
 let socket;
@@ -90,9 +89,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     const launchGameButton = document.getElementById('launchGame');
     if (launchGameButton) {
         launchGameButton.addEventListener('click', () => {
-            console.log(savedGameCode);
-            if (savedGameCode) {
-                socket.emit('launchGame', savedGameCode);
+            console.log(savedGameCode.code);
+            if (savedGameCode.code) {
+                socket.emit('launchGame', savedGameCode.code);
             } else {
                 console.error("Le code de la partie n'est pas disponible.");
             }
@@ -103,15 +102,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Partie créée avec le code:', data.gameCode);
         document.getElementById('gameOptions').style.display = 'block';
         afficherCodePartie(data.gameCode);
-        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
-        console.log("savedGameCode: ", savedGameCode);
+        savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
+        console.log("savedGameCode.code: ", savedGameCode.code);
     });
 
     socket.on('gameJoined', (data) => {
         console.log('Rejoint la partie:', data.gameCode);
         document.getElementById('gameOptions').style.display = 'block';
         afficherCodePartie(data.gameCode);
-        savedGameCode = data.gameCode; // Sauvegarder le code de la partie
+        savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
     });
 
     socket.on('AvailableOptions', (data) => {
@@ -188,7 +187,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         for (let i = 0; i < bodyElements.length; i++) {
             bodyElements[i].style.display = 'none';
         }
-        await module.main(savedGameCode, socket);
+        await module.main(savedGameCode.code, socket);
     });
 
     // Fonction pour afficher le code de la partie dans le HUD
