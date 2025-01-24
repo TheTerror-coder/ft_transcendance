@@ -4,20 +4,20 @@ async function connect()
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const bad_input = /^[^<>]+$/;
-    if (!bad_input.test(email) || !bad_input.test(password)) {
+    if (!bad_input.test(email) || !bad_input.test(password))
+	{
         alert("Invalid input.");
         return;
     }
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
-    console.log(response);
 // jm custom beginning //
 	if (response.status === 401) {
 		if (response.data?.flows?.find(obj => (obj.id === FLOWs.MFA_AUTHENTICATE && obj.is_pending === true))) {
 			await mfaAuthMiddlewareJob();
 		}
 		else {
-            // alert("Invalid credentials.");
+            alert("Invalid credentials.");
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 		}
 	}
@@ -38,10 +38,8 @@ async function connect()
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
         ELEMENTs.password().value = "";
     }
 }

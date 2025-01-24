@@ -11,10 +11,8 @@ async function createAccount(instance) {
         alert("Invalid input.");
         return;
     }
-    console.log('createAccount() function: email: ', email,"\nusername: ", username, "\npassword: ",password, "\nconfirmPassword: ", confirmPassword);
     const data = {"username": username, "email": email, "password1": password, "password2": confirmPassword};
 
-    console.log("registerURL", data);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REGISTER, data);
     if (response.status === 'success') 
 		await mfaAuthMiddlewareJob();
@@ -27,11 +25,8 @@ async function createAccount(instance) {
                 }
             }
             alert(errorMessages);
-            console.log("Errors:", errorMessages);
-        } else {
+        } else
             alert(response.errors);
-            console.log("Errors:", response.errors);
-        }
         ELEMENTs.createPassword().value = '';
         ELEMENTs.createConfirmPassword().value = '';
     }

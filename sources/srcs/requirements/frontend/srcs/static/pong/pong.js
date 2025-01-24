@@ -21,21 +21,40 @@ export async function main(gameCode, socket, currentLanguage) {
     socket.emit('GameStarted', gameCode);
     console.log("gameCode : ", gameCode);
     console.log("currentLanguage: ", currentLanguage);
+
+    socket.on('disconnect', () => {
+        console.log('Disconnected from the server');
+        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+        socket.off('disconnect');
+    });
     
     // Créer une Promise pour attendre les données initiales
     const gameInitData = await new Promise((resolve) => {
         const gameDataListener = async (gameData) => {
             console.log('Données de la partie:', gameData);
             if (gameData) {
-                const initData = await initGame(gameData, socket.id);
-                console.log('initGame done');
-                console.log('Team1:', initData.Team1);
-                console.log('Team2:', initData.Team2);
-                console.log('currentPlayer:', initData.currentPlayer);
-                console.log('currentPlayerTeam:', initData.currentPlayerTeam);
-                // Désactiver le listener une fois les données reçues
-                socket.off('gameData', gameDataListener);
-                resolve(initData);
+                try {
+                    const initData = await initGame(gameData, socket.id);
+                    console.log('initGame done');
+                    console.log('Team1:', initData.Team1);
+                    console.log('Team2:', initData.Team2);
+                    console.log('currentPlayer:', initData.currentPlayer);
+                    console.log('currentPlayerTeam:', initData.currentPlayerTeam);
+                    
+                    // Vérifier que currentPlayerTeam est bien initialisé
+                    if (!initData.currentPlayerTeam) {
+                        console.error('currentPlayerTeam not initialized');
+                        resolve(null);
+                        return;
+                    }
+                    
+                    // Désactiver le listener une fois les données reçues
+                    socket.off('gameData', gameDataListener);
+                    resolve(initData);
+                } catch (error) {
+                    console.error('Error in initGame:', error);
+                    resolve(null);
+                }
             } else {
                 console.error('Aucune donnée de partie trouvée.');
                 socket.off('gameData', gameDataListener);
@@ -46,8 +65,8 @@ export async function main(gameCode, socket, currentLanguage) {
         socket.on('gameData', gameDataListener);
     });
 
-    if (!gameInitData) {
-        console.error("Échec de l'initialisation du jeu");
+    if (!gameInitData || !gameInitData.currentPlayerTeam) {
+        console.error("Échec de l'initialisation du jeu ou currentPlayerTeam non initialisé");
         return false;
     }
 
@@ -55,212 +74,241 @@ export async function main(gameCode, socket, currentLanguage) {
     let Team2 = gameInitData.Team2;
     let currentPlayer = gameInitData.currentPlayer;
     let currentPlayerTeam = gameInitData.currentPlayerTeam;
-    
-    let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
-    if (!scene || !cameraPlayer || !renderer || !boatGroup1 || !boatGroup2 || !ball || !display)
-    {
-        console.error('Error loading the scene');
-        return (false);
-    }
-    let hud = await createHUD(renderer);
-    let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
-    let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
-    let boat1Hitbox = new THREE.Box3Helper(boat1BoundingBox, 0xffff00); // TODO : remove for production
-    let boat2Hitbox = new THREE.Box3Helper(boat2BoundingBox, 0xff0000); // TODO : remove for production
-    scene.add(boat1Hitbox); // TODO : remove for production
-    scene.add(boat2Hitbox); // TODO : remove for production
-    
-    // Créer un élément pour afficher la rotation et la position
-    const displayInfo = document.createElement('div');
-    displayInfo.style.position = 'absolute';
-    displayInfo.style.top = '10px';
-    displayInfo.style.left = '10px';
-    displayInfo.style.color = 'white';
-    document.body.appendChild(displayInfo);
-    
-    // Créer un élément pour afficher la position de la balle
-    const ballPositionDisplay = document.createElement('div');
-    ballPositionDisplay.style.position = 'absolute';
-    ballPositionDisplay.style.bottom = '10px';
-    ballPositionDisplay.style.left = '10px';
-    ballPositionDisplay.style.color = 'white';
-    document.body.appendChild(ballPositionDisplay);
-    
-    // Créer une caméra contrôlable
-    setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
-    
-    const keys = {};
-    Team1.setBoat(boatGroup1);
-    Team2.setBoat(boatGroup2);
-    Team1.setCannon(boatGroup1.getObjectByName(`cannonTeam1`));
-    Team2.setCannon(boatGroup2.getObjectByName(`cannonTeam2`));
 
-    initializeInterpolators(Team1, Team2, currentPlayerTeam);
+    console.log('gameInitData : ', gameInitData);
+    console.log('currentPlayer : ', currentPlayer);
+    console.log('currentPlayerTeam : ', currentPlayerTeam);
     
-    if (currentPlayerTeam && currentPlayer) {
-        let boat = currentPlayerTeam.getBoat();
-        let cannonPosInTheWorld = currentPlayerTeam.getCannonPosInTheWorld();
-        let cannon = currentPlayerTeam.getCannon();
-        
-        if (boat && cannon) {
-            currentPlayer.setCameraPos(boat, cannon, cannonPosInTheWorld);
-            cameraPlayer = initCamera(currentPlayer, cameraPlayer, cannon, boat);
-            currentPlayer.setCameraPlayer(cameraPlayer);
-        } else {
-            console.error('Boat or cannon is undefined');
+    // Attendre un court instant pour s'assurer que tout est bien initialisé
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    try {
+        let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(Team1, Team2, currentPlayerTeam);
+        if (!scene || !cameraPlayer || !renderer || !boatGroup1 || !boatGroup2 || !ball || !display) {
+            console.error('Error loading the scene');
+            return false;
         }
-    } else {
-        console.error('currentPlayerTeam or currentPlayer is undefined');
-    }
-    console.log('cameraPlayer : ', cameraPlayer);
-    
-    for (const player of Team1.getPlayerMap().values())
-    {
-        console.log('Player Team1 : ', player);
-        console.log('Player Team1 camera pos : ', player.getCameraPos());
-    }
-    for (const player of Team2.getPlayerMap().values())
-    {
-        console.log('Player Team2 : ', player);
-        console.log('Player Team2 camera pos : ', player.getCameraPos());
-    }
+        let hud = await createHUD(renderer);
+        let boat1BoundingBox = new THREE.Box3().setFromObject(boatGroup1);
+        let boat2BoundingBox = new THREE.Box3().setFromObject(boatGroup2);
+        let boat1Hitbox = new THREE.Box3Helper(boat1BoundingBox, 0xffff00); // TODO : remove for production
+        let boat2Hitbox = new THREE.Box3Helper(boat2BoundingBox, 0xff0000); // TODO : remove for production
+        scene.add(boat1Hitbox); // TODO : remove for production
+        scene.add(boat2Hitbox); // TODO : remove for production
+        
+        // Créer un élément pour afficher la rotation et la position
+        const displayInfo = document.createElement('div');
+        displayInfo.style.position = 'absolute';
+        displayInfo.style.top = '10px';
+        displayInfo.style.left = '10px';
+        displayInfo.style.color = 'white';
+        document.body.appendChild(displayInfo);
+        
+        // Créer un élément pour afficher la position de la balle
+        const ballPositionDisplay = document.createElement('div');
+        ballPositionDisplay.style.position = 'absolute';
+        ballPositionDisplay.style.bottom = '10px';
+        ballPositionDisplay.style.left = '10px';
+        ballPositionDisplay.style.color = 'white';
+        document.body.appendChild(ballPositionDisplay);
+        
+        // Créer une caméra contrôlable
+        setupCameraControls(cameraPlayer, displayInfo); // Ajout de la ligne pour créer la caméra contrôlable
+        
+        const keys = {};
+        Team1.setBoat(boatGroup1);
+        Team2.setBoat(boatGroup2);
+        Team1.setCannon(boatGroup1.getObjectByName(`cannonTeam1`));
+        Team2.setCannon(boatGroup2.getObjectByName(`cannonTeam2`));
 
-    await waitForBoatGroup(currentPlayerTeam);
-    if (currentPlayerTeam.getBoatSavedPos().x == 0 && currentPlayerTeam.getBoatSavedPos().y == 0 && currentPlayerTeam.getBoatSavedPos().z == 0)
-        network.updateServerData(gameCode, socket, currentPlayerTeam);
-    
-    setupEventListeners(socket, keys);
-    initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-    network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode);
-    socket.emit('playerReady', gameCode);
-    console.log('Player ready sent');
-    await waitForGameStarted(currentPlayer);
-    setInterval(() => {
-        updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED);
-        updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED);
-    }, FRAME_RATE);
-    updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode);
-    
-    let animationComplete = false;
-    const animationCompletePromise = new Promise((resolve) => {
-        async function animate() {
-            let requestAnimationFrameId = requestAnimationFrame(animate);
+        initializeInterpolators(Team1, Team2, currentPlayerTeam);
+        
+        if (currentPlayerTeam && currentPlayer) {
+            let boat = currentPlayerTeam.getBoat();
+            let cannonPosInTheWorld = currentPlayerTeam.getCannonPosInTheWorld();
+            let cannon = currentPlayerTeam.getCannon();
             
-            if (currentPlayer.getGameStarted() === false) {
-                cancelAnimationFrame(requestAnimationFrameId);
-                console.log("Pass in ending clear");
-                window.removeEventListener('keydown', keys);
-                window.removeEventListener('keyup', keys);
+            if (boat && cannon) {
+                currentPlayer.setCameraPos(boat, cannon, cannonPosInTheWorld);
+                cameraPlayer = initCamera(currentPlayer, cameraPlayer, cannon, boat);
+                currentPlayer.setCameraPlayer(cameraPlayer);
+            } else {
+                console.error('Boat or cannon is undefined');
+            }
+        } else {
+            console.error('currentPlayerTeam or currentPlayer is undefined');
+        }
+        console.log('cameraPlayer : ', cameraPlayer);
+        
+        for (const player of Team1.getPlayerMap().values())
+        {
+            console.log('Player Team1 : ', player);
+            console.log('Player Team1 camera pos : ', player.getCameraPos());
+        }
+        for (const player of Team2.getPlayerMap().values())
+        {
+            console.log('Player Team2 : ', player);
+            console.log('Player Team2 camera pos : ', player.getCameraPos());
+        }
 
-                scene.remove(boatGroup1);
-                scene.remove(boatGroup2);
-                scene.remove(ball);
-                scene.remove(display[0])
+        await waitForBoatGroup(currentPlayerTeam);
+        if (currentPlayerTeam.getBoatSavedPos().x == 0 && currentPlayerTeam.getBoatSavedPos().y == 0 && currentPlayerTeam.getBoatSavedPos().z == 0)
+            network.updateServerData(gameCode, socket, currentPlayerTeam);
+        
+        setupEventListeners(socket, keys, cameraPlayer, renderer);
+        setupControls(keys);
+        initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
+        network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam);
+        console.log("Game code : ", gameCode);
+        socket.emit('playerReady', gameCode);
+        console.log('Player ready sent');
+        await waitForGameStarted(currentPlayer);
+        setInterval(() => {
+            updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED);
+            updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED);
+        }, FRAME_RATE);
+        updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlayer, CANNON_ROTATION_SPEED, hud, scene, socket, gameCode);
+        
+        let animationComplete = false;
+        const animationCompletePromise = new Promise(async (resolve) => {
+            async function animate() {
+                let requestAnimationFrameId = requestAnimationFrame(animate);
                 
-                // Rendre la scène noire
-                scene.background = new THREE.Color(0x000000);
+                if (currentPlayer.getGameStarted() === false) {
+                    cancelAnimationFrame(requestAnimationFrameId);
+                    console.log("Pass in ending clear");
+
+                    removeControls();
+
+                    scene.remove(boatGroup1);
+                    scene.remove(boatGroup2);
+                    scene.remove(ball);
+                    scene.remove(display[0])
+                    
+                    // Rendre la scène noire
+                    scene.background = new THREE.Color(0x000000);
+                    
+                    // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
+                    const startTime = Date.now();
+                    async function renderEndScreen() {
+                        if (Date.now() - startTime < 5000) {
+                            requestAnimationFrame(renderEndScreen);
+                            renderer.render(scene, cameraPlayer);
+                            renderer.autoClear = false;
+                            renderer.render(hud.scene, hud.camera);
+                            renderer.autoClear = true;
+                        } else {
+                            // Nettoyer complètement après 5 secondes
+                            if (hud) {
+                                hud.scene.clear();
+                                if (hud.camera) hud.camera = null;
+                            }
+                            
+                            // Nettoyer les éléments du DOM et déconnecter
+                            if (displayInfo && displayInfo.parentNode) {
+                                displayInfo.parentNode.removeChild(displayInfo);
+                            }
+                            if (ballPositionDisplay && ballPositionDisplay.parentNode) {
+                                ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
+                            }
+                            
+                            render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
+                            
+                            scene = null;
+                            ball = null;
+                            boatGroup1 = null;
+                            boatGroup2 = null;
+                            renderer = null;
+                            cameraPlayer = null;
+                            
+                            console.log("currentPlayerTeam.getWinner() : ", currentPlayerTeam.getWinner());
+                            console.log("gameCode.length : ", gameCode.length);
+                            console.log("gameCode : ", gameCode);
+                            if (gameCode.length == 4 || (gameCode.length == 5 && currentPlayerTeam.getWinner() === false))
+                            {
+                                console.log("currentPlayer.getName() : ", currentPlayer.getName());
+                                console.log("socket.id : ", socket.id);
+                                animationComplete = true;
+                                network.removeSocketListeners(socket);
+                                resolve();
+                                savedGameCode.code = null;
+                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                replace_location(URLs.VIEWS.HOME);
+                                // await new Promise(resolve => setTimeout(resolve, 200));
+                                socket.disconnect();
+                                return (true);
+                            }
+                            else if (gameCode.length == 5 && currentPlayerTeam.getWinner() === true)
+                            {
+                                animationComplete = true;
+                                network.removeSocketListeners(socket);
+                                resolve();
+                                savedGameCode.code = null;
+                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                if (currentPlayerTeam.getTournamentEnded() === true)
+                                {
+                                    replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    socket.disconnect();
+                                    return (true);
+                                }
+                                replace_location(URLs.VIEWS.TOURNAMENT_TREE);
+                                return (true);
+                            }
+                        }
+                    }
+                    
+                    renderEndScreen();
+                    return (true);
+                }
                 
-                // Continuer le rendu pendant 5 secondes pour afficher le texte de victoire/défaite
-                const startTime = Date.now();
-                function renderEndScreen() {
-                    if (Date.now() - startTime < 5000) {
-                        requestAnimationFrame(renderEndScreen);
-                        renderer.render(scene, cameraPlayer);
-                        renderer.autoClear = false;
-                        renderer.render(hud.scene, hud.camera);
-                        renderer.autoClear = true;
-                    } else {
-                        // Nettoyer complètement après 5 secondes
-                        if (hud) {
-                            hud.scene.clear();
-                            if (hud.camera) hud.camera = null;
-                        }
-                        
-                        // Nettoyer les éléments du DOM et déconnecter
-                        if (displayInfo && displayInfo.parentNode) {
-                            displayInfo.parentNode.removeChild(displayInfo);
-                        }
-                        if (ballPositionDisplay && ballPositionDisplay.parentNode) {
-                            ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
-                        }
-                        
-                        render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
-                        
-                        scene = null;
-                        ball = null;
-                        boatGroup1 = null;
-                        boatGroup2 = null;
-                        renderer = null;
-                        cameraPlayer = null;
-                        
-                        console.log("currentPlayerTeam.getWinner() : ", currentPlayerTeam.getWinner());
-                        console.log("gameCode.length : ", gameCode.length);
-                        console.log("gameCode : ", gameCode);
-                        if (gameCode.length == 4)
-                            socket.disconnect();
-                        else if (gameCode.length == 5)
-                        {
-                            ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
-                            replace_location(URLs.VIEWS.TOURNAMENT_TREE);
-                        }
-                        animationComplete = true;
-                        network.removeSocketListeners(socket);
-                        resolve();
-                        return (true);
+                if (ball && ball.userData.lastServerPosition && ball.userData.velocity) {
+                    const now = Date.now();
+                    const deltaTime = (now - ball.userData.lastServerPosition.timestamp) / 1000;
+                    
+                    if (deltaTime < 1.0) {
+                        predictBallPosition(ball, ball.userData.velocity, deltaTime);
                     }
                 }
                 
-                renderEndScreen();
-                return (true);
-            }
-            
-            if (ball && ball.userData.lastServerPosition && ball.userData.velocity) {
-                const now = Date.now();
-                const deltaTime = (now - ball.userData.lastServerPosition.timestamp) / 1000;
+                // Mise à jour des boîtes de collision
+                boat1BoundingBox.setFromObject(boatGroup1);
+                boat2BoundingBox.setFromObject(boatGroup2);
+
+                boat1BoundingBox.min.x += 7;
+                boat2BoundingBox.min.x += 7;
+                boat1BoundingBox.max.x += 2;
+                boat2BoundingBox.max.x -= 2;
+                boat1BoundingBox.max.y -= 1;
+                boat2BoundingBox.max.y -= 1;
+                boat1BoundingBox.min.y += 1;
+                boat2BoundingBox.min.y += 1;
+                boat1BoundingBox.max.z /= 3;
+                boat2BoundingBox.max.z /= 3;
+                boat1Hitbox.updateMatrixWorld(true);
+                boat2Hitbox.updateMatrixWorld(true);
                 
-                if (deltaTime < 1.0) {
-                    predictBallPosition(ball, ball.userData.velocity, deltaTime);
-                }
+                // Mettre à jour les positions des bateaux avec interpolation
+                updateBoatPositions(Team1, Team2);
+
+                // Rendre la scène normale
+                renderer.render(scene, cameraPlayer);
+
+                // Rendre la scène HUD
+                renderer.autoClear = false;
+                renderer.render(hud.scene, hud.camera);
+                renderer.autoClear = true;
             }
-            
-            // Mise à jour des boîtes de collision
-            boat1BoundingBox.setFromObject(boatGroup1);
-            boat2BoundingBox.setFromObject(boatGroup2);
 
-            boat1BoundingBox.min.x += 7;
-            boat2BoundingBox.min.x += 7;
-            boat1BoundingBox.max.x += 2;
-            boat2BoundingBox.max.x -= 2;
-            boat1BoundingBox.max.y -= 1;
-            boat2BoundingBox.max.y -= 1;
-            boat1BoundingBox.min.y += 1;
-            boat2BoundingBox.min.y += 1;
-            boat1BoundingBox.max.z /= 3;
-            boat2BoundingBox.max.z /= 3;
-            boat1Hitbox.updateMatrixWorld(true);
-            boat2Hitbox.updateMatrixWorld(true);
-            
-            // Mettre à jour les positions des bateaux avec interpolation
-            updateBoatPositions(Team1, Team2);
+            animate();
+        });
 
-            // Rendre la scène normale
-            renderer.render(scene, cameraPlayer);
-
-            // Rendre la scène HUD
-            renderer.autoClear = false;
-            renderer.render(hud.scene, hud.camera);
-            renderer.autoClear = true;
-        }
-
-        animate();
-    });
-
-    socket.on('gameState', (data) => {
-        updateBallPosition(data.ballPosition, ball);
-        displayBallPosition(data.ballPosition, ballPositionDisplay);
-    });
-    await animationCompletePromise;
-    return (true);
+        await animationCompletePromise;
+        return (true);
+    } catch (error) {
+        console.error('Error initializing scene:', error);
+        return false;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -300,23 +348,16 @@ async function initGame(gameData, socketID) {
     const team1 = new Team(gameData.team1.Name, gameData.team1.MaxNbPlayer, gameData.team1.TeamId);
     const team2 = new Team(gameData.team2.Name, gameData.team2.MaxNbPlayer, gameData.team2.TeamId);
 
-    console.log('team1 : ', team1);
-    console.log('team2 : ', team2);
-
-    console.log('gameData.team1.Boat : ', gameData.team1.Boat);
-    console.log('gameData.team2.Boat : ', gameData.team2.Boat);
-    console.log('gameData.team1.Cannon : ', gameData.team1.Cannon);
-    console.log('gameData.team2.Cannon : ', gameData.team2.Cannon);
-
-    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
-    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
-    console.log('===================team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
-    console.log('===================team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+    let currentPlayer = null;
+    let currentPlayerTeam = null;
 
     team1.setBoatSavedPos(gameData.team1.Boat);
     team2.setBoatSavedPos(gameData.team2.Boat);
     team1.setCannonSavedPos(gameData.team1.Cannon);
     team2.setCannonSavedPos(gameData.team2.Cannon);
+
+    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
+    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
 
     if (gameData.team1.Score)
         team1.setScore(gameData.team1.Score);
@@ -327,61 +368,72 @@ async function initGame(gameData, socketID) {
         team1.setBallSavedPos(gameData.ball);
         team2.setBallSavedPos(gameData.ball);
     }
+    // Fonction helper pour initialiser un joueur
+    const initializePlayer = (playerData, team) => {
+        if (!playerData) {
+            console.error('Données de joueur invalides:', playerData);
+            return null;
+        }
 
+        try {
+            // Les données sont déjà dans le bon format, pas besoin de getters
+            const player = new Player(
+                playerData.id,
+                playerData.role,
+                playerData.name,
+                team.getTeamId()
+            );
 
-    console.log('team1.getBoatSavedPos() : ', team1.getBoatSavedPos());
-    console.log('team2.getBoatSavedPos() : ', team2.getBoatSavedPos());
-    console.log('team1.getCannonSavedPos() : ', team1.getCannonSavedPos());
-    console.log('team2.getCannonSavedPos() : ', team2.getCannonSavedPos());
+            team.setPlayer(player);
+            console.log(`Joueur initialisé:`, player);
 
-    let currentPlayer = null;
-    let currentPlayerTeam = null;
-
-    // Accéder aux joueurs de l'équipe 1 et les ajouter à l'équipe
-    const team1Promises = Object.keys(gameData.team1.Player).map(key => {
-        return new Promise((resolve) => {
-            const playerData = gameData.team1.Player[key];
-            const player = new Player(playerData.id, playerData.role, playerData.name, team1.getTeamId());
-            team1.setPlayer(player);
-            console.log(`Joueur ${key} de l'équipe 1 :`, player);
             if (playerData.id === socketID) {
                 currentPlayer = player;
-                currentPlayerTeam = team1;
+                currentPlayerTeam = team;
+                console.log('Joueur courant trouvé:', player);
             }
-            resolve();
-        });
-    });
 
-    // Accéder aux joueurs de l'équipe 2 et les ajouter à l'équipe
-    const team2Promises = Object.keys(gameData.team2.Player).map(key => {
-        return new Promise((resolve) => {
-            const playerData = gameData.team2.Player[key];
-            const player = new Player(playerData.id, playerData.role, playerData.name, team2.getTeamId());
-            team2.setPlayer(player);
-            console.log(`Joueur ${key} de l'équipe 2 :`, player);
-            if (playerData.id === socketID) {
-                currentPlayer = player;
-                currentPlayerTeam = team2;
-            }
-            resolve();
-        });
-    });
+            return player;
+        } catch (error) {
+            console.error('Erreur lors de l\'initialisation du joueur:', error);
+            console.error('playerData:', playerData);
+            console.error('team:', team);
+            return null;
+        }
+    };
 
-    // Attendre que tous les joueurs soient ajoutés aux équipes
-    await Promise.all([...team1Promises, ...team2Promises]);
-
-    // Afficher les équipes et leurs joueurs
-    console.log('Équipe 1 :', team1);
-    console.log('Équipe 2 :', team2);
-
-    if (currentPlayer) {
-        console.log('Joueur actuel :', currentPlayer);
-        console.log('Équipe du joueur actuel :', currentPlayerTeam);
-    } else {
-        console.log('Joueur actuel non trouvé');
+    // Initialiser les joueurs de l'équipe 1
+    const team1Players = gameData.team1.Player;
+    if (team1Players) {
+        if (Array.isArray(team1Players)) {
+            // Si c'est un tableau
+            await Promise.all(team1Players.map(playerData => initializePlayer(playerData, team1)));
+        } else if (typeof team1Players === 'object') {
+            // Si c'est un objet avec des clés
+            await Promise.all(Object.values(team1Players).map(playerData => initializePlayer(playerData, team1)));
+        }
     }
 
-    // Ne pas initialiser les interpolateurs ici
+    // Initialiser les joueurs de l'équipe 2
+    const team2Players = gameData.team2.Player;
+    if (team2Players) {
+        if (Array.isArray(team2Players)) {
+            // Si c'est un tableau
+            await Promise.all(team2Players.map(playerData => initializePlayer(playerData, team2)));
+        } else if (typeof team2Players === 'object') {
+            // Si c'est un objet avec des clés
+            await Promise.all(Object.values(team2Players).map(playerData => initializePlayer(playerData, team2)));
+        }
+    }
+
+    // Vérifications finales
+    if (!currentPlayer || !currentPlayerTeam) {
+        console.error('Joueur courant non trouvé après initialisation');
+        console.log('Équipe 1:', team1);
+        console.log('Équipe 2:', team2);
+        throw new Error('Joueur courant non trouvé');
+    }
+
     return { Team1: team1, Team2: team2, currentPlayer, currentPlayerTeam };
 }
 
@@ -393,27 +445,67 @@ function initCamera(player, cameraPlayer, cannon, bateau)
     return cameraPlayer;
 }
 
-function setupEventListeners(socket, keys, cameraPlayer) {
+let keyDownHandler = null;
+let keyUpHandler = null;
+
+function setupControls(keys) {
     let lastKeyPressTime = 0;
-    window.addEventListener('keydown', (event) => {
-        if (!keys[event.key] || !keys[event.key].pressed)
-        {
+    // Créer les fonctions de callback
+    keyDownHandler = (event) => {
+        if (!keys[event.key] || !keys[event.key].pressed) {
             keys[event.key] = {pressed: true, time: 0};
             lastKeyPressTime = Date.now();
-        }
-        else
-        {
+        } else {
             keys[event.key].time = Date.now() - lastKeyPressTime;
         }
-    });
-
-    window.addEventListener('keyup', (event) => {
-        if (keys[event.key] && keys[event.key].pressed)
-        {
+    };
+    
+    keyUpHandler = (event) => {
+        if (keys[event.key] && keys[event.key].pressed) {
             const pressDuration = Date.now() - lastKeyPressTime;
             keys[event.key] = {pressed: false, time: pressDuration};
         }
-    });
+    };
+
+    // Ajouter les event listeners
+    document.addEventListener('keydown', keyDownHandler);
+    document.addEventListener('keyup', keyUpHandler);
+}
+
+function removeControls() {
+    // Vérifier si les handlers existent avant de les supprimer
+    if (keyDownHandler) {
+        document.removeEventListener('keydown', keyDownHandler);
+        keyDownHandler = null;
+    }
+    if (keyUpHandler) {
+        document.removeEventListener('keyup', keyUpHandler);
+        keyUpHandler = null;
+    }
+    console.log("Controls removed");
+}
+
+function setupEventListeners(socket, keys, cameraPlayer, renderer) {
+    // let lastKeyPressTime = 0;
+    // window.addEventListener('keydown', (event) => {
+    //     if (!keys[event.key] || !keys[event.key].pressed)
+    //     {
+    //         keys[event.key] = {pressed: true, time: 0};
+    //         lastKeyPressTime = Date.now();
+    //     }
+    //     else
+    //     {
+    //         keys[event.key].time = Date.now() - lastKeyPressTime;
+    //     }
+    // });
+
+    // window.addEventListener('keyup', (event) => {
+    //     if (keys[event.key] && keys[event.key].pressed)
+    //     {
+    //         const pressDuration = Date.now() - lastKeyPressTime;
+    //         keys[event.key] = {pressed: false, time: pressDuration};
+    //     }
+    // });
 
     window.addEventListener('resize', function () {
         if (cameraPlayer) {

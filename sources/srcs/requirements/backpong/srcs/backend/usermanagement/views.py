@@ -127,7 +127,6 @@ def login_view(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
-	print("logout_view", file=sys.stderr)
 	logout(request)
 	username = request.data.get('username')
 	if not username:

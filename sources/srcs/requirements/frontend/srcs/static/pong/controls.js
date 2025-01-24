@@ -1,4 +1,3 @@
-// import * as THREE from 'three';
 import { doTheCal } from './ballistic_cal.js';
 
 export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, CANNON_MOVE_SPEED)
@@ -10,14 +9,14 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         let cannonTubeMoved = false;
 
         if (cannon) {
-            if (keys && keys['d'] && keys['d'].pressed && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 6 && TeamID === 2)))
+            if (keys && keys['d'] && keys['d'].pressed && ((cannon.position.x > -6 && TeamID === 1) || (cannon.position.x < 0 && TeamID === 2)))
             {
                 if (currentPlayer.getIsPaused())
                     return;
                 cannon.position.x += CANNON_MOVE_SPEED * directionMove;
                 cannonTubeMoved = true;
             }
-            if (keys && keys['a'] && keys['a'].pressed && ((cannon.position.x < 6 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
+            if (keys && keys['a'] && keys['a'].pressed && ((cannon.position.x < 0 && TeamID === 1) || (cannon.position.x > -6 && TeamID === 2)))
             {
                 if (currentPlayer.getIsPaused())
                     return;
@@ -25,7 +24,6 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
                 cannonTubeMoved = true;
             }
         }
-        // let cannonPosInTheWorld = currentPlayerTeam.getCannonPosInTheWorld();
         let cannonPos = cannon.position.x;
         if (cannonTubeMoved) {
             console.log('cannonTubeMoved : ', cannonPos);
@@ -66,9 +64,9 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 if (keys && keys[' '] && keys[' '].pressed)
                                 {
                                     pause = true;
-                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
                                 }
                             }
                             else
@@ -104,9 +102,9 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 if (keys && keys[' '] && keys[' '].pressed)
                                 {
                                     pause = true;
-                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, trajectoryLine, hud);
+                                    trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
                                 }
                             }
                             else

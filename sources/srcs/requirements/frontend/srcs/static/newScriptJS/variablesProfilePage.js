@@ -61,15 +61,15 @@ const profilePageDisplayVAR =
             <div class="sideBar">
             </div>
             <div class="profileFriendInBook">
-                <img src="/static/photos/picturePng/homePage/add_friend_button.png" alt="friendPage" style="width:230px; margin-top: -30px;">
-                <div class="dropdown" style="margin-top: -130px;">
+                <img src="/static/photos/picturePng/homePage/add_friend_button.png" alt="friendPage" style="width:230px; align-self: center;">
+                <div class="dropdown" style="align-self: end; margin-bottom: 130px;">
                     <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span data-translate="FriendList">FRIEND LIST</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end overflow-auto p-0 dropDownMenuInProfileMenu" style="inset: 0px -20px auto auto" id="friendDropdownMenu">
                     </ul>
                 </div>
-                <div class="dropdown" style="margin-bottom: -76px;">
+                <div class="dropdown" style="align-self: end;">
                     <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span data-translate="waitingFriendlist">WAITING FRIEND LIST</span>
                     </button>

@@ -10,7 +10,6 @@ async function updateLobby(data)
     {
         await updateLobbyOneVsOne(data);
         // TODO regarder si le lobby est plein
-        console.log("avant on click de start game lobby");
         ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
 
     }
@@ -31,7 +30,6 @@ async function updateLobbyOneVsOne(data)
     if (data[2].length === 1)
     {
         const user2 = {"username": data[2][0].name};
-        console.log("data[2][0].name", data[2][0].name);
         if (ELEMENTs.lobbyDisplayRapidPlayPlayerTwo() !== null)
         {
 
@@ -88,7 +86,6 @@ async function updateLobbyTwoVsTwo(data)
     {
         const user = {"username": data[1][1].name};
         ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
-
         const pos = data[1][1].role === "captain" ? 1 : 2;
         pos === 1 ? ELEMENTs.lobbyDisplayRapidPlayPlayerOne().innerHTML = wantedPlayerOne : ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
 
@@ -112,7 +109,5 @@ async function updateLobbyTwoVsTwo(data)
 
 function startGameLobby()
 {
-    console.log("juste avant le changement");
-    console.log("savedGameCode: ", savedGameCode.code);
     globalSocket.emit('launchGame', savedGameCode.code);
 }

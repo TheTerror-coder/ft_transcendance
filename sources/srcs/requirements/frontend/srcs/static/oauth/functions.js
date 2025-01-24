@@ -245,7 +245,6 @@ async function callWebSockets(params) {
 	};
 	socket.onmessage = function(event) {
 		var data = JSON.parse(event.data);
-		console.log("Received invitation:", data);
 		if (data.type === 'invitation') {
 			socket.send(JSON.stringify({
 				type: 'response.invitation',
@@ -269,8 +268,10 @@ async function callWebSockets(params) {
 				assign_location(URLs.VIEWS.PROFILE);
 		}
 		else if (data.type === 'update_login') {
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
+			setTimeout(() => {
+				if (ELEMENTs.profilePage())
+					assign_location(URLs.VIEWS.PROFILE);
+			}, 3000);
 		}
 	};
 }
@@ -278,7 +279,6 @@ async function callWebSockets(params) {
 
 async function handleFriendInvitation(socket, event) {
 	var data = JSON.parse(event.data);
-    
     if (data.type === 'invitation') {
         socket.send(JSON.stringify({
             type: 'response.invitation',
@@ -315,9 +315,8 @@ function strcmp(str1, str2) {
 
 async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
-		console.log("Pending flows: Reauthentication required");
 		// await reauthenticateJob(undefined);
-		await logout();
+		await logout_views();
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {

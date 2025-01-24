@@ -3,8 +3,6 @@
 
 const eventManager = async (event) => {
 	const { target } = event;
-	
-	console.log('event listener: ', target.id);
 
 	if (target.matches('a')){
 		await urlRoute(event);
@@ -13,10 +11,6 @@ const eventManager = async (event) => {
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
 		event.preventDefault();
 		await redirectToProvider();
-	}
-	else if (target.id === ELEMENTs.loginPageButton()?.id){
-		event.preventDefault();
-		await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.verify_email_button()?.id){
 		event.preventDefault();
@@ -45,11 +39,11 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
-		await logout();
+		await logout_views();
 	}
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
 		event.preventDefault();
-		await logout();
+		await logout_views();
 	}
 	else if (target.id === ELEMENTs.buttonConnec()?.id){
 		event.preventDefault();
@@ -61,15 +55,16 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
-		await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		if (ELEMENTs.createAccountChange().hasAttribute('style') || ELEMENTs.formConnect().hasAttribute('style'))
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
-		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
+		event.preventDefault();
 		await connect();
 	}
 	else if (target.id === ELEMENTs.createaccount_confirm_button()?.id)
 	{
-		event.preventDefault(); // TODO: il faudrait l'enlever pour utiliser correctement le boostrap
+		event.preventDefault();
 		createAccount();
 	}
 	else if (target.id === ELEMENTs.addFriendButton()?.id)
@@ -78,29 +73,37 @@ const eventManager = async (event) => {
 		await addFriend();
 	}
 	else if (target.id === ELEMENTs.buttonSound()?.id)
-	{
-		OnOffMusic()
-	}
+		OnOffMusic();
+	else if (target.id === document.getElementById("yesButton")?.id)
+		await logout_views();
+	else if (target.id === document.getElementById("noButton")?.id)
+		await replace_location(URLs.VIEWS.HOME);
+	else if (target.id === document.getElementById("crossJoinTournament")?.id)
+		await assign_location(URLs.VIEWS.HOME);
 	else if (target.id === ELEMENTs.logoutButton()?.id || target.id === ELEMENTs.doorJamp()?.id)
 	{
 		teamAvailable.team = 0;
 		roleAvailableBlackBeard.role = 0;
 		roleAvailableWhiteBeard.role = 0;
-		console.log("ELEMENTs.addFriendButton(): ", ELEMENTs.addFriendButton());
 		event.preventDefault();
 		if (globalSocket !== null)
 		{
-			console.log("j'ai cliquer sur la croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
-			globalSocket.disconnect(); // normalement pas besoin de lui
+			globalSocket.disconnect();
 			globalSocket.close();
-			console.log("apres le disconnect global socket = ", globalSocket);
 			globalSocket = null;
-			console.log("mis a null de global socket = ", globalSocket);
 		}
 		if (ELEMENTs.addFriendButton() === null)
 			await replace_location(URLs.VIEWS.HOME);
 		else
-			await logout_views();
+		{
+			await fragment_loadModalTemplate();
+			ELEMENTs.oauth_modal_content().innerHTML = getLogOutPopUp;
+			const _modal = new bootstrap.Modal('#oauth-modal', {
+				keyboard: false,
+			});
+			refreshLanguage();
+			await _modal.show();
+		}
 	}
 	else if (target.id === ELEMENTs.close_mfa_reauth_modal()?.id)
 	{
@@ -177,6 +180,16 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
 	title : "Tournament | " + PAGE_TITLE,
 	description : "",
 };
+urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
+	view : tournamentTreeView,
+	title : "Tournament Tree | " + PAGE_TITLE,
+	description : "",
+};
+urlRoutes[PATHs.VIEWS.ERROR404] = {
+	view : error404View,
+	title : "Not Found | " + PAGE_TITLE,
+	description : "",
+};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -201,7 +214,6 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
 const handleLocation = async () => {
 
 	//ici check la websocket
-	console.log('*********DEBUG********* handleLocation()');
 	dispose_modals();
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
@@ -223,14 +235,14 @@ const handleLocation = async () => {
 	}
 
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
-	if (routeMatched === urlRoutes["404"]){
-		// call directly 404 error view
+	if (routeMatched === urlRoutes["404"])
+	{
+		await replace_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
 		// if (!await doPendingFlows({}, _storage.flows))
 		await replace_location(URLs.VIEWS.LOGIN_VIEW);
-		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
 	await render_next(undefined, routeMatched, _storage);
@@ -239,7 +251,6 @@ const handleLocation = async () => {
 
 
 window.addEventListener('load', async () => {
-    console.log('La page a été actualisée.');
     const urlActuelle = window.location.href;
 
     if (!urlActuelle.includes('login')) {
@@ -247,19 +258,18 @@ window.addEventListener('load', async () => {
 
         if (response.find(data => data === 'user-is-authenticated')) {
             const user = {"username" : response[2].user.display};
-            console.log('user ', user);
             const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-            if (resp.status === 'error') {
-                console.log(" RECO WEB SOCKET")
+            if (resp.status === 'error') 
                 await callWebSockets();
-            }
-            //tester la request email = mail OR 1=1 --
+            // TO DO: tester la request email = mail OR 1=1 --
         }
         else if (response.find(data => data === 'not-authenticated')) {
+			alert("not-authentificated");
             console.log('not-authenticated');
         }
-        else if (response.find(data => data === 'invalid-session')) {
-            console.log('invalid-session');
+        else if (response.find(data => data === 'invalid-session')) 
+		{
+			alert("inavlid-session")
             window.sessionStorage.clear();
             await replace_location(URLs.VIEWS.LOGIN_VIEW);
         }

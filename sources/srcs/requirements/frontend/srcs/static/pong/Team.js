@@ -13,11 +13,22 @@ class Team
         this.cannon = null;
         this.boatSavedPos = {x: 0, y: 0, z: 0};
         this.cannonSavedPos = {x: 0, y: 0, z: 0};
-        this.ballSavedPos = {x: 0, y: 0, z: 0};
+        this.ballSavedPos = {x: 0, y: 0, z: 2};
         this.isFull = false;
         this.score = 0;
         this.gameStarted = false;
         this.winner = false;
+        this.tournamentEnded = false;
+    }
+
+    setTournamentEnded(tournamentEnded)
+    {
+        this.tournamentEnded = tournamentEnded;
+    }
+
+    getTournamentEnded()
+    {
+        return (this.tournamentEnded);
     }
 
     setWinner(winner)
@@ -74,9 +85,7 @@ class Team
     {
         for (const player of this.player.values())
         {
-            console.log('Player : ', player);
             player.setCameraPos(x, y, z);
-            console.log('Player camera pos : ', player.getCameraPos());
         }
     }
 

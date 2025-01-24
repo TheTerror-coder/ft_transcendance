@@ -1,5 +1,24 @@
 
 
+
+function tournamentTreeView(title, description, data)
+{
+	
+	if (savedTournamentCode.code)
+	{
+		document.title = title;
+		ELEMENTs.doorJamp().style.display = "flex";
+		displayBinaryTree();
+	}
+	else
+	{
+		replace_location(URLs.VIEWS.HOME);
+		// error404View(title, description, data);
+	}
+
+}
+
+
 async function tournamentView(title, description, data) 
 {
 	document.title = title;
@@ -10,6 +29,7 @@ async function tournamentView(title, description, data)
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
 	ELEMENTs.joinTournamentButton().onclick = () => joinTournamentDisplay();
 	ELEMENTs.createTournamentButton().onclick = () => createTournament();
+	await changeMusic(ELEMENTs.TournamentMusic());
 }
 
 async function UserProfileView(username, description, data)
@@ -24,7 +44,6 @@ async function UserProfileView(username, description, data)
 	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	console.log("user quand on display le goat bite :  ", response);
 	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
@@ -35,20 +54,16 @@ async function UserProfileView(username, description, data)
 		ELEMENTs.prime().innerHTML = response.user_info.prime;
 	await getHistoric(response.user_info.recent_games, response.user_info.username);
 	await statsInProfilePage(response.user_info.nbr_of_games, response.user_info.victorie, response.user_info.loose);
+	refreshMusic();
 }
 
 
 async function	homeView(title, description, data) 
 {
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-	console.log("*********HOME**********", user);
     const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-	console.log("*********HOME**********", resp);
-    if (socket.connected === false) {
-		console.log("*********HOME**********", socket);
+    if (socket.connected === false)
 		await callWebSockets();
-		console.log("*********HOME**********", socket);
-    }
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
@@ -65,9 +80,10 @@ async function	homeView(title, description, data)
 	ELEMENTs.wantedProfile().onclick = async () => {
 		await replace_location(URLs.VIEWS.PROFILE);
 	};
-	refreshLanguage();
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
-	// changeMusic("/static/sound/test2.mp3");
+	await changeMusic(ELEMENTs.homePageMusic());
+	refreshLanguage();
+	attachLogoutEvents();
 }
 
 async function	loginView(title, description, data) {
@@ -80,7 +96,7 @@ async function	loginView(title, description, data) {
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
-	// changeMusic("/static/sound/test.mp3");
+	await changeMusic(ELEMENTs.loginMusic());
 
 
 	
@@ -98,7 +114,6 @@ async function	profileView(title, description, data)
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: de l'utilisateur", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
@@ -111,8 +126,8 @@ async function	profileView(title, description, data)
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games, response.username);
-	console.log("response: de l'utilisateur", response);
 	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
+	await changeMusic(ELEMENTs.profilePageMusic());
 }
 
 async function	createLobbyView(title, description, data) 
@@ -137,6 +152,7 @@ async function	createLobbyView(title, description, data)
 	// ELEMENTs.cross().onclick = () => await replace_location(URLs.VIEWS.HOME);
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
+	await changeMusic(ELEMENTs.lobbyMusic());
 
 }
 
@@ -147,16 +163,14 @@ async function	providerCallbackView(title, description, data) {
 }
 
 async function	emailStatusView(title, description, data) {
-	// console.log('email status view');
 	document.title = title;
 	
 	let index;
 	let _params = {};
 	
-	// get email verification information 
+	// TO DO: get email verification information 
 	const verification = await getEmailVerification(data.querystring.key);
 	if (verification.find(_data => _data === 'verification-information')){
-		// console.log('Function emailStatusView(): verification-information');
 		if (verification[2].email && verification[3].is_authenticating){
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL;
 			//save email verfication key
@@ -169,23 +183,16 @@ async function	emailStatusView(title, description, data) {
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.EMAIL_CONFIRMED_YET;
 		}
 	}
-	else if (verification.find(_data => _data === 'input-error')){
-		// console.log('Function emailStatusView(): input-error');
+	else if (verification.find(_data => _data === 'input-error'))
 		index = VARIABLEs.VERIFY_EMAIL.INDEXES.INVALID_LINK;
-	}
 	else if (verification.find(_data => _data === 'email-verification-not-pending')){
-		// console.log('Function emailStatusView(): email-verification-not-pending');
-		// console.log("Error 409: email-verification-not-pending");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Email', 'Email verification is not pending');
 		await askRefreshSession();
 		return ;
 	}
-	else {
-		// console.log('Function emailStatusView(): Error somewhere');
+	else 
 		return;
-	}
 	_params.index = index;
-	// add to params the data returned when requested email-verification-information. e.g username, email
 	_params = {
 		..._params,
 		...verification[2],
@@ -199,9 +206,11 @@ async function	emailStatusView(title, description, data) {
 	await _modal.show();
 }
 
-async function	error404View(title, description, data) {
-	console.log('error 404 view');
+async function	error404View(title, description, data)
+{
 	document.title = title;
-	ELEMENTs.mainPage().innerHTML = error404PageDisplayVAR;
-	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/errorPage/Background404.jpeg')";
+	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
+	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.HOME);
+	refreshLanguage();
 }

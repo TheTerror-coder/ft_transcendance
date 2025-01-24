@@ -195,7 +195,7 @@ async function	validateTotpValueJob(params) {
 	} else if (response.find(data => data === 'totp-authenticator-information')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		await postAuthMiddlewareJob();
 		return ;
@@ -222,7 +222,7 @@ async function	twoFaAuthenticateJob(params) {
 	} else if (response.find(data => data === 'authenticated')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		await postAuthMiddlewareJob();
 		return ;
@@ -271,7 +271,7 @@ async function	mfaReauthenticateJob(params) {
 		return ;
 	} else if (response.find(data => data === 'reauthenticated')){
 		if (!await isUserAuthenticated({})){
-			await logout();
+			await logout_views();
 		}
 		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');
 		await _modal.dispose();

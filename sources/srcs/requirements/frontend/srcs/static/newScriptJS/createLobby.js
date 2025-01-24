@@ -14,8 +14,6 @@ let savedGameCode =
         this._code = value;
         if (document.getElementById("lobbyCode") !== null)
             document.getElementById("lobbyCode").innerHTML = value;
-        else if (document.getElementById("tournamentCode") !== null)
-            document.getElementById("tournamentCode").innerHTML = value;
     }
 };
 let gameStarted = false;
@@ -93,9 +91,9 @@ let roleAvailableWhiteBeard =
 function initializeGlobalSocket(socket)
 {
     globalSocket = socket;
-    console.log("GLOBAL SOCKET: ", globalSocket);
     globalSocket.on('gameCreated', (data) => {
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
+        creator = data.creator;
     });
     globalSocket.on('gameJoined', (data) => {
         savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
@@ -196,7 +194,7 @@ const UpdatePlayerListEvent = async (data) => {
 const TeamsFullEvent = () => 
 {
     console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
-    if (creator === null)
+    if (creator === globalSocket.id)
     {
         if (ELEMENTs.PlayButtonInLobby())
             ELEMENTs.PlayButtonInLobby().style.display = "block";
@@ -313,7 +311,6 @@ function initializeBlackBeardRoleAvailable(blackBeardTeam)
 
     if (blackBeardTeam.roles[1] === undefined)
     {
-        console.log("!?!?!??!+!!+!+!)!_!!?!!??!?!?!!??! completement zinzin celui la blackBeardTeam.roles[1]");
         if (blackBeardTeam.roles[0] !== undefined)
             blackBeardTeam.roles[0].value === "captain" ? roleAvailableBlackBeard.role = 1 : roleAvailableBlackBeard.role = 2;
         else
@@ -331,19 +328,30 @@ async function createLobbyDisplay()
 {
     const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 
-
+	if (!await isUserAuthenticated({}))
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
     if (ELEMENTs.switchNumbersOfPlayers().checked == false)
     {
-        ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
-
-        nbPerTeam = 1;
+		
+		nbPerTeam = 1;
         globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
+		setTimeout( () => {
+			if (error)
+			{
+				alert(error);
+				error = null;
+				return ;
+			}
+		}, 20);
+        ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
         ELEMENTs.usernameOfWanted().innerHTML = response.username;
         const photoUrl = response.photo;
         const imgElement = ELEMENTs.pictureOfWanted();
         imgElement.src = photoUrl;
         ELEMENTs.primeAmount().innerHTML = response.prime;
-        globalSocket.emit('confirmChoices', { teamID: 1, role: "captain", userName: response.username });
+        setTimeout(() => {
+            globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username, gameCode: savedGameCode.code });
+        }, 20)
         setTimeout(async () => {
             if (error !== null)
             {
@@ -352,7 +360,7 @@ async function createLobbyDisplay()
                 await replace_location(URLs.VIEWS.HOME);
                 return ;
             }
-        }, 100);
+        }, 70);
         savedGameCode.code = savedGameCode.code;
         refreshLanguage();
     }
@@ -360,12 +368,21 @@ async function createLobbyDisplay()
         createLobbyforTwoPlayer();
 }
 
-function createLobbyforTwoPlayer()
+async function createLobbyforTwoPlayer()
 {
     console.log("GLOBAL SOCKET: ", globalSocket);
     nbPerTeam = 2;
     globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
-    // initializeGameEvent();
+	setTimeout(() => {
+		if (error)
+		{
+			alert(error);
+			error = null;
+			return ;
+		}
+	}, 20);
+	if (!await isUserAuthenticated({}))
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
     ELEMENTs.contentCreateLobby().innerHTML = TeamAndRoleTwoPlayerLobbyVAR;
     ELEMENTs.chooseTeamSwitch().onclick = () => switchTeam();
     ELEMENTs.chooseRoleSwitch().onclick = () => switchRole();
@@ -383,12 +400,13 @@ async function lobbyTwoPlayer()
     const role = roleChosen ? "Cannoneer" : "captain";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 
-    globalSocket.emit('confirmChoices', { teamID, role, userName: user.username });
+    globalSocket.emit('confirmChoicesCreateGame', { teamID, role, userName: user.username, gameCode: savedGameCode.code });
     setTimeout(() => {
         if (error !== null)
         {
             console.log("error: ", error);
             error = null;
+			replace_location(URLs.VIEWS.HOME);
             return ;
         }
     }, 20);

@@ -1,52 +1,8 @@
 
-// let currentSound = true;
-
-// function changeMusic(newSource) 
-// {
-//     let newSourceElement = document.createElement('source');
-//     newSourceElement.src = newSource;
-//     newSourceElement.type = 'audio/mp3';
-
-//     ELEMENTs.musicPlayer().innerHTML = '';
-
-//     ELEMENTs.musicPlayer().appendChild(newSourceElement);
-
-//     ELEMENTs.musicPlayer().load();
-// 	console.log("currentSound dans changeMusic: ", currentSound);
-// 	refreshMusic();
-// }
-
-// function OnOffMusic() 
-// {
-// 	if (ELEMENTs.musicPlayer().paused)
-// 	{
-// 		ELEMENTs.musicPlayer().play();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOn.png";
-// 		ELEMENTs.buttonSound().alt = "sound is on !";
-// 		currentSound = true;
-// 	}
-// 	else
-// 	{
-// 		ELEMENTs.musicPlayer().pause();
-// 		ELEMENTs.buttonSound().src = "/static/photos/picturePng/soundOff.png";
-// 		ELEMENTs.buttonSound().alt = "sound is off !";
-// 		currentSound = false;
-// 	} 
-// }
-
-// function refreshMusic()
-// {
-// 	if (currentSound === true)
-// 		ELEMENTs.musicPlayer().play();
-// 	else
-// 		ELEMENTs.musicPlayer().pause();
-// }
-
-
 const resetBaseHtmlVAR =
-`        
-<audio id="musicPlayer" loop>
-			<source src="/static/sound/test.mp3" type="audio/mp3">
+`
+		<audio id="musicPlayer" loop>
+			<source id="music" src="" type="audio/mp3">
 		</audio>
         <div class="headPage" id="headPage">
             <div class="button-container">
@@ -56,7 +12,7 @@ const resetBaseHtmlVAR =
                     </div>
                 </button>
 				<div id="soundDiv">
-					<button><img id="buttonSound" src="/static/photos/picturePng/soundOn.png" alt="sound is on"></button>
+					<button><img id="buttonSound" src="/static/photos/picturePng/soundOff.png" alt="sound is on"></button>
 				</div>
                <div id="twoFA">
                    <label class="switch">
@@ -115,3 +71,25 @@ const resetBaseHtmlVAR =
 		<script src="/static/views.js"></script>
 		<script src="/static/router.js"></script>
 `;
+
+
+const Page404DisplayVAR = 
+`<div class="Page404">
+    <p style="font-family: arial; font-size: 100px;">ERROR:404</p>
+    <p style="font-family: arial;">WRONG PAGE</p>
+	<button data-translate="redirect" id="redirectButton" class="redirectButton">redirect</button>
+</div>`;
+
+
+const getLogOutPopUp = 
+`
+	<div class="modal-body">
+		<div style="justify-content: center; display: flex; font-size: 60px;">
+			<p style="font-size: 40px;" data-translate="leavingDoor">Do you wanna leave ?</p>
+		</div>
+		<div class="d-flex justify-content-center align-items-center">
+			<button data-translate="yes" id="yesButton" type="button" class="btn btn-primary" style="margin-right: 160px;">YES</button>
+			<button data-translate="no" id="noButton" type="button" class="btn btn-primary" style="--bs-btn-border-color: red;--bs-btn-hover-bg: #a90000;--bs-btn-hover-border-color: #b30000;--bs-btn-active-bg: #c70000;--bs-btn-bg: red;">NO</button>
+		</div>
+	</div>
+	`;

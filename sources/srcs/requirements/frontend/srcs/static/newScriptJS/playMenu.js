@@ -5,7 +5,6 @@
 
 function playDisplayHomepage()
 {
-    console.log("je suis cense etre al");
     ELEMENTs.playButton().style.display = 'none';
     ELEMENTs.centerPlayDisplay().style.display = 'flex';
     ELEMENTs.firstElement().innerHTML = rapidPlayHTML;
@@ -58,7 +57,6 @@ async function joinLobbyPlay()
 
     joinButton.onclick = () => {
         let gameCode = document.getElementById("number").value;
-        console.log("gameCode = ", gameCode);
         globalSocket.emit('joinGame', { gameCode });
         setTimeout(() => {
             if (error === null)
@@ -70,7 +68,7 @@ async function joinLobbyPlay()
             }
             else
                 error = null;
-        }, 400);
+        }, 300);
     };
 }
 
@@ -119,7 +117,6 @@ function initializeLobbyTwoVsTwo(gameCode)
     let teamID;
     let role;
 
-    console.log("TESTGANG");
     if ((teamChosen && teamAvailable.team === 1) || (teamChosen === false && teamAvailable.team === 2))
         teamID = teamAvailable.team;
     else 
@@ -130,8 +127,6 @@ function initializeLobbyTwoVsTwo(gameCode)
         role = "captain";
     else
         role = roleChosen ? "Cannoneer" : "captain";
-
-    console.log("initializeLobbyTwoVsTwo, role: ", role, ", teamID: ", teamID);
     joinLobbyGame(gameCode, teamID, role);
 }
 

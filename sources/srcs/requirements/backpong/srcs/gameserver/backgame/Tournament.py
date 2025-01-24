@@ -23,10 +23,17 @@ class Tournament:
         self.tournamentTeams = {}
         self.tournamentGames = {}
         self.nbTeam = 0
+        self.start = False
 
         self.nodes = []
         self.root = None
         self.returned_matches = set()
+
+    def getStart(self):
+        return self.start
+    
+    def setStart(self, start):
+        self.start = start
 
     def getTournamentId(self):
         return self.tournamentId
@@ -57,8 +64,28 @@ class Tournament:
             self.nbTeam -= 1
     
     def removeTournamentGame(self, game):
-        if game.getGameId() in self.tournamentGames:
+        if game and game.getGameId() in self.tournamentGames:
             del self.tournamentGames[game.getGameId()]
+            logger.info(f"Game {game.getGameId()} removed from tournament")
+
+    def resetGameState(self, game):
+        if not game:
+            return
+        
+        # Nettoyer les équipes
+        for teamId in [1, 2]:
+            team = game.getTeam(teamId)
+            if team:
+                for player in list(team.player.values()):
+                    team.removePlayer(player.getId())
+                game.removeTeam(team)
+        
+        # Réinitialiser les compteurs
+        game.nbPlayerConnected = 0
+        game.playerReady = 0
+        
+        # Réinitialiser l'état du jeu
+        game.resetGameState()
 
     def getNbTeam(self):
         return self.nbTeam
@@ -149,17 +176,15 @@ class Tournament:
             if not node:
                 return False
             
-            # Si c'est un match en cours (les deux enfants ont des équipes)
             if node.left and node.right and node.left.team and node.right.team:
-                # Vérifie si ce match contient le gagnant
                 if ((node.left.team.getTournamentTeamId() == winner_team.getTournamentTeamId() or 
                     node.right.team.getTournamentTeamId() == winner_team.getTournamentTeamId()) and
-                    not node.team):  # Vérifie que le nœud n'a pas déjà un gagnant
+                    not node.team):
+                    # Utiliser directement l'équipe gagnante
                     node.team = winner_team
                     logger.info(f"Updated winner {winner_team.getName()} at level {node}")
                     return True
                     
-            # Recherche récursive
             if find_and_update(node.left):
                 return True
             return find_and_update(node.right)
@@ -192,3 +217,97 @@ class Tournament:
         
         logger.info("Tournament Tree:")
         print_node(self.root)
+
+    def getTournamentMatches(self):
+        """
+        Récupère tous les matchs du tournoi (en cours, terminés et à venir)
+        """
+        matches = []
+        
+        def traverse_tree(node, level=0):
+            if not node:
+                return
+            
+            # Si le nœud a des enfants avec des équipes, c'est un match potentiel ou en cours
+            if node.left and node.right:
+                left_team = node.left.team
+                right_team = node.right.team
+                
+                # Si les deux équipes sont présentes, c'est un match actuel ou terminé
+                if left_team and right_team:
+                    match_info = {
+                        'level': level,
+                        'status': 'pending',
+                        'team1': {
+                            'name': left_team.getName(),
+                            'id': left_team.getTournamentTeamId()
+                        },
+                        'team2': {
+                            'name': right_team.getName(),
+                            'id': right_team.getTournamentTeamId()
+                        }
+                    }
+                    
+                    # Chercher si un jeu existe pour ce match
+                    game_code = self.findGameByTeams(left_team.getTournamentTeamId(), 
+                                                   right_team.getTournamentTeamId())
+                    
+                    if game_code:
+                        game = self.getTournamentGames(game_code)
+                        if game:
+                            match_info.update({
+                                'gameCode': game_code,
+                                'team1': {
+                                    'name': left_team.getName(),
+                                    'id': left_team.getTournamentTeamId(),
+                                    'score': game.getTeam(1).getScore()
+                                },
+                                'team2': {
+                                    'name': right_team.getName(),
+                                    'id': right_team.getTournamentTeamId(),
+                                    'score': game.getTeam(2).getScore()
+                                },
+                                'status': 'in_progress' if game.gameStarted else 'completed',
+                                'winner': node.team.getName() if node.team else None
+                            })
+                    
+                    matches.append(match_info)
+                
+                # Si un seul enfant a une équipe, c'est un match à venir
+                elif left_team or right_team:
+                    matches.append({
+                        'level': level,
+                        'status': 'waiting',
+                        'team1': {
+                            'name': left_team.getName() if left_team else "À déterminer",
+                            'id': left_team.getTournamentTeamId() if left_team else None
+                        },
+                        'team2': {
+                            'name': right_team.getName() if right_team else "À déterminer",
+                            'id': right_team.getTournamentTeamId() if right_team else None
+                        }
+                    })
+            
+            # Parcourir récursivement les sous-arbres
+            if node.left:
+                traverse_tree(node.left, level + 1)
+            if node.right:
+                traverse_tree(node.right, level + 1)
+        
+        # Commencer le parcours depuis la racine
+        traverse_tree(self.root)
+        return matches
+
+    def findGameByTeams(self, team1_id, team2_id):
+        """
+        Trouve le code du jeu correspondant à un match entre deux équipes
+        """
+        for game_code, game in self.tournamentGames.items():
+            teams = list(game.teams.values())
+            if len(teams) == 2:
+                game_team1_id = teams[0].getTournamentTeamId()
+                game_team2_id = teams[1].getTournamentTeamId()
+                if (game_team1_id == team1_id and game_team2_id == team2_id) or \
+                   (game_team1_id == team2_id and game_team2_id == team1_id):
+                    return game_code
+        return None
