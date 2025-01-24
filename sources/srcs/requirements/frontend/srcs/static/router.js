@@ -264,12 +264,10 @@ window.addEventListener('load', async () => {
             // TO DO: tester la request email = mail OR 1=1 --
         }
         else if (response.find(data => data === 'not-authenticated')) {
-			alert("not-authentificated");
             console.log('not-authenticated');
         }
         else if (response.find(data => data === 'invalid-session')) 
 		{
-			alert("inavlid-session")
             window.sessionStorage.clear();
             await replace_location(URLs.VIEWS.LOGIN_VIEW);
         }

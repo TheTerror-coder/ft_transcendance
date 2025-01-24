@@ -248,8 +248,10 @@ export async function main(gameCode, socket, currentLanguage) {
                                 if (currentPlayerTeam.getTournamentEnded() === true)
                                 {
                                     replace_location(URLs.VIEWS.TOURNAMENT_TREE);
-                                    await new Promise(resolve => setTimeout(resolve, 10000));
-                                    socket.disconnect();
+                                    // await new Promise(resolve => setTimeout(resolve, 10000));
+									setTimeout( () => {
+										socket.disconnect();
+									}, 10000);
                                     return (true);
                                 }
                                 replace_location(URLs.VIEWS.TOURNAMENT_TREE);
