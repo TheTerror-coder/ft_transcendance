@@ -5,6 +5,7 @@ import math
 import requests
 import os
 import time
+import asyncio
 from .Team import Team
 from .Player import Player
 from .Bullet_collide import *
@@ -34,6 +35,9 @@ class Game:
         self.loser = None
         self.isGameTournament = isGameTournament
         self.tournament = tournament
+        self.gameInLobby = True
+        self.nbPlayerInLobby = 0
+        
         # Constantes pour la balle
         self.BALL_INITIAL_SPEED = 1.5     # Vitesse initiale
         self.BALL_SPEED = self.BALL_INITIAL_SPEED
@@ -56,6 +60,45 @@ class Game:
         self.PREDICTION_BUFFER = []  # Pour stocker les positions futures
         self.MAX_PREDICTIONS = 3  # Nombre de prédictions à maintenir
         self.pending_hits = {}  # {gameCode: {teamId: {timestamp, damage, animationEndTime}}}
+        self.DISCONNECT_TIMEOUT = 30  # 30 secondes
+        self.disconnect_timers = {}  # {team_id: {sid: timer}}
+        self.disconnected_players = {}  # {team_id: [sid]}
+
+    async def launchCheckGameFull(self, sio, gameCode):
+        logger.info(f"launchCheckGameFull dans Game.py")
+        gameIsFullMsgSend = False
+        while True:
+            if not gameIsFullMsgSend and self.getTeam(1).getIsFull() and self.getTeam(2).getIsFull():
+                await sio.emit('TeamsFull', room=gameCode)
+                gameIsFullMsgSend = True
+                logger.info(f"TeamsFull envoyé dans Game.py")
+            if ((self.getTeam(1).getNbPlayer() == 0 or self.getTeam(2).getNbPlayer() == 0) or (self.getTeam(1).getNbPlayer() == 0 and self.getTeam(2).getNbPlayer() == 0)):
+                gameIsFullMsgSend = False
+            if (self.gameStarted):
+                return
+            await asyncio.sleep(1)
+        
+    def setGameInLobby(self, gameInLobby):
+        self.gameInLobby = gameInLobby
+
+    def getGameInLobby(self):
+        return self.gameInLobby
+    
+    def addNbPlayerInLobby(self):
+        self.nbPlayerInLobby += 1
+        logger.info(f'nbPlayerInLobby : {self.nbPlayerInLobby}')
+    
+    def getNbPlayerInLobby(self):
+        logger.info(f'self.nbPlayerInLobby : {self.nbPlayerInLobby}')
+        return self.nbPlayerInLobby
+    
+    def removeNbPlayerInLobby(self, nbPlayerToRemove):
+        logger.info(f'removeNbPlayerInLobby : {self.nbPlayerInLobby}')
+        logger.info(f'nbPlayerToRemove : {nbPlayerToRemove}')
+        logger.info(f'self.nbPlayerInLobby - nbPlayerToRemove >= 0 : {self.nbPlayerInLobby - nbPlayerToRemove >= 0}')
+        if (self.nbPlayerInLobby - nbPlayerToRemove >= 0):
+            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
+            self.nbPlayerInLobby -= nbPlayerToRemove
 
     def getIsGameTournament(self):
         return self.isGameTournament
@@ -373,7 +416,8 @@ class Game:
 
     def removeNbPlayerConnected(self):
         logger.info("removeNbPlayerConnected")
-        self.nbPlayerConnected -= 1
+        if (self.nbPlayerConnected > 0):
+            self.nbPlayerConnected -= 1
 
     def addPlayerReady(self):
         logger.info("addPlayerReady")
@@ -382,7 +426,8 @@ class Game:
 
     def removePlayerReady(self):
         logger.info("removePlayerReady")
-        self.playerReady -= 1
+        if (self.playerReady > 0):
+            self.playerReady -= 1
 
     def getPlayerReady(self):
         return self.playerReady
@@ -676,42 +721,51 @@ class Game:
             self.gameStarted = False
             self.winner = self.teams[1]
             self.loser = self.teams[2]
-            await self.sendGameInfo(sio, gameCode)
+            await self.sendGameInfo(sio, gameCode, False)
         elif self.teams[2].getScore() >= self.WINNING_SCORE:
             await sio.emit('winner', self.teams[2].name, room=gameCode)
             self.gameStarted = False
             self.winner = self.teams[2]
             self.loser = self.teams[1]
-            await self.sendGameInfo(sio, gameCode)                
+            await self.sendGameInfo(sio, gameCode, False)                
 
-    def createEndGamePayload(self):
-            team1_player = next(iter(self.getTeam(1).player.values()))
-            team2_player = next(iter(self.getTeam(2).player.values()))
-
-            team1_score = self.getTeam(1).getScore()
-            team2_score = self.getTeam(2).getScore()
-
-            if team1_score > team2_score:
-                winner = team1_player.name
-            else:
-                winner = team2_player.name
-
+    def createEndGamePayload(self, isForfeit):
+        team1_player = next(iter(self.getTeam(1).player.values()))
+        team2_player = next(iter(self.getTeam(2).player.values()))
+        
+        if (team1_player.TeamID == self.winner.getTeamId()):
+            winner = team1_player.name
+            loser = team2_player.name
+        else:
+            winner = team2_player.name
+            loser = team1_player.name
+        
+        if (isForfeit):
             payload = {
-                'player': team1_player.name,
-                'opponent': team2_player.name,
-                'player_score': team1_score,
-                'opponent_score': team2_score,
+                'player': winner,
+                'opponent': loser,
+                'player_score': 99,
+                'opponent_score': 0,
                 'winner': winner
             }
             return payload
+        
+        payload = {
+            'player': winner,
+            'opponent': loser,
+            'player_score': self.winner.getScore(),
+            'opponent_score': self.loser.getScore(),
+            'winner': winner
+        }
+        return payload
     
-    async def sendGameInfo(self, sio, gameCode):
+    async def sendGameInfo(self, sio, gameCode, isForfeit):
         if (self.nbPlayerPerTeam == 2):
             return
         ROOT_CA = os.getenv("GAMESERVER_ROOT_CA")
         backendServer_name = os.getenv("HOST_IP")
         backendServer_port = os.getenv("PROXYWAF_HTTPS_PORT")
-        payload = self.createEndGamePayload()
+        payload = self.createEndGamePayload(isForfeit)
         logger.info(f"payload: {payload}")
         request = requests.post("https://" + backendServer_name + ":" + backendServer_port + "/backpong/user-management/set-info-game/", verify=ROOT_CA, data=payload)
         logger.info(f"request: {request}")
@@ -803,4 +857,142 @@ class Game:
                 
                 # Nettoyer les données
                 del self.pending_hits[gameCode]
+
+    async def handle_disconnect(self, sid, sio, gameCode):
+        if self.isGameTournament:
+            # Pour les tournois : forfait immédiat
+            for team in self.teams.values():
+                if team.getPlayerById(sid):
+                    self.loser = team
+                    self.winner = self.teams[1 if team.getTeamId() == 2 else 2]
+                    self.gameStarted = False
+                    return True  # Indique que c'est une déconnexion de tournoi
+            return True
+
+        # Trouver l'équipe du joueur
+        player_team = None
+        for team_id, team in self.teams.items():
+            if team.getPlayerById(sid):
+                player_team = team
+                team_id = team.getTeamId()
+                break
+
+        if not player_team:
+            return False
+
+        # Initialiser les structures pour cette équipe si nécessaire
+        if team_id not in self.disconnect_timers:
+            self.disconnect_timers[team_id] = {}
+            self.disconnected_players[team_id] = []
+
+        # Ajouter le joueur à la liste des déconnectés
+        self.disconnected_players[team_id].append(sid)
+        
+        # Créer un timer pour ce joueur
+        self.disconnect_timers[team_id][sid] = asyncio.create_task(
+            self.disconnect_countdown(team_id, sid, sio, gameCode)
+        )
+
+        # Si toute l'équipe est déconnectée, démarrer un timer plus court
+        if len(self.disconnected_players[team_id]) == player_team.nbPlayer:
+            for sid in self.disconnected_players[team_id]:
+                if sid in self.disconnect_timers[team_id]:
+                    self.disconnect_timers[team_id][sid].cancel()
+            self.disconnect_timers[team_id]['team'] = asyncio.create_task(
+                self.team_disconnect_countdown(team_id, sio, gameCode)
+            )
+
+        return False
+
+    async def disconnect_countdown(self, team_id, sid, sio, gameCode):
+        """Compte à rebours pour un joueur"""
+        try:
+            await asyncio.sleep(self.DISCONNECT_TIMEOUT)
+            
+            # Vérifier si le joueur est toujours déconnecté
+            player = self.teams[team_id].getPlayerById(sid)
+            if player and not player.getOnline():
+                # Mettre à jour allowedToReconnect quand le timer expire
+                player.setAllowedToReconnect(False)
+                
+                # Si c'est le dernier joueur connecté de l'équipe
+                if all(not p.getOnline() for p in self.teams[team_id].player.values()):
+                    self.loser = self.teams[team_id]
+                    self.winner = self.teams[1 if team_id == 2 else 2]
+                    self.gameStarted = False
+                    
+                    # Notifier tous les joueurs de la fin de la partie
+                    await self.sendGameInfo(sio, gameCode, True)
+                    await sio.emit('winner', self.winner.getName(), room=gameCode)
+
+        finally:
+            self.cleanup_player_disconnect(team_id, sid)
+
+    def cleanup_player_disconnect(self, team_id, sid):
+        """Nettoie les données de déconnexion d'un joueur"""
+        if team_id in self.disconnect_timers:
+            if sid in self.disconnect_timers[team_id]:
+                del self.disconnect_timers[team_id][sid]
+            if sid in self.disconnected_players[team_id]:
+                self.disconnected_players[team_id].remove(sid)
+
+    def cleanup_team_disconnect(self, team_id):
+        """Nettoie toutes les données de déconnexion d'une équipe"""
+        if team_id in self.disconnect_timers:
+            del self.disconnect_timers[team_id]
+        if team_id in self.disconnected_players:
+            del self.disconnected_players[team_id]
+
+    def handle_reconnect(self, sid):
+        """Gère la reconnexion d'un joueur"""
+        # Trouver le joueur par son nouveau sid
+        reconnecting_player = None
+        reconnecting_team_id = None
+        
+        for team_id, team in self.teams.items():
+            for player in team.player.values():
+                if player.getId() == sid:
+                    reconnecting_player = player
+                    reconnecting_team_id = team_id
+                    break
+            if reconnecting_player:
+                break
+
+        if not reconnecting_player:
+            return False
+
+        # D'abord vérifier si le joueur est autorisé à se reconnecter
+        if not reconnecting_player.getAllowedToReconnect():
+            return False
+
+        # Ensuite vérifier si le timer est toujours actif
+        if reconnecting_team_id in self.disconnect_timers:
+            for disconnected_sid in self.disconnected_players.get(reconnecting_team_id, []):
+                if team_id == reconnecting_team_id:  # Même équipe
+                    # Annuler les timers
+                    if disconnected_sid in self.disconnect_timers[team_id]:
+                        self.disconnect_timers[team_id][disconnected_sid].cancel()
+                    if 'team' in self.disconnect_timers[team_id]:
+                        self.disconnect_timers[team_id]['team'].cancel()
+                    
+                    # Nettoyer les données de déconnexion
+                    self.cleanup_player_disconnect(team_id, disconnected_sid)
+                    return True
+
+        return False
+
+    async def team_disconnect_countdown(self, team_id, sio, gameCode):
+        """Compte à rebours plus court pour une équipe entière déconnectée"""
+        try:
+            await asyncio.sleep(10)  # Timer plus court pour une équipe complète
+            self.loser = self.teams[team_id]
+            self.winner = self.teams[1 if team_id == 2 else 2]
+            self.gameStarted = False
+            
+            # Notifier tous les joueurs de la fin de la partie
+            await self.sendGameInfo(sio, gameCode, True)
+            await sio.emit('winner', self.winner.getName(), room=gameCode)
+            
+        finally:
+            self.cleanup_team_disconnect(team_id)
 

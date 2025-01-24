@@ -132,7 +132,6 @@ class Team:
         self.cannon['y'] = y
         self.cannon['z'] = z
 
-
     def removePlayer(self, id):
         if id in self.player:
             del self.player[id]
@@ -152,6 +151,9 @@ class Team:
 
     def getNbPlayer(self):
         return self.nbPlayer
+    
+    def removeNbPlayer(self):
+        self.nbPlayer -= 1
 
     def getAllPlayer(self):
         return self.player

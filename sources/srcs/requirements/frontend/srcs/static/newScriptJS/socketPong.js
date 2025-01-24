@@ -59,7 +59,11 @@ async function initializeSocket()
     });
 
     socket.on('error', (error) => {
-        console.error('Erreur socket:', error);
+        console.error('Erreur:', error);
+        if (error.ErrorCode === 1)
+        {
+            replace_location(URLs.VIEWS.HOME);
+        }
     });
 
     return socket;

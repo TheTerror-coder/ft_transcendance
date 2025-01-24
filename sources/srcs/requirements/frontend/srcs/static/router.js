@@ -93,7 +93,7 @@ const eventManager = async (event) => {
 		if (globalSocket !== null)
 		{
 			console.log("j'ai cliquer sur la croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
-			globalSocket.disconnect(); // normalement pas besoin de lui
+			globalSocket.disconnect();
 			globalSocket.close();
 			console.log("apres le disconnect global socket = ", globalSocket);
 			globalSocket = null;

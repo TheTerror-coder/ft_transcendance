@@ -29,6 +29,9 @@ class Channel:
     def getCreator(self):
         return self.creator
     
+    def resetCreator(self, creator):
+        self.creator = creator
+    
     def setTournament(self, tournament):
         self.tournament = tournament
 
