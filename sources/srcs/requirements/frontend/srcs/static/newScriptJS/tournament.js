@@ -1,4 +1,4 @@
-let winnerEvent = 0;
+let winner = null;
 let winnerOfTournament = null;
 
 let tournamentAllUsers = 
@@ -81,8 +81,6 @@ const tournamentMatchEvent = (data) => {
 
 	tournamentAllUsers.users = data.team1;
 	tournamentAllUsers.users = data.team2;
-
-
 }
 
 const tournamentMatchesEvent = (data) => {
@@ -100,13 +98,7 @@ const startTournamentGameEvent = async (data) => {
 
 const tournamentWinnerEvent = (data) => {
     console.log("TOURNAMENT WINNER: ", data);
-	winnerEvent++;
-	if (winnerEvent === 2)
-	{
-		winnerOfTournament = data;
-		refreshWinner();
-	}
-	// document.getElementById("winnerOfTheTournament").innerHTML = data;
+	winner = data;
 }
 
 
@@ -114,14 +106,6 @@ const errorTournamentEvent = (data) => {
 	console.log("ERROR TOURNAMENT: ", data);
     alert(data.message);
     error = data.message;
-}
-
-function refreshWinner(user)
-{
-	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
-	// console.log("winnerOfTournament: ", winnerOfTournament);
-	// document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
-	// winnerEvent = 0;
 }
 
 async function joinTournament(code)
@@ -225,6 +209,11 @@ function displayBinaryTree()
 		});
 		i++;
 	});
+	if (winner)
+	{
+		document.getElementById("winnerOfTheTournament").innerHTML = winner;
+		winner = null;
+	}
     document.getElementById('startButtonTournament').onclick = () => startTournament();
 }
 
