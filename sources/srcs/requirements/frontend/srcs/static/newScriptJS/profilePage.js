@@ -11,10 +11,6 @@ async function statsInProfilePage(game_played, victories, lose)
     if (game_played > 0) {
         percentage = (victories / game_played) * 100;
     }
-    
-    // console.log("victory: ", victories);
-    // console.log("lose: ", lose);
-    // console.log("game_played: ", game_played);
 
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
@@ -36,7 +32,6 @@ async function statsInProfilePage(game_played, victories, lose)
 
 async function getHistoric(game, user)
 {
-    // console.log("game.length: ", game.length);
     if (game.length === 0)
     {
         const match = document.createElement('div');
@@ -73,7 +68,6 @@ async function getHistoric(game, user)
 			username.style.width = "105px";
 
             resultUser.className = 'resultDisplayHistoric';
-            // console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
             resultAdvUser.className = 'resultDisplayHistoric';
             if (user === game[i].player)
             {
@@ -124,7 +118,6 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
 
 async function displayWaitingListFriend(friends) {
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    // console.log("friends: ", friends);
 
     // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
@@ -173,7 +166,6 @@ async function displayWaitingListFriend(friends) {
             // Gérer l'acceptation de l'invitation
             actionAddButton.addEventListener('click', async () => {
                 alert(`add ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
 
                 // Envoi de l'invitation acceptée au serveur
                 socket.send(JSON.stringify({
@@ -204,7 +196,6 @@ async function displayWaitingListFriend(friends) {
             // Gérer le rejet de l'invitation
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
                 socket.send(JSON.stringify({
                     type: 'response.invitation',
                     response: 'reject',
@@ -302,7 +293,6 @@ async function displayFriend(friends, user_socket) {
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
-            console.log("USER____SOCKET: ", user_socket);
             // Indicateur de connexion de l'ami
             const circleIsConnect = document.createElement('div');
             circleIsConnect.className = 'circleIsConnect';
@@ -401,7 +391,6 @@ document.addEventListener('click', (event) =>
         {
             if (event.target === ELEMENTs.fileButton())
             {
-            // console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
                 profilePhoto = event.target.files[0];
@@ -423,7 +412,6 @@ async function changePicture(picture) {
     const data = new FormData();
     data.append("picture", picture);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPHOTO , data);
-    console.log("response picture: ", response);
     if (response.status === 'success') 
         await replace_location(PATHs.VIEWS.PROFILE);
     else if (response.status === 'error') 
@@ -440,10 +428,8 @@ async function changePicture(picture) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }
 
@@ -454,10 +440,8 @@ document.addEventListener('click', async (event) =>
     {
         if (event.target === ELEMENTs.changeUsernameButton())
         {
-            // console.log("reconnu comme cree ELEMENTs.changeUsernamePopOver(): ", ELEMENTs.changeUsernamePopOver());
             if (ELEMENTs.changeUsernamePopOver() === null)
             {
-                console.log("create le bail");
                 const popoverContainer = document.createElement('div');
                 popoverContainer.id = "changeUsernamePopOver";
                 popoverContainer.innerHTML = popUpUsernameVAR;
@@ -494,7 +478,6 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
-    // console.log("newUsername: ", newUsername);
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
@@ -514,20 +497,7 @@ async function changeUsername(newUsername) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }
-
-
-
-// ELEMENTs.bookProfile().addEventListener('mouseleave', function() 
-// {
-//     console.log("je suis dans le mouseleave");
-//     if (document.getElementById("dropdownMenu"))
-//         document.getElementById("dropdownMenu").innerHTML = '';
-//     if (document.getElementById("waitingFriendDropdownMenu"))
-//         document.getElementById('waitingFriendDropdownMenu').innerHTML = '';
-// });

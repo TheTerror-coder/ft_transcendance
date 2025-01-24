@@ -11,7 +11,6 @@ async function connect()
     }
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
-    console.log(response);
 // jm custom beginning //
 	if (response.status === 401) {
 		if (response.data?.flows?.find(obj => (obj.id === FLOWs.MFA_AUTHENTICATE && obj.is_pending === true))) {
@@ -39,10 +38,8 @@ async function connect()
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
         ELEMENTs.password().value = "";
     }
 }

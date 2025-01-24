@@ -44,7 +44,6 @@ async function UserProfileView(username, description, data)
 	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	console.log("user quand on display le goat bite :  ", response);
 	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
@@ -62,14 +61,9 @@ async function UserProfileView(username, description, data)
 async function	homeView(title, description, data) 
 {
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-	console.log("*********HOME**********", user);
     const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-	console.log("*********HOME**********", resp);
-    if (socket.connected === false) {
-		console.log("*********HOME**********", socket);
+    if (socket.connected === false)
 		await callWebSockets();
-		console.log("*********HOME**********", socket);
-    }
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
@@ -120,7 +114,6 @@ async function	profileView(title, description, data)
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: de l'utilisateur", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
@@ -133,7 +126,6 @@ async function	profileView(title, description, data)
 	await displayFriend(response.friends, response.user_socket);
 	await displayWaitingListFriend(response.pending_requests);
 	await getHistoric(response.recent_games, response.username);
-	console.log("response: de l'utilisateur", response);
 	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
 	await changeMusic(ELEMENTs.profilePageMusic());
 }
@@ -171,16 +163,14 @@ async function	providerCallbackView(title, description, data) {
 }
 
 async function	emailStatusView(title, description, data) {
-	// console.log('email status view');
 	document.title = title;
 	
 	let index;
 	let _params = {};
 	
-	// get email verification information 
+	// TO DO: get email verification information 
 	const verification = await getEmailVerification(data.querystring.key);
 	if (verification.find(_data => _data === 'verification-information')){
-		// console.log('Function emailStatusView(): verification-information');
 		if (verification[2].email && verification[3].is_authenticating){
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL;
 			//save email verfication key
@@ -193,23 +183,16 @@ async function	emailStatusView(title, description, data) {
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.EMAIL_CONFIRMED_YET;
 		}
 	}
-	else if (verification.find(_data => _data === 'input-error')){
-		// console.log('Function emailStatusView(): input-error');
+	else if (verification.find(_data => _data === 'input-error'))
 		index = VARIABLEs.VERIFY_EMAIL.INDEXES.INVALID_LINK;
-	}
 	else if (verification.find(_data => _data === 'email-verification-not-pending')){
-		// console.log('Function emailStatusView(): email-verification-not-pending');
-		// console.log("Error 409: email-verification-not-pending");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Email', 'Email verification is not pending');
 		await askRefreshSession();
 		return ;
 	}
-	else {
-		// console.log('Function emailStatusView(): Error somewhere');
+	else 
 		return;
-	}
 	_params.index = index;
-	// add to params the data returned when requested email-verification-information. e.g username, email
 	_params = {
 		..._params,
 		...verification[2],
@@ -225,7 +208,6 @@ async function	emailStatusView(title, description, data) {
 
 async function	error404View(title, description, data)
 {
-	console.log('error 404 view');
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
