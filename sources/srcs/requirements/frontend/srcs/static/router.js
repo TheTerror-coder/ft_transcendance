@@ -219,6 +219,8 @@ urlRoutes[PATHs.VIEWS.ERROR404] = {
 // };
 
 const handleLocation = async () => {
+
+	//ici check la websocket
 	console.log('*********DEBUG********* handleLocation()');
 	dispose_modals();
 	let pathname = window.location.pathname;
@@ -239,7 +241,7 @@ const handleLocation = async () => {
 		await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 		return;
 	}
-	
+
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
 	if (routeMatched === urlRoutes["404"])
 	{

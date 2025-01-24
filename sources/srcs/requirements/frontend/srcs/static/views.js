@@ -61,6 +61,15 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
+    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+	console.log("*********HOME**********", user);
+    const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+	console.log("*********HOME**********", resp);
+    if (socket.connected === false) {
+		console.log("*********HOME**********", socket);
+		await callWebSockets();
+		console.log("*********HOME**********", socket);
+    }
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
