@@ -15,7 +15,6 @@ from .tokens import customObtainJwtTokenPair
 from django.core.files.storage import FileSystemStorage
 import os
 from random import random
-from .tournament import Tournament, Players
 import sys
 from allauth.account.utils import setup_user_email
 from allauth.account.adapter import get_adapter as allauth_acount_get_adapter
@@ -28,13 +27,6 @@ from django.contrib.auth.models import AnonymousUser
 from asgiref.sync import async_to_sync
 from PIL import Image
 from time import sleep
-
-
-GLOBAL_TOURNAMENT = {
-    "game": None,
-    "players": [],
-    "status": "WAITING",
-}
 
 
 @api_view(['POST'])
@@ -135,19 +127,17 @@ def logout_view(request):
 			'message': 'Le nom d\'utilisateur est requis.'
 		}, status=400)
 
-	# channel_layer = get_channel_layer()
-	# for user, channel_name in user_sockets.items():
-	# 	if user != username:
-	# 		async_to_sync(channel_layer.send)(
-	# 			channel_name,
-	# 			{
-	# 				"type": "update.logout",
-	# 				"username": username,
-	# 			}
-	# 		)
-	# 		break
-	if username in user_sockets:
-		del user_sockets[username]
+	channel_layer = get_channel_layer()
+	for user, channel_name in user_sockets.items():
+		if user != username:
+			async_to_sync(channel_layer.send)(
+				channel_name,
+				{
+					"type": "update.logout",
+					"username": username,
+				}
+			)
+			break
 	return Response({
 		'status': 'success',
 		'redirect': True,

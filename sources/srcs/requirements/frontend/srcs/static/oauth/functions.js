@@ -232,79 +232,91 @@ function strcmp(str1, str2) {
 /**************************/
 
 async function callWebSockets(params) {
-	socket = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
-	socket.onopen = function() {
-		console.log("WebSocket connection established.", socket);
-	};
-	socket.onerror = function(error) {
-		console.error("WebSocket error observed:", error);
-	};
-
-	socket.onclose = function(event) {
-		console.log("WebSocket connection closed:", event);
-	};
-	socket.onmessage = function(event) {
-		var data = JSON.parse(event.data);
-		if (data.type === 'invitation') {
-			socket.send(JSON.stringify({
-				type: 'response.invitation',
-				response: 'pending',
-				friend_request_id: data.friend_request_id
-			}));
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
+	try {
+		console.log("callWebSockets");
+		if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1){
+			ONE_SOCKET = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 		}
-		else if (data.type === 'update_name') {
-			const newUsername = data.new_username;
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
-		}
-		else if (data.type === 'remove_friend') {
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
-		}
-		else if (data.type === 'update_logout') {
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
-		}
-		else if (data.type === 'update_login') {
-			setTimeout(() => {
+		ONE_SOCKET.onopen = function() {
+			console.log("WebSocket connection established.", ONE_SOCKET);
+		};
+		ONE_SOCKET.onerror = function(error) {
+			console.error("WebSocket error observed:", error);
+		};
+	
+		ONE_SOCKET.onclose = function(event) {
+			console.log("WebSocket connection closed:", event);
+		};
+		ONE_SOCKET.onmessage = function(event) {
+			var data = JSON.parse(event.data);
+			if (data.type === 'invitation') {
+				ONE_SOCKET.send(JSON.stringify({
+					type: 'response.invitation',
+					response: 'pending',
+					friend_request_id: data.friend_request_id
+				}));
 				if (ELEMENTs.profilePage())
-					assign_location(URLs.VIEWS.PROFILE);
-			}, 3000);
-		}
-	};
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'update_name') {
+				const newUsername = data.new_username;
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'remove_friend') {
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'update_logout') {
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'update_login') {
+				setTimeout(() => {
+					if (ELEMENTs.profilePage())
+						replace_location(URLs.VIEWS.PROFILE);
+				}, 3000);
+			}
+		};
+	} catch (error) {
+		console.log('sendInvitation() an exception happenned ' + error);
+	}
 }
 
 
-async function handleFriendInvitation(socket, event) {
-	var data = JSON.parse(event.data);
-    if (data.type === 'invitation') {
-        socket.send(JSON.stringify({
-            type: 'response.invitation',
-            response: 'pending',
-            friend_request_id: data.friend_request_id
-        }));
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'update_name') {
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'remove_friend') {
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'update_logout') {
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'update_login') {
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-}
+// async function handleFriendInvitation(event) {
+// 	try {
+// 		console.log("handleFriendInvitation");
+// 		var data = JSON.parse(event.data);
+// 		if (data.type === 'invitation') {
+// 			ONE_SOCKET.send(JSON.stringify({
+// 				type: 'response.invitation',
+// 				response: 'pending',
+// 				friend_request_id: data.friend_request_id
+// 			}));
+// 			if (ELEMENTs.profilePage())
+// 				await assign_location(URLs.VIEWS.PROFILE);
+// 		}
+// 		else if (data.type === 'update_name') {
+// 			if (ELEMENTs.profilePage())
+// 				await assign_location(URLs.VIEWS.PROFILE);
+// 		}
+// 		else if (data.type === 'remove_friend') {
+// 			if (ELEMENTs.profilePage())
+// 				await assign_location(URLs.VIEWS.PROFILE);
+// 		}
+// 		else if (data.type === 'update_logout') {
+// 			if (ELEMENTs.profilePage())
+// 				await assign_location(URLs.VIEWS.PROFILE);
+// 		}
+// 		else if (data.type === 'update_login') {
+// 			if (ELEMENTs.profilePage())
+// 				await assign_location(URLs.VIEWS.PROFILE);
+// 		}
+// 	} catch (error) {
+// 		console.log('sendInvitation() an exception happenned ' + error);
+// 	}
+// }
 
 
 function strcmp(str1, str2) {

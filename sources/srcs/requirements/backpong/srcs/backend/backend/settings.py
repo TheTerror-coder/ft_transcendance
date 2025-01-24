@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
 
-	'daphne', #TODO JM: Remove in production, uvicorn will be the asgi server instead
+	# 'daphne', #TODO JM: Remove in production, uvicorn will be the asgi server instead
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -211,13 +211,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-			"hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			# "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
 			### TODO: IN production
-            # "hosts": [
-			# 	{
-			# 		"address": tools.get_RedisBackendUri(),
-			# 	}
-			# ],
+            "hosts": [
+				{
+					"address": tools.get_RedisBackendUri(),
+				}
+			],
         },
     },
 }

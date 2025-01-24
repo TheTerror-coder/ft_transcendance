@@ -340,4 +340,6 @@ const ALERT_CLASSEs = Object.freeze({
 	DARK : 'dark',
 });
 
+let ONE_SOCKET = undefined;
+
 let toggle_flag = true;

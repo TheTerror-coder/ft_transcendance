@@ -145,63 +145,63 @@ services:
     # restart: on-failure
 
 
-  redis:
-    depends_on:
-      vault:
-        condition: service_healthy
-        restart: true
-    image: redis:${REDIS_TAG}
-    container_name: ${REDIS_CONTAINER}
-    expose:
-      - ${REDIS_PORT}
-    networks:
-      - ${NETWORK_NAME}
-    entrypoint: ["redis-server", "--port", "${REDIS_PORT}", "--loglevel", "debug"]
-    # restart: on-failure
-
-
   # redis:
   #   depends_on:
   #     vault:
   #       condition: service_healthy
   #       restart: true
-  #   image: ${REDIS_IMAGE}
+  #   image: redis:${REDIS_TAG}
   #   container_name: ${REDIS_CONTAINER}
-  #   pull_policy: never
-  #   build:
-  #     context: ./requirements/redis/
-  #     args:
-  #       - REDIS_TAG=${REDIS_TAG}
-  #       - REDIS_HOME=${REDIS_HOME}
-  #       - REDIS_UID=${REDIS_UID}
-  #       - REDIS_GID=${REDIS_GID}
-  #       - SHARED_GID=${SHARED_GID}
-  #       - REDIS_DIRS_TO_MAKE=${REDIS_DIRS_TO_MAKE}
-  #   environment:
-  #     - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
-  #     - REDIS_HOME=${REDIS_HOME}
-  #     - REDIS_USER=${REDIS_USER}
-  #     - REDIS_PORT=${REDIS_PORT}
-  #     - REDIS_DATA=${REDIS_DATA}
-  #     - VAULT_CACERT=${REDIS_VAULT_CACERT}
-  #     - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
-  #     - HOST_IP=${HOST_IP}
-  #     - VAULT_API_PORT=${VAULT_API_PORT}
-  #   volumes:
-  #     - rdb_data:${REDIS_DATA}
-  #     - vault_certs:${REDIS_HOME}/volumes/vault/certs
-  #     - redis_certs:${REDIS_HOME}/volumes/redis/certs
-  #   healthcheck: #&file_healthcheck
-  #     test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-  #     start_period: 10s
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 1
   #   expose:
   #     - ${REDIS_PORT}
   #   networks:
   #     - ${NETWORK_NAME}
+  #   entrypoint: ["redis-server", "--port", "${REDIS_PORT}", "--loglevel", "debug"]
   #   # restart: on-failure
+
+
+  redis:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: ${REDIS_IMAGE}
+    container_name: ${REDIS_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/redis/
+      args:
+        - REDIS_TAG=${REDIS_TAG}
+        - REDIS_HOME=${REDIS_HOME}
+        - REDIS_UID=${REDIS_UID}
+        - REDIS_GID=${REDIS_GID}
+        - SHARED_GID=${SHARED_GID}
+        - REDIS_DIRS_TO_MAKE=${REDIS_DIRS_TO_MAKE}
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - REDIS_HOME=${REDIS_HOME}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DATA=${REDIS_DATA}
+      - VAULT_CACERT=${REDIS_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+    volumes:
+      - rdb_data:${REDIS_DATA}
+      - vault_certs:${REDIS_HOME}/volumes/vault/certs
+      - redis_certs:${REDIS_HOME}/volumes/redis/certs
+    healthcheck: #&file_healthcheck
+      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    expose:
+      - ${REDIS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    restart: on-failure
 
   mail:
     image: ${MAIL_IMAGE}
@@ -284,8 +284,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
-        #   "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
+          # "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
+          "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s
@@ -346,8 +346,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
-        #   "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
+          # "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s

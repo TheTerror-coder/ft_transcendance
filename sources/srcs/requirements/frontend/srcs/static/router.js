@@ -93,7 +93,7 @@ const eventManager = async (event) => {
 			globalSocket = null;
 		}
 		if (ELEMENTs.addFriendButton() === null)
-			await replace_location(URLs.VIEWS.HOME);
+			await assign_location(URLs.VIEWS.HOME);
 		else
 		{
 			await fragment_loadModalTemplate();
@@ -143,9 +143,14 @@ primaryRoutes[PATHs.VIEWS.CALLBACKURL] = {
 	description : "",
 };
 primaryRoutes[PATHs.VIEWS.VERIFY_EMAIL] = {
-		view : emailStatusView,
-		title : "Email verify | " + PAGE_TITLE,
-		description : "",
+	view : emailStatusView,
+	title : "Email verify | " + PAGE_TITLE,
+	description : "",
+};
+primaryRoutes[PATHs.VIEWS.ERROR404] = {
+	view : error404View,
+	title : "Not Found | " + PAGE_TITLE,
+	description : "",
 };
 
 const urlRoutes = {
@@ -183,11 +188,6 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT] = {
 urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
 	view : tournamentTreeView,
 	title : "Tournament Tree | " + PAGE_TITLE,
-	description : "",
-};
-urlRoutes[PATHs.VIEWS.ERROR404] = {
-	view : error404View,
-	title : "Not Found | " + PAGE_TITLE,
 	description : "",
 };
 // urlRoutes[PATHs.VIEWS.MFA] = {
@@ -237,7 +237,7 @@ const handleLocation = async () => {
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
 	if (routeMatched === urlRoutes["404"])
 	{
-		await replace_location(URLs.VIEWS.ERROR404);
+		await assign_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){

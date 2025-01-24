@@ -168,7 +168,7 @@ async function displayWaitingListFriend(friends) {
                 alert(`add ${friends[i].from_user}`);
 
                 // Envoi de l'invitation acceptée au serveur
-                socket.send(JSON.stringify({
+                ONE_SOCKET.send(JSON.stringify({
                     type: 'response.invitation',
                     to_user: friends[i].from_user,
                     response: 'accept',
@@ -196,7 +196,7 @@ async function displayWaitingListFriend(friends) {
             // Gérer le rejet de l'invitation
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
-                socket.send(JSON.stringify({
+                ONE_SOCKET.send(JSON.stringify({
                     type: 'response.invitation',
                     response: 'reject',
                     friend_request_id: friends[i].friend_request_id
@@ -226,9 +226,7 @@ async function addFriendToFriendList(friend) {
     const friendListMenu = document.getElementById('friendDropdownMenu');
     
     if (document.getElementById("noFriends") !== null)
-    {
         document.getElementById("noFriends").remove();
-    }
     const listItem = document.createElement('li');
     listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 

@@ -114,24 +114,24 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 )
 
 
-    # async def update_logout(self, event):
-    #     user = event["username"]
-    #     for username, channel_name in user_sockets.items():
-    #         if channel_name == self.channel_name:
-    #             invitation = {
-    #                 'type': 'update_logout',
-    #                 'from': self.user.username,
-    #                 'to': username,
-    #             }
-    #             await self.channel_layer.send(
-    #                 channel_name,
-    #                 {
-    #                     'type': 'send.message',
-    #                     'text': json.dumps(invitation),
-    #                 }
-    #             )
-    #     if user in user_sockets:
-    #         del user_sockets[user]
+    async def update_logout(self, event):
+        user = event["username"]
+        for username, channel_name in user_sockets.items():
+            if channel_name == self.channel_name:
+                invitation = {
+                    'type': 'update_logout',
+                    'from': self.user.username,
+                    'to': username,
+                }
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
+        if user in user_sockets:
+            del user_sockets[user]
 
     async def update_login(self, event):
         for username, channel_name in user_sockets.items():

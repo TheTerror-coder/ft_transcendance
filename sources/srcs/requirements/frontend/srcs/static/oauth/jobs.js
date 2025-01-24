@@ -26,9 +26,6 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 		await jwt_authenticate();
 		
 		await callWebSockets();
-        socket.onmessage = function(event) {
-            handleFriendInvitation(socket, event);
-        };
 
 		if (routeMatched){
 			await render_next(params, routeMatched, _storage);

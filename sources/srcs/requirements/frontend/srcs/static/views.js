@@ -60,9 +60,7 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
-    const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-    if (socket.connected === false)
+	if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1)
 		await callWebSockets();
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
@@ -78,7 +76,8 @@ async function	homeView(title, description, data)
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
 	ELEMENTs.wantedProfile().onclick = async () => {
-		await replace_location(URLs.VIEWS.PROFILE);
+		let ret = await assign_location(URLs.VIEWS.PROFILE);
+		return ;
 	};
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
@@ -89,6 +88,7 @@ async function	homeView(title, description, data)
 async function	loginView(title, description, data) {
 	if (await isUserAuthenticated({})) {
 		await replace_location(URLs.VIEWS.HOME);
+		return ;
 	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
@@ -97,19 +97,15 @@ async function	loginView(title, description, data) {
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
 	await changeMusic(ELEMENTs.loginMusic());
-
-
-	
-	// const myModal = new bootstrap.Modal('#loginModal', {
-		// 	keyboard: false
-		//   })
-		//   myModal.show();
 }
 
 async function	profileView(title, description, data)
 {
 	document.title = title;
 
+	if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1) {
+		let ret = await callWebSockets();
+	}
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
@@ -123,11 +119,11 @@ async function	profileView(title, description, data)
 	imgElement.src = photoUrl;
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'block';
-	await displayFriend(response.friends, response.user_socket);
-	await displayWaitingListFriend(response.pending_requests);
-	await getHistoric(response.recent_games, response.username);
-	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
-	await changeMusic(ELEMENTs.profilePageMusic());
+	let ret = await displayFriend(response.friends, response.user_socket);
+	ret = await displayWaitingListFriend(response.pending_requests);
+	ret = await getHistoric(response.recent_games, response.username);
+	ret = await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
+	ret = await changeMusic(ELEMENTs.profilePageMusic());
 }
 
 async function	createLobbyView(title, description, data) 
@@ -149,7 +145,6 @@ async function	createLobbyView(title, description, data)
 			ELEMENTs.luffyChibi().style.opacity = 1;
 		}
 	});
-	// ELEMENTs.cross().onclick = () => await replace_location(URLs.VIEWS.HOME);
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 	await changeMusic(ELEMENTs.lobbyMusic());
@@ -211,6 +206,6 @@ async function	error404View(title, description, data)
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
-	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.HOME);
+	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.LOGIN_VIEW);
 	refreshLanguage();
 }

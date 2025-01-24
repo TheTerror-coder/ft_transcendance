@@ -94,7 +94,7 @@ const homePageDisplayVAR =
             <h1 data-translate="Friends" style="font-size: 30px; align-self: center;">Friends</h1>
                 <input style="width: 170px; margin-top: 20px;" id="usernameAddFriend"></input>
                 <div style="display:flex; justify-content: center; margin-top: 20px;">
-                    <button data-translate="AddFriend" class="buttonCreate type="submit" id="addFriendButton">ADD</button>
+                    <button data-translate="AddFriend" class="buttonCreate" type="submit" id="addFriendButton">ADD</button>
                 </div>
             </div>
             <div class="cover">
