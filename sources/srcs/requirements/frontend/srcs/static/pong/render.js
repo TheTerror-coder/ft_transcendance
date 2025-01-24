@@ -64,7 +64,7 @@ function initBoundaryLines() {
 
 async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
     return new Promise((resolve, reject) => {
-        const boundaryLines = initBoundaryLines();
+        // const boundaryLines = initBoundaryLines();
         
         try {
             if (!ball || !ocean || !ambientLight || !directionalLight1 || !directionalLight2 || !bateau1 || !bateau2) {
@@ -79,7 +79,7 @@ async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, di
             scene.add(directionalLight2);
             scene.add(bateau1);
             scene.add(bateau2);
-            scene.add(boundaryLines);
+            // scene.add(boundaryLines);
 
             // Vérification que tous les éléments sont visibles
             const elements = [
@@ -426,6 +426,9 @@ async function initCannons(scene) {
         // Position des tips par rapport aux tubes
         cannonTip1.position.set(115, 0, 60);
         cannonTip2.position.set(115, 0, 60);
+
+        cannonTip1.visible = false;
+        cannonTip2.visible = false;
 
         // Attacher les tips directement aux tubes
         cannonTube1.add(cannonTip1);

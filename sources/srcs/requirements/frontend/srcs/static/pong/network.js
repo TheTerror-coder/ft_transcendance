@@ -102,13 +102,17 @@ const createBallFiredEvent = (scene) => (data) => {
     fireEnnemieCannonBall(scene, trajectory);
 }
 
-const createUpdateHealthEvent = (Team1, Team2, currentPlayer, hud) => (data) => {
-    const {teamID, health} = data;
-    let team = findTeam(Team1, Team2, teamID);
-    if (team = currentPlayer.getTeamID())
-        hud.updateHealth(health);
-    else
-        hud.updateHealth2(health);
+const createDamageAppliedEvent = (Team1, Team2, currentPlayer, hud) => (data) => {
+    const {teamId, health, damage} = data;
+    let team = findTeam(Team1, Team2, teamId);
+    console.log("health dans damageAppliedEvent", health);
+    
+    // Si c'est l'équipe qui a été touchée
+    if (teamId === currentPlayer.getTeamID()) {
+        hud.updateHealth2(health);   // Petite barre = nos PV
+    } else {
+        hud.updateHealth(health);    // Grande barre = PV adverses
+    }
 }
 
 // Ajouter un système de validation des mises à jour
@@ -248,7 +252,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('winner', createWinnerEvent(Team1, Team2, currentPlayer, hud, currentLanguage));
     socket.on('cannonPosition', createCannonPositionEvent(Team1, Team2));
     socket.on('ballFired', createBallFiredEvent(scene));
-    socket.on('updateHealth', createUpdateHealthEvent(Team1, Team2, currentPlayer, hud));
+    socket.on('damageApplied', createDamageAppliedEvent(Team1, Team2, currentPlayer, hud));
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer, currentPlayerTeam));
     socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
     socket.on('gameState', gameStateEvent(ball));
@@ -264,7 +268,7 @@ export function removeSocketListeners(socket) {
     socket.off('winner');
     socket.off('cannonPosition');
     socket.off('ballFired');
-    socket.off('updateHealth');
+    socket.off('damageApplied');
     socket.off('boatPosition');
     socket.off('scoreUpdate');
     socket.off('tournamentEnded');

@@ -7,6 +7,7 @@ import os
 import time
 from .Team import Team
 from .Player import Player
+from .Bullet_collide import *
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -54,6 +55,7 @@ class Game:
         self.last_collision_time = 0
         self.PREDICTION_BUFFER = []  # Pour stocker les positions futures
         self.MAX_PREDICTIONS = 3  # Nombre de prédictions à maintenir
+        self.pending_hits = {}  # {gameCode: {teamId: {timestamp, damage, animationEndTime}}}
 
     def getIsGameTournament(self):
         return self.isGameTournament
@@ -461,46 +463,84 @@ class Game:
                 logger.info(f"Cannon not found for team {teamId}")
         else:
             logger.info(f"Team {teamId} not found")
-
-    def interpolate_points(self, p1, p2, steps=10):
-        points = []
-        for i in range(steps):
-            t = i / steps
-            x = p1['x'] + (p2['x'] - p1['x']) * t
-            y = p1['y'] + (p2['y'] - p1['y']) * t
-            z = p1['z'] + (p2['z'] - p1['z']) * t
-            points.append({'x': x, 'y': y, 'z': z})
-        return points
-
+    
     async def updateBallFired(self, data):
         trajectory = data.get('trajectory')
         team = self.getTeam(data.get('team'))
-        # points_array = trajectory.get('geometries', [])[0].get('data', {}).get('attributes', {}).get('position', {}).get('array', [])
-        points_array = trajectory
-        # Convertir le tableau de points en liste de dictionnaires
-        points = []
-        for i in range(0, len(points_array), 3):
-            points.append({
-                'x': points_array[i],
-                'y': points_array[i+1],
-                'z': points_array[i+2]
-            })
-        
-        # Vérifier les collisions avec interpolation
-        for i in range(len(points) - 1):
-            interpolated_points = self.interpolate_points(points[i], points[i+1])
-            for point in interpolated_points:
-                if self.check_collision_point(point, team):
-                    return -1
-        return 0
+        animation_end_time = data.get('animationEndTime')
+        game_code = data.get('gameCode')
 
-    def check_collision_point(self, point, firing_team):
+        try:
+            # Vérifier les collisions comme avant
+            collision_detected = False
+            collision_point = None
+            
+            for i in range(0, len(trajectory) - 3, 3):
+                p1 = {
+                    'x': float(trajectory[i]),
+                    'y': float(trajectory[i+1]),
+                    'z': float(trajectory[i+2])
+                }
+                p2 = {
+                    'x': float(trajectory[i+3]),
+                    'y': float(trajectory[i+4]),
+                    'z': float(trajectory[i+5])
+                }
+
+                if self.checkCollisionSegment(p1, p2, team):
+                    collision_detected = True
+                    collision_point = p2
+                    break
+
+            if collision_detected:
+                # Au lieu d'appliquer les dégâts immédiatement, les stocker
+                self.pending_hits[game_code] = {
+                    'teamId': team.getTeamId(),
+                    'timestamp': time.time(),
+                    'animationEndTime': animation_end_time,
+                    'collision_point': collision_point
+                }
+                return 1  # Collision détectée
+            return 0  # Pas de collision
+
+        except Exception as e:
+            logger.error(f"Erreur dans updateBallFired: {e}")
+            return -1
+    
+    def checkCollisionSegment(self, p1, p2, firing_team):
         target_team = self.teams[1 if firing_team.getTeamId() == 2 else 2]
-        hitbox = self.getAdjustedHitbox(target_team)
+        current_hitbox = self.getAdjustedHitbox(target_team)
         
-        return (hitbox['min']['x'] <= point['x'] <= hitbox['max']['x'] and
-                hitbox['min']['y'] <= point['y'] <= hitbox['max']['y'] and
-                hitbox['min']['z'] <= point['z'] <= hitbox['max']['z'])
+        # Vérifier la collision avec la position actuelle
+        collision, point = checkCollision(p1, p2, current_hitbox)
+        if collision:
+            return True
+        
+        # Vérifier avec les positions futures du bateau
+        boat_velocity = {
+            'x': target_team.getBoat()['x'] - target_team.getFormerBoatPosition()['x'],
+            'y': target_team.getBoat()['y'] - target_team.getFormerBoatPosition()['y']
+        }
+        
+        # Vérifier quelques positions futures
+        for i in range(1, 5):  # Vérifier 5 positions futures
+            future_hitbox = {
+                'min': {
+                    'x': current_hitbox['min']['x'] + boat_velocity['x'] * i,
+                    'y': current_hitbox['min']['y'] + boat_velocity['y'] * i,
+                    'z': current_hitbox['min']['z']
+                },
+                'max': {
+                    'x': current_hitbox['max']['x'] + boat_velocity['x'] * i,
+                    'y': current_hitbox['max']['y'] + boat_velocity['y'] * i,
+                    'z': current_hitbox['max']['z']
+                }
+            }
+            collision, point = checkCollision(p1, p2, future_hitbox)
+            if collision:
+                return True
+            
+        return False
 
     async def updateClientData(self, data):
         teamId = data.get('team')
@@ -741,3 +781,26 @@ class Game:
             team.resetPosition()
             team.PV = 100
             team.score = 0
+
+    async def handleAnimationComplete(self, sio, data, sid):
+        gameCode = data.get('gameCode')
+        team_id = data.get('team')
+        
+        if gameCode in self.pending_hits:
+            hit_data = self.pending_hits[gameCode]
+            if hit_data['teamId'] == team_id:
+                # Appliquer les dégâts
+                target_team = self.teams[1 if team_id == 2 else 2]
+                target_team.removePV(10)
+                logger.info(f"target_team: {target_team.getPV()}")
+                # Envoyer la mise à jour aux clients
+                await sio.emit('damageApplied', {
+                    'gameCode': gameCode,
+                    'teamId': target_team.getTeamId(),
+                    'damage': 10,
+                    'health': target_team.getPV()
+                }, room=gameCode)
+                
+                # Nettoyer les données
+                del self.pending_hits[gameCode]
+

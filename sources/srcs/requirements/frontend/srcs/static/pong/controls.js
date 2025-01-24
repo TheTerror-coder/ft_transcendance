@@ -26,7 +26,6 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         }
         let cannonPos = cannon.position.x;
         if (cannonTubeMoved) {
-            console.log('cannonTubeMoved : ', cannonPos);
             emitCannonPosition(socket, gameCode, TeamID, cannonPos);
         }
     }

@@ -1,29 +1,9 @@
 import * as THREE from 'three';
 import { createCannonBall } from './render.js';
+
 const trajectoryCanvas = document.createElement('canvas');
 trajectoryCanvas.id = 'trajectoryCanvas';
 document.body.appendChild(trajectoryCanvas);
-
-async function calculateCannonBallTrajectory(cannonX, cannonY, cannonZ, cannonAngle, cannonPower, teamID)
-{
-    const g = 9.81;
-    const v0 = cannonPower;
-    const alpha = cannonAngle * Math.PI / 180;
-    const timeStep = 0.1;
-    const trajectory = [];
-    const directionY = teamID === 1 ? -1 : 1;
-
-    for (let t = 0; ; t += timeStep) {
-        const y = cannonY + (v0 * Math.cos(alpha) * t * directionY);
-        const x = cannonX;
-        const z = cannonZ + v0 * Math.sin(alpha) * t - 0.5 * g * t * t;
-
-        if (z < -1) break;
-        trajectory.push({x, y, z});
-    }
-
-    return trajectory;
-}
 
 async function createTrajectoryLine(trajectoryData) {
     const points = trajectoryData.map(point => new THREE.Vector3(point.x, point.y, point.z));
@@ -78,22 +58,62 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 16) {
     scene.remove(ballMesh);
 }
 
-export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID)
-{
+export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID) {
     const v0 = 27;  // Vitesse initiale en m/s
     let angle = -((cannonTube.rotation.y * 180 / Math.PI));  // Angle de tir en degrés
     const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
     console.log('======== cannonPosTip ========= : ', cannonPos);
-    const trajectory = await calculateCannonBallTrajectory(cannonPos.x, cannonPos.y, cannonPos.z, angle, v0, currentPlayerTeam.getTeamId());
-    // trajectoryLine = await createTrajectoryLine(trajectory);
-    // scene.add(trajectoryLine);
+
+    // Calculer la trajectoire avec gravité et direction
+    const g = 9.81;
+    const alpha = angle * Math.PI / 180;
+    const timeStep = 0.1;
+    const directionY = TeamID === 1 ? -1 : 1;
+    const trajectory = [];
+
+    // Calculer la trajectoire point par point
+    for (let t = 0; ; t += timeStep) {
+        const y = cannonPos.y + (v0 * Math.cos(alpha) * t * directionY);
+        const x = cannonPos.x;
+        const z = cannonPos.z + v0 * Math.sin(alpha) * t - 0.5 * g * t * t;
+
+        if (z < -1) break;
+        
+        // Stocker les points comme une liste plate de nombres
+        trajectory.push(x, y, z);
+    }
+
     console.log('trajectory : ', trajectory);
+
+    // Pour l'affichage, convertir en format objet
+    const trajectoryObjects = [];
+    for (let i = 0; i < trajectory.length; i += 3) {
+        trajectoryObjects.push({
+            x: trajectory[i],
+            y: trajectory[i+1],
+            z: trajectory[i+2]
+        });
+    }
+
+    // Ajouter la durée estimée de l'animation
+    const animationDuration = trajectoryObjects.length * 100; // 100ms par point
+    
     socket.emit('BallFired', {
         gameCode: gameCode,
         team: TeamID,
         trajectory: trajectory,
+        animationEndTime: Date.now() + animationDuration  // Nouveau !
     });
-    await fireCannon(trajectory, scene);
+
+    // Animer le projectile
+    await fireCannon(trajectoryObjects, scene);
+    
+    // Signaler la fin de l'animation
+    socket.emit('animationComplete', {
+        gameCode: gameCode,
+        team: TeamID
+    });
+
     cannonTube.rotation.y = 0;
     hud.scene.add(hud.loadingCircle.group);
     return trajectory;
@@ -111,12 +131,4 @@ function interpolatePoints(start, end, steps = 10) {
     }
     return points;
 }
-
-// function extractTrajectoryPoints(trajectoryData) {
-//     if (!trajectoryData) {
-//         console.error('Données de trajectoire invalides:', trajectoryData);
-//         return [];
-//     }
-//     return trajectoryData;
-// }
 

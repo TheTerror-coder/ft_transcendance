@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 # Au début du fichier, après les imports
 # host_ip = os.getenv("HOST_IP", "localhost")
 
-# host_ip = 'localhost'
 
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
@@ -467,15 +466,17 @@ async def BallFired(sid, data):
     if (not game):
         await sio.emit('error', {'message': 'Partie non trouvée'}, room=sid)
         return
+
+    # Envoyer la trajectoire aux autres joueurs pour l'animation
     await sio.emit('ballFired', data['trajectory'], room=gameCode, skip_sid=sid)
-    if (await game.updateBallFired(data) == -1):
-        await sio.emit('updateHealth', {
-            'teamID': 1 if team == 2 else 1,
-            'health': game.getTeam(1 if team == 2 else 1).getPV()
-        }, room=gameCode)
-        if (game.getTeam(1 if team == 2 else 1).removePV(10) == -1):
-            await sio.emit('winner', game.getTeam(team).getName(), room=gameCode)
-            game.gameStarted = False
+    
+    # Vérifier la collision et stocker les dégâts en attente
+    collision_result = await game.updateBallFired(data)
+    
+    if collision_result == 1:  # Collision détectée, mais les dégâts seront appliqués plus tard
+        logger.info(f"Collision detected for game {gameCode}, waiting for animation to complete")
+    elif collision_result == -1:  # Erreur
+        logger.error(f"Error in updateBallFired for game {gameCode}")
 
 @sio.event
 async def tournamentStart(sid, tournamentCode):
@@ -488,6 +489,13 @@ async def tournamentStart(sid, tournamentCode):
             await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur du tournoi'}, room=sid)
     else:
         await sio.emit('error', {'message': 'Tournoi non trouvé'}, room=sid)
+        
+@sio.event
+async def animationComplete(sid, data):
+    gameCode = data.get('gameCode')
+    game = findGame(gameCode, None)
+    if game:
+        await game.handleAnimationComplete(sio, data, sid)
 
 def createTournamentPlayerList(tournament):
     info = []
@@ -542,7 +550,6 @@ async def updateGameOptions(game, gameCode, sid):
     for team in game.teams.values():
         for player in team.player.values():
             if (player.getOnline() and player.getAllowedToReconnect() and not player.getIsInit()):
-                # await sio.emit('AvailableOptions', data, room=sid)
                 pass
             else:
                 await sio.emit('AvailableOptions', data, room=gameCode)
@@ -589,7 +596,7 @@ async def startTournament(sio, tournament, tournamentCode, start):
     if (len(tournament.getTournamentGamesList()) == 0):
         for i in range(tournament.getNbTeam() // 2):
             match = tournament.getNextMatch()
-            logger.info(f"match dans startTournament dans index.py {match}")
+            logger.info(f"match {i} : {match}")
             if (match):
                 team1 = match[0]
                 team2 = match[1]
@@ -599,8 +606,6 @@ async def startTournament(sio, tournament, tournamentCode, start):
                 game = tournament.getTournamentGames(gameCode)
                 game.setNbPlayerPerTeam(1)
                 try:
-                    logger.info(f"team1.getTournamentTeamId() dans startTournament dans index.py {team1.getTournamentTeamId()}")
-                    logger.info(f"team2.getTournamentTeamId() dans startTournament dans index.py {team2.getTournamentTeamId()}")
                     await sio.enter_room(team1.getTournamentTeamId(), gameCode)
                     await sio.enter_room(team2.getTournamentTeamId(), gameCode)
                 except KeyError:
@@ -611,11 +616,8 @@ async def startTournament(sio, tournament, tournamentCode, start):
                 game.setTeam(team1)
                 game.setTeam(team2)
                 game.printGameDetails()
-                logger.info(f"Game {gameCode} created")
-                logger.info(f"Starting game {gameCode}")
-                for team in game.teams.values():
-                    logger.info(f"team.getTournamentTeamId() dans startTournament dans index.py {team.getTournamentTeamId()} / {team.getName()} / {gameCode} / {tournamentCode}")
-                # await sio.emit('startTournamentGame', {'gameCode': gameCode}, room=gameCode)
+                logger.info(f"Tournament Game {gameCode} created")
+                logger.info(f"Starting Tournament Game {gameCode}")
                 if team1.getTournamentTeamId() not in player_rooms:
                     player_rooms[team1.getTournamentTeamId()] = set()
                 if team2.getTournamentTeamId() not in player_rooms:
@@ -714,4 +716,3 @@ async def broadcast_tournament_update(tournament, tournamentCode):
         'matches': matches,
         'tournamentTree': tournament.getTournamentTreeData()
     }, room=tournamentCode)
-
