@@ -24,7 +24,7 @@ export async function main(gameCode, socket, currentLanguage) {
 
     socket.on('disconnect', () => {
         console.log('Disconnected from the server');
-        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+        // ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
         socket.off('disconnect');
     });
     
@@ -248,7 +248,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 if (currentPlayerTeam.getTournamentEnded() === true)
                                 {
                                     replace_location(URLs.VIEWS.TOURNAMENT_TREE);
-                                    await new Promise(resolve => setTimeout(resolve, 10000));
+                                    // await new Promise(resolve => setTimeout(resolve, 10000));
                                     socket.disconnect();
                                     return (true);
                                 }

@@ -3,21 +3,6 @@
 async function initializeSocket()
 {
     console.log("JE SUIS DANS INITIALIZE SOCKET");
-    // const response = await fetch('/static/gameserver/config.json');
-    // console.log(response);
-    // if (!response.ok) {
-    //     console.error('Erreur réseau : ' + response.statusText);
-    //     ip = 'localhost';
-    // } else {
-    //     const data = await response.json();
-    //     ip = data.HOST_IP;
-    // }
-    // console.log("IP: ", ip);
-
-    // ip = 'localhost';
-
-    // Configuration de la socket avec des options pour ��viter les reconnexions inutiles
-    // socket = io('wss://' + ip + ':"env variable PROXYWAF_HTTPS_PORT"', {
 	socket = io(`wss://${window.location.host}`, {
         // path: '/socket.io',
         transports: ['websocket'],
@@ -63,6 +48,7 @@ async function initializeSocket()
         if (error.ErrorCode === 1)
         {
             replace_location(URLs.VIEWS.HOME);
+            socket.disconnect();
         }
     });
 

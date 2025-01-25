@@ -159,7 +159,9 @@ class Team:
         return self.player
 
     def getPlayerById(self, id):
-        return self.player.get(id)
+        for player in self.player.values():
+            if (player.id == id):
+                return player
 
     def getPlayerByName(self, name):
         for player in self.player.values():

@@ -107,13 +107,14 @@ const startTournamentGameEvent = async (data) => {
 
 const tournamentWinnerEvent = (data) => {
     console.log("TOURNAMENT WINNER: ", data);
-	winnerEvent++;
-	if (winnerEvent === 2)
-	{
-		winnerOfTournament = data;
-		refreshWinner();
-	}
-	// document.getElementById("winnerOfTheTournament").innerHTML = data;
+    winnerOfTournament = data;
+    refreshWinner(winnerOfTournament);
+    
+    // Finalement, rediriger vers la page d'accueil après 10 secondes
+    setTimeout(() => {
+        replace_location(URLs.VIEWS.HOME);
+        console.log("PASS The 10 second");
+    }, 20000);
 }
 
 
@@ -123,13 +124,31 @@ const errorTournamentEvent = (data) => {
     error = data.message;
 }
 
-function refreshWinner(user)
-{
-	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
-	// console.log("winnerOfTournament: ", winnerOfTournament);
-	// document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
-	// winnerEvent = 0;
+function refreshWinner(winnerOfTournament) {
+    const maxAttempts = 10;
+    let attempts = 0;
+    
+    const tryUpdateWinner = () => {
+        const winnerElement = document.getElementById("winnerOfTheTournament");
+        if (winnerElement) {
+            console.log("winnerElement: ", winnerElement);
+            winnerElement.innerHTML = winnerOfTournament;
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(tryUpdateWinner, 1000);
+        }
+    };
+    
+    tryUpdateWinner();
 }
+
+// function refreshWinner(winnerOfTournament)
+// {
+// 	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
+// 	console.log("winnerOfTournament: ", winnerOfTournament);
+// 	document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
+// 	// winnerEvent = 0;
+// }
 
 async function joinTournament(code)
 {

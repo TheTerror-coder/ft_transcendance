@@ -21,6 +21,7 @@ function tournamentTreeView(title, description, data)
 
 async function tournamentView(title, description, data) 
 {
+	tournamentAllUsers.clearUsers();
 	document.title = title;
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.mainPage().innerHTML = tournamentCreateOrJoinVAR;

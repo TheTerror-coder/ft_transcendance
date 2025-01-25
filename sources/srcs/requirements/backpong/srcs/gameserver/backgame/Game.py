@@ -99,6 +99,9 @@ class Game:
         if (self.nbPlayerInLobby - nbPlayerToRemove >= 0):
             logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
             self.nbPlayerInLobby -= nbPlayerToRemove
+        else:
+            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
+            self.nbPlayerInLobby = 0
 
     def getIsGameTournament(self):
         return self.isGameTournament
@@ -866,6 +869,8 @@ class Game:
                     self.loser = team
                     self.winner = self.teams[1 if team.getTeamId() == 2 else 2]
                     self.gameStarted = False
+                    await self.sendGameInfo(sio, gameCode, True)
+                    await sio.emit('winner', self.winner.getName(), room=gameCode)
                     return True  # Indique que c'est une déconnexion de tournoi
             return True
 

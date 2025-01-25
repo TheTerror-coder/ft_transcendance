@@ -112,6 +112,8 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsNotFull', TeamsNotFullEvent);
 
+    // globalSocket.on('CreatorLeave', CreatorLeaveEvent);
+
     // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
 
     // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
@@ -136,10 +138,14 @@ function initializeGlobalSocket(socket)
 //     console.log("TOURNAMENT FULL: ", data);
 // }
 
-const TeamsNotFullEvent = (data) => {
-    console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
-    creator = data.creator;
-    if (data.creator === globalSocket.id)
+// const CreatorLeaveEvent = () => {
+
+// }
+
+const TeamsNotFullEvent = () => {
+    // console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
+    // creator = data.creator;
+    if (creator === globalSocket.id)
     {
         if (ELEMENTs.PlayButtonInLobby())
             ELEMENTs.PlayButtonInLobby().style.display = "none";
