@@ -1,0 +1,48 @@
+# NB: ARG default values are overriden at build time
+
+ARG VAULT_VERSION=1.17.3
+
+FROM hashicorp/vault:${VAULT_VERSION}
+
+ARG VAULT_UID=100
+ARG VAULT_GID=1000
+ARG SHARED_GID=1010
+ARG VAULT_HOME=/vault
+ARG VAULT_INIT_DIRS_TO_MAKE=.
+
+USER 0
+
+WORKDIR ${VAULT_HOME}
+
+RUN <<EOF
+addgroup -g ${SHARED_GID} transcendance
+addgroup vault transcendance
+apk add --update --no-cache curl jq openssl
+mkdir -p ${VAULT_INIT_DIRS_TO_MAKE}
+chmod 0700 ${VAULT_HOME} ${VAULT_HOME}/container-init.d
+chmod 1500 ${VAULT_HOME}/secrets
+chown -R ${VAULT_UID}:${SHARED_GID} ${VAULT_HOME}
+chown ${VAULT_UID}:${VAULT_GID} ${VAULT_HOME}/secrets
+EOF
+
+COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=500 \
+./tools/script.sh \
+./tools/create-root-ca.sh \
+./tools/generate-nginx-ssl-certs.sh \
+./tools/generate-gameserver-ssl-certs.sh \
+./tools/generate-redis-ssl-certs.sh \
+./tools/generate-backend-ssl-certs.sh \
+./tools/vault-ssl.sh \
+./conf/vault-ssl.cnf ./container-init.d/
+COPY --chown=${VAULT_UID}:${VAULT_GID} --chmod=400 \
+./secrets/password_policy_json \
+./secrets/secret_access_policy_json \
+./secrets/pki_access_policy_json ${VAULT_HOME}/secrets/
+
+USER ${VAULT_UID}
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD [ "/bin/sh", "./container-init.d/script.sh" ]
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["server" "-dev"]
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

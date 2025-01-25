@@ -1,113 +1,612 @@
 name: ${PROJECT_NAME}
 
 services:
+  vault_init:
+    image: ${VAULT_INIT_IMAGE}
+    container_name: ${VAULT_INIT_CONTAINER}
+    build:
+      context: ./requirements/vault_init/
+      args:
+        - VAULT_VERSION=${VAULT_VERSION}
+        - VAULT_UID=${VAULT_UID}
+        - VAULT_GID=${VAULT_GID}
+        - SHARED_GID=${SHARED_GID}
+        - VAULT_HOME=${VAULT_HOME}
+        - VAULT_INIT_DIRS_TO_MAKE=${VAULT_INIT_DIRS_TO_MAKE}
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - PKI_ACCESS_TOKEN=${PKI_ACCESS_TOKEN}
+      - ROOT_ACCESS_TOKEN=${ROOT_ACCESS_TOKEN}
+      - VAULT_ADDR=${VAULT_INIT_ADDR}
+      - VAULT_CACERT=${VAULT_INIT_CACERT}
+      - VAULT_HOME=${VAULT_HOME}
+      - VAULT_UID=${VAULT_UID}
+      - VAULT_GID=${VAULT_GID}
+      - BACKEND_UID=${BACKEND_UID}
+      - BACKEND_GID=${BACKEND_GID}
+      - SHARED_GID=${SHARED_GID}
+      - ALT_NAMES=${ALT_NAMES}
+      - MODSEC_ALT_NAMES=${MODSEC_ALT_NAMES}
+      - BACKEND_ALT_NAMES=${BACKEND_ALT_NAMES}
+      - GAMESERVER_ALT_NAMES=${GAMESERVER_ALT_NAMES}
+      - REDIS_ALT_NAMES=${REDIS_ALT_NAMES}
+      - VAULT_INIT_HEALTHFLAG=${VAULT_INIT_HEALTHFLAG}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - HOST_IP=${HOST_IP}
+      - PONGADMIN_PASS=${PONGADMIN_PASS}
+      - BACKEND_SECRET_KEY=${BACKEND_SECRET_KEY}
+      - GAMESERVER_SECRET_KEY=${GAMESERVER_SECRET_KEY}
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:${VAULT_HOME}/volumes/vault/file
+      - vault_healthiness:${VAULT_HOME}/volumes/healthiness
+      - vault_certs:${VAULT_HOME}/volumes/vault/certs
+      - nginx_certs:${VAULT_HOME}/volumes/nginx/certs
+      - backend_certs:${VAULT_HOME}/volumes/backend/certs
+      - gameserver_certs:${VAULT_HOME}/volumes/gameserver/certs
+      - redis_certs:${VAULT_HOME}/volumes/redis/certs
+    networks:
+      - transcendance
+    healthcheck:
+      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 2
+    restart: on-failure
+
+  vault:
+    depends_on:
+      vault_init:
+        condition: service_healthy
+        restart: true
+    image: ${VAULT_IMAGE}
+    container_name: ${VAULT_CONTAINER}
+    build:
+      context: ./requirements/vault/
+      args:
+        - VAULT_VERSION=${VAULT_VERSION}
+        - VAULT_UID=${VAULT_UID}
+        - VAULT_GID=${VAULT_GID}
+        - SHARED_GID=${SHARED_GID}
+        - VAULT_HOME=${VAULT_HOME}
+        - VAULT_DIRS_TO_MAKE=${VAULT_DIRS_TO_MAKE}
+    environment:
+      - VAULT_HOME=${VAULT_HOME}
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_CACERT=${VAULT_CACERT}
+      - VAULT_SKIP_VERIFY=true
+      - SKIP_SETCAP=true
+      - VAULT_HEALTHFLAG=${VAULT_HEALTHFLAG}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - VAULT_CLUSTER_PORT=${VAULT_CLUSTER_PORT}
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:${VAULT_HOME}/file
+      - vault_certs:${VAULT_HOME}/certs
+      - vault_healthiness:${VAULT_HOME}/healthiness
+    expose:
+      - ${VAULT_API_PORT}
+    networks:
+      - transcendance
+    healthcheck:
+      test: ["CMD-SHELL", "test -f $VAULT_HEALTHFLAG || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
   db_postgres:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
     image: ${POSTGRES_IMAGE}
     container_name: ${POSTGRES_CONTAINER}
     pull_policy: never
-    build: ./requirements/db_postgres/
+    build:
+      context: ./requirements/db_postgres/
+      args:
+        - POSTGRES_TAG=${POSTGRES_TAG}
+        - POSTGRES_HOME=${POSTGRES_HOME}
+        - POSTGRES_UID=${POSTGRES_UID}
+        - POSTGRES_GID=${POSTGRES_GID}
+        - SHARED_GID=${SHARED_GID}
+        - POSTGRES_DIRS_TO_MAKE=${POSTGRES_DIRS_TO_MAKE}
     environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - POSTGRES_HOME=${POSTGRES_HOME}
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
+      - PGDATA=${POSTGRES_DATA}
+      - VAULT_CACERT=${POSTGRES_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - HOST_IP=${HOST_IP}
+    volumes:
+      - db_data:${POSTGRES_DATA}
+      - vault_certs:${POSTGRES_HOME}/volumes/vault/certs
     healthcheck: #&file_healthcheck
       test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
-      interval: 2s
-      timeout: 15s
-      retries: 3
-      start_period: 20s
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
     expose:
       - ${POSTGRES_PORT}
     networks:
       - ${NETWORK_NAME}
     # restart: on-failure
 
-  web:
+
+  # redis:
+  #   depends_on:
+  #     vault:
+  #       condition: service_healthy
+  #       restart: true
+  #   image: redis:${REDIS_TAG}
+  #   container_name: ${REDIS_CONTAINER}
+  #   expose:
+  #     - ${REDIS_PORT}
+  #   networks:
+  #     - ${NETWORK_NAME}
+  #   entrypoint: ["redis-server", "--port", "${REDIS_PORT}", "--loglevel", "debug"]
+  #   # restart: on-failure
+
+
+  redis:
     depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: ${REDIS_IMAGE}
+    container_name: ${REDIS_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/redis/
+      args:
+        - REDIS_TAG=${REDIS_TAG}
+        - REDIS_HOME=${REDIS_HOME}
+        - REDIS_UID=${REDIS_UID}
+        - REDIS_GID=${REDIS_GID}
+        - SHARED_GID=${SHARED_GID}
+        - REDIS_DIRS_TO_MAKE=${REDIS_DIRS_TO_MAKE}
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - REDIS_HOME=${REDIS_HOME}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DATA=${REDIS_DATA}
+      - VAULT_CACERT=${REDIS_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+    volumes:
+      - rdb_data:${REDIS_DATA}
+      - vault_certs:${REDIS_HOME}/volumes/vault/certs
+      - redis_certs:${REDIS_HOME}/volumes/redis/certs
+    healthcheck: #&file_healthcheck
+      test: ["CMD-SHELL", "test -f $HEALTHFLAG_FILE || exit 1"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    expose:
+      - ${REDIS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    restart: on-failure
+
+  mail:
+    image: ${MAIL_IMAGE}
+    container_name: ${MAIL_CONTAINER}
+    expose:
+      - ${MAIL_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    ports:
+      - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
+    restart: on-failure
+
+  backend:
+    depends_on:
+      mail:
+        condition: service_started
+        restart: true
       db_postgres:
         condition: service_healthy
         restart: true
-    image: ${WEB_IMAGE}
-    container_name: ${WEB_CONTAINER}
+      redis:
+        condition: service_started
+        # condition: service_healthy
+        restart: true
+    image: ${BACKEND_IMAGE}
+    container_name: ${BACKEND_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/web/
+      context: ./requirements/backpong/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - IMAGE_TAG=${BACKEND_TAG}
+        - IMAGE_UID=${BACKEND_UID}
+        - IMAGE_USER=${BACKEND_USER}
+        - IMAGE_GID=${BACKEND_GID}
+        - IMAGE_SRCS=${BACKEND_SRCS}
+        - SHARED_GID=${SHARED_GID}
+        - IMAGE_HOME=${BACKEND_HOME}
+        - IMAGE_DIRS_TO_MAKE=${BACKEND_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+        - IMAGE_MEDIA_DIR=${BACKEND_MEDIA_DIR}
+        - HOST_IP=${HOST_IP}
+        - SCRIPT_SH=./tools/backend/script.sh
     environment:
-      - WEB_ENTRYPOINT=${WEB_ENTRYPOINT}
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - CONTAINER_HOME=${BACKEND_HOME}
+      - BACKEND_HOME=${BACKEND_HOME}
+      - CONTAINER_ENTRYPOINT=${BACKEND_ENTRYPOINT}
       - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
-      - GUNICORN_CMD_ARGS=${GUNICORN_CMD_ACTIVE_OPTIONS}
-      - STATICFILES_DIR=${STATICFILES_DIR}
+      - GUNICORN_CMD_ARGS=${BACKEND_GUNICORN_CMD_ACTIVE_OPTIONS}
+      - STATICFILES_DIR=${BACKEND_STATICFILES_DIR}
+      - BACKEND_ROOT_CA=${BACKEND_ROOT_CA}
+      - VAULT_CACERT=${BACKEND_VAULT_CACERT}
       - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - REDIS_CONTAINER=${REDIS_CONTAINER}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_HOME=${REDIS_HOME}
+      - MEDIA_DIR=${BACKEND_MEDIA_DIR}
+      - MAIL_CONTAINER=${MAIL_CONTAINER}
+      - MAIL_PORT=${MAIL_PORT}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - ULTIMAPI_UID=${ULTIMAPI_UID}
+      - ULTIMAPI_SECRET=${ULTIMAPI_SECRET}
+      - ULTIMAPI_REDIRECT_URI=${ULTIMAPI_REDIRECT_URI}
+      - DJANGO_SETTINGS_MODULE=backend.settings
     volumes:
-      - webapps:/usr/src/apps
-      - staticfiles:${STATICFILES_DIR}
+      # - ./requirements/backpong/srcs/backend/:${BACKEND_HOME}/apps/
+      - staticfiles:${BACKEND_STATICFILES_DIR}
+      - mediafiles:${BACKEND_MEDIA_DIR}
+      - vault_certs:${BACKEND_HOME}/volumes/vault/certs
+      - backend_certs:${BACKEND_SSL_DIR}
     healthcheck: #*file_healthcheck
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:${WEB_PORT} | grep -q ''",
+          # "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
+          "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
-      interval: 5s
-      timeout: 10s
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
       retries: 3
     expose:
-      - ${WEB_PORT}
+      - ${BACKEND_PORT}
     networks:
       - ${NETWORK_NAME}
-    ports:
-      - 8888:${WEB_PORT}
-    # restart: on-failure
+    restart: on-failure
 
-  nginx:
-    # depends_on:
-    #   - web
+  gameserver:
     depends_on:
-      web:
+      backend:
         condition: service_healthy
-    image: ${NGINX_IMAGE}
-    container_name: ${NGINX_CONTAINER}
+        restart: true
+    image: ${GAMESERVER_IMAGE}
+    container_name: ${GAMESERVER_CONTAINER}
     pull_policy: never
     build:
-      context: ./requirements/nginx/
+      context: ./requirements/backpong/
       args:
-        - STATICFILES_DIR=${STATICFILES_DIR}
+        - IMAGE_TAG=${GAMESERVER_TAG}
+        - IMAGE_UID=${GAMESERVER_UID}
+        - IMAGE_GID=${GAMESERVER_GID}
+        - IMAGE_USER=${GAMESERVER_USER}
+        - IMAGE_SRCS=${GAMESERVER_SRCS}
+        - SHARED_GID=${SHARED_GID}
+        - IMAGE_HOME=${GAMESERVER_HOME}
+        - IMAGE_DIRS_TO_MAKE=${GAMESERVER_DIRS_TO_MAKE}
+        - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+        - HOST_IP=${HOST_IP}
+        - SCRIPT_SH=./tools/gameserver/script.sh
+    environment:
+      - SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
+      - CONTAINER_HOME=${GAMESERVER_HOME}
+      - GAMESERVER_HOME=${GAMESERVER_HOME}
+      - CONTAINER_ENTRYPOINT=${GAMESERVER_ENTRYPOINT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - RESOLVED_PG_HOSTNAME=${RESOLVED_PG_HOSTNAME}
+      - GUNICORN_CMD_ARGS=${GAMESERVER_GUNICORN_CMD_ACTIVE_OPTIONS}
+      - STATICFILES_DIR=${GAMESERVER_STATICFILES_DIR}
+      - GAMESERVER_ROOT_CA=${GAMESERVER_ROOT_CA}
+      - VAULT_CACERT=${GAMESERVER_VAULT_CACERT}
+      - HEALTHFLAG_FILE=${HEALTHFLAG_FILE}
+      - HOST_IP=${HOST_IP}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
     volumes:
-      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-      - ./requirements/nginx/conf/web.conf:/etc/nginx/conf.d/web.conf
-      - staticfiles:${STATICFILES_DIR}
+      # - ./requirements/backpong/srcs/gameserver/:${GAMESERVER_HOME}/apps/
+      - vault_certs:${GAMESERVER_HOME}/volumes/vault/certs
+      - gameserver_certs:${GAMESERVER_SSL_DIR}
+      - gameserver_staticfiles:${GAMESERVER_STATICFILES_DIR}
+    healthcheck: #*file_healthcheck
+      test:
+        [
+          "CMD-SHELL",
+          # "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    expose:
+      - ${GAMESERVER_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    restart: on-failure
+
+  frontend:
+    depends_on:
+    #   backend:
+    #     condition: service_healthy
+    #     restart: true
+      gameserver:
+        condition: service_healthy
+        restart: true
+    image: ${FRONTEND_IMAGE}
+    container_name: ${FRONTEND_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/frontend/
+      args:
+        - FRONTEND_TAG=${FRONTEND_TAG}
+        - FRONTEND_UID=${FRONTEND_UID}
+        - FRONTEND_GID=${FRONTEND_GID}
+        - FRONTEND_USER=${FRONTEND_USER}
+        - FRONTEND_HOME=${FRONTEND_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - FRONTEND_DIRS_TO_MAKE=${FRONTEND_DIRS_TO_MAKE}
+        - FRONTEND_LOGS_ROOT=${FRONTEND_LOGS_ROOT}
+        - FRONTEND_STATICFILES_DIR=${FRONTEND_STATICFILES_DIR}
+        - FRONTEND_LOG_FILES=${FRONTEND_LOG_FILES}
+        - HOST_IP=${HOST_IP}
+    environment:
+      - FRONTEND_HOME=${FRONTEND_HOME}
+      - FRONTEND_ROOT_CA=${FRONTEND_ROOT_CA}
+      - FRONTEND_HTTP_PORT=${FRONTEND_HTTP_PORT}
+      - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
+      - HOST_IP=${HOST_IP}
+    volumes:
+    #   - ./requirements/frontend/srcs/templates/base.html:${FRONTEND_HOME}/html/base.html
+    #   - ./requirements/frontend/srcs/static/:${FRONTEND_HOME}/volumes/www/static/
+      - frontend_logs:${FRONTEND_LOGS_ROOT}
+      - nginx_certs:${FRONTEND_HOME}/volumes/nginx/certs
+      - vault_certs:${FRONTEND_HOME}/volumes/vault/certs
+      - mediafiles:${FRONTEND_HOME}/volumes/media
+      - gameserver_staticfiles:${FRONTEND_HOME}/volumes/www/gameserver
+    networks:
+      - ${NETWORK_NAME}
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "curl -s  http://localhost:80 | grep -q ''",
+          "curl -s --cacert $FRONTEND_ROOT_CA https://localhost:${FRONTEND_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
         ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    # restart: on-failure
+
+  proxy_waf:
+    depends_on:
+      # backend:
+      #   condition: service_healthy
+      #   restart: true
+      # gameserver:
+      #   condition: service_healthy
+      #   restart: true
+      frontend:
+        condition: service_healthy
+        restart: true
+    image: ${PROXYWAF_IMAGE}
+    container_name: ${PROXYWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./proxy_waf/conf/proxy.conf.template
+    environment:
+      - ALLOWED_METHODS=${PROXYWAF_MODSEC_ALLOWED_METHODS}
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - PROXYWAF_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - PROXYWAF_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - HOST_IP=${HOST_IP}
+      - CONTAINER_HTTP_PORT=${PROXYWAF_HTTP_PORT}
+      - CONTAINER_HTTPS_PORT=${PROXYWAF_HTTPS_PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - GAMESERVER_PORT=${GAMESERVER_PORT}
+      - FRONTEND_HTTPS_PORT=${FRONTEND_HTTPS_PORT}
+      - BACKEND_CONTAINER=${BACKEND_CONTAINER}
+      - FRONTEND_CONTAINER=${FRONTEND_CONTAINER}
+      - GAMESERVER_CONTAINER=${GAMESERVER_CONTAINER}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      - staticfiles:${NGINX_STATICFILES_DIR}
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+      - proxy_waf_logs:${MODSEC_LOGS_ROOT}/
     ports:
-      - ${NGINX_PORT}:80
+      - ${PROXYWAF_HTTP_PORT}:${PROXYWAF_HTTP_PORT}
+      - ${PROXYWAF_HTTPS_PORT}:${PROXYWAF_HTTPS_PORT}
     networks:
       - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${PROXYWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 1
     # restart: on-failure
+  
+  vault_waf:
+    depends_on:
+      vault:
+        condition: service_healthy
+        restart: true
+    image: ${VAULTWAF_IMAGE}
+    container_name: ${VAULTWAF_CONTAINER}
+    pull_policy: never
+    build:
+      context: ./requirements/waf/
+      args:
+        - MODSECURITY_TAG=${MODSECURITY_TAG}
+        - NGINX_UID=${NGINX_UID}
+        - NGINX_GID=${NGINX_GID}
+        - MODSEC_HOME=${MODSEC_HOME}
+        - SHARED_GID=${SHARED_GID}
+        - MODSEC_DIRS_TO_MAKE=${MODSEC_DIRS_TO_MAKE}
+        - MODSEC_LOGS_ROOT=${MODSEC_LOGS_ROOT}
+        - MODSEC_AUDIT_LOG_DIR=${MODSEC_AUDIT_LOG_DIR}
+        - MODSEC_DEBUG_LOG_DIR=${MODSEC_DEBUG_LOG_DIR}
+        - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+        - NGINX_STATICFILES_DIR=${NGINX_STATICFILES_DIR}
+        - NGINX_LOG_FILES=${NGINX_LOG_FILES}
+        - REVERSEPROXY_CONF_FILE=./vault_waf/conf/vault.conf.template
+    environment:
+      - MODSEC_AUDIT_LOG_PARTS=${MODSEC_AUDIT_LOG_PARTS}
+      - MODSEC_HOME=${MODSEC_HOME}
+      - NGINX_ROOT_CA=${NGINX_ROOT_CA}
+      - VAULTWAF_HTTP_PORT=${VAULTWAF_HTTP_PORT}
+      - VAULTWAF_HTTPS_PORT=${VAULTWAF_HTTPS_PORT}
+      - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
+      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - VAULT_API_PORT=${VAULT_API_PORT}
+      - VAULT_CONTAINER=${VAULT_CONTAINER}
+      - HOST_IP=${HOST_IP}
+      - CONTAINER_HTTP_PORT=${VAULTWAF_HTTP_PORT}
+      - CONTAINER_HTTPS_PORT=${VAULTWAF_HTTPS_PORT}
+    volumes:
+      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
+      - modsec_data:${MODSEC_DATA_DIR}
+      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
+      - vault_certs:${MODSEC_HOME}/volumes/vault/certs
+      - vault_waf_logs:${MODSEC_LOGS_ROOT}/
+    ports:
+      - ${VAULTWAF_HTTP_PORT}:${VAULTWAF_HTTP_PORT}
+      - ${VAULTWAF_HTTPS_PORT}:${VAULTWAF_HTTPS_PORT}
+    networks:
+      - ${NETWORK_NAME}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s --cacert $NGINX_ROOT_CA https://localhost:${VAULTWAF_HTTPS_PORT}/healthcheck | grep -q 'healthy'",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: on-failure
+
+  ready:
+    depends_on:
+      proxy_waf:
+        condition: service_healthy
+        restart: true
+      vault_waf:
+        condition: service_healthy
+        restart: true
+    image: alpine:${ALPINE_VERSION}
+    container_name: ready_c
+    command: echo "Microservices Infrastructure is ready and healthy!"
+    restart: on-failure
 
 networks:
   transcendance:
     driver: bridge
 
 volumes:
-  webapps:
+  vault_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${WEBAPPS_VOLUME}
+  db_data:
+    driver: local
+  rdb_data:
+    driver: local
+  vault_healthiness:
+    driver: local
+  modsec_data:
+    driver: local
+  modsec_audit_logs:
+    driver: local
+  modsec_debug_logs:
+    driver: local
+  nginx_logs:
+    driver: local
   staticfiles:
+    driver: local
+  mediafiles:
+    driver: local
+  certs:
+    driver: local
+  vault_certs:
+    driver: local
+  nginx_certs:
+    driver: local
+  backend_certs:
+    driver: local
+  gameserver_certs:
+    driver: local
+  redis_certs:
+    driver: local
+  gameserver_staticfiles:
+    driver: local
+  proxy_waf_logs:
+    driver: local
+  vault_waf_logs:
+    driver: local
+  frontend_logs:
     driver: local
