@@ -1,3 +1,12 @@
+async function closeWebSocket() {
+   console.log('WebSocket déconnecté', ONE_SOCKET);
+   if (ONE_SOCKET) {
+      ONE_SOCKET.close();
+     console.log('WebSocket déconnecté');
+   }
+ }
+
+
 
 async function logout_views()
 {
@@ -5,6 +14,7 @@ async function logout_views()
 		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 		const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
 		if (response.status === 'success') {
+         await closeWebSocket();
 		   window.sessionStorage.clear();
 		   clear_jwt();
 		   await replace_location(URLs.VIEWS.LOGIN_VIEW);

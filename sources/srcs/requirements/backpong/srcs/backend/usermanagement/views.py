@@ -93,6 +93,8 @@ def login_view(request):
 							channel_name,
 							{
 								"type": "update.login",
+								"username": user.username,
+								"to_user": username,
 							}
 						)
 						break
@@ -462,6 +464,7 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
+	print("***********************remove friend: ICI**************", file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:

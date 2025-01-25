@@ -249,6 +249,8 @@ async function callWebSockets(params) {
 		};
 		ONE_SOCKET.onmessage = function(event) {
 			var data = JSON.parse(event.data);
+			console.log("WebSocket message received:", data);
+
 			if (data.type === 'invitation') {
 				ONE_SOCKET.send(JSON.stringify({
 					type: 'response.invitation',
@@ -276,6 +278,7 @@ async function callWebSockets(params) {
 					if (ELEMENTs.profilePage())
 						replace_location(URLs.VIEWS.PROFILE);
 				}, 3000);
+				console.log("update_login TA VUU");
 			}
 		};
 	} catch (error) {

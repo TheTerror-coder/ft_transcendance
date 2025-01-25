@@ -61,44 +61,46 @@ function waitForSocketOpen() {
 
 
 function sendInvitation(username) {
+	console.log('****************sendInvitation()*************');
 	try {
 		ONE_SOCKET.send(JSON.stringify({
 			'username': username,
 			'type': 'invitation',
 			'room_name': 'add_friend'
 		}));
-	
-		ONE_SOCKET.onmessage = function(event) {
-			var data = JSON.parse(event.data);
-			if (data.type === 'invitation') {
-				var acceptButton = document.createElement('button');
-				acceptButton.textContent = 'Accept';
-				acceptButton.onclick = function() {
-					ONE_SOCKET.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'accept',
-						friend_request_id: data.friend_request_id
-					}));
-				};
-				var rejectButton = document.createElement('button');
-				rejectButton.textContent = 'Reject';
-				rejectButton.onclick = function() {
-					ONE_SOCKET.send(JSON.stringify({
-						type: 'response.invitation',
-						response: 'reject',
-						friend_request_id: data.friend_request_id
-					}));
-				};
-				document.body.appendChild(acceptButton);
-				document.body.appendChild(rejectButton);
-			}
-		};
-		ONE_SOCKET.onerror = function(error) {
-			console.error("WebSocket error:", error);
-		};
-		ONE_SOCKET.onclose = function(event) {
-			console.log("WebSocket connection closed:", event);
-		};
+		
+		// ONE_SOCKET.onmessage = function(event) {
+		// 	var data = JSON.parse(event.data);
+		// 	console.log('****************sendInvitation() alert *************', data);
+		// 	if (data.type === 'invitation') {
+		// 		var acceptButton = document.createElement('button');
+		// 		acceptButton.textContent = 'Accept';
+		// 		acceptButton.onclick = function() {
+		// 			ONE_SOCKET.send(JSON.stringify({
+		// 				type: 'response.invitation',
+		// 				response: 'accept',
+		// 				friend_request_id: data.friend_request_id
+		// 			}));
+		// 		};
+		// 		var rejectButton = document.createElement('button');
+		// 		rejectButton.textContent = 'Reject';
+		// 		rejectButton.onclick = function() {
+		// 			ONE_SOCKET.send(JSON.stringify({
+		// 				type: 'response.invitation',
+		// 				response: 'reject',
+		// 				friend_request_id: data.friend_request_id
+		// 			}));
+		// 		};
+		// 		document.body.appendChild(acceptButton);
+		// 		document.body.appendChild(rejectButton);
+		// 	}
+		// };
+		// ONE_SOCKET.onerror = function(error) {
+		// 	console.error("WebSocket error:", error);
+		// };
+		// ONE_SOCKET.onclose = function(event) {
+		// 	console.log("WebSocket connection closed:", event);
+		// };
 	} catch (error) {
 		console.log('sendInvitation() an exception happenned ' + error);
 	}
