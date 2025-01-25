@@ -60,7 +60,7 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
-	if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1)
+	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1)
 		await callWebSockets();
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
@@ -82,7 +82,7 @@ async function	homeView(title, description, data)
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
 	refreshLanguage();
-	attachLogoutEvents();
+	// attachLogoutEvents();
 }
 
 async function	loginView(title, description, data) {
@@ -103,7 +103,7 @@ async function	profileView(title, description, data)
 {
 	document.title = title;
 
-	if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1) {
+	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
 		let ret = await callWebSockets();
 	}
 	ELEMENTs.doorJamp().style.display = 'flex';

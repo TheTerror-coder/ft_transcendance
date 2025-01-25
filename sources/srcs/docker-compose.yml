@@ -284,8 +284,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          # "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
-          "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
+          "curl -s http://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'",
+          # "curl -s --cacert $BACKEND_ROOT_CA https://localhost:${BACKEND_PORT}/backpong/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s
@@ -346,8 +346,8 @@ services:
       test:
         [
           "CMD-SHELL",
-          # "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
-          "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
+          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+          # "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
       interval: 10s

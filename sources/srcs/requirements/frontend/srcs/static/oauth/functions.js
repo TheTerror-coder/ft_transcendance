@@ -234,33 +234,61 @@ function strcmp(str1, str2) {
 async function callWebSockets(params) {
 	try {
 		console.log("callWebSockets");
-		if (ONE_SOCKET?.readyState != 0 && ONE_SOCKET?.readyState != 1){
+		let one_socket_state = window.localStorage.getItem('one_socket_state');
+
+		if (one_socket_state !== 'connected' || (ONE_SOCKET?.readyState !== WebSocket.OPEN && ONE_SOCKET?.readyState !== WebSocket.CONNECTING)){
 			ONE_SOCKET = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 		}
 		ONE_SOCKET.onopen = function() {
+			window.localStorage.setItem('one_socket_state', 'connected');
 			console.log("WebSocket connection established.", ONE_SOCKET);
 		};
 		ONE_SOCKET.onerror = function(error) {
 			console.error("WebSocket error observed:", error);
 		};
-	
+		
 		ONE_SOCKET.onclose = function(event) {
+			window.localStorage.setItem('one_socket_state', 'closed');
 			console.log("WebSocket connection closed:", event);
 		};
-		ONE_SOCKET.onmessage = function(event) {
-			var data = JSON.parse(event.data);
-			console.log("WebSocket message received:", data);
+		ONE_SOCKET.onmessage = async function(event) {
 
-			if (data.type === 'invitation') {
-				ONE_SOCKET.send(JSON.stringify({
-					type: 'response.invitation',
-					response: 'pending',
-					friend_request_id: data.friend_request_id
-				}));
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
+			var data = JSON.parse(event.data);
+			if (data.type === 'invited') {
+				console.log('******DEBUG******* Invited by', data.from);
+				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
+				// var acceptButton = document.createElement('button');
+				// acceptButton.textContent = 'Accept';
+				// acceptButton.onclick = function() {
+				// 	ONE_SOCKET.send(JSON.stringify({
+				// 		type: 'response.invitation',
+				// 		response: 'accept',
+				// 		friend_request_id: data.friend_request_id
+				// 	}));
+				// };
+				// var rejectButton = document.createElement('button');
+				// rejectButton.textContent = 'Reject';
+				// rejectButton.onclick = function() {
+				// 	ONE_SOCKET.send(JSON.stringify({
+				// 		type: 'response.invitation',
+				// 		response: 'reject',
+				// 		friend_request_id: data.friend_request_id
+				// 	}));
+				// };
+				// document.body.appendChild(acceptButton);
+				// document.body.appendChild(rejectButton);
 			}
-			else if (data.type === 'update_name') {
+
+			// if (data.type === 'invitation') {
+			// 	ONE_SOCKET.send(JSON.stringify({
+			// 		type: 'response.invitation',
+			// 		response: 'pending',
+			// 		friend_request_id: data.friend_request_id
+			// 	}));
+			// 	if (ELEMENTs.profilePage())
+			// 		replace_location(URLs.VIEWS.PROFILE);
+			// }
+			if (data.type === 'update_name') {
 				const newUsername = data.new_username;
 				if (ELEMENTs.profilePage())
 					replace_location(URLs.VIEWS.PROFILE);

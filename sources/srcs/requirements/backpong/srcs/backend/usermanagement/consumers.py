@@ -44,6 +44,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
    
     async def receive(self, text_data=None):
+        print(f"*******debug****** In receive: {json.loads(text_data)}", file=sys.stderr)
         text_data_json = json.loads(text_data)
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])
@@ -58,15 +59,19 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             
 
 
+    async def my_test(self):
+        print(f"*******debug******* my test", file=sys.stderr)
+
     async def send_invitation(self, username):
         user = await self.get_user_by_username(username)
         if user is not None:
             friend_request = FriendRequest(from_user=self.user, to_user=user, status='PENDING')
+            print(f"*******Friend request from {self.user.username} to {username}", file=sys.stderr)
             await sync_to_async(friend_request.save)()
             invitation = {
-                'type': 'invitation',
+                'type': 'invited',
                 'from': self.user.username,
-                'to': username,
+                'to': username, 
                 'text': f"{self.user.username} wants to be your friend",
                 'friend_request_id': friend_request.id
             }
@@ -86,6 +91,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     async def send_message(self, event):
         message = event['text']
         await self.send(text_data=message)
+        print(f"*******In send_message,  message:{json.loads(message)}", file=sys.stderr)
 
 
 
