@@ -257,37 +257,9 @@ async function callWebSockets(params) {
 			if (data.type === 'invited') {
 				console.log('******DEBUG******* Invited by', data.from);
 				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
-				// var acceptButton = document.createElement('button');
-				// acceptButton.textContent = 'Accept';
-				// acceptButton.onclick = function() {
-				// 	ONE_SOCKET.send(JSON.stringify({
-				// 		type: 'response.invitation',
-				// 		response: 'accept',
-				// 		friend_request_id: data.friend_request_id
-				// 	}));
-				// };
-				// var rejectButton = document.createElement('button');
-				// rejectButton.textContent = 'Reject';
-				// rejectButton.onclick = function() {
-				// 	ONE_SOCKET.send(JSON.stringify({
-				// 		type: 'response.invitation',
-				// 		response: 'reject',
-				// 		friend_request_id: data.friend_request_id
-				// 	}));
-				// };
-				// document.body.appendChild(acceptButton);
-				// document.body.appendChild(rejectButton);
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
 			}
-
-			// if (data.type === 'invitation') {
-			// 	ONE_SOCKET.send(JSON.stringify({
-			// 		type: 'response.invitation',
-			// 		response: 'pending',
-			// 		friend_request_id: data.friend_request_id
-			// 	}));
-			// 	if (ELEMENTs.profilePage())
-			// 		replace_location(URLs.VIEWS.PROFILE);
-			// }
 			if (data.type === 'update_name') {
 				const newUsername = data.new_username;
 				if (ELEMENTs.profilePage())
@@ -313,41 +285,6 @@ async function callWebSockets(params) {
 		console.log('sendInvitation() an exception happenned ' + error);
 	}
 }
-
-
-// async function handleFriendInvitation(event) {
-// 	try {
-// 		console.log("handleFriendInvitation");
-// 		var data = JSON.parse(event.data);
-// 		if (data.type === 'invitation') {
-// 			ONE_SOCKET.send(JSON.stringify({
-// 				type: 'response.invitation',
-// 				response: 'pending',
-// 				friend_request_id: data.friend_request_id
-// 			}));
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_name') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'remove_friend') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_logout') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_login') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 	} catch (error) {
-// 		console.log('sendInvitation() an exception happenned ' + error);
-// 	}
-// }
 
 
 function strcmp(str1, str2) {

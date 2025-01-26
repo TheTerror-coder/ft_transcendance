@@ -27,9 +27,6 @@ async function addFriend()
 					console.error('WebSocket connection is not open. readyState:', ONE_SOCKET);
 					console.error('WebSocket connection is not open. readyState:', ONE_SOCKET.readyState);
 				}
-				// ONE_SOCKET.onmessage = async function (event) {
-				// 	await handleFriendInvitation(event);
-				// };
 			}
 		} else {
 			alert(response.message);
@@ -68,18 +65,6 @@ function sendInvitation(username) {
 			'type': 'invitation',
 			'room_name': 'add_friend'
 		}));
-	
-		// ONE_SOCKET.onmessage = function(event) {
-			
-		// };
-		// ONE_SOCKET.onerror = function(error) {
-		// 	window.localStorage.setItem('one_socket_state', 'closed');
-		// 	console.error("WebSocket error:", error);
-		// };
-		// ONE_SOCKET.onclose = function(event) {
-		// 	window.localStorage.setItem('one_socket_state', 'closed');
-		// 	console.log("WebSocket connection closed:", event);
-		// };
 	} catch (error) {
 		console.log('sendInvitation() an exception happenned ' + error);
 	}

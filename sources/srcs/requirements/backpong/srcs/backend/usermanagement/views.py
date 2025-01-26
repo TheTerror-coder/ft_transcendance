@@ -97,7 +97,6 @@ def login_view(request):
 								"to_user": username,
 							}
 						)
-						break
 
 				return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
 			else:
@@ -136,10 +135,12 @@ def logout_view(request):
 				channel_name,
 				{
 					"type": "update.logout",
-					"username": username,
+					"from_user": username,
+					"to_user": user,
 				}
 			)
-			break
+	if username in user_sockets:
+		del user_sockets[username]
 	return Response({
 		'status': 'success',
 		'redirect': True,
@@ -160,18 +161,21 @@ def update_profile(request):
 		}, status=400)
 	form = UpdateUsernameForm({'username': username}, instance=request.user)
 	if form.is_valid():
+		form.save()
+		if before_username in user_sockets:
+			user_sockets[username] = user_sockets.pop(before_username)
 		for user, channel_name in user_sockets.items():
-			if user != username:
+			if user != before_username:
 				channel_layer = get_channel_layer()
 				async_to_sync(channel_layer.send)(
 					channel_name,
 					{
 						"type": "update.username",
+						"from_user": before_username,
+						"to_user": user,
 						"new_username": username,
 					}
 				)
-				break
-		form.save()
 		return Response({
 			'status': 'success',
 			'message': 'Profile updated successfully.',
@@ -223,9 +227,9 @@ def update_photo(request):
 		}, status=400)
 	file_url = fs.url(filename)
 	user = request.user
-	print("uploaded_file: ", user.photo, file=sys.stderr)
+	# print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.photo = filename
-	print("uploaded_file: ", user.photo, file=sys.stderr)
+	# print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.save()
 	if user.photo.url:
 		return Response({
@@ -464,7 +468,7 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
-	print("***********************remove friend: ICI**************", file=sys.stderr)
+	# print("***********************remove friend: ICI**************", file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:

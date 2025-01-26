@@ -22,7 +22,7 @@ async function connect()
 		}
 	}
 // jm custom end //
-    if (response.status === "success")
+    else if (response.status === "success")
 		await mfaAuthMiddlewareJob();
     else if (response.status === 'error')
     {
