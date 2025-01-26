@@ -6,7 +6,6 @@ from django.contrib.auth import get_user_model
 from .models import FriendRequest
 from asgiref.sync import sync_to_async
 import sys
-from channels.layers import get_channel_layer
 
 user_sockets = {}
 
@@ -24,7 +23,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             print(f"At-connection*******DEBUG**********username:{self.user.username} user_id:{self.user.id}  channel_name:{self.channel_name}", file=sys.stderr)
             await self.accept()
             user_sockets[self.user.username] = self.channel_name
-            print(f"User ICICICICI {self.user.username} user_socket {self.channel_name} user_so {user_sockets}", file=sys.stderr)
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
@@ -54,7 +52,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def disconnect(self, close_code):
-        print("*****************disconnected", self.user.username, file=sys.stderr)
+        print("*****************disconnected", file=sys.stderr)
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -117,7 +115,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         user = await self.get_user_by_username(username)
         if user is not None:
             friend_request = FriendRequest(from_user=self.user, to_user=user, status='PENDING')
-            # print(f"*******Friend request from {self.user.username} to {username}", file=sys.stderr)
+            print(f"*******Friend request from {self.user.username} to {username}", file=sys.stderr)
             await sync_to_async(friend_request.save)()
             invitation = {
                 'type': 'invited',
@@ -147,54 +145,50 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def update_username(self, event):
-        # print(f"*******debug******* In update_username: {event}", file=sys.stderr)
-        # print(f"*******debug******* user_sockets: {user_sockets}", file=sys.stderr)
         new_username = event["new_username"]
-        to_user = event["to_user"]
-        from_user = event["from_user"]
-        # print(f"*******debug******* from_user: {from_user}, self {self.user.username}, new_username {new_username}", file=sys.stderr)
-        # if from_user in user_sockets:
-        #     user_sockets[new_username] = user_sockets.pop(from_user)
-        await self.notify_username_update()
+        if self.user.username in user_sockets:
+            user_sockets[new_username] = user_sockets.pop(self.user.username)
+        self.user.username = new_username
+        await self.notify_username_update(new_username)
 
-    async def notify_username_update(self):
-        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
-        # print(f"User {self.user.username} updated username", file=sys.stderr)
-    
-        channel_layer = get_channel_layer()
-        invitation = {
-            'type': 'update_name',
-            'from': self.user.username,
-        }
-        await channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'send.message',
-                'text': json.dumps(invitation),
-            }
-        )
+    async def notify_username_update(self, new_username):
+        print(f"User {self.user.username} changed username to {new_username}", file=sys.stderr)
+        for username, channel_name in user_sockets.items():
+            if channel_name != self.channel_name:
+                print(f"channel_name {channel_name} username {username}", file=sys.stderr)
+                invitation = {
+                    'type': 'update_name',
+                    'from': self.user.username,
+                    'to': username,
+                    'new_username': new_username
+                }
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
 
 
     async def update_logout(self, event):
-        user = event["from_user"]
-        # to_user = event["to_user"]
-        # print(f"***********************************************************User {event}", file=sys.stderr)
-        # print(f"***********************************************************self.User {self.user.username} form  {user} to {to_user}", file=sys.stderr)
-        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
-        if self.user.username != to_user:
-            self.user.username = to_user
-        channel_layer = get_channel_layer()
-        invitation = {
-            'type': 'update_name',
-            'from': self.user.username,
-        }
-        await channel_layer.send(
-            self.channel_name,
-            {
-                'type': 'send.message',
-                'text': json.dumps(invitation),
-            }
-        )
+        user = event["username"]
+        for username, channel_name in user_sockets.items():
+            if channel_name == self.channel_name:
+                invitation = {
+                    'type': 'update_logout',
+                    'from': self.user.username,
+                    'to': user,
+                }
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'send.message',
+                        'text': json.dumps(invitation),
+                    }
+                )
+        # if user in user_sockets:
+        #     del user_sockets[user]
 
     async def friend_disconnected(self, event):
         username = event['subject']
@@ -218,7 +212,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         to_user = event["to_user"]
         user = event["username"]
         for username, channel_name in user_sockets.items():
-            # print(f"Username {username} chanel_name {channel_name}", file=sys.stderr)
+            print(f"Username {username} chanel_name {channel_name}", file=sys.stderr)
             if channel_name == self.channel_name:
                 invitation = {
                     'type': 'update_login',

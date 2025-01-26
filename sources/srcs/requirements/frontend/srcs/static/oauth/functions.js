@@ -257,10 +257,8 @@ async function callWebSockets(params) {
 			if (data.type === 'invited') {
 				console.log('******DEBUG******* Invited by', data.from);
 				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
 			}
-			if (data.type === 'update_name') {
+			else if (data.type === 'update_name') {
 				const newUsername = data.new_username;
 				if (ELEMENTs.profilePage())
 					replace_location(URLs.VIEWS.PROFILE);
