@@ -20,6 +20,8 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             await self.close()
         else:
             self.room_group_name = f"friend_invite_{self.user.id}"
+            print(f"At-connection*******DEBUG**********username:{self.user.username} user_id:{self.user.id}  room_group_name:{self.room_group_name}", file=sys.stderr)
+            print(f"At-connection*******DEBUG**********username:{self.user.username} user_id:{self.user.id}  channel_name:{self.channel_name}", file=sys.stderr)
             await self.accept()
             user_sockets[self.user.username] = self.channel_name
             print(f"User ICICICICI {self.user.username} user_socket {self.channel_name} user_so {user_sockets}", file=sys.stderr)
@@ -27,7 +29,28 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
+
+            await self.send(text_data=json.dumps(
+                {
+                    'type': 'you_online',
+                }
+            ))
+
             print(f"User {self.user.username} joined room: {self.room_group_name}")
+
+            for username in  await self.get_friend_list():
+                channel_name = user_sockets.get(username)
+                print(f"In connect()*********DEBUG******** username:{username} channel_name:{channel_name}", file=sys.stderr)
+                try:
+                    await self.channel_layer.send(
+                        channel_name,
+                        {
+                            'type': 'friend.connected',
+                            'subject': self.user.username
+                        }
+                    )
+                except Exception as e:
+                    print(f"In connect()*********DEBUG******** {e}", file=sys.stderr)
 
 
     async def disconnect(self, close_code):
@@ -39,7 +62,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         if self.user.username in user_sockets:
             print(f"User {self.user.username} left room: {self.room_group_name}")
             del user_sockets[self.user.username]
-   
+
    
     async def receive(self, text_data=None):
         print(f"*******debug****** In receive: {json.loads(text_data)}", file=sys.stderr)
@@ -54,11 +77,41 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                     friend_request = await self.accept_friend_request(friend_request, text_data_json['to_user'])
                 elif text_data_json['response'] == 'reject':
                     friend_request = await self.decline_friend_request(friend_request)
+        elif text_data_json['type'] == 'my_friends':
+            await self.my_friends()
+        elif text_data_json['type'] == 'my.test':
+            await self.my_test()
             
 
 
     async def my_test(self):
         print(f"*******debug******* my test", file=sys.stderr)
+        i = 0
+        for username in  await self.get_friend_list():
+            print(f"*********DEBUG********* friend_{i} -> {username}", file=sys.stderr)
+            i += 1
+
+    async def my_friends(self):
+        print(f"In my_friends()*********DEBUG********", file=sys.stderr)
+        payload = {
+            'type': 'my_friends',
+            'friends': [],
+        }
+        i = 0
+        for username in  await self.get_friend_list():
+            user = await self.get_user_by_username(username)
+            user_id = user.id
+            payload['friends'].append({
+                'username': username,
+                'status': 'online' if username in user_sockets else 'offline',
+                'id': f'{user_id}',
+            })
+            print(f"*********DEBUG********* friend_{i} -> {username}", file=sys.stderr)
+            i += 1
+        try:
+            await self.send(text_data=json.dumps(payload))
+        except Exception as e:
+            print(f"In my_friends()*********DEBUG******** {e}", file=sys.stderr)
 
     async def send_invitation(self, username):
         user = await self.get_user_by_username(username)
@@ -70,7 +123,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 'type': 'invited',
                 'from': self.user.username,
                 'to': username, 
-                'text': f"{self.user.username} wants to be your friend",
+                'msg': f"{self.user.username} wants to be your friend",
                 'friend_request_id': friend_request.id
             }
 
@@ -143,6 +196,24 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             }
         )
 
+    async def friend_disconnected(self, event):
+        username = event['subject']
+        print(f"In friend_disconnected()*********DEBUG******** username:{username}", file=sys.stderr)
+        payload = {
+            'type': 'friend_disconnected',
+            'from': username,
+        }
+        await self.send(text_data=json.dumps(payload))
+    
+    async def friend_connected(self, event):
+        username = event['subject']
+        print(f"In friend_connected()*********DEBUG******** username:{username}", file=sys.stderr)
+        payload = {
+            'type': 'friend_connected',
+            'from': username,
+        }
+        await self.send(text_data=json.dumps(payload))
+
     async def update_login(self, event):
         to_user = event["to_user"]
         user = event["username"]
@@ -186,7 +257,15 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             return User.objects.get(username=username)
         except User.DoesNotExist:
             return None
-
+    
+    @database_sync_to_async
+    def get_friend_list(self):
+        return [friend.username for friend in self.user.friend_list.all()]
+    
+    @database_sync_to_async
+    def add_to_friend_list(self, user):
+        self.user.friend_list.add(user)
+        return
 
     @database_sync_to_async
     def get_friend_request_by_id(self, friend_request_id):
@@ -210,7 +289,10 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         for user, channel_name in user_sockets.items():
             if channel_name != self.channel_name:
                 if user == username:
-                    invitation = {'type': 'remove_friend'}
+                    invitation = {
+                            'type': 'invitation_accepted',
+                            'msg': f'{self.user.username} accepted your invitation',
+                        }
                     try:
                         await self.channel_layer.send(
                             channel_name,

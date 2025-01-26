@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 import os
+import ssl
 import requests
 from . import tools
 from pathlib import Path
@@ -216,8 +217,7 @@ CHANNEL_LAYERS = {
             "hosts": [
 				{
 					"address": tools.get_RedisBackendUri(),
-					"ssl": False,
-					"ssl_cert_reqs": None,
+					"ssl_cert_reqs": ssl.CERT_OPTIONAL,
 				}
 			],
         },

@@ -5,6 +5,9 @@ const BACKEND_BASE_URL = `${BASE_URL}/backpong`;
 const ALLAUTH_BASE_URL = `${BASE_URL}/_allauth/browser/v1`;
 const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
 
+const ON = true;
+const OFF = false;
+
 const PATHs = Object.freeze({
 	
 	VIEWS : Object.freeze({
@@ -234,6 +237,8 @@ const ELEMENTs = Object.freeze({
 	profilePage : () => document.getElementById("profilePage"),
 	bookProfile : () => document.getElementById("bookProfile"),
 
+	circleIsConnect : () => document.getElementById("circle-is-connect"),
+
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
 	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
@@ -315,6 +320,11 @@ const X_EMAIL_VERIFICATION_KEY = 'X-Email-Verification-Key';
 class PAGE_ROUTEs {
 	static LOGIN = '/static/pages/loginpage';
 	static HOME = '/static/pages/homepage';
+}
+
+class USER {
+	static FRIENDS = undefined;
+	static FRIENDS_LIST_EVENT = 'friends-list-event';
 }
 
 const FLOWs = Object.freeze({
