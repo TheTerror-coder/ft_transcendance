@@ -280,88 +280,11 @@ async function callWebSockets(params) {
 				}, 3000);
 				console.log("update_login TA VUU");
 			}
-			else if (data.type === 'friend_disconnected') {
-				await onePongAlerter(ALERT_CLASSEs.DARK, 'Push Notification', `${data.from} is offline!`);
-				status_element = ELEMENTs.circleIsConnect();
-				if (status_element) {
-					status_element.style.backgroundColor = 'red';
-				}
-				// if (ELEMENTs.profilePage())
-				// 	replace_location(URLs.VIEWS.PROFILE);
-			}
-			else if (data.type === 'friend_connected') {
-				await onePongAlerter(ALERT_CLASSEs.PRIMARY, 'Push Notification', `${data.from} is online!`);
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
-			}
-			else if (data.type === 'you_online') {
-				await onePongAlerter(ALERT_CLASSEs.PRIMARY, 'Push Notification', `you are online!`);
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
-			}
-			else if (data.type === 'my_friends') {
-				console.log(`In my_friends()******DEBUG*******data.friends:${data.friends}`);
-				const friends = data.friends;
-				friends.forEach(friend => {
-					console.log(`In my_friends()******DEBUG*******friend.username:${friend.username}, friend.status:${friend.status}, friend.id:${friend.id}`);
-				});
-				friendsListEvent = new CustomEvent(USER.FRIENDS_LIST_EVENT, {
-					detail: {
-						friends: data.friends,
-					}
-				});
-				document.dispatchEvent(friendsListEvent);
-			}
 		};
 	} catch (error) {
 		console.log('sendInvitation() an exception happenned ' + error);
 	}
 }
-
-async function getMyFriendsList() {
-	try {
-		ONE_SOCKET.send(JSON.stringify({
-			type: 'my_friends',
-		}));
-	}
-	catch (error) {
-		console.log('In getMyFriendsList()********DEBUG********* ' + error);
-	}
-}
-
-// async function handleFriendInvitation(event) {
-// 	try {
-// 		console.log("handleFriendInvitation");
-// 		var data = JSON.parse(event.data);
-// 		if (data.type === 'invitation') {
-// 			ONE_SOCKET.send(JSON.stringify({
-// 				type: 'response.invitation',
-// 				response: 'pending',
-// 				friend_request_id: data.friend_request_id
-// 			}));
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_name') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'remove_friend') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_logout') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 		else if (data.type === 'update_login') {
-// 			if (ELEMENTs.profilePage())
-// 				await assign_location(URLs.VIEWS.PROFILE);
-// 		}
-// 	} catch (error) {
-// 		console.log('sendInvitation() an exception happenned ' + error);
-// 	}
-// }
 
 
 function strcmp(str1, str2) {
