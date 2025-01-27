@@ -69,14 +69,17 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                             }
                             else
                             {
-                                await new Promise(resolve => setTimeout(resolve, 1000));
                                 if (keys && keys['r'] && keys['r'].pressed)
                                 {
-                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    if (hud.getLoadingProgress(keys) >= 100)
                                     {
                                         pause = false;
-                                        scene.remove(trajectoryLine);
+                                        hud.hideLoadingCircle();
                                     }
+                                }
+                                else if (keys && keys['r'] && !keys['r'].pressed)
+                                {
+                                    hud.resetProgress();
                                 }
                             }
                         }
@@ -108,11 +111,15 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                             {
                                 if (keys && keys['r'] && keys['r'].pressed)
                                 {
-                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    if (hud.getLoadingProgress(keys) >= 100)
                                     {
                                         pause = false;
-                                        scene.remove(trajectoryLine);
+                                        hud.hideLoadingCircle();
                                     }
+                                }
+                                else if (keys && keys['r'] && !keys['r'].pressed)
+                                {
+                                    hud.resetProgress();
                                 }
                             }
                         }

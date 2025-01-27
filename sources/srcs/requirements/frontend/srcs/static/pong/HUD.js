@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 
 function createLoadingCircle() {
-    // Créer un groupe pour contenir le cercle
     const circleGroup = new THREE.Group();
 
-    // Créer le cercle de fond (gris)
     const backgroundGeometry = new THREE.RingGeometry(1, 1.5, 32, 1, Math.PI / 2);
     const backgroundMaterial = new THREE.MeshBasicMaterial({
         color: 0x444444,
@@ -13,7 +11,6 @@ function createLoadingCircle() {
     const backgroundCircle = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
     circleGroup.add(backgroundCircle);
 
-    // Créer le cercle de progression
     const progressGeometry = new THREE.RingGeometry(1, 1.5, 32, 1, Math.PI / 2, 0);
     const progressMaterial = new THREE.MeshBasicMaterial({
         color: 0x00ff00,
@@ -22,18 +19,67 @@ function createLoadingCircle() {
     const progressCircle = new THREE.Mesh(progressGeometry, progressMaterial);
     circleGroup.add(progressCircle);
 
-    // Fonction pour mettre à jour la progression
-    function updateProgress(percent) {
-        const angle = (percent / 100) * Math.PI * 2;
+    // Adapter la taille initiale
+    const scale = Math.min(window.innerWidth, window.innerHeight) * 0.01;
+    circleGroup.scale.set(scale, scale, scale);
+
+    let currentPercent = 0;
+    let animationId = null;
+    const MAX_CHARGE_TIME = 5000; // 5 secondes pour charge complète
+
+    function updateProgress(pressTime) {
+        if (animationId !== null) {
+            cancelAnimationFrame(animationId);
+        }
+
+        const targetPercent = Math.min(100, (pressTime / MAX_CHARGE_TIME) * 100);
+        
+        function animate() {
+            if (Math.abs(currentPercent - targetPercent) < 0.5) {
+                currentPercent = targetPercent;
+                const angle = (currentPercent / 100) * Math.PI * 2;
+                progressCircle.geometry.dispose();
+                progressCircle.geometry = new THREE.RingGeometry(1, 1.5, 32, 1, Math.PI, -angle);
+                animationId = null;
+                return;
+            }
+
+            currentPercent += (targetPercent - currentPercent) * 0.1;
+            const angle = (currentPercent / 100) * Math.PI * 2;
+            progressCircle.geometry.dispose();
+            progressCircle.geometry = new THREE.RingGeometry(1, 1.5, 32, 1, Math.PI, -angle);
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    function getPourcentage(keys) {
+        if (keys && keys['r'] && keys['r'].pressed) {
+            updateProgress(keys['r'].time);
+        }
+        return currentPercent;
+    }
+
+    function resetProgress() {
+        if (animationId !== null) {
+            cancelAnimationFrame(animationId);
+        }
+        currentPercent = 0;
+        const angle = 0;
         progressCircle.geometry.dispose();
         progressCircle.geometry = new THREE.RingGeometry(1, 1.5, 32, 1, Math.PI, -angle);
     }
 
-    circleGroup.scale.set(20, 20, 20);
-
     return {
         group: circleGroup,
-        updateProgress: updateProgress
+        getPourcentage,
+        resetProgress,
+        updateSize: () => {
+            const newScale = Math.min(window.innerWidth, window.innerHeight) * 0.01;
+            circleGroup.scale.set(newScale, newScale, newScale);
+        }
     };
 }
 
@@ -87,13 +133,13 @@ async function createEndGameText() {
     const textMesh = new THREE.Mesh(geometry, material);
     
     // Échelle adaptative
-    const scale = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+    const scale = Math.min(window.innerWidth, window.innerHeight) * 1.5;
     textMesh.scale.set(scale, scale, 1);
-    textMesh.position.set(0, 0, -10);
+    textMesh.position.set(0, 0, 0);
     
     // Gestionnaire de redimensionnement
     window.addEventListener('resize', () => {
-        const newScale = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+        const newScale = Math.min(window.innerWidth, window.innerHeight) * 1.5;
         textMesh.scale.set(newScale, newScale, 1);
     });
 
@@ -163,6 +209,11 @@ export async function createHUD(renderer) {
         0, 30
     );
 
+    // Créer le texte de fin de partie
+    const endGameTextObject = await createEndGameText();
+    hudScene.add(endGameTextObject.textMesh);
+    endGameTextObject.textMesh.visible = false;  // Caché par défaut
+
     // Score text
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -196,23 +247,21 @@ export async function createHUD(renderer) {
         texture.needsUpdate = true;
     }
 
-    window.addEventListener('resize', () => {
-        hudCamera.left = -window.innerWidth/2;
-        hudCamera.right = window.innerWidth/2;
-        hudCamera.top = window.innerHeight/2;
-        hudCamera.bottom = -window.innerHeight/2;
-        hudCamera.updateProjectionMatrix();
-
-        const newScale = Math.min(window.innerWidth, window.innerHeight) * 0.1;
-        textMesh.scale.set(newScale, newScale, 1);
-        textMesh.position.set(0, window.innerHeight/2 - 25, 0);
-    });
+    // Ajouter le cercle de chargement
+    const loadingCircle = createLoadingCircle();
+    loadingCircle.group.position.set(
+        window.innerWidth/2 - 50,  // Décalage de 50 pixels du bord droit
+        window.innerHeight/2 - 50,  // Décalage de 50 pixels du bord supérieur
+        0
+    );
+    hudScene.add(loadingCircle.group);
+    loadingCircle.group.visible = false;
 
     // Ajout des barres de vie
     const YourTeamHealthBar = createHealthBar(
         0.5, 0.5, 1,
         -window.innerWidth/2 + 50,  // Position X (gauche)
-        -window.innerHeight/2 + 30,  // Position Y (bas)
+        window.innerHeight/2 - 30,  // Position Y (Haut)
         0,                          // Position Z
         false                       // Barre alliée (petite)
     );
@@ -227,16 +276,37 @@ export async function createHUD(renderer) {
     hudScene.add(YourTeamHealthBar.group);
     hudScene.add(OpponentTeamHealthBar.group);
 
-    // Modifier aussi le gestionnaire de redimensionnement
+    // Modifier le gestionnaire de redimensionnement
     window.addEventListener('resize', () => {
+        hudCamera.left = -window.innerWidth/2;
+        hudCamera.right = window.innerWidth/2;
+        hudCamera.top = window.innerHeight/2;
+        hudCamera.bottom = -window.innerHeight/2;
+        hudCamera.updateProjectionMatrix();
+
+        // Mettre à jour la taille du score
+        const newScaleScore = Math.min(window.innerWidth, window.innerHeight) * 0.5; // Augmenté pour une meilleure visibilité
+        textMesh.scale.set(newScaleScore, newScaleScore, 1);
+        textMesh.position.set(0, window.innerHeight/2 - 25, 0);
+
+        // Mettre à jour la taille du cercle de chargement
+        loadingCircle.updateSize();
+
         // Mise à jour des positions des barres de vie
         YourTeamHealthBar.group.position.set(
             -window.innerWidth/2 + 50,
-            -window.innerHeight/2 + 30,
+            window.innerHeight/2 - 30,
             0
         );
         OpponentTeamHealthBar.group.position.set(
             0,
+            window.innerHeight/2 - 50,
+            0
+        );
+
+        // Mettre à jour la position du cercle de chargement
+        loadingCircle.group.position.set(
+            window.innerWidth/2 - 50,
             window.innerHeight/2 - 50,
             0
         );
@@ -247,6 +317,26 @@ export async function createHUD(renderer) {
         camera: hudCamera,
         updateScore,
         updateYourTeamHealth: YourTeamHealthBar.updateHealth,
-        updateOpponentTeamHealth: OpponentTeamHealthBar.updateHealth
+        updateOpponentTeamHealth: OpponentTeamHealthBar.updateHealth,
+        showEndGameText: async (isWinner, currentLanguage) => {
+            endGameTextObject.textMesh.visible = true;
+            await endGameTextObject.updateEndGameText(isWinner, currentLanguage);
+        },
+        hideEndGameText: () => {
+            endGameTextObject.textMesh.visible = false;
+        },
+        showLoadingCircle: () => {
+            loadingCircle.group.visible = true;
+        },
+        hideLoadingCircle: () => {
+            loadingCircle.group.visible = false;
+            loadingCircle.resetProgress();
+        },
+        getLoadingProgress: (keys) => {
+            return loadingCircle.getPourcentage(keys);
+        },
+        resetProgress: () => {
+            loadingCircle.resetProgress();
+        }
     };
 }

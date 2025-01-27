@@ -277,7 +277,7 @@ async def joinGame(sid, data):
         await sio.emit('gameJoined', {'gameCode': gameCode, 'nbPlayerPerTeam': game.getNbPlayerPerTeam(), 'creator': channel.getCreator() }, room=sid)
         await updateGameOptions(game, gameCode, sid)
     else:
-        await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 0}, room=sid)
+        await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 1}, room=sid)
 
 @sio.event
 async def confirmChoicesJoinGame(sid, choices):
@@ -286,11 +286,11 @@ async def confirmChoicesJoinGame(sid, choices):
     if (gameCode in ChannelList):
         channel = ChannelList[gameCode]
         if (channel.getIsTournament()):
-            await sio.emit('error', {'message': 'Ce n\'est pas un code de partie normale', 'ErrorCode': 0}, room=sid)
+            await sio.emit('error', {'message': 'Ce n\'est pas un code de partie normale', 'ErrorCode': 1}, room=sid)
             return
         game = channel.getGame()
         if (not game):
-            await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 0}, room=sid)
+            await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 1}, room=sid)
             return
         if (game.findTeamByPlayerName(choices['userName'])):
             team = game.findTeamByPlayerName(choices['userName'])
@@ -328,7 +328,7 @@ async def confirmChoicesJoinGame(sid, choices):
         else:
             await sio.emit('error', {'message': 'Équipe non trouvée', 'ErrorCode': 0}, room=sid)
     else:
-        await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 0}, room=sid)
+        await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 1}, room=sid)
 
 @sio.event
 async def launchGame(sid, gameCode):
@@ -341,11 +341,14 @@ async def launchGame(sid, gameCode):
             game = channel.getGame()
         if (not game):
             return
+        if (game.getIsLaunch()):
+            return
         if game.getTeam(1).getIsFull() and game.getTeam(2).getIsFull():
             if channel.getCreator() == sid:
                 logger.info(f"Starting game {gameCode} in launchGame")
-                # asyncio.create_task(startGame(gameCode, game))
                 await sio.emit('startGame', room=gameCode)
+                game.setIsLaunch(True)
+                # if (not game.getPlayerById(sid).getIsLaunch()):
             else:
                 await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 0}, room=sid)
         else:

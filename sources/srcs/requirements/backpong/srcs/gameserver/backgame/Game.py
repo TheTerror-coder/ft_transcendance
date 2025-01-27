@@ -37,6 +37,7 @@ class Game:
         self.tournament = tournament
         self.gameInLobby = True
         self.nbPlayerInLobby = 0
+        self.isLaunch = False
         
         # Constantes pour la balle
         self.BALL_INITIAL_SPEED = 1.5     # Vitesse initiale
@@ -77,6 +78,12 @@ class Game:
             if (self.gameStarted):
                 return
             await asyncio.sleep(1)
+            
+    def setIsLaunch(self, isLaunch):
+        self.isLaunch = isLaunch
+        
+    def getIsLaunch(self):
+        return self.isLaunch
         
     def setGameInLobby(self, gameInLobby):
         self.gameInLobby = gameInLobby

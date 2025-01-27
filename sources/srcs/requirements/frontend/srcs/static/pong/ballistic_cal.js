@@ -23,57 +23,68 @@ async function fireCannon(trajectoryData, scene) {
         return;
     }
 
+    // Positionner le boulet directement à la position initiale
+    ballMesh.position.set(
+        trajectoryData[0].x,
+        trajectoryData[0].y,
+        trajectoryData[0].z
+    );
+    
     scene.add(ballMesh);
     
-    const lerpFactor = 0.15; // Même facteur de lissage que fireEnnemieCannonBall
+    const lerpFactor = 0.15;
     let currentIndex = 0;
     let lastPosition = trajectoryData[0];
     
-    try {
-        const animate = async (startTime) => {
-            const currentTime = performance.now();
-            const progress = (currentTime - startTime) / (100 * trajectoryData.length); // 100ms par point
+    return new Promise((resolve, reject) => {
+        try {
+            const animate = async (startTime) => {
+                const currentTime = performance.now();
+                const progress = (currentTime - startTime) / (100 * trajectoryData.length);
+                
+                if (progress >= 1) {
+                    scene.remove(ballMesh);
+                    resolve();
+                    return;
+                }
+                
+                // Calculer l'index cible et la position
+                const targetIndex = Math.floor(progress * (trajectoryData.length - 1));
+                if (targetIndex !== currentIndex) {
+                    lastPosition = {
+                        x: ballMesh.position.x,
+                        y: ballMesh.position.y,
+                        z: ballMesh.position.z
+                    };
+                    currentIndex = targetIndex;
+                }
+                
+                const target = trajectoryData[currentIndex];
+                
+                // Interpolation douce
+                ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
+                ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
+                ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
+                
+                // Rotation plus douce
+                ballMesh.rotation.x += 0.05;
+                ballMesh.rotation.z += 0.05;
+                
+                requestAnimationFrame(() => animate(startTime));
+            };
             
-            if (progress >= 1) {
-                scene.remove(ballMesh);
-                return;
-            }
+            animate(performance.now());
             
-            // Calculer l'index cible et la position
-            const targetIndex = Math.floor(progress * (trajectoryData.length - 1));
-            if (targetIndex !== currentIndex) {
-                lastPosition = {
-                    x: ballMesh.position.x,
-                    y: ballMesh.position.y,
-                    z: ballMesh.position.z
-                };
-                currentIndex = targetIndex;
-            }
-            
-            const target = trajectoryData[currentIndex];
-            
-            // Interpolation douce
-            ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
-            ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
-            ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
-            
-            // Rotation plus douce
-            ballMesh.rotation.x += 0.05;
-            ballMesh.rotation.z += 0.05;
-            
-            requestAnimationFrame(() => animate(startTime));
-        };
-        
-        animate(performance.now());
-        
-    } catch (error) {
-        console.error('Error during animation:', error);
-        scene.remove(ballMesh);
-    }
+        } catch (error) {
+            console.error('Error during animation:', error);
+            scene.remove(ballMesh);
+            reject(error);
+        }
+    });
 }
 
-export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100) {
-    const ballMesh = createCannonBall();
+export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, boatGroup) {
+    const ballMesh = createCannonBall(boatGroup);
     
     const trajectoryObjects = [];
     for (let i = 0; i < trajectoryData.length; i += 3) {
@@ -84,6 +95,13 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100) 
         });
     }
 
+    // Positionner le boulet directement à la position initiale
+    ballMesh.position.set(
+        trajectoryObjects[0].x,
+        trajectoryObjects[0].y,
+        trajectoryObjects[0].z
+    );
+    
     scene.add(ballMesh);
     
     const lerpFactor = 0.15; // Facteur de lissage pour l'interpolation
@@ -170,6 +188,15 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
         });
     }
 
+    // Créer et afficher la ligne de trajectoire
+    const trajectoryLine = await createTrajectoryLine(trajectoryObjects);
+    // scene.add(trajectoryLine);
+
+    // Supprimer la ligne après un délai (par exemple 2 secondes)
+    setTimeout(() => {
+        scene.remove(trajectoryLine);
+    }, 2000);
+
     // Ajouter la durée estimée de l'animation
     const animationDuration = trajectoryObjects.length * 100; // 100ms par point
     
@@ -180,19 +207,26 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
         animationEndTime: Date.now() + animationDuration  // Nouveau !
     });
 
-    // Animer le projectile
-    await fireCannon(trajectoryObjects, scene);
-    
-    // Signaler la fin de l'animation
-    socket.emit('animationComplete', {
-        gameCode: gameCode,
-        team: TeamID
-    });
+    // Animer le projectile et attendre la fin
+    try {
+        await fireCannon(trajectoryObjects, scene);
+        
+        // Signaler la fin de l'animation seulement après qu'elle soit terminée
+        socket.emit('animationComplete', {
+            gameCode: gameCode,
+            team: TeamID
+        });
 
-    setTimeout(() => {
+        // setTimeout(() => {
+        //     // cannonTube.rotation.y = 0;
+        //     // hud.showLoadingCircle();
+        // }, 1000);
         cannonTube.rotation.y = 0;
-        hud.scene.add(hud.loadingCircle.group);
-    }, 1000);
+        hud.showLoadingCircle();
+    } catch (error) {
+        console.error('Erreur pendant l\'animation:', error);
+    }
+    
     return trajectory;
 }
 
