@@ -89,7 +89,6 @@ async function redirectToProvider()
 }
 
 async function doPendingFlows(params, flows) {
-	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
@@ -166,14 +165,12 @@ async function getHtml(path){
 async function displayProfile() {
 	try {
 		
-		console.log("In function displayProfile()", '***pass***');
 		postForm(URLs.PROFILE_endp, {
 			csrfmiddlewaretoken : await getCsrfToken(),
 		});
 
 	} catch(error){
 		console.log("Error: In function displayProfile()", 'an error occured');
-		window.alert('an error occured');
 		return;
 	};
 }
