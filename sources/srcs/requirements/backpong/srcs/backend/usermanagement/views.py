@@ -58,7 +58,6 @@ def register(request):
 			}, status=400)
 	return Response({'error': 'Invalid request method'}, status=405)
 
-# ###TODO: Nico is this view used?
 def connect(request):
 	return render(request, 'base.html')
 
@@ -227,9 +226,7 @@ def update_photo(request):
 		}, status=400)
 	file_url = fs.url(filename)
 	user = request.user
-	# print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.photo = filename
-	# print("uploaded_file: ", user.photo, file=sys.stderr)
 	user.save()
 	if user.photo.url:
 		return Response({
@@ -468,7 +465,6 @@ def send_friend_request(request):
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
-	# print("***********************remove friend: ICI**************", file=sys.stderr)
 	if request.method == 'POST':
 		username = request.data.get('username')
 		if not username:

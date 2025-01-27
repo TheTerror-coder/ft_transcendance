@@ -74,7 +74,6 @@ async function makeRequest(method, path, data, headers) {
 async function redirectToProvider()
 {
 	try {
-		// console.log("In function redirectToProvider()", 'csrfmiddlewaretoken= ' + await getCsrfToken());
 		postForm(URLs.ALLAUTH.REDIRECT_TO_PROVIDER, {
 			provider : ULTIMAPI_PRODIVIDER_ID,
 			callback_url : URLs.VIEWS.CALLBACKURL_VIEW,
@@ -90,26 +89,19 @@ async function redirectToProvider()
 }
 
 async function doPendingFlows(params, flows) {
-	/* 
-	params: object
-	*/
 	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
-		console.log("Pending flows: Authentication required");
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.VERIFY_EMAIL && data.is_pending)) {
-		console.log("Pending flows: Email verification required");
 		await requireEmailVerifyJob(params);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_AUTHENTICATE && data.is_pending)) {
-		console.log("Pending flows: MFA authenticate required");
 		await mfaJob(undefined, totp_active=true);
 		return (true);
 	}
-	console.log("Pending flows: matched any");
 	return (false);
 }
 
@@ -130,13 +122,10 @@ async function jwt_authenticate(params) {
 	try {
 		const response = await getJwtToken(URLs.OAUTH.AUTH_STATUS)
 		if (response.find(data => data === 'jwt-credentials')){
-			console.log("****DEBUG**** jwt_authenticate() -> jwt-credentials")
 			return (true);
 		}
-		// onePongAlerter(ALERT_CLASSEs.WARNING, 'Warning', 'jwt credentials missing');
 		return (false);
 	} catch(error){
-		console.log("****DEBUG**** Exception catch() in jwt_authenticate(): " + error)
 		return (false);
 	}
 }
@@ -145,11 +134,9 @@ async function isUserAuthenticated(params) {
 	try {
 		const response = await getAuthenticationStatus();
 		if (response.find(data => data === 'user-is-authenticated')){
-			console.log("****DEBUG**** isUserAuthenticated() -> user is authenticated")
 			return (true);
 		}
 		else if (response.find(data => data === 'not-authenticated')){
-			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
 			if (params){
 				params.flows = response[2].flows;
 			}
@@ -157,18 +144,15 @@ async function isUserAuthenticated(params) {
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
-			console.log("****DEBUG**** isUserAuthenticated() -> invalid-session")
 			window.sessionStorage.clear();
 			clear_jwt();
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 			return (false);
 		}
-		console.log("****DEBUG**** isUserAuthenticated() -> else")
 		return (false);
 	
 	} catch(error){
 		console.log("Catched ERROR: In function isUserAuthenticated()", error);
-		// window.alert('an error occured: ' + error);
 		return (false);
 	};
 }
@@ -252,7 +236,6 @@ async function callWebSockets(params) {
 
 			var data = JSON.parse(event.data);
 			if (data.type === 'invited') {
-				console.log('******DEBUG******* Invited by', data.from);
 				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
 				if (ELEMENTs.profilePage())
 					replace_location(URLs.VIEWS.PROFILE);
@@ -275,7 +258,6 @@ async function callWebSockets(params) {
 					if (ELEMENTs.profilePage())
 						replace_location(URLs.VIEWS.PROFILE);
 				}, 3000);
-				console.log("update_login TA VUU");
 			}
 		};
 	} catch (error) {
@@ -297,7 +279,6 @@ async function reauthenticateFirst(flows) {
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {
-		console.log("Pending flows: mfa Reauthentication required");
 		await requireMfaReauthenticateJob(undefined);
 		return (true);
 	}

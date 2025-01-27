@@ -12,7 +12,6 @@ user_sockets = {}
 
 
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
-
     async def connect(self):
         self.user = self.scope['user']
         if not self.user.is_authenticated:
@@ -25,17 +24,14 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-            print(f"User {self.user.username} joined room: {self.room_group_name}")
 
 
     async def disconnect(self, close_code):
-        print("*****************disconnected", self.user.username, file=sys.stderr)
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
         if self.user.username in user_sockets:
-            print(f"User {self.user.username} left room: {self.room_group_name}")
             del user_sockets[self.user.username]
    
    
@@ -51,11 +47,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                     friend_request = await self.accept_friend_request(friend_request, text_data_json['to_user'])
                 elif text_data_json['response'] == 'reject':
                     friend_request = await self.decline_friend_request(friend_request)
-            
-
-
-    async def my_test(self):
-        print(f"*******debug******* my test", file=sys.stderr)
 
     async def send_invitation(self, username):
         user = await self.get_user_by_username(username)
@@ -78,8 +69,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                     "text": json.dumps(invitation)
                 }
             )
-        else:
-            print(f"No user with username {username}")
 
 
     async def send_message(self, event):
