@@ -237,7 +237,7 @@ const ELEMENTs = Object.freeze({
 	profilePage : () => document.getElementById("profilePage"),
 	bookProfile : () => document.getElementById("bookProfile"),
 
-	circleIsConnect : () => document.getElementById("circle-is-connect"),
+	circleIsConnect : (user_id) => document.getElementById(`circle-is-connect-${user_id}`),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
@@ -323,8 +323,8 @@ class PAGE_ROUTEs {
 }
 
 class USER {
-	static FRIENDS = undefined;
 	static FRIENDS_LIST_EVENT = 'friends-list-event';
+	static WAITING_FRIENDS_LIST_EVENT = 'waiting-friends-list-event';
 }
 
 const FLOWs = Object.freeze({

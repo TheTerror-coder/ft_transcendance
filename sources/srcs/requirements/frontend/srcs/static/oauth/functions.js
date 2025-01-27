@@ -256,41 +256,41 @@ async function callWebSockets(params) {
 			var data = JSON.parse(event.data);
 			if (data.type === 'invited') {
 				console.log('******DEBUG******* Invited by', data.from);
-				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
+				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.msg);
 			}
 			else if (data.type === 'update_name') {
 				const newUsername = data.new_username;
 				if (ELEMENTs.profilePage())
 					replace_location(URLs.VIEWS.PROFILE);
 			}
-			else if (data.type === 'remove_friend') {
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
-			}
-			else if (data.type === 'update_logout') {
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
-			}
-			else if (data.type === 'update_login') {
-				setTimeout(() => {
-					if (ELEMENTs.profilePage())
-						replace_location(URLs.VIEWS.PROFILE);
-				}, 3000);
-				console.log("update_login TA VUU");
-			}
+			// else if (data.type === 'remove_friend') {
+			// 	if (ELEMENTs.profilePage())
+			// 		replace_location(URLs.VIEWS.PROFILE);
+			// }
+			// else if (data.type === 'update_logout') {
+			// 	if (ELEMENTs.profilePage())
+			// 		replace_location(URLs.VIEWS.PROFILE);
+			// }
+			// else if (data.type === 'update_login') {
+			// 	setTimeout(() => {
+			// 		if (ELEMENTs.profilePage())
+			// 			replace_location(URLs.VIEWS.PROFILE);
+			// 	}, 3000);
+			// 	console.log("update_login TA VUU");
+			// }
 			else if (data.type === 'friend_disconnected') {
-				await onePongAlerter(ALERT_CLASSEs.DARK, 'Push Notification', `${data.from} is offline!`);
-				status_element = ELEMENTs.circleIsConnect();
+				await onePongAlerter(ALERT_CLASSEs.DARK, 'Push Notification', `${data.friend.username} is offline!`);
+				status_element = ELEMENTs.circleIsConnect(data.friend.id);
 				if (status_element) {
 					status_element.style.backgroundColor = 'red';
 				}
-				// if (ELEMENTs.profilePage())
-				// 	replace_location(URLs.VIEWS.PROFILE);
 			}
 			else if (data.type === 'friend_connected') {
-				await onePongAlerter(ALERT_CLASSEs.PRIMARY, 'Push Notification', `${data.from} is online!`);
-				if (ELEMENTs.profilePage())
-					replace_location(URLs.VIEWS.PROFILE);
+				await onePongAlerter(ALERT_CLASSEs.PRIMARY, 'Push Notification', `${data.friend.username} is online!`);
+				status_element = ELEMENTs.circleIsConnect(data.friend.id);
+				if (status_element) {
+					status_element.style.backgroundColor = 'green';
+				}
 			}
 			else if (data.type === 'you_online') {
 				await onePongAlerter(ALERT_CLASSEs.PRIMARY, 'Push Notification', `you are online!`);
@@ -310,6 +310,19 @@ async function callWebSockets(params) {
 				});
 				document.dispatchEvent(friendsListEvent);
 			}
+			else if (data.type === 'waiting_friends') {
+				console.log(`In waiting_friends()******DEBUG*******waiting.requests:${data.waiting_requests}`);
+				const waiting_requests = data.waiting_requests;
+				waiting_requests.forEach(request => {
+					console.log(`In waiting_friends()******DEBUG*******request.issuername:${request.issuername}, request.id:${request.request_id}`);
+				});
+				waitingFriendsListEvent = new CustomEvent(USER.WAITING_FRIENDS_LIST_EVENT, {
+					detail: {
+						waiting_requests: data.waiting_requests,
+					}
+				});
+				document.dispatchEvent(waitingFriendsListEvent);
+			}
 		};
 	} catch (error) {
 		console.log('sendInvitation() an exception happenned ' + error);
@@ -319,11 +332,22 @@ async function callWebSockets(params) {
 async function getMyFriendsList() {
 	try {
 		ONE_SOCKET.send(JSON.stringify({
-			type: 'my_friends',
+			'type': 'my_friends',
 		}));
 	}
 	catch (error) {
 		console.log('In getMyFriendsList()********DEBUG********* ' + error);
+	}
+}
+
+async function getWaitingFriendsList() {
+	try {
+		ONE_SOCKET.send(JSON.stringify({
+			'type': 'waiting_friends',
+		}));
+	}
+	catch (error) {
+		console.log('In getWaitingFriendsList()********DEBUG********* ' + error);
 	}
 }
 

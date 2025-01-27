@@ -116,109 +116,114 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
     }
 }
 
-async function displayWaitingListFriend(friends) {
-    const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
+async function displayWaitingListFriend() {
+	document.addEventListener(USER.WAITING_FRIENDS_LIST_EVENT, async (event) => {
+		const waiting_requests = event.detail.waiting_requests;
+	    const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
 
-    // Vider le menu avant de le mettre à jour
-    dropdownMenu.innerHTML = '';
+		// Vider le menu avant de le mettre à jour
+		dropdownMenu.innerHTML = '';
 
-    if (friends.length === 0) {
-        const listItem = document.createElement('li');
-        listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-        const nameSpan = document.createElement('span');
-        if (currentLanguage === 'en')
-            nameSpan.textContent = "No Invitations Waiting";
-        else if (currentLanguage === 'fr')
-            nameSpan.textContent = "Aucune Invitations en Attente";
-        else if (currentLanguage === 'es')
-            nameSpan.textContent = "No hay invitaciones en espera";
-        nameSpan.dataset.translate = "NoInvitationsWaiting";
-        listItem.appendChild(nameSpan);
-        dropdownMenu.appendChild(listItem);
-    } else {
-        for (let i = 0; i < friends.length; i++) {
-            const listItem = document.createElement('li');
-            listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+		if (waiting_requests.length === 0) {
+			const listItem = document.createElement('li');
+			listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+			const nameSpan = document.createElement('span');
+			if (currentLanguage === 'en')
+				nameSpan.textContent = "No Invitations Waiting";
+			else if (currentLanguage === 'fr')
+				nameSpan.textContent = "Aucune Invitations en Attente";
+			else if (currentLanguage === 'es')
+				nameSpan.textContent = "No hay invitaciones en espera";
+			nameSpan.dataset.translate = "NoInvitationsWaiting";
+			listItem.appendChild(nameSpan);
+			dropdownMenu.appendChild(listItem);
+		} else {
+			waiting_requests.forEach(pending_request => {
+				const listItem = document.createElement('li');
+				listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
-            const actionAddButton = document.createElement('button');
-            const actionRemoveButton = document.createElement('button');
+				const actionAddButton = document.createElement('button');
+				const actionRemoveButton = document.createElement('button');
 
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = friends[i].from_user;
+				const nameSpan = document.createElement('span');
+				nameSpan.textContent = pending_request.issuername;
 
-            const divForButton = document.createElement('div');
-            divForButton.style.display = "flex";
-            divForButton.style.flexDirection = "flex-end";
+				const divForButton = document.createElement('div');
+				divForButton.style.display = "flex";
+				divForButton.style.flexDirection = "flex-end";
 
-            const imgButtonAdd = document.createElement("img");
-            imgButtonAdd.src = "/static/photos/picturePng/profilePage/approvebutton.png";
-            imgButtonAdd.alt = "Add Friend";
+				const imgButtonAdd = document.createElement("img");
+				imgButtonAdd.src = "/static/photos/picturePng/profilePage/approvebutton.png";
+				imgButtonAdd.alt = "Add Friend";
 
-            const imgButtonRemove = document.createElement("img");
-            imgButtonRemove.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
-            imgButtonRemove.alt = "Remove Friend";
+				const imgButtonRemove = document.createElement("img");
+				imgButtonRemove.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+				imgButtonRemove.alt = "Remove Friend";
 
-            actionAddButton.appendChild(imgButtonAdd);
-            actionRemoveButton.appendChild(imgButtonRemove);
-            divForButton.appendChild(actionAddButton);
-            divForButton.appendChild(actionRemoveButton);
+				actionAddButton.appendChild(imgButtonAdd);
+				actionRemoveButton.appendChild(imgButtonRemove);
+				divForButton.appendChild(actionAddButton);
+				divForButton.appendChild(actionRemoveButton);
 
-            // Gérer l'acceptation de l'invitation
-            actionAddButton.addEventListener('click', async () => {
-                alert(`add ${friends[i].from_user}`);
+				// Gérer l'acceptation de l'invitation
+				actionAddButton.addEventListener('click', async () => {
+					alert(`add ${pending_request.issuername}`);
 
-                // Envoi de l'invitation acceptée au serveur
-                ONE_SOCKET.send(JSON.stringify({
-                    type: 'response.invitation',
-                    to_user: friends[i].from_user,
-                    response: 'accept',
-                    friend_request_id: friends[i].friend_request_id
-                }));
+					// Envoi de l'invitation acceptée au serveur
+					ONE_SOCKET.send(JSON.stringify({
+						type: 'response.invitation',
+						to_user: pending_request.issuername,
+						response: 'accept',
+						friend_request_id: pending_request.id
+					}));
 
-                // 1. Supprimer l'invitation de la liste d'attente
-                dropdownMenu.removeChild(listItem);
+					// 1. Supprimer l'invitation de la liste d'attente
+					dropdownMenu.removeChild(listItem);
 
-                // 2. Mettre à jour la liste des amis (soit dynamiquement, soit via une API)
-                // Exemple de mise à jour dynamique : 
-                await addFriendToFriendList(friends[i]);
+					// 2. Mettre à jour la liste des amis (soit dynamiquement, soit via une API)
+					// Exemple de mise à jour dynamique : 
+					await addFriendToFriendList(pending_request);
 
-                // 3. Vérifier si la liste des invitations est vide après l'acceptation
-                if (dropdownMenu.children.length === 0) {
-                    const noInvitationsItem = document.createElement('li');
-                    noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-                    const noInvitationsSpan = document.createElement('span');
-                    noInvitationsSpan.textContent = currentLanguage === 'en' ? "No Invitations Waiting" : (currentLanguage === 'fr' ? "Aucune Invitations en Attente" : "No hay invitaciones en espera");
-                    noInvitationsItem.appendChild(noInvitationsSpan);
-                    dropdownMenu.appendChild(noInvitationsItem);
-                }
-            });
+					// 3. Vérifier si la liste des invitations est vide après l'acceptation
+					if (dropdownMenu.children.length === 0) {
+						const noInvitationsItem = document.createElement('li');
+						noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+						const noInvitationsSpan = document.createElement('span');
+						noInvitationsSpan.textContent = currentLanguage === 'en' ? "No Invitations Waiting" : (currentLanguage === 'fr' ? "Aucune Invitations en Attente" : "No hay invitaciones en espera");
+						noInvitationsItem.appendChild(noInvitationsSpan);
+						dropdownMenu.appendChild(noInvitationsItem);
+					}
+				});
 
-            // Gérer le rejet de l'invitation
-            actionRemoveButton.addEventListener('click', () => {
-                alert(`remove ${friends[i].from_user}`);
-                ONE_SOCKET.send(JSON.stringify({
-                    type: 'response.invitation',
-                    response: 'reject',
-                    friend_request_id: friends[i].friend_request_id
-                }));
+				// Gérer le rejet de l'invitation
+				actionRemoveButton.addEventListener('click', () => {
+					alert(`remove ${pending_request.issuername}`);
+					ONE_SOCKET.send(JSON.stringify({
+						type: 'response.invitation',
+						response: 'reject',
+						friend_request_id: pending_request.id
+					}));
 
-                dropdownMenu.removeChild(listItem);
+					dropdownMenu.removeChild(listItem);
 
-                if (dropdownMenu.children.length === 0) {
-                    const noInvitationsItem = document.createElement('li');
-                    noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-                    const noInvitationsSpan = document.createElement('span');
-                    noInvitationsSpan.textContent = currentLanguage === 'en' ? "No Invitations Waiting" : (currentLanguage === 'fr' ? "Aucune Invitations en Attente" : "No hay invitaciones en espera");
-                    noInvitationsItem.appendChild(noInvitationsSpan);
-                    dropdownMenu.appendChild(noInvitationsItem);
-                }
-            });
+					if (dropdownMenu.children.length === 0) {
+						const noInvitationsItem = document.createElement('li');
+						noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+						const noInvitationsSpan = document.createElement('span');
+						noInvitationsSpan.textContent = currentLanguage === 'en' ? "No Invitations Waiting" : (currentLanguage === 'fr' ? "Aucune Invitations en Attente" : "No hay invitaciones en espera");
+						noInvitationsItem.appendChild(noInvitationsSpan);
+						dropdownMenu.appendChild(noInvitationsItem);
+					}
+				});
 
-            listItem.appendChild(nameSpan);
-            listItem.appendChild(divForButton);
-            dropdownMenu.appendChild(listItem);
-        }
-    }
+				listItem.appendChild(nameSpan);
+				listItem.appendChild(divForButton);
+				dropdownMenu.appendChild(listItem);
+			});
+		}
+	});
+
+	await getWaitingFriendsList();
 }
 
 
@@ -262,7 +267,7 @@ async function addFriendToFriendList(friend) {
 
 async function displayFriend() {
 	document.addEventListener(USER.FRIENDS_LIST_EVENT, async (event) => {
-		const friends = event.detail;
+		const friends = event.detail.friends;
 		const dropdownMenu = document.getElementById('friendDropdownMenu');
 
 		// Vider le menu avant de le mettre à jour

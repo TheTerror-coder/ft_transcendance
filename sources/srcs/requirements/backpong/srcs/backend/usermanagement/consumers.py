@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from .models import FriendRequest
 from asgiref.sync import sync_to_async
 import sys
+from channels.layers import get_channel_layer
 
 user_sockets = {}
 
@@ -53,10 +54,23 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         print("*****************disconnected", file=sys.stderr)
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        for username in  await self.get_friend_list():
+            channel_name = user_sockets.get(username)
+            print(f"In disconnect()*********DEBUG******** username:{username} channel_name:{channel_name}", file=sys.stderr)
+            try:
+                await self.channel_layer.send(
+                    channel_name,
+                    {
+                        'type': 'friend.disconnected',
+                        'subject': self.user.username
+                    }
+                )
+            except Exception as e:
+                print(f"In disconnect()*********DEBUG******** {e}", file=sys.stderr)
+        # await self.channel_layer.group_discard(
+        #     self.room_group_name,
+        #     self.channel_name
+        # )
         if self.user.username in user_sockets:
             print(f"User {self.user.username} left room: {self.room_group_name}")
             del user_sockets[self.user.username]
@@ -77,6 +91,8 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
                     friend_request = await self.decline_friend_request(friend_request)
         elif text_data_json['type'] == 'my_friends':
             await self.my_friends()
+        elif text_data_json['type'] == 'waiting_friends':
+            await self.waiting_friends()
         elif text_data_json['type'] == 'my.test':
             await self.my_test()
             
@@ -110,6 +126,19 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             await self.send(text_data=json.dumps(payload))
         except Exception as e:
             print(f"In my_friends()*********DEBUG******** {e}", file=sys.stderr)
+    
+    async def waiting_friends(self):
+        print(f"In waiting_friends()*********DEBUG********", file=sys.stderr)
+        payload = {
+            'type': 'waiting_friends',
+            'waiting_requests': [],
+        }
+
+        try:
+            payload['waiting_requests'] = await self.get_pending_requests()
+            await self.send(text_data=json.dumps(payload))
+        except Exception as e:
+            print(f"In waiting_friends()*********DEBUG******** {e}", file=sys.stderr)
 
     async def send_invitation(self, username):
         user = await self.get_user_by_username(username)
@@ -145,57 +174,64 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
 
     async def update_username(self, event):
+        # print(f"*******debug******* In update_username: {event}", file=sys.stderr)
+        # print(f"*******debug******* user_sockets: {user_sockets}", file=sys.stderr)
         new_username = event["new_username"]
-        if self.user.username in user_sockets:
-            user_sockets[new_username] = user_sockets.pop(self.user.username)
-        self.user.username = new_username
-        await self.notify_username_update(new_username)
+        to_user = event["to_user"]
+        from_user = event["from_user"]
+        # print(f"*******debug******* from_user: {from_user}, self {self.user.username}, new_username {new_username}", file=sys.stderr)
+        # if from_user in user_sockets:
+        #     user_sockets[new_username] = user_sockets.pop(from_user)
+        await self.notify_username_update()
 
-    async def notify_username_update(self, new_username):
-        print(f"User {self.user.username} changed username to {new_username}", file=sys.stderr)
-        for username, channel_name in user_sockets.items():
-            if channel_name != self.channel_name:
-                print(f"channel_name {channel_name} username {username}", file=sys.stderr)
-                invitation = {
-                    'type': 'update_name',
-                    'from': self.user.username,
-                    'to': username,
-                    'new_username': new_username
-                }
-                await self.channel_layer.send(
-                    channel_name,
-                    {
-                        'type': 'send.message',
-                        'text': json.dumps(invitation),
-                    }
-                )
+    async def notify_username_update(self):
+        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
+        # print(f"User {self.user.username} updated username", file=sys.stderr)
+    
+        channel_layer = get_channel_layer()
+        invitation = {
+            'type': 'update_name',
+            'from': self.user.username,
+        }
+        await channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'send.message',
+                'text': json.dumps(invitation),
+            }
+        )
 
 
     async def update_logout(self, event):
-        user = event["username"]
-        for username, channel_name in user_sockets.items():
-            if channel_name == self.channel_name:
-                invitation = {
-                    'type': 'update_logout',
-                    'from': self.user.username,
-                    'to': user,
-                }
-                await self.channel_layer.send(
-                    channel_name,
-                    {
-                        'type': 'send.message',
-                        'text': json.dumps(invitation),
-                    }
-                )
-        # if user in user_sockets:
-        #     del user_sockets[user]
+        user = event["from_user"]
+        to_user = event["to_user"]
+        # print(f"***********************************************************User {event}", file=sys.stderr)
+        # print(f"***********************************************************self.User {self.user.username} form  {user} to {to_user}", file=sys.stderr)
+        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
+        if self.user.username != to_user:
+            self.user.username = to_user
+        channel_layer = get_channel_layer()
+        invitation = {
+            'type': 'update_name',
+            'from': self.user.username,
+        }
+        await channel_layer.send(
+            self.channel_name,
+            {
+                'type': 'send.message',
+                'text': json.dumps(invitation),
+            }
+        )
 
     async def friend_disconnected(self, event):
         username = event['subject']
         print(f"In friend_disconnected()*********DEBUG******** username:{username}", file=sys.stderr)
         payload = {
             'type': 'friend_disconnected',
-            'from': username,
+            'friend' : {
+				'username': username,
+				'id': username,
+			},
         }
         await self.send(text_data=json.dumps(payload))
     
@@ -204,7 +240,10 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         print(f"In friend_connected()*********DEBUG******** username:{username}", file=sys.stderr)
         payload = {
             'type': 'friend_connected',
-            'from': username,
+            'friend' : {
+				'username': username,
+				'id': username,
+			},
         }
         await self.send(text_data=json.dumps(payload))
 
@@ -255,6 +294,23 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_friend_list(self):
         return [friend.username for friend in self.user.friend_list.all()]
+    
+    @database_sync_to_async
+    def get_pending_requests(self):
+        i = 0
+        requests = []
+        pending_requests = FriendRequest.objects.filter(
+            to_user=self.user,
+            status='PENDING',
+        )
+        for request in pending_requests:
+            requests.append({
+                'issuername': request.from_user.username,
+                'id': request.id,
+            })
+            print(f"In get_pending_requests()*********DEBUG********* request{i} -> {request.id}", file=sys.stderr)
+            i += 1
+        return requests
     
     @database_sync_to_async
     def add_to_friend_list(self, user):

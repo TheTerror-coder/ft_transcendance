@@ -119,7 +119,7 @@ async function	profileView(title, description, data)
 	imgElement.src = photoUrl;
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'block';
-	let ret = await displayFriend(response.friends, response.user_socket);
+	let ret = await displayFriend();
 	ret = await displayWaitingListFriend(response.pending_requests);
 	ret = await getHistoric(response.recent_games, response.username);
 	ret = await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
