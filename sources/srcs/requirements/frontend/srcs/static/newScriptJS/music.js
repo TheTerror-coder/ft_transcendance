@@ -37,6 +37,7 @@ async function changeMusic(newSource)
 	return new Promise(async (resolve) => {
 		if (musicFlood > 1 || (ELEMENTs.music().src && ELEMENTs.music().src === BASE_URL + newSource))
 		{
+			musicFlood--;
 			resolve();
 			return ;
 		}

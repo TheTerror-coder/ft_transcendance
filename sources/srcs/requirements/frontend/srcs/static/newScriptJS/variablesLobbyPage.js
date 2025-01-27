@@ -35,45 +35,15 @@ const wantedPlayerFour =
     </button>
 </div>`
 
-
-// il faudra en faire un pour chaque joueur (sauf joueur 1)
-const waitingPlayer2 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerTwo">
-    <div class="wrapper">
+const waitingPlayer =
+`    <div class="wrapper">
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="shadow"></div>
         <div class="shadow"></div>
         <div class="shadow"></div>
-    </div>
-</div>`
-
-const waitingPlayer3 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerThree">
-    <div class="wrapper">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-    </div>
-</div>`
-
-const waitingPlayer4 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerFour">
-    <div class="wrapper">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-    </div>
-</div>`
-
-
+    </div>`;
 
 const lobbyTwoPlayerDisplayVAR = 
 `<div>
