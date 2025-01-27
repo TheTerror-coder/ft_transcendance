@@ -849,15 +849,14 @@ class Game:
                 # Mettre à jour allowedToReconnect quand le timer expire
                 player.setAllowedToReconnect(False)
                 
-                # Si c'est le dernier joueur connecté de l'équipe
-                if all(not p.getOnline() for p in self.teams[team_id].player.values()):
-                    self.loser = self.teams[team_id]
-                    self.winner = self.teams[1 if team_id == 2 else 2]
-                    self.gameStarted = False
-                    
-                    # Notifier tous les joueurs de la fin de la partie
-                    await self.sendGameInfo(sio, gameCode, True)
-                    await sio.emit('winner', self.winner.getName(), room=gameCode)
+                # Déclarer l'autre équipe gagnante
+                self.loser = self.teams[team_id]
+                self.winner = self.teams[1 if team_id == 2 else 2]
+                self.gameStarted = False
+                
+                # Notifier tous les joueurs de la fin de la partie
+                await self.sendGameInfo(sio, gameCode, True)
+                await sio.emit('winner', self.winner.getName(), room=gameCode)
 
         finally:
             self.cleanup_player_disconnect(team_id, sid)
