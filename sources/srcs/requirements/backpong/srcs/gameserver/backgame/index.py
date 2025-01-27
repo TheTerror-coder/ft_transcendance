@@ -109,6 +109,7 @@ async def disconnect(sid):
                                 game.gameStarted = False
                                 game.setIsPaused(True)
                                 await sio.emit('gamePaused', room=room)
+                                logger.info(f'Game {room} paused because player {sid} disconnected')
                                 is_tournament = await game.handle_disconnect(sid, sio, room)
                                 if is_tournament:
                                     await handle_tournament_end(game, room)

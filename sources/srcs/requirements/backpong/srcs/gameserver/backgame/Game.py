@@ -835,7 +835,7 @@ class Game:
             self.disconnect_timers[team_id]['team'] = asyncio.create_task(
                 self.team_disconnect_countdown(team_id, sio, gameCode)
             )
-
+        logger.info(f"Joueur déconnecté: {sid}")
         return False
 
     async def disconnect_countdown(self, team_id, sid, sio, gameCode):
