@@ -55,7 +55,7 @@ class Game:
         self.ballDirection = self.initializeBallDirection()
         self.last_ball_update = 0
         self.ball_velocity = {'x': 0, 'y': 0, 'z': 0}
-        self.collision_cooldown = 100  # ms
+        self.collision_cooldown = 50  # ms
         self.last_collision_time = 0
         self.PREDICTION_BUFFER = []  # Pour stocker les positions futures
         self.MAX_PREDICTIONS = 3  # Nombre de prédictions à maintenir
@@ -205,52 +205,30 @@ class Game:
         if adjusted_hitbox == -1:
             return 0
         
-        margin = 2.0
-        isInZRange = (adjusted_hitbox['min']['z'] - margin) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin)
+        # Marges de collision
+        margin_z = 2.5
+        margin_y = 1.0
+        margin_x = 2.0
+
+        # Vérification des collisions sur les trois axes
+        isInZRange = (adjusted_hitbox['min']['z'] - margin_z) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin_z)
         if not isInZRange:
             return 0
         
-        margin_y = 0.5
         isInYRange = (adjusted_hitbox['min']['y'] - margin_y) <= self.ballPosition['y'] <= (adjusted_hitbox['max']['y'] + margin_y)
         if not isInYRange:
             return 0
 
-        margin_edges = 1.5
+        isInXRange = (adjusted_hitbox['min']['x'] - margin_x) <= self.ballPosition['x'] <= (adjusted_hitbox['max']['x'] + margin_x)
+        if not isInXRange:
+            return 0
 
-        # Calculer la distance relative en Y
-        relative_y_distance = abs(self.ballPosition['y'] - (adjusted_hitbox['max']['y'] + adjusted_hitbox['min']['y']) / 2)
-        y_threshold = (adjusted_hitbox['max']['y'] - adjusted_hitbox['min']['y']) / 2
-
-        if team.TeamId == 1:
-            isOnLeftSide = (abs(self.ballPosition['x'] - adjusted_hitbox['min']['x']) <= margin_edges and 
-                           self.ballPosition['y'] < adjusted_hitbox['max']['y'] and
-                           relative_y_distance < y_threshold)
-            isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
-                            self.ballPosition['y'] < adjusted_hitbox['max']['y'] and
-                            relative_y_distance < y_threshold)
-        else:
-            isOnLeftSide = (abs(self.ballPosition['x'] - adjusted_hitbox['min']['x']) <= margin_edges and 
-                           self.ballPosition['y'] > adjusted_hitbox['min']['y'])
-            isOnRightSide = (abs(self.ballPosition['x'] - adjusted_hitbox['max']['x']) <= margin_edges and 
-                            self.ballPosition['y'] > adjusted_hitbox['min']['y'])
-
-        if isOnLeftSide:
-            return 4
-        if isOnRightSide:
-            return 5
-
-        isInXRange = adjusted_hitbox['min']['x'] <= self.ballPosition['x'] <= adjusted_hitbox['max']['x']
-        if isInXRange:
-            leftThird = adjusted_hitbox['min']['x'] + (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x']) / 3
-            rightThird = adjusted_hitbox['max']['x'] - (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x']) / 3
-
-            if self.ballPosition['x'] <= leftThird:
-                return 2
-            elif self.ballPosition['x'] >= rightThird:
-                return 3
-            return 1
-
-        return 0
+        # Calculer le point d'impact relatif par rapport au centre du paddle
+        relativeIntersectX = self.ballPosition['x'] - (adjusted_hitbox['min']['x'] + (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x'])/2)
+        normalizedIntersect = relativeIntersectX / ((adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x'])/2)
+        
+        # Retourner 1 pour une collision normale
+        return 1
 
     async def detectCollisionWithBoats(self):
         for key, team in self.teams.items():
@@ -275,92 +253,38 @@ class Game:
         if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2:
             self.ballPosition["x"] = -self.FIELD_WIDTH / 2 + 0.5
             self.ballDirection["x"] = -self.ballDirection["x"]
-            if self.BALL_SPEED < self.BALL_MAX_SPEED:
-                self.BALL_SPEED = min(
-                    self.BALL_SPEED * self.SPEED_INCREASE_FACTOR,
-                    self.BALL_MAX_SPEED
-                )
-                logger.info(f"Ball speed increased to: {self.BALL_SPEED}")
+            self.BALL_SPEED = min(self.BALL_SPEED * self.SPEED_INCREASE_FACTOR, self.BALL_MAX_SPEED)
         elif self.ballPosition["x"] >= self.FIELD_WIDTH / 2:
             self.ballPosition["x"] = self.FIELD_WIDTH / 2 - 0.5
             self.ballDirection["x"] = -self.ballDirection["x"]
-            if self.BALL_SPEED < self.BALL_MAX_SPEED:
-                self.BALL_SPEED = min(
-                    self.BALL_SPEED * self.SPEED_INCREASE_FACTOR,
-                    self.BALL_MAX_SPEED
-                )
-                logger.info(f"Ball speed increased to: {self.BALL_SPEED}")
+            self.BALL_SPEED = min(self.BALL_SPEED * self.SPEED_INCREASE_FACTOR, self.BALL_MAX_SPEED)
 
+        # Détection des collisions avec les paddles
         collision = await self.detectCollisionWithBoats()
-
-        if collision <= 0:
-            pass
-        elif collision == 1:  # Collision centrale
-            hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
-            # Repositionner la balle au-dessus ou en-dessous selon la direction
-            if self.ballDirection["y"] > 0:
-                self.ballPosition["y"] = hitbox["min"]["y"] - 0.5
-            else:
-                self.ballPosition["y"] = hitbox["max"]["y"] + 0.5
-            self.ballDirection["y"] = -self.ballDirection["y"]
-
-        elif collision in [2, 3]:  # Collisions inclinées
+        
+        if collision == 1:  # Collision normale
             hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
             
-            # Calculer le point d'impact relatif par rapport au centre du bateau
+            # Calculer l'angle de rebond basé sur le point d'impact
             relativeIntersectX = self.ballPosition["x"] - (hitbox["min"]["x"] + (hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             normalizedIntersect = relativeIntersectX / ((hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             
             # Limiter l'angle de rebond
-            if normalizedIntersect > 0.95:
-                normalizedIntersect = 0.95
-            elif normalizedIntersect < -0.95:
-                normalizedIntersect = -0.95
-
-            # Calculer la nouvelle direction en fonction du point d'impact
-            if collision == 2:  # Côté gauche
-                if self.ballPosition["y"] > 0:
-                    self.ballPosition["y"] = hitbox["min"]["y"] - 0.5
-                else:
-                    self.ballPosition["y"] = hitbox["max"]["y"] + 0.5
-                self.ballDirection["x"] = -abs(normalizedIntersect) * 1.2
-            else:  # Côté droit
-                if self.ballPosition["y"] > 0:
-                    self.ballPosition["y"] = hitbox["min"]["y"] - 0.5
-                else:
-                    self.ballPosition["y"] = hitbox["max"]["y"] + 0.5
-                self.ballDirection["x"] = abs(normalizedIntersect) * 1.2
+            bounceAngle = normalizedIntersect * (math.pi / 4)  # 45 degrés maximum
             
-            self.ballDirection["y"] = -self.ballDirection["y"]
+            # Mettre à jour la direction
+            self.ballDirection["x"] = math.sin(bounceAngle)
+            self.ballDirection["y"] = -sign(self.ballDirection["y"]) * math.cos(bounceAngle)
             
-            # Normalisation du vecteur
+            # Normaliser le vecteur direction
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
             self.ballDirection["x"] /= length
             self.ballDirection["y"] /= length
+            
+            # Augmenter la vitesse
+            self.BALL_SPEED = min(self.BALL_SPEED * self.SPEED_INCREASE_FACTOR, self.BALL_MAX_SPEED)
 
-        elif collision in [4, 5]:  # Collisions extrêmes
-            hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
-            if collision == 4:  # Extrême gauche
-                if hitbox['max']['x'] + 1.0 >= self.FIELD_WIDTH / 2:
-                    return
-                self.ballPosition["x"] = hitbox["max"]["x"] + 1.0
-            else:  # Extrême droite
-                if hitbox['min']['x'] - 1.0 <= -self.FIELD_WIDTH / 2:
-                    return
-                self.ballPosition["x"] = hitbox["min"]["x"] - 1.0
-
-            # Calcul de la nouvelle direction avec un angle plus naturel
-            if self.ballPosition["y"] > 0:
-                angle_modifier = 0.3
-            else:
-                angle_modifier = -0.3
-                
-            self.ballDirection["y"] = -self.ballDirection["y"] + angle_modifier
-            # Normalisation du vecteur
-            length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
-            self.ballDirection["x"] /= length
-            self.ballDirection["y"] /= length
-
+        # Gestion des points
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
             self.resetBall()
             self.teams[1].addPoint()
@@ -370,7 +294,6 @@ class Game:
                 'gameCode': gameCode
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
-            logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
         elif self.ballPosition["y"] >= self.FIELD_HEIGHT / 2:
             self.resetBall()
             self.teams[2].addPoint()
@@ -380,14 +303,6 @@ class Game:
                 'gameCode': gameCode
             }, room=gameCode)
             await self.checkWinner(sio, gameCode)
-            logger.info(f"Points marqués - Team 1: {self.teams[1].getScore()}, Team 2: {self.teams[2].getScore()}")
-
-        # Réduction de la vitesse si la balle va trop vite sans collision
-        if self.BALL_SPEED > self.BALL_MIN_SPEED:
-            self.BALL_SPEED = max(
-                self.BALL_SPEED * 0.999,  # Réduction très progressive
-                self.BALL_MIN_SPEED
-            )
 
         self.last_collision_time = current_time
 
@@ -1000,4 +915,7 @@ class Game:
             
         finally:
             self.cleanup_team_disconnect(team_id)
+
+def sign(x):
+    return -1 if x < 0 else 1 if x > 0 else 0
 

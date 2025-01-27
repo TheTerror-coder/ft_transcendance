@@ -550,11 +550,11 @@ function predictBallPosition(ball, velocity, deltaTime) {
     }
 
     // Limiter le deltaTime pour éviter les prédictions trop lointaines
-    const maxDeltaTime = 0.1; // 100ms maximum
+    const maxDeltaTime = 0.05; // Réduire de 0.1 à 0.05 pour des prédictions plus fréquentes
     deltaTime = Math.min(deltaTime, maxDeltaTime);
 
     // Calculer la position prédite avec amortissement
-    const dampingFactor = 0.9; // Réduire légèrement l'effet de la vélocité
+    const dampingFactor = 0.95; // Augmenter de 0.9 à 0.95 pour une prédiction plus précise
     const predictedPosition = {
         x: ball.position.x + velocity.x * deltaTime * dampingFactor,
         y: ball.position.y + velocity.y * deltaTime * dampingFactor,
@@ -562,7 +562,7 @@ function predictBallPosition(ball, velocity, deltaTime) {
     };
 
     // Appliquer la position prédite avec une interpolation douce
-    const predictionLerpFactor = 0.3;
+    const predictionLerpFactor = 0.4; // Augmenter de 0.3 à 0.4
     ball.position.x += (predictedPosition.x - ball.position.x) * predictionLerpFactor;
     ball.position.y += (predictedPosition.y - ball.position.y) * predictionLerpFactor;
     ball.position.z = predictedPosition.z; // Hauteur fixe

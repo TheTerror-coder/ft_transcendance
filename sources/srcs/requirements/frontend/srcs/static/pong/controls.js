@@ -62,10 +62,11 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED * directionRotation;
                                 if (keys && keys[' '] && keys[' '].pressed)
                                 {
-                                    pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                    setTimeout(() => {
+                                        pause = true;
+                                    }, 1000);
                                 }
                             }
                             else
@@ -100,10 +101,11 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 cannonTube.rotation.y += (isGoingUp ? 1 : -1) * CANNON_ROTATION_SPEED;
                                 if (keys && keys[' '] && keys[' '].pressed)
                                 {
-                                    pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
+                                    setTimeout(() => {
+                                        pause = true;
+                                    }, 1000);
                                 }
                             }
                             else

@@ -6,7 +6,7 @@ class PositionInterpolator {
     constructor() {
         this.targetPosition = { x: 0, y: 0, z: 0 };
         this.currentPosition = { x: 0, y: 0, z: 0 };
-        this.lerpFactor = 0.1; // Facteur de lissage (0.1 = 10% de la distance par frame)
+        this.lerpFactor = 0.2; // Augmenté de 0.1 à 0.2 pour plus de fluidité
         this.isLocalPlayer = false;
     }
 
@@ -97,9 +97,13 @@ const createCannonPositionEvent = (Team1, Team2) => (data) => {
 }
 
 const createBallFiredEvent = (scene) => (data) => {
-    const trajectory = data;
-    console.log('trajectory : ', trajectory);
-    fireEnnemieCannonBall(scene, trajectory);
+    console.log('Received trajectory data:', data);
+    // Vérifier que les données sont valides
+    if (!data || !Array.isArray(data)) {
+        console.error('Invalid trajectory data received:', data);
+        return;
+    }
+    fireEnnemieCannonBall(scene, data);
 }
 
 const createDamageAppliedEvent = (Team1, Team2, currentPlayer, hud) => (data) => {
@@ -147,21 +151,18 @@ const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam)
     // Sauvegarder la position précédente pour la caméra du canonnier
     let boatFormerPosition = team.getBoatGroup().position.x;
     
-    // Mise à jour directe pour les canonniers de la même équipe
+    // Pour tous les cas, utiliser l'interpolation
+    const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+    interpolator.setTarget(
+        boatPosition.x,
+        team.getBoatGroup().position.y,
+        team.getBoatGroup().position.z
+    );
+
+    // Mise à jour directe de la position du bateau pour les canonniers
     if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
         team.getBoatGroup().position.x = boatPosition.x;
         currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
-        return; // Sortir de la fonction car pas besoin d'interpolation
-    }
-
-    // Pour tous les autres cas, utiliser l'interpolation
-    if (currentPlayer.getTeamID() !== teamID) {
-        const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
-        interpolator.setTarget(
-            boatPosition.x,
-            team.getBoatGroup().position.y,
-            team.getBoatGroup().position.z
-        );
     }
 };
 
@@ -190,13 +191,13 @@ const gameStateEvent = (ball) => (data) => {
 }
 
 // Ajouter une constante pour la fréquence de mise à jour
-const BALL_UPDATE_INTERVAL = 50; // 50ms = 20fps, ajustable selon les besoins
+const BALL_UPDATE_INTERVAL = 33; // Augmenter la fréquence à ~30fps (33ms)
 
 // Modifier la fonction de mise à jour de la balle pour utiliser l'interpolation
 function updateBallPosition(ballPosition, ball) {
     if (!ball || !ballPosition) return;
     
-    const lerpFactor = 0.15;
+    const lerpFactor = 0.3; // Augmenter le facteur d'interpolation de 0.15 à 0.3
     
     // Calculer la distance entre la position cible et la position actuelle
     const distance = {

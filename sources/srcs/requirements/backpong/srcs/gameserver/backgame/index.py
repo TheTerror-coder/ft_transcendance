@@ -212,7 +212,7 @@ async def createGame(sid, data):
     game = channel.getGame()
     game.setNbPlayerPerTeam(int(numPlayersPerTeam))
     if game.getNbPlayerPerTeam() == 2:
-        game.WINNING_SCORE = 10
+        game.WINNING_SCORE = 30
     
     # Créer les équipes sans référence au tournoi puisque c'est une partie normale
     team1 = Team("Black-Beard", int(numPlayersPerTeam), None, 1)

@@ -24,38 +24,113 @@ async function fireCannon(trajectoryData, scene) {
     }
 
     scene.add(ballMesh);
-    ballMesh.position.set(trajectoryData[0].x, trajectoryData[0].y, trajectoryData[0].z);
     
-    for (const point of trajectoryData) {
-        ballMesh.position.set(point.x, point.y, point.z);
-        ballMesh.rotation.x += 0.1;
-        ballMesh.rotation.z += 0.1;
-        await new Promise(resolve => setTimeout(resolve, 100));
+    const lerpFactor = 0.15; // Même facteur de lissage que fireEnnemieCannonBall
+    let currentIndex = 0;
+    let lastPosition = trajectoryData[0];
+    
+    try {
+        const animate = async (startTime) => {
+            const currentTime = performance.now();
+            const progress = (currentTime - startTime) / (100 * trajectoryData.length); // 100ms par point
+            
+            if (progress >= 1) {
+                scene.remove(ballMesh);
+                return;
+            }
+            
+            // Calculer l'index cible et la position
+            const targetIndex = Math.floor(progress * (trajectoryData.length - 1));
+            if (targetIndex !== currentIndex) {
+                lastPosition = {
+                    x: ballMesh.position.x,
+                    y: ballMesh.position.y,
+                    z: ballMesh.position.z
+                };
+                currentIndex = targetIndex;
+            }
+            
+            const target = trajectoryData[currentIndex];
+            
+            // Interpolation douce
+            ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
+            ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
+            ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
+            
+            // Rotation plus douce
+            ballMesh.rotation.x += 0.05;
+            ballMesh.rotation.z += 0.05;
+            
+            requestAnimationFrame(() => animate(startTime));
+        };
+        
+        animate(performance.now());
+        
+    } catch (error) {
+        console.error('Error during animation:', error);
+        scene.remove(ballMesh);
     }
-    
-    scene.remove(ballMesh);
 }
 
-export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 16) {
+export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100) {
     const ballMesh = createCannonBall();
+    
+    const trajectoryObjects = [];
+    for (let i = 0; i < trajectoryData.length; i += 3) {
+        trajectoryObjects.push({
+            x: parseFloat(trajectoryData[i]),
+            y: parseFloat(trajectoryData[i + 1]),
+            z: parseFloat(trajectoryData[i + 2])
+        });
+    }
 
-    console.log('trajectoryData : ', trajectoryData);
     scene.add(ballMesh);
     
-    for (let i = 0; i < trajectoryData.length - 1; i++) {
-        const start = trajectoryData[i];
-        const end = trajectoryData[i + 1];
-        const interpolated = interpolatePoints(start, end);
-        
-        for (const point of interpolated) {
-            ballMesh.position.set(point.x, point.y, point.z);
-            ballMesh.rotation.x += 0.1;
-            ballMesh.rotation.z += 0.1;
-            await new Promise(resolve => setTimeout(resolve, speed));
-        }
-    }
+    const lerpFactor = 0.15; // Facteur de lissage pour l'interpolation
+    let currentIndex = 0;
+    let lastPosition = trajectoryObjects[0];
     
-    scene.remove(ballMesh);
+    try {
+        const animate = async (startTime) => {
+            const currentTime = performance.now();
+            const progress = (currentTime - startTime) / (speed * trajectoryObjects.length);
+            
+            if (progress >= 1) {
+                scene.remove(ballMesh);
+                return;
+            }
+            
+            // Calculer l'index cible et la position
+            const targetIndex = Math.floor(progress * (trajectoryObjects.length - 1));
+            if (targetIndex !== currentIndex) {
+                lastPosition = {
+                    x: ballMesh.position.x,
+                    y: ballMesh.position.y,
+                    z: ballMesh.position.z
+                };
+                currentIndex = targetIndex;
+            }
+            
+            const target = trajectoryObjects[currentIndex];
+            
+            // Interpolation douce
+            ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
+            ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
+            ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
+            
+            // Rotation plus douce
+            ballMesh.rotation.x += 0.05;
+            ballMesh.rotation.z += 0.05;
+            
+            requestAnimationFrame(() => animate(startTime));
+        };
+        
+        animate(performance.now());
+        
+    } catch (error) {
+        console.error('Error during animation:', error);
+        scene.remove(ballMesh);
+    }
 }
 
 export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID) {

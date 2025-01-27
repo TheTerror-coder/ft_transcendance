@@ -133,13 +133,10 @@ class Player
         }
     }
 
-    updateCannoneerCameraPos(boatFormerPosition, boatCurrentPosition)
+    updateCannoneerCameraPos(formerPosition, newPosition)
     {
-        let deltaX = boatCurrentPosition - boatFormerPosition;
-        if (this.role == 'Cannoneer')
-        {
-            this.cameraPlayer.position.x = this.cameraPlayer.position.x + deltaX;
-        }
+        const targetPosition = newPosition - formerPosition;
+        this.cameraPlayer.position.x += targetPosition;
     }
 
     setSocket(socket)
