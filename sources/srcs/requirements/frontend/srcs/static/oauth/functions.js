@@ -241,7 +241,6 @@ async function callWebSockets(params) {
 					replace_location(URLs.VIEWS.PROFILE);
 			}
 			if (data.type === 'update_name') {
-				const newUsername = data.new_username;
 				if (ELEMENTs.profilePage())
 					replace_location(URLs.VIEWS.PROFILE);
 			}

@@ -35,6 +35,7 @@ async function tournamentView(title, description, data)
 
 async function UserProfileView(username, description, data)
 {
+	console.log("UserProfileView");
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'flex';
@@ -104,9 +105,8 @@ async function	loginView(title, description, data) {
 async function	profileView(title, description, data)
 {
 	document.title = title;
-
 	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
-		let ret = await callWebSockets();
+		await callWebSockets();
 	}
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
@@ -121,11 +121,11 @@ async function	profileView(title, description, data)
 	imgElement.src = photoUrl;
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'block';
-	let ret = await displayFriend(response.friends, response.user_socket);
-	ret = await displayWaitingListFriend(response.pending_requests);
-	ret = await getHistoric(response.recent_games, response.username);
-	ret = await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
-	ret = await changeMusic(ELEMENTs.profilePageMusic());
+	await displayFriend(response.friends, response.user_socket);
+	await displayWaitingListFriend(response.pending_requests);
+	await getHistoric(response.recent_games, response.username);
+	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
+	await changeMusic(ELEMENTs.profilePageMusic());
 }
 
 async function	createLobbyView(title, description, data) 
