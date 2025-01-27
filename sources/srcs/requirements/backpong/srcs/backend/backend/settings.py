@@ -38,7 +38,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', f'{EnvVariables.HOST_IP}', '127.0.0.1']
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
 	f'https://localhost:{EnvVariables.PROXYWAF_HTTPS_PORT}',

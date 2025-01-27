@@ -19,3 +19,4 @@ class EnvVariables:
 	HOST_IP					= os.getenv('HOST_IP')
 	GAMESERVER_PORT			= os.getenv('GAMESERVER_PORT')
 	VAULT_API_PORT			= os.getenv('VAULT_API_PORT')
+	PROXYWAF_HTTPS_PORT		= os.getenv('PROXYWAF_HTTPS_PORT')

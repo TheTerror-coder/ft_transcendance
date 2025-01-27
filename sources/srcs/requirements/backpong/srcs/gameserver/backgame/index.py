@@ -10,6 +10,7 @@ from .Tournament import Tournament
 from .Game import Game
 import logging
 import sys
+from gameserver.parameters import EnvVariables
 
 # Configuration du logging au début du fichier
 logging.basicConfig(
@@ -27,15 +28,18 @@ logger = logging.getLogger(__name__)
 
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
-    # cors_allowed_origins=[
-    #     f'wss://{host_ip}:"env variable PROXYWAF_HTTPS_PORT"',
-    #     f'https://{host_ip}:"env variable PROXYWAF_HTTPS_PORT"',
-    #     'wss://localhost:"env variable PROXYWAF_HTTPS_PORT"',
-    #     'https://localhost:"env variable PROXYWAF_HTTPS_PORT"',
-    #     'wss://localhost:"env variable GAMESERVER_PORT"',
-    #     'https://localhost:"env variable GAMESERVER_PORT"'
-    # ],
-    cors_allowed_origins='*',
+    cors_allowed_origins=[
+        f'wss://localhost:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+		f'wss://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+		f'ws://localhost:{EnvVariables.GAMESERVER_PORT}',
+		f'ws://{EnvVariables.HOST_IP}:{EnvVariables.GAMESERVER_PORT}',
+        
+        f'https://localhost:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+		f'https://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTPS_PORT}',
+		f'http://localhost:{EnvVariables.GAMESERVER_PORT}',
+		f'http://{EnvVariables.HOST_IP}:{EnvVariables.GAMESERVER_PORT}',
+    ],
+    cors_credentials=True,
     async_mode='asgi',
     # logger=True,
     # engineio_logger=True,
