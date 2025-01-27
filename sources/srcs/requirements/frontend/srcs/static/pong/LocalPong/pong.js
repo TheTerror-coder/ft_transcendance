@@ -7,6 +7,7 @@ import * as render from './render.js';
 import { createHUD } from './HUD.js';
 import { BallPhysics } from './physics.js';
 import * as THREE from 'three';
+import { Box3, Box3Helper } from 'three';
 
 const WINNING_SCORE = 10;
 const BOAT_SPEED = 2; // Augmentation de la vitesse des bateaux
@@ -33,11 +34,33 @@ export async function main(currentLanguage = 'en') {
     const keys = {};
     setupControls(keys);
 
-    // Création des hitboxes visuelles
-    const hitboxHelper1 = createHitboxHelper(boatGroup1.getObjectByName('bateauTeam1'));
-    const hitboxHelper2 = createHitboxHelper(boatGroup2.getObjectByName('bateauTeam2'));
-    scene.add(hitboxHelper1);
-    scene.add(hitboxHelper2);
+    // Remplacer la création des hitboxes par :
+    let boat1BoundingBox = new Box3().setFromObject(boatGroup1);
+    let boat2BoundingBox = new Box3().setFromObject(boatGroup2);
+    let boat1Hitbox = new Box3Helper(boat1BoundingBox, 0xffff00);
+    let boat2Hitbox = new Box3Helper(boat2BoundingBox, 0xff0000);
+    scene.add(boat1Hitbox);
+    scene.add(boat2Hitbox);
+
+    function updateBoatHitboxes() {
+        boat1BoundingBox.setFromObject(boatGroup1);
+        boat2BoundingBox.setFromObject(boatGroup2);
+
+        // Ajuster les hitboxes comme dans le pong réseau
+        boat1BoundingBox.min.x += 7;
+        boat2BoundingBox.min.x += 7;
+        boat1BoundingBox.max.x += 2;
+        boat2BoundingBox.max.x -= 2;
+        boat1BoundingBox.max.y -= 1;
+        boat2BoundingBox.max.y -= 1;
+        boat1BoundingBox.min.y += 1;
+        boat2BoundingBox.min.y += 1;
+        boat1BoundingBox.max.z /= 3;
+        boat2BoundingBox.max.z /= 3;
+
+        boat1Hitbox.updateMatrixWorld(true);
+        boat2Hitbox.updateMatrixWorld(true);
+    }
 
     let gameOver = false;
 
@@ -55,8 +78,6 @@ export async function main(currentLanguage = 'en') {
                 if (keys['d'] && boat1.position.x < 55) {
                     boat1.position.x += BOAT_SPEED;
                 }
-                // Mise à jour de la hitbox du bateau 1
-                updateHitboxHelper(hitboxHelper1, boat1);
             }
             
             if (keys['ArrowLeft'] || keys['ArrowRight']) {
@@ -67,12 +88,13 @@ export async function main(currentLanguage = 'en') {
                 if (keys['ArrowRight'] && boat2.position.x < 55) {
                     boat2.position.x += BOAT_SPEED;
                 }
-                // Mise à jour de la hitbox du bateau 2
-                updateHitboxHelper(hitboxHelper2, boat2);
             }
             
-            // Mise à jour de la position de la balle
-            const pointScored = ballPhysics.update(ball, boatGroup1, boatGroup2);
+            // Mise à jour des hitboxes
+            updateBoatHitboxes();
+            
+            // Mise à jour de la position de la balle avec les nouvelles hitboxes
+            const pointScored = ballPhysics.update(ball, boat1BoundingBox, boat2BoundingBox);
             
             // Gestion des points
             if (pointScored > 0) {
@@ -110,28 +132,6 @@ export async function main(currentLanguage = 'en') {
     }
 
     gameLoop();
-}
-
-function createHitboxHelper(boat) {
-    // Calculer la boîte englobante du bateau
-    const boundingBox = new THREE.Box3().setFromObject(boat);
-    const size = boundingBox.getSize(new THREE.Vector3());
-
-    // Création d'une boîte de délimitation pour visualiser la hitbox
-    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.5
-    });
-    const hitboxMesh = new THREE.Mesh(geometry, material);
-    return hitboxMesh;
-}
-
-function updateHitboxHelper(hitboxHelper, boat) {
-    // Mise à jour de la position de la hitbox visuelle
-    hitboxHelper.position.copy(boat.position);
 }
 
 // Démarrage du jeu quand la page est chargée

@@ -109,6 +109,10 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsFull', TeamsFullEvent);
 
+    globalSocket.on('TeamsNotFull', TeamsNotFullEvent);
+
+    // globalSocket.on('CreatorLeave', CreatorLeaveEvent);
+
     // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
 
     // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
@@ -132,6 +136,20 @@ function initializeGlobalSocket(socket)
 // const tournamentFullEvent = (data) => {
 //     console.log("TOURNAMENT FULL: ", data);
 // }
+
+// const CreatorLeaveEvent = () => {
+
+// }
+
+const TeamsNotFullEvent = () => {
+    // console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
+    // creator = data.creator;
+    if (creator === globalSocket.id)
+    {
+        if (ELEMENTs.PlayButtonInLobby())
+            ELEMENTs.PlayButtonInLobby().style.display = "none";
+    }
+}
 
 const AvailableOptionsEvent = (data) => {
     console.log("AvailableOptionsEvent", data);
@@ -423,42 +441,47 @@ async function lobbyTwoPlayer()
 
 function switchRole()
 {
-    if (ELEMENTs.chooseRoleSwitch().checked == true)
+    if (ELEMENTs.chooseRoleSwitch())
     {
-        ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.3";
-        ELEMENTs.gunnerRoleDisplay().style.opacity = "0.9";
-    }
-    else
-    {
-        
-        ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.9";
-        ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
-        ELEMENTs.gunnerRoleDisplay().style.opacity = "0.3";
+        if (ELEMENTs.chooseRoleSwitch().checked == true)
+        {
+            ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
+            ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
+            ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.3";
+            ELEMENTs.gunnerRoleDisplay().style.opacity = "0.9";
+        }
+        else
+        {
+            ELEMENTs.helmsmanRoleDisplay().style.transition = "opacity 0.5s ease";
+            ELEMENTs.helmsmanRoleDisplay().style.opacity = "0.9";
+            ELEMENTs.gunnerRoleDisplay().style.transition = "opacity 0.5s ease";
+            ELEMENTs.gunnerRoleDisplay().style.opacity = "0.3";
+        }
     }
 }
 
 async function switchTeam()
 {
     const kurohige = document.getElementById("KurohigeTeam");
-    if (ELEMENTs.chooseTeamSwitch().checked == true)
+    if (ELEMENTs.chooseTeamSwitch())
     {
-        ELEMENTs.chooseRoleSwitch().disabled = false;
-        kurohige.style.opacity = "0.3";
-        kurohige.style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeam().style.opacity = "0.9";
-        await chooseRoleSwitchDisable(roleAvailableWhiteBeard.role);
-    }
-    else
-    {
-        ELEMENTs.chooseRoleSwitch().disabled = false;
-        kurohige.style.transition = "opacity 0.5s ease";
-        kurohige.style.opacity = "0.9";
-        ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
-        ELEMENTs.ShirohigeTeam().style.opacity = "0.3";
-        await chooseRoleSwitchDisable(roleAvailableBlackBeard.role);
+        if (ELEMENTs.chooseTeamSwitch().checked == true)
+        {
+            ELEMENTs.chooseRoleSwitch().disabled = false;
+            kurohige.style.opacity = "0.3";
+            kurohige.style.transition = "opacity 0.5s ease";
+            ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
+            ELEMENTs.ShirohigeTeam().style.opacity = "0.9";
+            await chooseRoleSwitchDisable(roleAvailableWhiteBeard.role);
+        }
+        else
+        {
+            ELEMENTs.chooseRoleSwitch().disabled = false;
+            kurohige.style.transition = "opacity 0.5s ease";
+            kurohige.style.opacity = "0.9";
+            ELEMENTs.ShirohigeTeam().style.transition = "opacity 0.5s ease";
+            ELEMENTs.ShirohigeTeam().style.opacity = "0.3";
+            await chooseRoleSwitchDisable(roleAvailableBlackBeard.role);
+        }
     }
 }

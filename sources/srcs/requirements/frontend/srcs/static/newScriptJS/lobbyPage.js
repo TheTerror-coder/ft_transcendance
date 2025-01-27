@@ -10,7 +10,8 @@ async function updateLobby(data)
     {
         await updateLobbyOneVsOne(data);
         // TODO regarder si le lobby est plein
-        ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
+        if (ELEMENTs.PlayButtonInLobby())
+            ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
 
     }
     else if (nbPerTeam === 2)
@@ -18,7 +19,8 @@ async function updateLobby(data)
         if (document.getElementById("lobbyCode") !== null)
         {
             await updateLobbyTwoVsTwo(data);
-            ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
+            if (ELEMENTs.PlayButtonInLobby())
+                ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
         }
     }
 }

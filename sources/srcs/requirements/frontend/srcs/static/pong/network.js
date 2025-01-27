@@ -6,7 +6,7 @@ class PositionInterpolator {
     constructor() {
         this.targetPosition = { x: 0, y: 0, z: 0 };
         this.currentPosition = { x: 0, y: 0, z: 0 };
-        this.lerpFactor = 0.1; // Facteur de lissage (0.1 = 10% de la distance par frame)
+        this.lerpFactor = 0.2; // Augmenté de 0.1 à 0.2 pour plus de fluidité
         this.isLocalPlayer = false;
     }
 
@@ -97,18 +97,26 @@ const createCannonPositionEvent = (Team1, Team2) => (data) => {
 }
 
 const createBallFiredEvent = (scene) => (data) => {
-    const trajectory = data;
-    console.log('trajectory : ', trajectory);
-    fireEnnemieCannonBall(scene, trajectory);
+    console.log('Received trajectory data:', data);
+    // Vérifier que les données sont valides
+    if (!data || !Array.isArray(data)) {
+        console.error('Invalid trajectory data received:', data);
+        return;
+    }
+    fireEnnemieCannonBall(scene, data);
 }
 
-const createUpdateHealthEvent = (Team1, Team2, currentPlayer, hud) => (data) => {
-    const {teamID, health} = data;
-    let team = findTeam(Team1, Team2, teamID);
-    if (team = currentPlayer.getTeamID())
-        hud.updateHealth(health);
-    else
-        hud.updateHealth2(health);
+const createDamageAppliedEvent = (Team1, Team2, currentPlayer, hud) => (data) => {
+    const {teamId, health, damage} = data;
+    let team = findTeam(Team1, Team2, teamId);
+    console.log("health dans damageAppliedEvent", health);
+    
+    // Si c'est l'équipe qui a été touchée
+    if (teamId === currentPlayer.getTeamID()) {
+        hud.updateYourTeamHealth(health);   // Petite barre = nos PV
+    } else {
+        hud.updateOpponentTeamHealth(health);    // Grande barre = PV adverses
+    }
 }
 
 // Ajouter un système de validation des mises à jour
@@ -143,30 +151,27 @@ const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam)
     // Sauvegarder la position précédente pour la caméra du canonnier
     let boatFormerPosition = team.getBoatGroup().position.x;
     
-    // Mise à jour directe pour les canonniers de la même équipe
+    // Pour tous les cas, utiliser l'interpolation
+    const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
+    interpolator.setTarget(
+        boatPosition.x,
+        team.getBoatGroup().position.y,
+        team.getBoatGroup().position.z
+    );
+
+    // Mise à jour directe de la position du bateau pour les canonniers
     if (currentPlayer.getRole() === 'Cannoneer' && currentPlayer.getTeamID() === teamID) {
         team.getBoatGroup().position.x = boatPosition.x;
         currentPlayer.updateCannoneerCameraPos(boatFormerPosition, boatPosition.x);
-        return; // Sortir de la fonction car pas besoin d'interpolation
-    }
-
-    // Pour tous les autres cas, utiliser l'interpolation
-    if (currentPlayer.getTeamID() !== teamID) {
-        const interpolator = teamID === Team1.getTeamId() ? boat1Interpolator : boat2Interpolator;
-        interpolator.setTarget(
-            boatPosition.x,
-            team.getBoatGroup().position.y,
-            team.getBoatGroup().position.z
-        );
     }
 };
 
-const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (data) => {
+const createScoreUpdateEvent = (Team1, Team2, hud, currentLanguage) => (data) => {
     const {team1, team2, gameCode} = data;
     Team1.setScore(team1);
     Team2.setScore(team2);
     console.log('Score updated for gameCode: ', gameCode, ' - Team 1: ', team1, 'Team 2: ', team2);
-    scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
+    hud.updateScore(team1, team2);
 }
 
 const gameStateEvent = (ball) => (data) => {
@@ -186,13 +191,13 @@ const gameStateEvent = (ball) => (data) => {
 }
 
 // Ajouter une constante pour la fréquence de mise à jour
-const BALL_UPDATE_INTERVAL = 50; // 50ms = 20fps, ajustable selon les besoins
+const BALL_UPDATE_INTERVAL = 33; // Augmenter la fréquence à ~30fps (33ms)
 
 // Modifier la fonction de mise à jour de la balle pour utiliser l'interpolation
 function updateBallPosition(ballPosition, ball) {
     if (!ball || !ballPosition) return;
     
-    const lerpFactor = 0.15;
+    const lerpFactor = 0.3; // Augmenter le facteur d'interpolation de 0.15 à 0.3
     
     // Calculer la distance entre la position cible et la position actuelle
     const distance = {
@@ -233,7 +238,7 @@ const createTournamentEndedEvent = (currentPlayerTeam) => () => {
     currentPlayerTeam.setTournamentEnded(true);
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
     // socket.on('connect', (data) => {
@@ -248,9 +253,9 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('winner', createWinnerEvent(Team1, Team2, currentPlayer, hud, currentLanguage));
     socket.on('cannonPosition', createCannonPositionEvent(Team1, Team2));
     socket.on('ballFired', createBallFiredEvent(scene));
-    socket.on('updateHealth', createUpdateHealthEvent(Team1, Team2, currentPlayer, hud));
+    socket.on('damageApplied', createDamageAppliedEvent(Team1, Team2, currentPlayer, hud));
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer, currentPlayerTeam));
-    socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
+    socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, hud, currentLanguage));
     socket.on('gameState', gameStateEvent(ball));
     socket.on('tournamentEnded', createTournamentEndedEvent(currentPlayerTeam));
 }
@@ -264,7 +269,7 @@ export function removeSocketListeners(socket) {
     socket.off('winner');
     socket.off('cannonPosition');
     socket.off('ballFired');
-    socket.off('updateHealth');
+    socket.off('damageApplied');
     socket.off('boatPosition');
     socket.off('scoreUpdate');
     socket.off('tournamentEnded');

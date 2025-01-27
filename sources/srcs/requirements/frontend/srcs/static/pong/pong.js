@@ -24,7 +24,7 @@ export async function main(gameCode, socket, currentLanguage) {
 
     socket.on('disconnect', () => {
         console.log('Disconnected from the server');
-        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+        // ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
         socket.off('disconnect');
     });
     
@@ -158,7 +158,7 @@ export async function main(gameCode, socket, currentLanguage) {
         setupEventListeners(socket, keys, cameraPlayer, renderer);
         setupControls(keys);
         initDebug(BOAT_MOVE_SPEED, CANNON_MOVE_SPEED, FRAME_RATE, gameCode, socket, keys, currentPlayerTeam, currentPlayer);
-        network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud.scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam);
+        network.setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud, scene, currentLanguage, gameCode, currentPlayerTeam);
         console.log("Game code : ", gameCode);
         socket.emit('playerReady', gameCode);
         console.log('Player ready sent');
@@ -249,9 +249,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 {
                                     replace_location(URLs.VIEWS.TOURNAMENT_TREE);
                                     // await new Promise(resolve => setTimeout(resolve, 10000));
-									setTimeout( () => {
-										socket.disconnect();
-									}, 10000);
+                                    socket.disconnect();
                                     return (true);
                                 }
                                 replace_location(URLs.VIEWS.TOURNAMENT_TREE);
@@ -552,11 +550,11 @@ function predictBallPosition(ball, velocity, deltaTime) {
     }
 
     // Limiter le deltaTime pour éviter les prédictions trop lointaines
-    const maxDeltaTime = 0.1; // 100ms maximum
+    const maxDeltaTime = 0.05; // Réduire de 0.1 à 0.05 pour des prédictions plus fréquentes
     deltaTime = Math.min(deltaTime, maxDeltaTime);
 
     // Calculer la position prédite avec amortissement
-    const dampingFactor = 0.9; // Réduire légèrement l'effet de la vélocité
+    const dampingFactor = 0.95; // Augmenter de 0.9 à 0.95 pour une prédiction plus précise
     const predictedPosition = {
         x: ball.position.x + velocity.x * deltaTime * dampingFactor,
         y: ball.position.y + velocity.y * deltaTime * dampingFactor,
@@ -564,7 +562,7 @@ function predictBallPosition(ball, velocity, deltaTime) {
     };
 
     // Appliquer la position prédite avec une interpolation douce
-    const predictionLerpFactor = 0.3;
+    const predictionLerpFactor = 0.4; // Augmenter de 0.3 à 0.4
     ball.position.x += (predictedPosition.x - ball.position.x) * predictionLerpFactor;
     ball.position.y += (predictedPosition.y - ball.position.y) * predictionLerpFactor;
     ball.position.z = predictedPosition.z; // Hauteur fixe

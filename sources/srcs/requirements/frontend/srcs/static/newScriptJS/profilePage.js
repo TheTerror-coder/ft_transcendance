@@ -260,90 +260,84 @@ async function addFriendToFriendList(friend) {
     friendListMenu.appendChild(listItem);
 }
 
-async function displayFriend() {
-	document.addEventListener(USER.FRIENDS_LIST_EVENT, async (event) => {
-		const friends = event.detail;
-		const dropdownMenu = document.getElementById('friendDropdownMenu');
+async function displayFriend(friends, user_socket) {
+    const dropdownMenu = document.getElementById('friendDropdownMenu');
+    
+    // Vider le menu avant de le mettre à jour
+    dropdownMenu.innerHTML = '';
 
-		// Vider le menu avant de le mettre à jour
-		dropdownMenu.innerHTML = '';
+    // Vérification si la liste d'amis est vide
+    if (friends.length === 0) {
+        const listItem = document.createElement('li');
+        listItem.id = "noFriends";
+        listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
+        nameSpan.dataset.translate = "NoFriends";
+        listItem.appendChild(nameSpan);
+        dropdownMenu.appendChild(listItem);
+    } else {
+        // Ajouter chaque ami à la liste
+        for (let i = 0; i < friends.length; i++) {
+            const listItem = document.createElement('li');
+            listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
-		// Vérification si la liste d'amis est vide
-		if (friends.length === 0) {
-			const listItem = document.createElement('li');
-			listItem.id = "noFriends";
-			listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-			const nameSpan = document.createElement('span');
-			nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
-			nameSpan.dataset.translate = "NoFriends";
-			listItem.appendChild(nameSpan);
-			dropdownMenu.appendChild(listItem);
-		} else {
-			// Ajouter chaque ami à la liste
-			friends.forEach(friend => {
-				const listItem = document.createElement('li');
-				listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+            const buttonDisplayFriend = document.createElement('button');
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = friends[i].username;
 
-				const buttonDisplayFriend = document.createElement('button');
-				const nameSpan = document.createElement('span');
-				nameSpan.textContent = friend.username;
+            const actionButton = document.createElement('button');
+            const imgButton = document.createElement("img");
+            imgButton.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+            imgButton.alt = "removeFriend";
+            imgButton.style.display = "flex";
+            imgButton.style.flexDirection = "flex-end";
+            // Indicateur de connexion de l'ami
+            const circleIsConnect = document.createElement('div');
+            circleIsConnect.className = 'circleIsConnect';
+            if (friends[i].username in user_socket) {
+                circleIsConnect.style.backgroundColor = 'green';
+                circleIsConnect.style.border = '1px solid white';
+            } else {
+                circleIsConnect.style.backgroundColor = 'red';
+                circleIsConnect.style.border = '1px solid white';
+            }
 
-				const actionButton = document.createElement('button');
-				const imgButton = document.createElement("img");
-				imgButton.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
-				imgButton.alt = "removeFriend";
-				imgButton.style.display = "flex";
-				imgButton.style.flexDirection = "flex-end";
-				// Indicateur de connexion de l'ami
-				const circleIsConnect = document.createElement('div');
-				circleIsConnect.className = 'circleIsConnect';
-				circleIsConnect.id = `circle-is-connect-${friend.id}`;
-				if (friend.status === 'online') {
-					circleIsConnect.style.backgroundColor = 'green';
-					circleIsConnect.style.border = '1px solid white';
-				} else {
-					circleIsConnect.style.backgroundColor = 'red';
-					circleIsConnect.style.border = '1px solid white';
-				}
+            // Ajouter l'événement pour le bouton de suppression
+            actionButton.appendChild(imgButton);
+            actionButton.addEventListener('click', async () => {
+                try {
+                    // Suppression de l'ami via une requête
+                    const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friends[i].username });
+                    alert(`${friends[i].username} ne fait plus partie de vos amis`);
 
-				// Ajouter l'événement pour le bouton de suppression
-				actionButton.appendChild(imgButton);
-				actionButton.addEventListener('click', async () => {
-					try {
-						// Suppression de l'ami via une requête
-						const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friend.username });
-						alert(`${friend.username} ne fait plus partie de vos amis`);
+                    // Retirer l'ami de la liste affichée
+                    dropdownMenu.removeChild(listItem);
 
-						// Retirer l'ami de la liste affichée
-						dropdownMenu.removeChild(listItem);
+                    // Vérifier si la liste est vide après la suppression
+                    if (dropdownMenu.children.length === 0) {
+                        const noFriendsItem = document.createElement('li');
+                        noFriendsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+                        const noFriendsSpan = document.createElement('span');
+                        noFriendsSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
+                        noFriendsItem.appendChild(noFriendsSpan);
+                        dropdownMenu.appendChild(noFriendsItem);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la suppression de l'ami :", error);
+                    alert("Erreur lors de la suppression de l'ami");
+                }
+            });
 
-						// Vérifier si la liste est vide après la suppression
-						if (dropdownMenu.children.length === 0) {
-							const noFriendsItem = document.createElement('li');
-							noFriendsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-							const noFriendsSpan = document.createElement('span');
-							noFriendsSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
-							noFriendsItem.appendChild(noFriendsSpan);
-							dropdownMenu.appendChild(noFriendsItem);
-						}
-					} catch (error) {
-						console.error("Erreur lors de la suppression de l'ami :", error);
-						alert("Erreur lors de la suppression de l'ami");
-					}
-				});
-
-				// Afficher le profil de l'ami
-				buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
-				buttonDisplayFriend.appendChild(nameSpan);
-				listItem.appendChild(circleIsConnect);
-				listItem.appendChild(buttonDisplayFriend);
-				listItem.appendChild(actionButton);
-				dropdownMenu.appendChild(listItem);
-			});
-		}
-	});
-
-	await getMyFriendsList();
+            // Afficher le profil de l'ami
+            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
+            buttonDisplayFriend.appendChild(nameSpan);
+            listItem.appendChild(circleIsConnect);
+            listItem.appendChild(buttonDisplayFriend);
+            listItem.appendChild(actionButton);
+            dropdownMenu.appendChild(listItem);
+        }
+    }
 }
 
 // Change Username
@@ -471,7 +465,7 @@ document.addEventListener('click', async (event) =>
                     ELEMENTs.changeUsernamePopOver().remove();
                     changeUsername(newUsername);
                 }
-                if(event.key === 'space')
+                if (event.key === 'space')
                 {
                     event.preventDefault();   
                 }

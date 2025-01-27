@@ -26,7 +26,6 @@ export function updateAndEmitCannonPositions(gameCode, socket, keys, currentPlay
         }
         let cannonPos = cannon.position.x;
         if (cannonTubeMoved) {
-            console.log('cannonTubeMoved : ', cannonPos);
             emitCannonPosition(socket, gameCode, TeamID, cannonPos);
         }
     }
@@ -66,19 +65,21 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                     pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
                                 }
                             }
                             else
                             {
-                                await new Promise(resolve => setTimeout(resolve, 1000));
                                 if (keys && keys['r'] && keys['r'].pressed)
                                 {
-                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    if (hud.getLoadingProgress(keys) >= 100)
                                     {
                                         pause = false;
-                                        scene.remove(trajectoryLine);
+                                        hud.hideLoadingCircle();
                                     }
+                                }
+                                else if (keys && keys['r'] && !keys['r'].pressed)
+                                {
+                                    hud.resetProgress();
                                 }
                             }
                         }
@@ -104,18 +105,21 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                     pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
                                     console.log('trajectoryLine : ', trajectoryLine);
-                                    // emitBallFired(socket, gameCode, TeamID, trajectoryLine);
                                 }
                             }
                             else
                             {
                                 if (keys && keys['r'] && keys['r'].pressed)
                                 {
-                                    if (hud.getPercentage(keys, 'r') >= 100)
+                                    if (hud.getLoadingProgress(keys) >= 100)
                                     {
                                         pause = false;
-                                        scene.remove(trajectoryLine);
+                                        hud.hideLoadingCircle();
                                     }
+                                }
+                                else if (keys && keys['r'] && !keys['r'].pressed)
+                                {
+                                    hud.resetProgress();
                                 }
                             }
                         }

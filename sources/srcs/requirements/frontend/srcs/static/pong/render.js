@@ -18,6 +18,10 @@ export async function initScene(Team1, Team2, currentTeam) {
     const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight2.position.set(0, -20, 10);
     
+    // Ajouter le fog après la création de la scène
+    const fogColor = new THREE.Color(0x1E90FF);  // Même couleur que l'océan
+    scene.fog = new THREE.Fog(fogColor, 100, 300);  // Distance de début et fin du fog
+    
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
     console.log("initScene");
@@ -64,7 +68,7 @@ function initBoundaryLines() {
 
 async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
     return new Promise((resolve, reject) => {
-        const boundaryLines = initBoundaryLines();
+        // const boundaryLines = initBoundaryLines();
         
         try {
             if (!ball || !ocean || !ambientLight || !directionalLight1 || !directionalLight2 || !bateau1 || !bateau2) {
@@ -79,7 +83,7 @@ async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, di
             scene.add(directionalLight2);
             scene.add(bateau1);
             scene.add(bateau2);
-            scene.add(boundaryLines);
+            // scene.add(boundaryLines);
 
             // Vérification que tous les éléments sont visibles
             const elements = [
@@ -276,15 +280,16 @@ async function initBateaux(scene) {
 }
 
 function createOcean() {
-    // Création d'un plan avec une grille pour simuler l'océan
-    const oceanGeometry = new THREE.PlaneGeometry(250, 250, 50, 50);
+    // Réduire la taille de l'océan puisque le fog cachera les bords
+    const oceanGeometry = new THREE.PlaneGeometry(200, 200, 50, 50);
     const oceanMaterial = new THREE.MeshPhongMaterial({
         color: 0x006994,
         transparent: true,
         opacity: 0.8,
         specular: 0x004966,
         shininess: 50,
-        flatShading: true
+        flatShading: true,
+        fog: true
     });
 
     // Ajouter des ondulations au plan
@@ -427,6 +432,9 @@ async function initCannons(scene) {
         cannonTip1.position.set(115, 0, 60);
         cannonTip2.position.set(115, 0, 60);
 
+        cannonTip1.visible = false;
+        cannonTip2.visible = false;
+
         // Attacher les tips directement aux tubes
         cannonTube1.add(cannonTip1);
         cannonTube2.add(cannonTip2);
@@ -487,19 +495,19 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
     // Positionner et orienter le canon
     if (teamId === 1) {
         if (boatSavedPos.x != 0 && boatSavedPos.y != 0 && boatSavedPos.z != 0)
-            boatGroup.position.set(boatSavedPos.x, 35, -1);
+            boatGroup.position.set(boatSavedPos.x, 35, -2);
         else
-            boatGroup.position.set(0, 35, -1);
+            boatGroup.position.set(0, 35, -2);
         if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
-            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
+            boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         else
             boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y - 3.18, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, -Math.PI / 2);
     } else if (teamId === 2) {
         if (boatSavedPos.x != 0 && boatSavedPos.y != 0 && boatSavedPos.z != 0)
-            boatGroup.position.set(boatSavedPos.x, -35, -1);
+            boatGroup.position.set(boatSavedPos.x, -35, -2);
         else
-            boatGroup.position.set(0, -35, -1);
+            boatGroup.position.set(0, -35, -2);
         if (cannonSavedPos.x != 0 && cannonSavedPos.y != 0 && cannonSavedPos.z != 0)
             boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(cannonSavedPos.x, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         else
