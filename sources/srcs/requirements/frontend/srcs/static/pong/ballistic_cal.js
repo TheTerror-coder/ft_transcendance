@@ -189,8 +189,10 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
         team: TeamID
     });
 
-    cannonTube.rotation.y = 0;
-    hud.scene.add(hud.loadingCircle.group);
+    setTimeout(() => {
+        cannonTube.rotation.y = 0;
+        hud.scene.add(hud.loadingCircle.group);
+    }, 1000);
     return trajectory;
 }
 

@@ -113,9 +113,9 @@ const createDamageAppliedEvent = (Team1, Team2, currentPlayer, hud) => (data) =>
     
     // Si c'est l'équipe qui a été touchée
     if (teamId === currentPlayer.getTeamID()) {
-        hud.updateHealth2(health);   // Petite barre = nos PV
+        hud.updateYourTeamHealth(health);   // Petite barre = nos PV
     } else {
-        hud.updateHealth(health);    // Grande barre = PV adverses
+        hud.updateOpponentTeamHealth(health);    // Grande barre = PV adverses
     }
 }
 
@@ -166,12 +166,12 @@ const createBoatPositionEvent = (Team1, Team2, currentPlayer, currentPlayerTeam)
     }
 };
 
-const createScoreUpdateEvent = (Team1, Team2, scoreText, currentLanguage) => (data) => {
+const createScoreUpdateEvent = (Team1, Team2, hud, currentLanguage) => (data) => {
     const {team1, team2, gameCode} = data;
     Team1.setScore(team1);
     Team2.setScore(team2);
     console.log('Score updated for gameCode: ', gameCode, ' - Team 1: ', team1, 'Team 2: ', team2);
-    scoreText.updateHUDText(`${team1} - ${team2}`, currentLanguage);
+    hud.updateScore(team1, team2);
 }
 
 const gameStateEvent = (ball) => (data) => {
@@ -238,7 +238,7 @@ const createTournamentEndedEvent = (currentPlayerTeam) => () => {
     currentPlayerTeam.setTournamentEnded(true);
 }
 
-export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, scoreText, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
+export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, hud, scene, currentLanguage, gameCode, currentPlayerTeam) {
     console.log("currentLanguage dans setupSocketListeners", currentLanguage);
 
     // socket.on('connect', (data) => {
@@ -255,7 +255,7 @@ export function setupSocketListeners(socket, Team1, Team2, currentPlayer, ball, 
     socket.on('ballFired', createBallFiredEvent(scene));
     socket.on('damageApplied', createDamageAppliedEvent(Team1, Team2, currentPlayer, hud));
     socket.on('boatPosition', createBoatPositionEvent(Team1, Team2, currentPlayer, currentPlayerTeam));
-    socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, scoreText, currentLanguage));
+    socket.on('scoreUpdate', createScoreUpdateEvent(Team1, Team2, hud, currentLanguage));
     socket.on('gameState', gameStateEvent(ball));
     socket.on('tournamentEnded', createTournamentEndedEvent(currentPlayerTeam));
 }

@@ -772,6 +772,13 @@ class Game:
                     'damage': 10,
                     'health': target_team.getPV()
                 }, room=gameCode)
+
+                if (target_team.getPV() <= 0):
+                    self.winner = self.teams[1 if target_team.getTeamId() == 2 else 2]
+                    self.loser = self.teams[1 if target_team.getTeamId() == 1 else 2]
+                    self.gameStarted = False
+                    await self.sendGameInfo(sio, gameCode, True)
+                    await sio.emit('winner', self.winner.getName(), room=gameCode)
                 
                 # Nettoyer les données
                 del self.pending_hits[gameCode]

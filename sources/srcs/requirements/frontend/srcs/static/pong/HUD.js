@@ -66,15 +66,13 @@ function createScoreText() {
 }
 
 async function createEndGameText() {
-
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    canvas.width = 2048;  // Augmenter la taille du canvas
+    canvas.width = 2048;
     canvas.height = 2048;
     
-    // Configurer le style du texte
-    context.font = 'Bold 120px Arial';  // Augmenter la taille de la police
+    context.font = 'Bold 120px Arial';
     context.fillStyle = 'white';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
@@ -85,87 +83,70 @@ async function createEndGameText() {
         transparent: true
     });
     
-    const geometry = new THREE.PlaneGeometry(20, 20);  // Augmenter la taille du plan
+    const geometry = new THREE.PlaneGeometry(1, 1);
     const textMesh = new THREE.Mesh(geometry, material);
     
-    async function updateEndGameText(isWinner, currentLanguage) {
-        const canvas = textMesh.material.map.image;
-        const context = canvas.getContext('2d');
-        
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        let winText = "VICTORY !";
-        let loseText = "DEFEAT...";
-        console.log("currentLanguage: ", currentLanguage);
-
-        if (currentLanguage === 'en')
-        {
-            winText = "VICTORY !";
-            loseText = "DEFEAT...";
-        }
-        else if (currentLanguage === 'fr')
-        {
-            winText = "VICTOIRE !";
-            loseText = "DÉFAITE...";
-        }
-        else if (currentLanguage === 'es')
-        {
-            winText = "VICTORIA !";
-            loseText = "DERROTA...";
-        }
-
-        if (isWinner)
-            await context.fillText(winText, canvas.width/2, canvas.height/2);
-        else
-            await context.fillText(loseText, canvas.width/2, canvas.height/2);
-        
-        textMesh.material.map.needsUpdate = true;
-    }
-
-    // Positionner le texte au centre et plus proche de la caméra
+    // Échelle adaptative
+    const scale = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+    textMesh.scale.set(scale, scale, 1);
     textMesh.position.set(0, 0, -10);
-    textMesh.scale.set(200, 200, 200);
+    
+    // Gestionnaire de redimensionnement
+    window.addEventListener('resize', () => {
+        const newScale = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+        textMesh.scale.set(newScale, newScale, 1);
+    });
+
+    async function updateEndGameText(isWinner, currentLanguage) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let text = isWinner ? 
+            (currentLanguage === 'fr' ? 'VICTOIRE !' : 
+             currentLanguage === 'es' ? 'VICTORIA !' : 'VICTORY !') :
+            (currentLanguage === 'fr' ? 'DÉFAITE...' : 
+             currentLanguage === 'es' ? 'DERROTA...' : 'DEFEAT...');
+        
+        context.fillText(text, canvas.width/2, canvas.height/2);
+        texture.needsUpdate = true;
+    }
     
     return {
-        textMesh: textMesh,
-        updateEndGameText: updateEndGameText
+        textMesh,
+        updateEndGameText
     };
 }
 
-function createHealthBar(sx, sy, sz, x, y, z) {
-    // Créer un groupe pour contenir la barre de vie
+function createHealthBar(sx, sy, sz, x, y, z, isEnemyTeam = false) {
     const healthGroup = new THREE.Group();
 
-    // Créer le fond de la barre (rouge)
-    const backgroundGeometry = new THREE.PlaneGeometry(100, 10);
+    // Ajuster la taille en fonction du type de barre
+    const width = isEnemyTeam ? 300 : 100;  // Barre ennemie plus large
+    const height = isEnemyTeam ? 20 : 10;   // Barre ennemie plus haute
+
+    // Créer le fond de la barre (rouge foncé)
+    const backgroundGeometry = new THREE.PlaneGeometry(width, height);
     const backgroundMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
+        color: isEnemyTeam ? 0x800000 : 0x660000,  // Rouge plus foncé pour l'ennemi
         side: THREE.DoubleSide
     });
     const backgroundBar = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
     healthGroup.add(backgroundBar);
 
-    // Créer la barre de vie (verte)
-    const healthGeometry = new THREE.PlaneGeometry(100, 10);
+    // Créer la barre de vie (rouge vif pour ennemi, vert pour allié)
+    const healthGeometry = new THREE.PlaneGeometry(width, height);
     const healthMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
+        color: isEnemyTeam ? 0xff0000 : 0x00ff00,
         side: THREE.DoubleSide
     });
     const healthBar = new THREE.Mesh(healthGeometry, healthMaterial);
     healthGroup.add(healthBar);
 
-    // Fonction pour mettre à jour la barre de vie
     function updateHealth(percentage) {
         healthBar.scale.x = Math.max(0, Math.min(1, percentage / 100));
-        healthBar.position.x = -50 * (1 - healthBar.scale.x);
+        healthBar.position.x = -(width/2) * (1 - healthBar.scale.x);
     }
 
-    // Positionner la barre en haut à gauche
-    healthGroup.position.set(
-        x,
-        y,
-        z
-    );
-
+    healthGroup.position.set(x, y, z);
     healthGroup.scale.set(sx, sy, sz);
 
     return {
@@ -177,84 +158,95 @@ function createHealthBar(sx, sy, sz, x, y, z) {
 export async function createHUD(renderer) {
     const hudScene = new THREE.Scene();
     const hudCamera = new THREE.OrthographicCamera(
-        -window.innerWidth / 2,
-        window.innerWidth / 2,
-        window.innerHeight / 2,
-        -window.innerHeight / 2,
-        0,
-        30
+        -window.innerWidth/2, window.innerWidth/2,
+        window.innerHeight/2, -window.innerHeight/2,
+        0, 30
     );
 
-    const scoreText = createScoreText();
-    const scoreTextMargin = 50 * (window.innerHeight / 1080); // Marge adaptative
-    scoreText.mesh.position.set(0, window.innerHeight/2 - scoreTextMargin, 0);
-    hudScene.add(scoreText.mesh);
+    // Score text
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    
+    context.font = 'Bold 80px Arial';
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText('0 - 0', canvas.width/2, canvas.height/2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true
+    });
+    
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const textMesh = new THREE.Mesh(geometry, material);
+    
+    // Ajuster la taille en fonction de la fenêtre
+    const scale = Math.min(window.innerWidth, window.innerHeight) * 0.5;
+    textMesh.scale.set(scale, scale, 1);
+    textMesh.position.set(0, window.innerHeight/2 - 25, 0);
+    hudScene.add(textMesh);
 
-    // Gestionnaire de redimensionnement
+    function updateScore(score1, score2) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.fillText(`${score1} - ${score2}`, canvas.width/2, canvas.height/2);
+        texture.needsUpdate = true;
+    }
+
     window.addEventListener('resize', () => {
-        // Mettre à jour la caméra
-        hudCamera.left = -window.innerWidth / 2;
-        hudCamera.right = window.innerWidth / 2;
-        hudCamera.top = window.innerHeight / 2;
-        hudCamera.bottom = -window.innerHeight / 2;
+        hudCamera.left = -window.innerWidth/2;
+        hudCamera.right = window.innerWidth/2;
+        hudCamera.top = window.innerHeight/2;
+        hudCamera.bottom = -window.innerHeight/2;
         hudCamera.updateProjectionMatrix();
 
-        // Mettre à jour la taille du score
         const newScale = Math.min(window.innerWidth, window.innerHeight) * 0.1;
-        scoreText.mesh.scale.set(newScale, newScale, 1);
-        
-        // Mettre à jour la position du score
-        const newMargin = 50 * (window.innerHeight / 1080);
-        scoreText.mesh.position.set(0, window.innerHeight/2 - newMargin, 0);
-
-        // Mettre à jour le renderer
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        textMesh.scale.set(newScale, newScale, 1);
+        textMesh.position.set(0, window.innerHeight/2 - 25, 0);
     });
 
-    function updateScore(team1Score, team2Score) {
-        scoreText.context.clearRect(0, 0, 1024, 1024);
-        scoreText.context.fillText(`${team1Score} - ${team2Score}`, 512, 512);
-        scoreText.texture.needsUpdate = true;
-    }
+    // Ajout des barres de vie
+    const YourTeamHealthBar = createHealthBar(
+        0.5, 0.5, 1,
+        -window.innerWidth/2 + 50,  // Position X (gauche)
+        -window.innerHeight/2 + 30,  // Position Y (bas)
+        0,                          // Position Z
+        false                       // Barre alliée (petite)
+    );
+    const OpponentTeamHealthBar = createHealthBar(
+        1.0, 1.0, 1,               // Plus grande échelle
+        0,                         // Position X (centre)
+        window.innerHeight/2 - 50,  // Position Y (haut)
+        0,                         // Position Z
+        true                       // Barre ennemie (grande)
+    );
 
-    function showEndGameText(isWinner, currentLanguage) {
-        const endGameCanvas = document.createElement('canvas');
-        const context = endGameCanvas.getContext('2d');
-        endGameCanvas.width = 2048;
-        endGameCanvas.height = 2048;
+    hudScene.add(YourTeamHealthBar.group);
+    hudScene.add(OpponentTeamHealthBar.group);
 
-        context.font = 'Bold 160px Arial';
-        context.fillStyle = isWinner ? '#00ff00' : '#ff0000';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-
-        const text = isWinner ? 
-            (currentLanguage === 'fr' ? 'VICTOIRE !' : 'VICTORY !') :
-            (currentLanguage === 'fr' ? 'DÉFAITE...' : 'DEFEAT...');
-
-        context.fillText(text, 1024, 1024);
-
-        const texture = new THREE.CanvasTexture(endGameCanvas);
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true
-        });
-
-        const geometry = new THREE.PlaneGeometry(1, 1);
-        const mesh = new THREE.Mesh(geometry, material);
-
-        // Taille adaptative pour le texte de fin
-        const scale = Math.min(window.innerWidth, window.innerHeight) * 0.3;
-        mesh.scale.set(scale, scale, 1);
-        mesh.position.set(0, 0, 0);
-
-        hudScene.add(mesh);
-    }
+    // Modifier aussi le gestionnaire de redimensionnement
+    window.addEventListener('resize', () => {
+        // Mise à jour des positions des barres de vie
+        YourTeamHealthBar.group.position.set(
+            -window.innerWidth/2 + 50,
+            -window.innerHeight/2 + 30,
+            0
+        );
+        OpponentTeamHealthBar.group.position.set(
+            0,
+            window.innerHeight/2 - 50,
+            0
+        );
+    });
 
     return {
         scene: hudScene,
         camera: hudCamera,
         updateScore,
-        showEndGameText
+        updateYourTeamHealth: YourTeamHealthBar.updateHealth,
+        updateOpponentTeamHealth: OpponentTeamHealthBar.updateHealth
     };
 }

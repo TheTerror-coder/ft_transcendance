@@ -582,6 +582,7 @@ async def sendPlayerLists(game, gameCode, sid):
                 player.setAllowedToReconnect(False)
                 return
             else:
+                logger.info(f"sendPlayerLists dans index.py : {teamsInfo}")
                 await sio.emit('updatePlayerLists', teamsInfo, room=gameCode)
                 return
 
