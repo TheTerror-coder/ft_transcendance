@@ -42,17 +42,13 @@ class FriendRequestAdmin(admin.ModelAdmin):
     actions = ['accept_invitations', 'decline_invitations']
     
     def accept_invitations(self, request, queryset):
-        """
-        Accepter les demandes d'amis sélectionnées.
-        """
+
         queryset.update(status='ACCEPTED')
         for friend_request in queryset:
             friend_request.accept()
     
     def decline_invitations(self, request, queryset):
-        """
-        Refuser les demandes d'amis sélectionnées.
-        """
+
         queryset.update(status='DECLINED')
         for friend_request in queryset:
             friend_request.decline()

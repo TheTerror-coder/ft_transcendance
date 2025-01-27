@@ -7,7 +7,6 @@ async function fadeOut()
 	const fadeDuration = 5000;
 	const fadeSteps = 100;
 	const fadeInterval = fadeDuration / fadeSteps;
-	console.log("fadeOut function");
 
 	let currentStep = 0;
 	return new Promise((resolve) => {
@@ -16,7 +15,7 @@ async function fadeOut()
 		ELEMENTs.musicPlayer().volume = volume;
 
 		// Increment step
-		currentStep += 4;
+		currentStep += 6;
 
 		// Clear the interval when volume reaches 0
 		if (currentStep >= fadeSteps) 
@@ -36,9 +35,6 @@ async function changeMusic(newSource)
 	else
 		musicFlood = 0;
 	return new Promise(async (resolve) => {
-		if (ELEMENTs.music().src)
-			console.log("test de ELEMENTs.musicPlayer().src:", ELEMENTs.music().src, " et newSource: ", newSource);
-		console.log("musicFlood: ", musicFlood);
 		if (musicFlood > 1 || (ELEMENTs.music().src && ELEMENTs.music().src === BASE_URL + newSource))
 		{
 			resolve();
@@ -57,7 +53,6 @@ async function changeMusic(newSource)
 		
 		ELEMENTs.musicPlayer().load();
 		musicFlood = 0;
-		console.log("juste avant de refresh et ELEMENTs.musicPlayer().paused", ELEMENTs.musicPlayer().paused);
 		refreshMusic();
 		resolve();
 	})
@@ -84,7 +79,6 @@ function OnOffMusic()
 function refreshMusic()
 {
 	ELEMENTs.musicPlayer().volume = 1;
-	console.log("je suis al lol");
 	if (currentSound === true)
 	{
 		ELEMENTs.musicPlayer().play();

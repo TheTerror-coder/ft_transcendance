@@ -9,10 +9,14 @@ async function fragment_requireEmailVerify(params) {
 		
 		
 		<div class="d-flex justify-content-center align-items-center">
-			<p>Email verification required.</p>
+			<p> Email verification required. </p>
 		</div>
 	
 	
+	</div>
+
+	<div class="modal-footer justify-content-center align-items-center">
+		<button id="redirect-to-email-catcher-button" type="button" class="btn btn-primary"> Open Email Catcher </button>
 	</div>
 	`;
 	

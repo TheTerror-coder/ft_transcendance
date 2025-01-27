@@ -45,7 +45,6 @@ async function UserProfileView(username, description, data)
 	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
 	const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
-	console.log("user quand on display le goat bite :  ", response);
 	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
@@ -62,6 +61,9 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
+	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
+		await callWebSockets();
+	}
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;
@@ -76,17 +78,19 @@ async function	homeView(title, description, data)
 	imgElement.src = photoUrl;
 	ELEMENTs.primeAmount().innerHTML = response.prime;
 	ELEMENTs.wantedProfile().onclick = async () => {
-		await replace_location(URLs.VIEWS.PROFILE);
+		let ret = await assign_location(URLs.VIEWS.PROFILE);
+		return ;
 	};
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
 	refreshLanguage();
-	attachLogoutEvents();
+	// attachLogoutEvents();
 }
 
 async function	loginView(title, description, data) {
 	if (await isUserAuthenticated({})) {
 		await replace_location(URLs.VIEWS.HOME);
+		return ;
 	}
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
@@ -95,24 +99,19 @@ async function	loginView(title, description, data) {
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
 	await changeMusic(ELEMENTs.loginMusic());
-
-
-	
-	// const myModal = new bootstrap.Modal('#loginModal', {
-		// 	keyboard: false
-		//   })
-		//   myModal.show();
 }
 
 async function	profileView(title, description, data)
 {
 	document.title = title;
 
+	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
+		let ret = await callWebSockets();
+	}
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	ELEMENTs.mainPage().innerHTML = profilePageDisplayVAR;
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
-	console.log("response: de l'utilisateur", response);
 
 	const responseJWT = await getAuthenticationStatus();
 	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
@@ -122,12 +121,11 @@ async function	profileView(title, description, data)
 	imgElement.src = photoUrl;
 	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'block';
-	await displayFriend(response.friends, response.user_socket);
-	await displayWaitingListFriend(response.pending_requests);
-	await getHistoric(response.recent_games, response.username);
-	console.log("response: de l'utilisateur", response);
-	await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
-	await changeMusic(ELEMENTs.profilePageMusic());
+	let ret = await displayFriend(response.friends, response.user_socket);
+	ret = await displayWaitingListFriend(response.pending_requests);
+	ret = await getHistoric(response.recent_games, response.username);
+	ret = await statsInProfilePage(response.nbr_of_games, response.victories, response.loose);
+	ret = await changeMusic(ELEMENTs.profilePageMusic());
 }
 
 async function	createLobbyView(title, description, data) 
@@ -149,7 +147,6 @@ async function	createLobbyView(title, description, data)
 			ELEMENTs.luffyChibi().style.opacity = 1;
 		}
 	});
-	// ELEMENTs.cross().onclick = () => await replace_location(URLs.VIEWS.HOME);
 	ELEMENTs.twoFA().style.display = 'none';
 	refreshLanguage();
 	await changeMusic(ELEMENTs.lobbyMusic());
@@ -163,16 +160,14 @@ async function	providerCallbackView(title, description, data) {
 }
 
 async function	emailStatusView(title, description, data) {
-	// console.log('email status view');
 	document.title = title;
 	
 	let index;
 	let _params = {};
 	
-	// get email verification information 
+	// TO DO: get email verification information 
 	const verification = await getEmailVerification(data.querystring.key);
 	if (verification.find(_data => _data === 'verification-information')){
-		// console.log('Function emailStatusView(): verification-information');
 		if (verification[2].email && verification[3].is_authenticating){
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL;
 			//save email verfication key
@@ -185,23 +180,16 @@ async function	emailStatusView(title, description, data) {
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.EMAIL_CONFIRMED_YET;
 		}
 	}
-	else if (verification.find(_data => _data === 'input-error')){
-		// console.log('Function emailStatusView(): input-error');
+	else if (verification.find(_data => _data === 'input-error'))
 		index = VARIABLEs.VERIFY_EMAIL.INDEXES.INVALID_LINK;
-	}
 	else if (verification.find(_data => _data === 'email-verification-not-pending')){
-		// console.log('Function emailStatusView(): email-verification-not-pending');
-		// console.log("Error 409: email-verification-not-pending");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Email', 'Email verification is not pending');
 		await askRefreshSession();
 		return ;
 	}
-	else {
-		// console.log('Function emailStatusView(): Error somewhere');
+	else 
 		return;
-	}
 	_params.index = index;
-	// add to params the data returned when requested email-verification-information. e.g username, email
 	_params = {
 		..._params,
 		...verification[2],
@@ -217,10 +205,9 @@ async function	emailStatusView(title, description, data) {
 
 async function	error404View(title, description, data)
 {
-	console.log('error 404 view');
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
-	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.HOME);
+	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.LOGIN_VIEW);
 	refreshLanguage();
 }

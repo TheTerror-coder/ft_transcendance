@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from datetime import timedelta
 import os
+import ssl
 import requests
 from . import tools
 from pathlib import Path
@@ -211,13 +212,14 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-			"hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
+			# "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
 			### TODO: IN production
-            # "hosts": [
-			# 	{
-			# 		"address": tools.get_RedisBackendUri(),
-			# 	}
-			# ],
+            "hosts": [
+				{
+					"address": tools.get_RedisBackendUri(),
+					"ssl_cert_reqs": ssl.CERT_OPTIONAL,
+				}
+			],
         },
     },
 }
@@ -233,7 +235,7 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
 	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 	# It will work instead of the default serializer(TokenObtainPairSerializer).

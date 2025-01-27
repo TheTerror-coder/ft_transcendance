@@ -263,7 +263,6 @@ async function getJwtToken(url) {
 async function logout() {
 	await makeRequest('DELETE', URLs.ALLAUTH.AUTH_STATUS);
 	window.sessionStorage.clear();
-	window.localStorage.removeItem('jwt_access_token')
-	window.localStorage.removeItem('jwt_refresh_token')
+	clear_jwt();
 	replace_location(URLs.VIEWS.LOGIN_VIEW);
 }

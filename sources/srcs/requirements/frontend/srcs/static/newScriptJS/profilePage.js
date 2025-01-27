@@ -11,10 +11,6 @@ async function statsInProfilePage(game_played, victories, lose)
     if (game_played > 0) {
         percentage = (victories / game_played) * 100;
     }
-    
-    // console.log("victory: ", victories);
-    // console.log("lose: ", lose);
-    // console.log("game_played: ", game_played);
 
     percentage = Math.min(Math.max(percentage, 0), 100);
     const circularProgress = document.querySelector('.circular-progress');
@@ -36,7 +32,6 @@ async function statsInProfilePage(game_played, victories, lose)
 
 async function getHistoric(game, user)
 {
-    // console.log("game.length: ", game.length);
     if (game.length === 0)
     {
         const match = document.createElement('div');
@@ -73,7 +68,6 @@ async function getHistoric(game, user)
 			username.style.width = "105px";
 
             resultUser.className = 'resultDisplayHistoric';
-            // console.log("YOOOOOO gang game[i].player yeah: ", game[i]);
             resultAdvUser.className = 'resultDisplayHistoric';
             if (user === game[i].player)
             {
@@ -124,7 +118,6 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
 
 async function displayWaitingListFriend(friends) {
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
-    // console.log("friends: ", friends);
 
     // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
@@ -173,10 +166,9 @@ async function displayWaitingListFriend(friends) {
             // Gérer l'acceptation de l'invitation
             actionAddButton.addEventListener('click', async () => {
                 alert(`add ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
 
                 // Envoi de l'invitation acceptée au serveur
-                socket.send(JSON.stringify({
+                ONE_SOCKET.send(JSON.stringify({
                     type: 'response.invitation',
                     to_user: friends[i].from_user,
                     response: 'accept',
@@ -204,8 +196,7 @@ async function displayWaitingListFriend(friends) {
             // Gérer le rejet de l'invitation
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
-                console.log("data.friend_request_id: ", friends[i].friend_request_id);
-                socket.send(JSON.stringify({
+                ONE_SOCKET.send(JSON.stringify({
                     type: 'response.invitation',
                     response: 'reject',
                     friend_request_id: friends[i].friend_request_id
@@ -235,9 +226,7 @@ async function addFriendToFriendList(friend) {
     const friendListMenu = document.getElementById('friendDropdownMenu');
     
     if (document.getElementById("noFriends") !== null)
-    {
         document.getElementById("noFriends").remove();
-    }
     const listItem = document.createElement('li');
     listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
@@ -253,7 +242,8 @@ async function addFriendToFriendList(friend) {
     imgButton.style.flexDirection = "flex-end";
 
     const circleIsConnect = document.createElement('div');
-    circleIsConnect.className = 'circleIsConnect';
+	circleIsConnect.className = 'circleIsConnect';
+	circleIsConnect.id = 'circle-is-connect';
     circleIsConnect.style.backgroundColor = 'green';
     circleIsConnect.style.border = '1px solid white';
 
@@ -270,85 +260,90 @@ async function addFriendToFriendList(friend) {
     friendListMenu.appendChild(listItem);
 }
 
-async function displayFriend(friends, user_socket) {
-    const dropdownMenu = document.getElementById('friendDropdownMenu');
-    
-    // Vider le menu avant de le mettre à jour
-    dropdownMenu.innerHTML = '';
+async function displayFriend() {
+	document.addEventListener(USER.FRIENDS_LIST_EVENT, async (event) => {
+		const friends = event.detail;
+		const dropdownMenu = document.getElementById('friendDropdownMenu');
 
-    // Vérification si la liste d'amis est vide
-    if (friends.length === 0) {
-        const listItem = document.createElement('li');
-        listItem.id = "noFriends";
-        listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
-        nameSpan.dataset.translate = "NoFriends";
-        listItem.appendChild(nameSpan);
-        dropdownMenu.appendChild(listItem);
-    } else {
-        // Ajouter chaque ami à la liste
-        for (let i = 0; i < friends.length; i++) {
-            const listItem = document.createElement('li');
-            listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+		// Vider le menu avant de le mettre à jour
+		dropdownMenu.innerHTML = '';
 
-            const buttonDisplayFriend = document.createElement('button');
-            const nameSpan = document.createElement('span');
-            nameSpan.textContent = friends[i].username;
+		// Vérification si la liste d'amis est vide
+		if (friends.length === 0) {
+			const listItem = document.createElement('li');
+			listItem.id = "noFriends";
+			listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+			const nameSpan = document.createElement('span');
+			nameSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
+			nameSpan.dataset.translate = "NoFriends";
+			listItem.appendChild(nameSpan);
+			dropdownMenu.appendChild(listItem);
+		} else {
+			// Ajouter chaque ami à la liste
+			friends.forEach(friend => {
+				const listItem = document.createElement('li');
+				listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
 
-            const actionButton = document.createElement('button');
-            const imgButton = document.createElement("img");
-            imgButton.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
-            imgButton.alt = "removeFriend";
-            imgButton.style.display = "flex";
-            imgButton.style.flexDirection = "flex-end";
-            console.log("USER____SOCKET: ", user_socket);
-            // Indicateur de connexion de l'ami
-            const circleIsConnect = document.createElement('div');
-            circleIsConnect.className = 'circleIsConnect';
-            if (friends[i].username in user_socket) {
-                circleIsConnect.style.backgroundColor = 'green';
-                circleIsConnect.style.border = '1px solid white';
-            } else {
-                circleIsConnect.style.backgroundColor = 'red';
-                circleIsConnect.style.border = '1px solid white';
-            }
+				const buttonDisplayFriend = document.createElement('button');
+				const nameSpan = document.createElement('span');
+				nameSpan.textContent = friend.username;
 
-            // Ajouter l'événement pour le bouton de suppression
-            actionButton.appendChild(imgButton);
-            actionButton.addEventListener('click', async () => {
-                try {
-                    // Suppression de l'ami via une requête
-                    const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friends[i].username });
-                    alert(`${friends[i].username} ne fait plus partie de vos amis`);
+				const actionButton = document.createElement('button');
+				const imgButton = document.createElement("img");
+				imgButton.src = "/static/photos/picturePng/profilePage/crossButtonFriend.png";
+				imgButton.alt = "removeFriend";
+				imgButton.style.display = "flex";
+				imgButton.style.flexDirection = "flex-end";
+				// Indicateur de connexion de l'ami
+				const circleIsConnect = document.createElement('div');
+				circleIsConnect.className = 'circleIsConnect';
+				circleIsConnect.id = `circle-is-connect-${friend.id}`;
+				if (friend.status === 'online') {
+					circleIsConnect.style.backgroundColor = 'green';
+					circleIsConnect.style.border = '1px solid white';
+				} else {
+					circleIsConnect.style.backgroundColor = 'red';
+					circleIsConnect.style.border = '1px solid white';
+				}
 
-                    // Retirer l'ami de la liste affichée
-                    dropdownMenu.removeChild(listItem);
+				// Ajouter l'événement pour le bouton de suppression
+				actionButton.appendChild(imgButton);
+				actionButton.addEventListener('click', async () => {
+					try {
+						// Suppression de l'ami via une requête
+						const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friend.username });
+						alert(`${friend.username} ne fait plus partie de vos amis`);
 
-                    // Vérifier si la liste est vide après la suppression
-                    if (dropdownMenu.children.length === 0) {
-                        const noFriendsItem = document.createElement('li');
-                        noFriendsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
-                        const noFriendsSpan = document.createElement('span');
-                        noFriendsSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
-                        noFriendsItem.appendChild(noFriendsSpan);
-                        dropdownMenu.appendChild(noFriendsItem);
-                    }
-                } catch (error) {
-                    console.error("Erreur lors de la suppression de l'ami :", error);
-                    alert("Erreur lors de la suppression de l'ami");
-                }
-            });
+						// Retirer l'ami de la liste affichée
+						dropdownMenu.removeChild(listItem);
 
-            // Afficher le profil de l'ami
-            buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
-            buttonDisplayFriend.appendChild(nameSpan);
-            listItem.appendChild(circleIsConnect);
-            listItem.appendChild(buttonDisplayFriend);
-            listItem.appendChild(actionButton);
-            dropdownMenu.appendChild(listItem);
-        }
-    }
+						// Vérifier si la liste est vide après la suppression
+						if (dropdownMenu.children.length === 0) {
+							const noFriendsItem = document.createElement('li');
+							noFriendsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
+							const noFriendsSpan = document.createElement('span');
+							noFriendsSpan.textContent = currentLanguage === 'en' ? "No friends" : (currentLanguage === 'fr' ? "Pas d'amis" : "No hay amigos");
+							noFriendsItem.appendChild(noFriendsSpan);
+							dropdownMenu.appendChild(noFriendsItem);
+						}
+					} catch (error) {
+						console.error("Erreur lors de la suppression de l'ami :", error);
+						alert("Erreur lors de la suppression de l'ami");
+					}
+				});
+
+				// Afficher le profil de l'ami
+				buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
+				buttonDisplayFriend.appendChild(nameSpan);
+				listItem.appendChild(circleIsConnect);
+				listItem.appendChild(buttonDisplayFriend);
+				listItem.appendChild(actionButton);
+				dropdownMenu.appendChild(listItem);
+			});
+		}
+	});
+
+	await getMyFriendsList();
 }
 
 // Change Username
@@ -401,7 +396,6 @@ document.addEventListener('click', (event) =>
         {
             if (event.target === ELEMENTs.fileButton())
             {
-            // console.log("event dans ma fonction ta capte: ");
             ELEMENTs.formFile().click();
             ELEMENTs.formFile().addEventListener('change', (event) => {
                 profilePhoto = event.target.files[0];
@@ -439,10 +433,8 @@ async function changePicture(picture) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }
 
@@ -453,10 +445,8 @@ document.addEventListener('click', async (event) =>
     {
         if (event.target === ELEMENTs.changeUsernameButton())
         {
-            // console.log("reconnu comme cree ELEMENTs.changeUsernamePopOver(): ", ELEMENTs.changeUsernamePopOver());
             if (ELEMENTs.changeUsernamePopOver() === null)
             {
-                console.log("create le bail");
                 const popoverContainer = document.createElement('div');
                 popoverContainer.id = "changeUsernamePopOver";
                 popoverContainer.innerHTML = popUpUsernameVAR;
@@ -493,7 +483,6 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
-    // console.log("newUsername: ", newUsername);
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);
@@ -513,20 +502,7 @@ async function changeUsername(newUsername) {
                 errorMessages = errorMessages.substring(9);
             }
             alert(errorMessages);
-        } else {
+        } else
             alert(response.message);
-            console.log("Errors:", response.message);
-        }
     }
 }
-
-
-
-// ELEMENTs.bookProfile().addEventListener('mouseleave', function() 
-// {
-//     console.log("je suis dans le mouseleave");
-//     if (document.getElementById("dropdownMenu"))
-//         document.getElementById("dropdownMenu").innerHTML = '';
-//     if (document.getElementById("waitingFriendDropdownMenu"))
-//         document.getElementById('waitingFriendDropdownMenu').innerHTML = '';
-// });

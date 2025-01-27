@@ -43,6 +43,8 @@ async function makeRequest(method, path, data, headers) {
 		}
 	}
 
+	await refresh_jwt();
+
 	access_token = window.localStorage.getItem('jwt_access_token');
 	if (access_token) {
 		options.headers['Authorization'] = 'Bearer ' + access_token;
@@ -72,7 +74,6 @@ async function makeRequest(method, path, data, headers) {
 async function redirectToProvider()
 {
 	try {
-		// console.log("In function redirectToProvider()", 'csrfmiddlewaretoken= ' + await getCsrfToken());
 		postForm(URLs.ALLAUTH.REDIRECT_TO_PROVIDER, {
 			provider : ULTIMAPI_PRODIVIDER_ID,
 			callback_url : URLs.VIEWS.CALLBACKURL_VIEW,
@@ -88,26 +89,19 @@ async function redirectToProvider()
 }
 
 async function doPendingFlows(params, flows) {
-	/* 
-	params: object
-	*/
 	console.log("Do Pending flows");
 	if (flows?.lenght < 1){
-		console.log("Pending flows: Authentication required");
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.VERIFY_EMAIL && data.is_pending)) {
-		console.log("Pending flows: Email verification required");
 		await requireEmailVerifyJob(params);
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_AUTHENTICATE && data.is_pending)) {
-		console.log("Pending flows: MFA authenticate required");
 		await mfaJob(undefined, totp_active=true);
 		return (true);
 	}
-	console.log("Pending flows: matched any");
 	return (false);
 }
 
@@ -128,13 +122,10 @@ async function jwt_authenticate(params) {
 	try {
 		const response = await getJwtToken(URLs.OAUTH.AUTH_STATUS)
 		if (response.find(data => data === 'jwt-credentials')){
-			console.log("****DEBUG**** jwt_authenticate() -> jwt-credentials")
 			return (true);
 		}
-		// onePongAlerter(ALERT_CLASSEs.WARNING, 'Warning', 'jwt credentials missing');
 		return (false);
 	} catch(error){
-		console.log("****DEBUG**** Exception catch() in jwt_authenticate(): " + error)
 		return (false);
 	}
 }
@@ -143,28 +134,25 @@ async function isUserAuthenticated(params) {
 	try {
 		const response = await getAuthenticationStatus();
 		if (response.find(data => data === 'user-is-authenticated')){
-			console.log("****DEBUG**** isUserAuthenticated() -> user is authenticated")
 			return (true);
 		}
 		else if (response.find(data => data === 'not-authenticated')){
-			console.log("****DEBUG**** isUserAuthenticated() -> not-authenticated")
 			if (params){
 				params.flows = response[2].flows;
 			}
+			clear_jwt();
 			return (false);
 		}
 		else if (response.find(data => data === 'invalid-session')){
-			console.log("****DEBUG**** isUserAuthenticated() -> invalid-session")
 			window.sessionStorage.clear();
-			window.location.replace(URLs.VIEWS.LOGIN_VIEW);
+			clear_jwt();
+			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 			return (false);
 		}
-		console.log("****DEBUG**** isUserAuthenticated() -> else")
 		return (false);
 	
 	} catch(error){
 		console.log("Catched ERROR: In function isUserAuthenticated()", error);
-		// window.alert('an error occured: ' + error);
 		return (false);
 	};
 }
@@ -228,69 +216,53 @@ function strcmp(str1, str2) {
 /**************************/
 
 async function callWebSockets(params) {
-	socket = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
-	socket.onopen = function() {
-		console.log("WebSocket connection established.", socket);
-	};
-	socket.onerror = function(error) {
-		console.error("WebSocket error observed:", error);
-	};
-
-	socket.onclose = function(event) {
-		console.log("WebSocket connection closed:", event);
-	};
-	socket.onmessage = function(event) {
-		var data = JSON.parse(event.data);
-		console.log("Received invitation:", data);
-		if (data.type === 'invitation') {
-			socket.send(JSON.stringify({
-				type: 'response.invitation',
-				response: 'pending',
-				friend_request_id: data.friend_request_id
-			}));
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
+	try {
+		if (ONE_SOCKET?.readyState !== WebSocket.OPEN && ONE_SOCKET?.readyState !== WebSocket.CONNECTING){
+			ONE_SOCKET = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 		}
-		else if (data.type === 'update_name') {
-			console.log("Received new username  CACACACACACACACACa:", data.new_username);
-			const newUsername = data.new_username;
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
-		}
-		else if (data.type === 'remove_friend') {
-			console.log("Received remove username  CACACACACACACACACa:");
-			if (ELEMENTs.profilePage())
-				assign_location(URLs.VIEWS.PROFILE);
-		}
-	};
-}
+		ONE_SOCKET.onopen = function() {
+			window.localStorage.setItem('one_socket_state', 'connected');
+			console.log("WebSocket connection established.", ONE_SOCKET);
+		};
+		ONE_SOCKET.onerror = function(error) {
+			console.error("WebSocket error observed:", error);
+		};
+		
+		ONE_SOCKET.onclose = function(event) {
+			window.localStorage.setItem('one_socket_state', 'closed');
+			console.log("WebSocket connection closed:", event);
+		};
+		ONE_SOCKET.onmessage = async function(event) {
 
-
-async function handleFriendInvitation(socket, event) {
-	var data = JSON.parse(event.data);
-    console.log("Received invitation de handle:", data);
-    
-    if (data.type === 'invitation') {
-        console.log("Received invitation:", data);
-
-        socket.send(JSON.stringify({
-            type: 'response.invitation',
-            response: 'pending',
-            friend_request_id: data.friend_request_id
-        }));
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'update_name') {
-        console.log("update_name:", data);
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
-    else if (data.type === 'remove_friend') {
-        console.log("remove_friend:", data);
-		if (ELEMENTs.profilePage())
-			await assign_location(URLs.VIEWS.PROFILE);
-    }
+			var data = JSON.parse(event.data);
+			if (data.type === 'invited') {
+				await onePongAlerter(ALERT_CLASSEs.INFO, 'Invitation', data.text);
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			if (data.type === 'update_name') {
+				const newUsername = data.new_username;
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'remove_friend') {
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'update_logout') {
+				if (ELEMENTs.profilePage())
+					replace_location(URLs.VIEWS.PROFILE);
+			}
+			else if (data.type === 'update_login') {
+				setTimeout(() => {
+					if (ELEMENTs.profilePage())
+						replace_location(URLs.VIEWS.PROFILE);
+				}, 3000);
+			}
+		};
+	} catch (error) {
+		console.log('sendInvitation() an exception happenned ' + error);
+	}
 }
 
 
@@ -302,13 +274,11 @@ function strcmp(str1, str2) {
 
 async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
-		console.log("Pending flows: Reauthentication required");
 		// await reauthenticateJob(undefined);
 		await logout_views();
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {
-		console.log("Pending flows: mfa Reauthentication required");
 		await requireMfaReauthenticateJob(undefined);
 		return (true);
 	}
@@ -350,4 +320,29 @@ function dispose_modals() {
 		_modal2.dispose();
 		ELEMENTs.oauth_modal2()?.remove();
 	}
+}
+
+function clear_jwt() {
+	window.localStorage.removeItem('jwt_access_token');
+	window.localStorage.removeItem('jwt_refresh_token');
+}
+
+async function refresh_jwt() {
+	const access_token = window.localStorage.getItem('jwt_access_token');
+	if (access_token) {
+		const token_payload = await parseJwt(access_token)
+		const expiration = token_payload.exp;
+		const time_now = Math.floor(Date.now() / 1000);
+		const delta = expiration - time_now;
+		if (delta < 2) {
+			const refresh_token = window.localStorage.getItem('jwt_refresh_token');
+			if (refresh_token) {
+				await refreshTokenJob('POST', URLs.REFRESH_TOKEN, { 'refresh' : refresh_token });
+			}
+		}
+	}
+}
+
+async function openEmailCatcher() {
+	window.open(MAILCATCHER_BASE_URL, '_self');
 }

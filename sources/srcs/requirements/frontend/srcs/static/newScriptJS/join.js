@@ -1,8 +1,8 @@
 
 async function joinLobbyGame(gameCode, teamID, role)
 {
-    console.log(" join lobby");
-
+	if (!await isUserAuthenticated({}))
+		replace_location(URLs.VIEWS.LOGIN_VIEW);
     if (nbPerTeam == 2)
     {
         ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR; // TODO surement a mettre apres le confirmChoices 
@@ -12,11 +12,10 @@ async function joinLobbyGame(gameCode, teamID, role)
     else
         ELEMENTs.mainPage().innerHTML = lobbyPageDisplayVAR;
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-    console.log("user dans joinLobbyGame: ", user, "gameCode: ", gameCode, "teamID: ", teamID, "role: ", role);
     globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username, gameCode: gameCode});
     if (error !== null)
     {
-        console.log("error: ", error);
+		alert(error);
         error = null;
         return ;
     }

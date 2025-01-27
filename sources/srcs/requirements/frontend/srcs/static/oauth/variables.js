@@ -4,6 +4,10 @@ const BASE_URL = `https://${window.location.host}`;
 const BACKEND_BASE_URL = `${BASE_URL}/backpong`;
 const ALLAUTH_BASE_URL = `${BASE_URL}/_allauth/browser/v1`;
 const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
+const MAILCATCHER_BASE_URL = `http://${window.location.hostname}:1080`;
+
+const ON = true;
+const OFF = false;
 
 const PATHs = Object.freeze({
 	
@@ -80,6 +84,7 @@ const URLs = Object.freeze({
 	}),
 
 
+	REFRESH_TOKEN : BACKEND_BASE_URL + '/token/refresh/',
 	// 'oauth' backend app \\
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
@@ -151,6 +156,7 @@ const ELEMENTs = Object.freeze({
 	
 	verify_email_button :  () => document.getElementById("verify-email-button"),
 	verify_email_close_error_button :  () => document.getElementById("verify-email-close-error-button"),
+	redirect_to_email_catcher_button :  () => document.getElementById("redirect-to-email-catcher-button"),
 	
 	mfa_auth_app_is_active : () => document.getElementById("mfa-auth-app-active"),
 	mfa_auth_app_not_active : () => document.getElementById("mfa-auth-app-not-active"),
@@ -232,6 +238,8 @@ const ELEMENTs = Object.freeze({
 	
 	profilePage : () => document.getElementById("profilePage"),
 	bookProfile : () => document.getElementById("bookProfile"),
+
+	circleIsConnect : () => document.getElementById("circle-is-connect"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
@@ -316,6 +324,11 @@ class PAGE_ROUTEs {
 	static HOME = '/static/pages/homepage';
 }
 
+class USER {
+	static FRIENDS = undefined;
+	static FRIENDS_LIST_EVENT = 'friends-list-event';
+}
+
 const FLOWs = Object.freeze({
 	VERIFY_EMAIL : "verify_email",
 	LOGIN : "login",
@@ -338,5 +351,7 @@ const ALERT_CLASSEs = Object.freeze({
 	LIGHT : 'light',
 	DARK : 'dark',
 });
+
+let ONE_SOCKET = undefined;
 
 let toggle_flag = true;

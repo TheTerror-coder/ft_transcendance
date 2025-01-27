@@ -67,7 +67,7 @@ logstash_user() {
 		-H "Content-Type: application/json" \
 		${ELASTICSEARCH_HOSTXPORT}/_security/role/${LOGSTASH_ES_ROLE} \
 		-d "{ \
-			\"cluster\": [\"manage_logstash_pipelines\", \"manage_index_templates\", \"monitor\", \"read_ilm\"], \
+			\"cluster\": [\"manage_logstash_pipelines\", \"manage_index_templates\", \"monitor\", \"read_ilm\", \"manage\", \"manage_ilm\"], \
 			\"indices\": [ \
 				{ \
 				\"names\": [ \"logstash_-*\" ], \

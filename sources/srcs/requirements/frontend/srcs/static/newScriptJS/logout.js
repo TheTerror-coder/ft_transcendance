@@ -1,3 +1,12 @@
+async function closeWebSocket() {
+   console.log('WebSocket déconnecté', ONE_SOCKET);
+   if (ONE_SOCKET) {
+      ONE_SOCKET.close();
+     console.log('WebSocket déconnecté');
+   }
+ }
+
+
 
 async function logout_views()
 {
@@ -5,16 +14,16 @@ async function logout_views()
 		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
 		const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
 		if (response.status === 'success') {
-			window.sessionStorage.clear();
-			window.localStorage.removeItem('jwt_access_token');
-			window.localStorage.removeItem('jwt_refresh_token');
-			await replace_location(URLs.VIEWS.LOGIN_VIEW);
-		} else
-			console.error('Échec de la déconnexion:', response.message);
-	} 
-	catch (error) {
+         await closeWebSocket();
+		   window.sessionStorage.clear();
+		   clear_jwt();
+		   await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		} else {
+		   console.error('Échec de la déconnexion:', response.message);
+		}
+	 } catch (error) {
 		console.error('Erreur lors de la déconnexion:', error);
-	}
+	 }
 }
 
 function applyAnimationLogoutButton(isHovered) 

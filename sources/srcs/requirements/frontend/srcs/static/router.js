@@ -3,8 +3,6 @@
 
 const eventManager = async (event) => {
 	const { target } = event;
-	
-	console.log('event listener: ', target.id);
 
 	if (target.matches('a')){
 		await urlRoute(event);
@@ -57,7 +55,6 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
 		event.preventDefault();
-		console.log("ELEMENTs.createAccountChange().style.display: ", ELEMENTs.createAccountChange(), " ELEMENTs.formConnect().style.display: ", ELEMENTs.formConnect())
 		if (ELEMENTs.createAccountChange().hasAttribute('style') || ELEMENTs.formConnect().hasAttribute('style'))
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
@@ -88,19 +85,15 @@ const eventManager = async (event) => {
 		teamAvailable.team = 0;
 		roleAvailableBlackBeard.role = 0;
 		roleAvailableWhiteBeard.role = 0;
-		console.log("ELEMENTs.addFriendButton(): ", ELEMENTs.addFriendButton());
 		event.preventDefault();
 		if (globalSocket !== null)
 		{
-			console.log("j'ai cliquer sur la croix et je suis cense avoir quitter la global socket, global socket = ", globalSocket);
 			globalSocket.disconnect();
 			globalSocket.close();
-			console.log("apres le disconnect global socket = ", globalSocket);
 			globalSocket = null;
-			console.log("mis a null de global socket = ", globalSocket);
 		}
 		if (ELEMENTs.addFriendButton() === null)
-			await replace_location(URLs.VIEWS.HOME);
+			await assign_location(URLs.VIEWS.HOME);
 		else
 		{
 			await fragment_loadModalTemplate();
@@ -117,16 +110,21 @@ const eventManager = async (event) => {
 		ELEMENTs.switch2FA().click();
 	}
 	else if (target.id === ELEMENTs.switch2FA()?.id)
-	{
-		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
-			
-			if (await isTotpEnabled()) 
-				await deactivateTotpJob();
-			else 
+		{
+			if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
+				
+				if (await isTotpEnabled()) 
+					await deactivateTotpJob();
+				else 
 				await activateTotpJob();
 			return ;
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
+	}
+	else if (target.id === ELEMENTs.redirect_to_email_catcher_button()?.id)
+	{
+		event.preventDefault();
+		await openEmailCatcher();
 	}
 };
 
@@ -150,9 +148,14 @@ primaryRoutes[PATHs.VIEWS.CALLBACKURL] = {
 	description : "",
 };
 primaryRoutes[PATHs.VIEWS.VERIFY_EMAIL] = {
-		view : emailStatusView,
-		title : "Email verify | " + PAGE_TITLE,
-		description : "",
+	view : emailStatusView,
+	title : "Email verify | " + PAGE_TITLE,
+	description : "",
+};
+primaryRoutes[PATHs.VIEWS.ERROR404] = {
+	view : error404View,
+	title : "Not Found | " + PAGE_TITLE,
+	description : "",
 };
 
 const urlRoutes = {
@@ -192,11 +195,6 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
 	title : "Tournament Tree | " + PAGE_TITLE,
 	description : "",
 };
-urlRoutes[PATHs.VIEWS.ERROR404] = {
-	view : error404View,
-	title : "Not Found | " + PAGE_TITLE,
-	description : "",
-};
 // urlRoutes[PATHs.VIEWS.MFA] = {
 // 	view : mfaView,
 // 	title : "MFA | " + PAGE_TITLE,
@@ -219,7 +217,6 @@ urlRoutes[PATHs.VIEWS.ERROR404] = {
 // };
 
 const handleLocation = async () => {
-	console.log('*********DEBUG********* handleLocation()');
 	dispose_modals();
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
@@ -239,18 +236,16 @@ const handleLocation = async () => {
 		await routeMatched.view(routeMatched.title, routeMatched.description, _storage);
 		return;
 	}
-	
+
 	routeMatched = urlRoutes[pathname] || urlRoutes["404"];
 	if (routeMatched === urlRoutes["404"])
 	{
-		console.log("URLs.VIEWS.ERROR404", URLs.VIEWS.ERROR404)
-		await replace_location(URLs.VIEWS.ERROR404);
+		await assign_location(URLs.VIEWS.ERROR404);
 		return ;
 	}
 	if (!(await isUserAuthenticated(_storage))){
 		// if (!await doPendingFlows({}, _storage.flows))
 		await replace_location(URLs.VIEWS.LOGIN_VIEW);
-		console.log("****DEBUG**** handlelocation() -> isUserAuthenticated() false");
 		return;
 	}
 	await render_next(undefined, routeMatched, _storage);
@@ -259,7 +254,6 @@ const handleLocation = async () => {
 
 
 window.addEventListener('load', async () => {
-    console.log('La page a été actualisée.');
     const urlActuelle = window.location.href;
 
     if (!urlActuelle.includes('login')) {
@@ -267,19 +261,17 @@ window.addEventListener('load', async () => {
 
         if (response.find(data => data === 'user-is-authenticated')) {
             const user = {"username" : response[2].user.display};
-            console.log('user ', user);
             const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-            if (resp.status === 'error') {
-                console.log(" RECO WEB SOCKET")
+            if (resp.status === 'error'){
                 await callWebSockets();
-            }
-            //tester la request email = mail OR 1=1 --
+			}
+            // TO DO: tester la request email = mail OR 1=1 --
         }
         else if (response.find(data => data === 'not-authenticated')) {
             console.log('not-authenticated');
         }
-        else if (response.find(data => data === 'invalid-session')) {
-            console.log('invalid-session');
+        else if (response.find(data => data === 'invalid-session')) 
+		{
             window.sessionStorage.clear();
             await replace_location(URLs.VIEWS.LOGIN_VIEW);
         }
