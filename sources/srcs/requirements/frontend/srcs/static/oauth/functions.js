@@ -342,3 +342,7 @@ async function refresh_jwt() {
 		}
 	}
 }
+
+async function openEmailCatcher() {
+	window.open(MAILCATCHER_BASE_URL, '_self');
+}

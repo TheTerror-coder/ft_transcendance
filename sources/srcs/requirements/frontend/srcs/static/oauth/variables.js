@@ -4,6 +4,7 @@ const BASE_URL = `https://${window.location.host}`;
 const BACKEND_BASE_URL = `${BASE_URL}/backpong`;
 const ALLAUTH_BASE_URL = `${BASE_URL}/_allauth/browser/v1`;
 const ULTIMAPI_PRODIVIDER_ID = 'ultimapi';
+const MAILCATCHER_BASE_URL = `http://${window.location.hostname}:1080`;
 
 const ON = true;
 const OFF = false;
@@ -155,6 +156,7 @@ const ELEMENTs = Object.freeze({
 	
 	verify_email_button :  () => document.getElementById("verify-email-button"),
 	verify_email_close_error_button :  () => document.getElementById("verify-email-close-error-button"),
+	redirect_to_email_catcher_button :  () => document.getElementById("redirect-to-email-catcher-button"),
 	
 	mfa_auth_app_is_active : () => document.getElementById("mfa-auth-app-active"),
 	mfa_auth_app_not_active : () => document.getElementById("mfa-auth-app-not-active"),

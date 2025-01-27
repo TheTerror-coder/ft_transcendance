@@ -110,16 +110,21 @@ const eventManager = async (event) => {
 		ELEMENTs.switch2FA().click();
 	}
 	else if (target.id === ELEMENTs.switch2FA()?.id)
-	{
-		if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
-			
-			if (await isTotpEnabled()) 
-				await deactivateTotpJob();
-			else 
+		{
+			if (window.localStorage.getItem('skip_switch2FA_flag') !== 'true'){
+				
+				if (await isTotpEnabled()) 
+					await deactivateTotpJob();
+				else 
 				await activateTotpJob();
 			return ;
 		}
 		window.localStorage.removeItem('skip_switch2FA_flag');
+	}
+	else if (target.id === ELEMENTs.redirect_to_email_catcher_button()?.id)
+	{
+		event.preventDefault();
+		await openEmailCatcher();
 	}
 };
 
