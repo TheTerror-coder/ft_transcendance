@@ -212,8 +212,6 @@ urlRoutes[PATHs.VIEWS.TOURNAMENT_TREE] = {
 // };
 
 const handleLocation = async () => {
-
-	//ici check la websocket
 	dispose_modals();
 	let pathname = window.location.pathname;
 	const params = new URLSearchParams(window.location.search);
@@ -259,8 +257,9 @@ window.addEventListener('load', async () => {
         if (response.find(data => data === 'user-is-authenticated')) {
             const user = {"username" : response[2].user.display};
             const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-            if (resp.status === 'error') 
+            if (resp.status === 'error'){
                 await callWebSockets();
+			}
             // TO DO: tester la request email = mail OR 1=1 --
         }
         else if (response.find(data => data === 'not-authenticated')) {

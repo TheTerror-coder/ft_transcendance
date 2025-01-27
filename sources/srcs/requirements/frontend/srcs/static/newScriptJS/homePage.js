@@ -9,10 +9,9 @@ async function addFriend()
 			return;
 		}
 		const data = {"username": usernameAddValue};
-		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-		const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-		if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1)
+		if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
 			await callWebSockets();
+		}
 		const response = await makeRequest('POST', URLs.USERMANAGEMENT.ADDFRIEND, data);
 		if (response.status === 'success') {
 			alert('Friend request sent at ', usernameAddValue);

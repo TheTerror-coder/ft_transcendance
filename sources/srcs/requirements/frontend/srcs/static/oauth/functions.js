@@ -233,10 +233,7 @@ function strcmp(str1, str2) {
 
 async function callWebSockets(params) {
 	try {
-		console.log("callWebSockets");
-		let one_socket_state = window.localStorage.getItem('one_socket_state');
-
-		if (one_socket_state !== 'connected' || (ONE_SOCKET?.readyState !== WebSocket.OPEN && ONE_SOCKET?.readyState !== WebSocket.CONNECTING)){
+		if (ONE_SOCKET?.readyState !== WebSocket.OPEN && ONE_SOCKET?.readyState !== WebSocket.CONNECTING){
 			ONE_SOCKET = new WebSocket(`wss://${window.location.host}/websocket/friend_invite/`);
 		}
 		ONE_SOCKET.onopen = function() {

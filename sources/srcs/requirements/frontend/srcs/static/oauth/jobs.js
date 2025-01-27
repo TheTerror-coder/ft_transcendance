@@ -24,7 +24,6 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 	console.log("****DEBUG**** post auth middleware job")
 	try {
 		await jwt_authenticate();
-		
 		await callWebSockets();
 
 		if (routeMatched){

@@ -14,7 +14,6 @@ user_sockets = {}
 class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
-        print("*****************connected", file=sys.stderr)
         self.user = self.scope['user']
         if not self.user.is_authenticated:
             await self.close()
@@ -22,7 +21,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
             self.room_group_name = f"friend_invite_{self.user.id}"
             await self.accept()
             user_sockets[self.user.username] = self.channel_name
-            print(f"User ICICICICI {self.user.username} user_socket {self.channel_name} user_so {user_sockets}", file=sys.stderr)
             await self.channel_layer.group_add(
                 self.room_group_name,
                 self.channel_name
@@ -42,7 +40,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
    
     async def receive(self, text_data=None):
-        print(f"*******debug****** In receive: {json.loads(text_data)}", file=sys.stderr)
         text_data_json = json.loads(text_data)
         if text_data_json['type'] == 'invitation':
             await self.send_invitation(text_data_json['username'])
@@ -64,7 +61,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         user = await self.get_user_by_username(username)
         if user is not None:
             friend_request = FriendRequest(from_user=self.user, to_user=user, status='PENDING')
-            # print(f"*******Friend request from {self.user.username} to {username}", file=sys.stderr)
             await sync_to_async(friend_request.save)()
             invitation = {
                 'type': 'invited',
@@ -89,25 +85,16 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
     async def send_message(self, event):
         message = event['text']
         await self.send(text_data=message)
-        # print(f"*******In send_message,  message:{json.loads(message)}", file=sys.stderr)
 
 
 
     async def update_username(self, event):
-        # print(f"*******debug******* In update_username: {event}", file=sys.stderr)
-        # print(f"*******debug******* user_sockets: {user_sockets}", file=sys.stderr)
         new_username = event["new_username"]
         to_user = event["to_user"]
         from_user = event["from_user"]
-        # print(f"*******debug******* from_user: {from_user}, self {self.user.username}, new_username {new_username}", file=sys.stderr)
-        # if from_user in user_sockets:
-        #     user_sockets[new_username] = user_sockets.pop(from_user)
         await self.notify_username_update()
 
     async def notify_username_update(self):
-        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
-        # print(f"User {self.user.username} updated username", file=sys.stderr)
-    
         channel_layer = get_channel_layer()
         invitation = {
             'type': 'update_name',
@@ -124,10 +111,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
 
     async def update_logout(self, event):
         user = event["from_user"]
-        # to_user = event["to_user"]
-        # print(f"***********************************************************User {event}", file=sys.stderr)
-        # print(f"***********************************************************self.User {self.user.username} form  {user} to {to_user}", file=sys.stderr)
-        # print(f"Current user_sockets: {user_sockets}", file=sys.stderr)
+        to_user = event["to_user"]
         if self.user.username != to_user:
             self.user.username = to_user
         channel_layer = get_channel_layer()
@@ -147,7 +131,6 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
         to_user = event["to_user"]
         user = event["username"]
         for username, channel_name in user_sockets.items():
-            # print(f"Username {username} chanel_name {channel_name}", file=sys.stderr)
             if channel_name == self.channel_name:
                 invitation = {
                     'type': 'update_login',

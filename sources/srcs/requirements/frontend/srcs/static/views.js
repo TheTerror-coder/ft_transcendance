@@ -60,8 +60,9 @@ async function UserProfileView(username, description, data)
 
 async function	homeView(title, description, data) 
 {
-	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1)
+	if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
 		await callWebSockets();
+	}
 	ELEMENTs.doorJamp().style.display = 'flex';
 	ELEMENTs.twoFA().style.display = 'block';
 	document.title = title;

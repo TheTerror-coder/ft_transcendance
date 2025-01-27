@@ -15,7 +15,7 @@ async function fadeOut()
 		ELEMENTs.musicPlayer().volume = volume;
 
 		// Increment step
-		currentStep += 4;
+		currentStep += 6;
 
 		// Clear the interval when volume reaches 0
 		if (currentStep >= fadeSteps) 
