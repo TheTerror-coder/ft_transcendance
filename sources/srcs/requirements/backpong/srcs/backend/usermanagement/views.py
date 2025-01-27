@@ -164,7 +164,7 @@ def update_profile(request):
 		if before_username in user_sockets:
 			user_sockets[username] = user_sockets.pop(before_username)
 		for user, channel_name in user_sockets.items():
-			if user != before_username:
+			if user != before_username and user != username:
 				channel_layer = get_channel_layer()
 				async_to_sync(channel_layer.send)(
 					channel_name,

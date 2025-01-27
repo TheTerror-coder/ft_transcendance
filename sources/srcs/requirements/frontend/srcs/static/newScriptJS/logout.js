@@ -10,20 +10,20 @@ async function closeWebSocket() {
 
 async function logout_views()
 {
-	try {
-		const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
-		const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
-		if (response.status === 'success') {
+   try {
+      const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
+      const response = await makeRequest('POST', URLs.USERMANAGEMENT.LOGOUT, user);
+      if (response.status === 'success') {
          await closeWebSocket();
-		   window.sessionStorage.clear();
-		   clear_jwt();
-		   await replace_location(URLs.VIEWS.LOGIN_VIEW);
-		} else {
-		   console.error('Échec de la déconnexion:', response.message);
-		}
-	 } catch (error) {
-		console.error('Erreur lors de la déconnexion:', error);
-	 }
+         window.sessionStorage.clear();
+         clear_jwt();
+         await replace_location(URLs.VIEWS.LOGIN_VIEW);
+      } else {
+         console.error('Échec de la déconnexion:', response.message);
+      }
+   } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+   }
 }
 
 function applyAnimationLogoutButton(isHovered) 
