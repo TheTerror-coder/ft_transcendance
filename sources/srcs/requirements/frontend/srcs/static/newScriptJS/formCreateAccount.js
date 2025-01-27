@@ -4,6 +4,12 @@ async function createAccount(instance) {
 
     const email = document.getElementById('createEmail').value;
     const username = document.getElementById('createUser').value;
+	if (!isAlphanumeric(username))
+	{
+		console.log("test du bail isalphanumeric dans quel cas je dois faire le bail; ", username);
+		alert("Invalid input.");
+        return;
+	}
     const password = document.getElementById('createPassword').value;
     const confirmPassword = document.getElementById('createConfirmPassword').value;
     const bad_input = /^[^<>]+$/;

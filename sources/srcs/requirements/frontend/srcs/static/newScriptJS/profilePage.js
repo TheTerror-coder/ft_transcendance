@@ -477,6 +477,11 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
+	if (!isAlphanumeric(newUsername))
+	{
+		alert("Invalid input.");
+		return ;
+	}
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);

@@ -1,4 +1,10 @@
 
+
+function isAlphanumeric(value) 
+{
+	return /^[a-zA-Z0-9]+$/.test(value);
+}
+
 const resetBaseHtmlVAR =
 `
 		<audio id="musicPlayer" loop>
