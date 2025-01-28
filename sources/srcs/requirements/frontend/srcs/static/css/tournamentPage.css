@@ -146,6 +146,7 @@
 
 #startButtonTournament
 {
+	display: none;
 	align-self: center;
 	text-shadow: -6px -2px 1px black;
 }

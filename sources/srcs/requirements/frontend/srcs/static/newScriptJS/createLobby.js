@@ -5,6 +5,13 @@ let nbWhiteBeard = 0;
 
 let noticeDisconnect = null;
 
+let gameStarted = false;
+let ip;
+let globalSocket = null;
+let nbPerTeam;
+
+let creator = null;
+
 let savedGameCode = 
 {
     _code: null, 
@@ -21,14 +28,6 @@ let savedGameCode =
             document.getElementById("lobbyCode").innerHTML = value;
     }
 };
-let gameStarted = false;
-let ip;
-let globalSocket = null;
-let nbPerTeam;
-
-
-let error = null;
-let creator = null;
 
 // This one is for the two player lobby when it come to chose for the team to join
 // the value 0 is for all team available, 1 is for only blackbeard available, 2 is for only whitebeard available
@@ -124,12 +123,12 @@ function initializeGlobalSocket(socket)
 
     // globalSocket.on('tournamentFull', tournamentFullEvent);
 
-    globalSocket.on('error', (data) => {
-        error = data.message;
-        alert(data.message);
-        // if (data.ErrorCode === 2)
-        //     error = null;
-    });
+    // globalSocket.on('error', (data) => {
+    //     error = data.message;
+    //     alert(data.message);
+    //     // if (data.ErrorCode === 2)
+    //     //     error = null;
+    // });
 }
 
 // const tournamentCreatedEvent = (data) => {
@@ -370,7 +369,6 @@ async function createLobbyDisplay()
 		setTimeout( () => {
 			if (error)
 			{
-				alert(error);
 				error = null;
 				return ;
 			}
@@ -385,11 +383,9 @@ async function createLobbyDisplay()
             globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username, gameCode: savedGameCode.code });
         }, 20)
         setTimeout(async () => {
-            if (error !== null)
+            if (error)
             {
-                console.log("error: ", error);
                 error = null;
-                await replace_location(URLs.VIEWS.HOME);
                 return ;
             }
         }, 50);
@@ -408,7 +404,6 @@ async function createLobbyforTwoPlayer()
 	setTimeout(() => {
 		if (error)
 		{
-			alert(error);
 			error = null;
 			return ;
 		}
@@ -436,9 +431,7 @@ async function lobbyTwoPlayer()
     setTimeout(() => {
         if (error !== null)
         {
-            console.log("error: ", error);
             error = null;
-			replace_location(URLs.VIEWS.HOME);
             return ;
         }
     }, 20);

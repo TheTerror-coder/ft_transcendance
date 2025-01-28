@@ -93,7 +93,6 @@ async def disconnect(sid):
             # Gestion du tournoi
             if channel and channel.getIsTournament():
                 tournament = channel.getTournament()
-                await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
                 
                 if not tournament.getStart():
                     disconnected_team = None
@@ -128,6 +127,7 @@ async def disconnect(sid):
                             
                             # Ne pas supprimer les autres matchs du tournoi
                             return
+                    await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
             
             # Gestion du jeu
             if game:
@@ -271,6 +271,7 @@ async def joinTournament(sid, data):
         else:
             await sio.emit('error', {'message': 'Tournament is full', 'ErrorCode': 1}, room=sid)
     else:
+        logger.info(f"Tournament not found")
         await sio.emit('error', {'message': 'Tournament not found', 'ErrorCode': 1}, room=sid)
 
 @sio.event
@@ -424,9 +425,9 @@ async def launchGame(sid, gameCode):
                 game.setIsLaunch(True)
                 # if (not game.getPlayerById(sid).getIsLaunch()):
             else:
-                await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 1}, room=sid)
+                await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 0}, room=sid)
         else:
-            await sio.emit('error', {'message': 'Toutes les équipes ne sont pas pleines', 'ErrorCode': 1}, room=sid)
+            await sio.emit('error', {'message': 'Toutes les équipes ne sont pas pleines', 'ErrorCode': 0}, room=sid)
     else:
         await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 1}, room=sid)
 
@@ -587,6 +588,7 @@ def createTournamentPlayerList(tournament):
     info = []
     tournamentTeams = tournament.getTournamentTeamsList()
     for team in tournamentTeams.values():
+        logger.info(f"team.getName(): {team.getName()}")
         info.append(team.getName())
     return info
 

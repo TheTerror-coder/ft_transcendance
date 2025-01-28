@@ -9,6 +9,8 @@ const MAILCATCHER_BASE_URL = `http://${window.location.hostname}:1080`;
 const ON = true;
 const OFF = false;
 
+let error = null;
+
 const PATHs = Object.freeze({
 	
 	VIEWS : Object.freeze({

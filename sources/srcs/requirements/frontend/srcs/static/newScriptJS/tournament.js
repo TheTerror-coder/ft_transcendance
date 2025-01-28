@@ -77,6 +77,7 @@ async function joinTournamentDisplay()
 
 const tournamentCreatedEvent = (data) => {
     savedTournamentCode.code = data.tournamentCode;
+	creator = data.creator;
 }
 
 const tournamentJoinedEvent = (data) => {
@@ -85,12 +86,17 @@ const tournamentJoinedEvent = (data) => {
 
 const tournamentFullEvent = (data) => {
     console.log("TOURNAMENT FULL: ", data);
+	console.log("creator: ", creator, ", globalSocket: ", globalSocket)
+	if (creator === globalSocket.id)
+		document.getElementById("startButtonTournament").display = 'block';
 }
 
 const tournamentPlayerListEvent = (data) => {
 	if (nbPlayer !== null && nbPlayer > data.length)
 	{
 		nbPlayer = data.length;
+		// if (creator === globalSocket.id) // enlever le start quand ya un pelo qui se casse 
+		// 	document.getElementById("startButtonTournament").display = 'block';
 		usersInTournament(data, true);
 	}
 	else
@@ -130,11 +136,10 @@ const tournamentWinnerEvent = (data) => {
 }
 
 
-const errorTournamentEvent = (data) => {
-	console.log("ERROR TOURNAMENT: ", data);
-    alert(data.message);
-    error = data.message;
-}
+// const errorTournamentEvent = (data) => {
+// 	console.log("ERROR TOURNAMENT: ", data);
+//     error = data.message;
+// }
 
 function refreshWinner(winnerOfTournament) {
     const maxAttempts = 10;
@@ -159,18 +164,16 @@ async function joinTournament(code)
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
-        if (error !== null)
-        {
-            console.log("error: ", error);
-			alert(error)
-            error = null;
-			replace_location(URLs.VIEWS.TOURNAMENT);   
-            return ;
-        }
+		if (error === null)
+		{
+			ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
+			ELEMENTs.centerTournament().style.justifyItems = "center";
+			savedTournamentCode.code = code
+			refreshLanguage();
+		}
+		else
+			error = null;
     }, 20);
-    ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
-    ELEMENTs.centerTournament().style.justifyItems = "center";
-	refreshLanguage();
 }
 
 async function createTournament()
@@ -185,7 +188,6 @@ async function createTournament()
 	setTimeout(() => {
 		if (error)
 		{
-			alert(error);
 			error = null;
 			return ;
 		}
@@ -199,40 +201,43 @@ async function createTournament()
 
 async function usersInTournament(usernameTournament, disconnect) // ca faut le faire avec qund c'est shuffle
 {
-	if (ELEMENTs.numbersOfPlayersTournament())
-    	ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
+	setTimeout(() => {
+		if (ELEMENTs.numbersOfPlayersTournament())
+			ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
 
-	// if (disconnect === false && ELEMENTs.numbersOfPlayersTournament())
-	// {
-		console.log("usernameTournament: ", usernameTournament);
+		if (disconnect === false && ELEMENTs.numbersOfPlayersTournament())
+		{
+			console.log("usernameTournament: ", usernameTournament);
 
-		usernameTournament.forEach(function(element) {
-			if (!tournamentAllUsers.users.includes(element))
-			{   
-				addUserTournament(element);
-				tournamentAllUsers.users = element;
+			usernameTournament.forEach(function(element) {
+				if (!tournamentAllUsers.users.includes(element))
+				{
+					addUserTournament(element);
+					tournamentAllUsers.users = element;
+				}
+			});
+			if (nbPlayer === 4)
+			{
+				document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
+				ELEMENTs.tournamentWrite().innerHTML = "";
+				tournamentAllUsers.clearUsers();
+				displayBinaryTree();
 			}
-		});
-	// }
-	// else if (ELEMENTs.numbersOfPlayersTournament())
-	// {
-	// 	tournamentAllUsers.forEach(element => {
-	// 		console.log("usernameTournament: dans le suppr", usernameTournament, ", et element: ", element);
-	// 		const isUsernamePresent = usernameTournament.some(item => Object.values(item).includes(element)); // si il trouve pas alors je le tej et banger
-	// 		console.log("isUsernamePresent: ", isUsernamePresent);
-			// if (function(usernameTournament).includes(element))
-			// {   
-				// console.log("dans la boucle remove    element: ", element);
-				// removeUserTournament(element);
-			// }
-		// });
-    if (nbPlayer === 4)
-    {
-        document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
-        ELEMENTs.tournamentWrite().innerHTML = "";
-		tournamentAllUsers.clearUsers();
-        displayBinaryTree();
-    }
+		}
+		else if (ELEMENTs.numbersOfPlayersTournament())
+		{
+			tournamentAllUsers.forEach(element => {
+				console.log("usernameTournament: dans le suppr", usernameTournament, ", et element: ", element);
+				const isUsernamePresent = usernameTournament.some(item => Object.values(item).includes(element)); // si il trouve pas alors je le tej et banger
+				console.log("isUsernamePresent: ", isUsernamePresent);
+				// if (function(usernameTournament).includes(element))
+				// 	{   
+				// 		console.log("dans la boucle remove    element: ", element);
+				// 		removeUserTournament(element);
+				// 	}
+				});
+		}
+	}, 20);
 }
 
 async function addUserTournament(usernameTournament)
@@ -244,7 +249,7 @@ async function addUserTournament(usernameTournament)
     p.innerHTML = usernameTournament;
     p.className = "usernameTournament";
     div.appendChild(p);
-    ELEMENTs.tournamentContent().appendChild(div);
+	ELEMENTs.tournamentContent().appendChild(div);
 }
 
 
