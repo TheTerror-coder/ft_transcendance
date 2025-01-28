@@ -1,5 +1,10 @@
 // import socketIOClient from 'socket.io-client';
 
+let nbBlackBeard = 0;
+let nbWhiteBeard = 0;
+
+let noticeDisconnect = null;
+
 let savedGameCode = 
 {
     _code: null, 
@@ -162,8 +167,15 @@ const AvailableOptionsEvent = (data) => {
 
 const UpdatePlayerListEvent = async (data) => {
     console.log("Reception des listes des joueurs :", data);
-    updateLobby(data);
+	data[1].length === undefined ? nbBlackBeard = 0 : nbBlackBeard = data[1].length;
+	data[2].length === undefined ? nbWhiteBeard = 0 : nbWhiteBeard = data[2].length;
 
+	if (noticeDisconnect !== null && (nbBlackBeard + nbWhiteBeard) < noticeDisconnect)
+		updateLobby(data, true);
+	else
+    	updateLobby(data, false);
+	noticeDisconnect = nbBlackBeard + nbWhiteBeard;
+	
     if (document.getElementById("lobbyCode") === null)
     {   
         if (data[1].length === 2)
@@ -206,6 +218,7 @@ const UpdatePlayerListEvent = async (data) => {
                 roleAvailableWhiteBeard.role = 1;
         }
         displayAvailableRoleAndTeamJoin();
+		flag = false;
     }
 }
 
