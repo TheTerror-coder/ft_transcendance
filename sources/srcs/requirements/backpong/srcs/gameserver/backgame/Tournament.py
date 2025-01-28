@@ -24,6 +24,7 @@ class Tournament:
         self.tournamentGames = {}
         self.nbTeam = 0
         self.start = False
+        self.tournamentGameNumber = 0
 
         self.nodes = []
         self.root = None
@@ -65,6 +66,11 @@ class Tournament:
     
     def removeTournamentGame(self, game):
         if game and game.getGameId() in self.tournamentGames:
+            self.resetGameState(game)
+            # S'assurer que la partie ne peut pas être relancée
+            game.gameStarted = False
+            game.setGameInLobby(False)
+            game.setIsLaunch(False)
             del self.tournamentGames[game.getGameId()]
             logger.info(f"Game {game.getGameId()} removed from tournament")
 
@@ -76,8 +82,8 @@ class Tournament:
         for teamId in [1, 2]:
             team = game.getTeam(teamId)
             if team:
-                for player in list(team.player.values()):
-                    team.removePlayer(player.getId())
+                # for player in list(team.player.values()):
+                #     team.removePlayer(player.getId())
                 game.removeTeam(team)
         
         # Réinitialiser les compteurs
@@ -311,3 +317,25 @@ class Tournament:
                    (game_team1_id == team2_id and game_team2_id == team1_id):
                     return game_code
         return None
+
+    def findMatchByPlayerId(self, player_id):
+        """Trouve le match en cours pour un joueur donné"""
+        def check_match(node):
+            if not node or not node.left or not node.right:
+                return None
+            
+            left_team = node.left.team
+            right_team = node.right.team
+            
+            if left_team and right_team:
+                if (left_team.getTournamentTeamId() == player_id or 
+                    right_team.getTournamentTeamId() == player_id):
+                    return (left_team, right_team)
+            
+            # Recherche récursive
+            left_result = check_match(node.left)
+            if left_result:
+                return left_result
+            return check_match(node.right)
+        
+        return check_match(self.root)

@@ -44,8 +44,9 @@ async function initializeSocket()
     });
 
     socket.on('error', (error) => {
-        console.error('Erreur:', error);
-        if (error.ErrorCode === 1)
+        // console.error('Erreur:', error);
+        alert(error.message);
+        if (error.ErrorCode === 1 || error.ErrorCode === 2)
         {
             replace_location(URLs.VIEWS.HOME);
             socket.disconnect();

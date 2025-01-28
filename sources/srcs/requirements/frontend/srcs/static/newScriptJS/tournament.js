@@ -61,7 +61,7 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
     globalSocket.on('tournamentWinner', tournamentWinnerEvent);
-    globalSocket.on('tournamentMatches', tournamentMatchesEvent);
+    // globalSocket.on('tournamentMatches', tournamentMatchesEvent);
 }
 
 async function joinTournamentDisplay()
@@ -106,9 +106,9 @@ const tournamentMatchEvent = (data) => {
 	tournamentAllUsers.users = data.team2;
 }
 
-const tournamentMatchesEvent = (data) => {
-    console.log("TOURNAMENT MATCHES: ", data);
-}
+// const tournamentMatchesEvent = (data) => {
+//     console.log("TOURNAMENT MATCHES: ", data);
+// }
 
 const startTournamentGameEvent = async (data) => {
     console.log("START TOURNANT Game")

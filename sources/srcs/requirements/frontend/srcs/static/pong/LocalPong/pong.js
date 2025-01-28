@@ -114,7 +114,8 @@ export async function main(currentLanguage = 'en') {
                     hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
                     setTimeout(() => {
                         // Retour au menu après 3 secondes
-                        window.location.href = '/home';
+                        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                        replaceLocation(URLs.VIEWS.HOME);
                     }, 3000);
                 } else {
                     // Reset de la balle si le jeu continue
