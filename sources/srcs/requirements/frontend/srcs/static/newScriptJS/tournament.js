@@ -23,14 +23,7 @@ let tournamentAllUsers =
 	},
 	removeUser(username)
 	{
-        // Remove the user from the _user array
         this._user = this._user.filter(user => user !== username);
-        
-        // Optionally remove the user from the DOM if you have UI elements representing users
-        const userDiv = document.querySelector(`#userTournament${username}`);
-        if (userDiv) {
-            userDiv.remove();
-        }
     }
 };
 
@@ -86,7 +79,7 @@ const tournamentJoinedEvent = (data) => {
 
 const tournamentFullEvent = (data) => {
     console.log("TOURNAMENT FULL: ", data);
-	console.log("creator: ", creator, ", globalSocket: ", globalSocket)
+	console.log("creator: ", creator, ", globalSocket: ", globalSocket);
 	if (creator === globalSocket.id)
 		document.getElementById("startButtonTournament").display = 'block';
 }
@@ -95,8 +88,8 @@ const tournamentPlayerListEvent = (data) => {
 	if (nbPlayer !== null && nbPlayer > data.length)
 	{
 		nbPlayer = data.length;
-		// if (creator === globalSocket.id) // enlever le start quand ya un pelo qui se casse 
-		// 	document.getElementById("startButtonTournament").display = 'block';
+		// if (creator === globalSocket.id && document.getElementById("startButtonTournament") && document.getElementById("startButtonTournament").display == 'none')
+		// 	document.getElementById("startButtonTournament").display = 'none';
 		usersInTournament(data, true);
 	}
 	else
@@ -112,9 +105,6 @@ const tournamentMatchEvent = (data) => {
 	tournamentAllUsers.users = data.team2;
 }
 
-// const tournamentMatchesEvent = (data) => {
-//     console.log("TOURNAMENT MATCHES: ", data);
-// }
 
 const startTournamentGameEvent = async (data) => {
     console.log("START TOURNANT Game")
@@ -134,12 +124,6 @@ const tournamentWinnerEvent = (data) => {
         console.log("PASS The 10 second");
     }, 20000);
 }
-
-
-// const errorTournamentEvent = (data) => {
-// 	console.log("ERROR TOURNAMENT: ", data);
-//     error = data.message;
-// }
 
 function refreshWinner(winnerOfTournament) {
     const maxAttempts = 10;
@@ -205,38 +189,42 @@ async function usersInTournament(usernameTournament, disconnect) // ca faut le f
 		if (ELEMENTs.numbersOfPlayersTournament())
 			ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
 
-		if (disconnect === false && ELEMENTs.numbersOfPlayersTournament())
-		{
-			console.log("usernameTournament: ", usernameTournament);
-
-			usernameTournament.forEach(function(element) {
-				if (!tournamentAllUsers.users.includes(element))
-				{
-					addUserTournament(element);
-					tournamentAllUsers.users = element;
-				}
-			});
+		if (ELEMENTs.numbersOfPlayersTournament())
+			{
+				console.log("usernameTournament: ", usernameTournament);
+				usernameTournament.forEach(function(element) {
+					if (!tournamentAllUsers.users.includes(element))
+					{
+						addUserTournament(element);
+						tournamentAllUsers.users = element;
+						if (disconnect === true)
+						{
+							tournamentAllUsers.users.forEach(userinTournamentAllUsers => {
+								if (usernameTournament.includes(userinTournamentAllUsers))
+									removeUserTournament(userinTournamentAllUsers);
+							});
+						}
+					}
+				});
 			if (nbPlayer === 4)
 			{
 				document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
 				ELEMENTs.tournamentWrite().innerHTML = "";
 				tournamentAllUsers.clearUsers();
 				displayBinaryTree();
+
 			}
 		}
-		else if (ELEMENTs.numbersOfPlayersTournament())
-		{
-			tournamentAllUsers.forEach(element => {
-				console.log("usernameTournament: dans le suppr", usernameTournament, ", et element: ", element);
-				const isUsernamePresent = usernameTournament.some(item => Object.values(item).includes(element)); // si il trouve pas alors je le tej et banger
-				console.log("isUsernamePresent: ", isUsernamePresent);
-				// if (function(usernameTournament).includes(element))
-				// 	{   
-				// 		console.log("dans la boucle remove    element: ", element);
-				// 		removeUserTournament(element);
-				// 	}
-				});
-		}
+		// else if (ELEMENTs.numbersOfPlayersTournament())
+		// {
+		// 	tournamentAllUsers.forEach(element => {
+		// 		if (!usernameTournament.include(element))
+		// 		{
+		// 			console.log("dans la boucle remove element: ", element);
+		// 			removeUserTournament(element, i);
+		// 		}
+		// 	});
+		// }
 	}, 20);
 }
 
@@ -244,7 +232,7 @@ async function addUserTournament(usernameTournament)
 {
     const div = document.createElement("div");
     div.className = "tournamentPlayer";
-	div.id = `userTournament${nbPlayer}`;
+	div.id = `userTournament${usernameTournament}`;
     const p = document.createElement("p");
     p.innerHTML = usernameTournament;
     p.className = "usernameTournament";
@@ -253,13 +241,15 @@ async function addUserTournament(usernameTournament)
 }
 
 
-async function removeUserTournament(usernameTournament)
+async function removeUserTournament(usernameToRemove)
 {
-	const div = document.querySelector(`#userTournament${usernameTournament}`); // marche pas je pense
-
+	tournamentAllUsers.removeUser(usernameToRemove);
+	
+	const div = document.querySelector(`#userTournament${usernameToRemove}`);
+	console.log("div dans remove gang: ", div, ", du coup le i stp: ", i);
 	if (div)
 		div.remove();
-	tournamentAllUsers.removeUser(usernameTournament);
+	tournamentAllUsers.removeUser(usernameToRemove);
 }
 
 function displayBinaryTree()
@@ -287,11 +277,6 @@ function displayBinaryTree()
 		});
 		i++;
 	});
-	// if (winner)
-	// {
-	// 	document.getElementById("winnerOfTheTournament").innerHTML = winner;
-	// 	winner = null;
-	// }
     document.getElementById('startButtonTournament').onclick = () => startTournament();
 }
 
