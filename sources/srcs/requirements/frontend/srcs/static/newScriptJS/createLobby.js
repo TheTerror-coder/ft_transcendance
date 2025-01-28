@@ -391,7 +391,7 @@ async function createLobbyDisplay()
                 await replace_location(URLs.VIEWS.HOME);
                 return ;
             }
-        }, 70);
+        }, 50);
         savedGameCode.code = savedGameCode.code;
         refreshLanguage();
     }

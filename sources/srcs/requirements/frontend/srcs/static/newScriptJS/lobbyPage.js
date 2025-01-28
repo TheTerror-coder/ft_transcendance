@@ -1,27 +1,3 @@
-// ici je recupere les elements de fin de match de chaqu'un des deux joueurs
-// je fetch les elements de fin de match de chaqu'un des deux joueurs
-// j'applique les modif de stat pour chaqu'un des deux joueurs
-// je fetch les elements de chaque joueur
-
-
-let getWantedLobby = 
-{
-    _user: [],
-
-    get users() {
-        return this._user;
-    },
-
-    set users(value) 
-	{
-		this._user.push(value);
-		if (document.getElementById("winnerOfTheTournament"))
-			displayBinaryTree();
-	},
-	clearUsers() {
-		this._user = [];
-	}
-};
 
 async function updateLobby(data, disconnect)
 {
@@ -65,7 +41,6 @@ async function updateLobby(data, disconnect)
 				}
 				if (flag === false)
 				{
-					
 					let toDelete = document.querySelectorAll('[id^="usernameOfWanted"]');
 
 					toDelete.forEach(del => {
@@ -82,10 +57,9 @@ async function updateLobby(data, disconnect)
 			});
 		}
 	}
-    if (nbPerTeam === 1 && data[2].length === 1) // marche bien !
+    if (nbPerTeam === 1 && data[2].length === 1)
     {
         await updateLobbyOneVsOne(data);
-        // TODO regarder si le lobby est plein
         if (ELEMENTs.PlayButtonInLobby())
             ELEMENTs.PlayButtonInLobby().onclick = () => startGameLobby();
 
@@ -137,20 +111,21 @@ async function updateLobbyOneVsOne(data)
 
 async function setwantedProfileInLobby(user, position)
 {
-    const imgElement = document.getElementById(`pictureOfWanted${position}`);
-    const userResponse = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
+	const imgElement = document.getElementById(`pictureOfWanted${position}`);
+	const userResponse = await makeRequest('POST', URLs.USERMANAGEMENT.GETUSERPROFILE, user);
 
-    const photoUrl = userResponse.user_info.photo;
-    imgElement.src = photoUrl;
-    document.getElementById(`usernameOfWanted${position}`).innerHTML = user.username;
-    let primeAmount = userResponse.user_info.prime;
-    if (userResponse.user_info.prime === null)
-        primeAmount = 0;
-    document.getElementById(`primeAmount${position}`).innerHTML = primeAmount;
+	const photoUrl = userResponse.user_info.photo;
+	imgElement.src = photoUrl;
+	document.getElementById(`usernameOfWanted${position}`).innerHTML = user.username;
+	let primeAmount = userResponse.user_info.prime;
+	if (userResponse.user_info.prime === null)
+		primeAmount = 0;
+	document.getElementById(`primeAmount${position}`).innerHTML = primeAmount;
 }
 
 async function updateLobbyTwoVsTwo(data)
 {
+	console.log("dans update twovstwo lobby: ", data);
     if (data[1] && data[1][0] && data[1][0].name !== undefined)
     {
         const user = {"username": data[1][0].name};
@@ -161,10 +136,8 @@ async function updateLobbyTwoVsTwo(data)
     if (data[1] && data[1][1] && data[1][1].name !== undefined)
     {
         const user = {"username": data[1][1].name};
-        ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
         const pos = data[1][1].role === "captain" ? 1 : 2;
         pos === 1 ? ELEMENTs.lobbyDisplayRapidPlayPlayerOne().innerHTML = wantedPlayerOne : ELEMENTs.lobbyDisplayRapidPlayPlayerTwo().innerHTML = wantedPlayerTwo;
-
         await setwantedProfileInLobby(user, pos);
     }
     if (data[2] && data[2][0] && data[2][0].name !== undefined)
