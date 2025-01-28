@@ -34,6 +34,11 @@ from time import sleep
 @permission_classes([AllowAny])
 def register(request):
 	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
 		form = CustomUserCreationForm(request.data, request.FILES)
 		if form.is_valid():
 			form.save()
@@ -68,6 +73,11 @@ def connect(request):
 @permission_classes([AllowAny])
 def login_view(request):
 	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
 		form = CustomAuthenticationForm(data=request.data)
 		if form.is_valid():
 			password = form.cleaned_data.get('password')
@@ -97,7 +107,7 @@ def login_view(request):
 							}
 						)
 
-				return Response({'status': 'success', 'username': user.username, 'user_id': user.id})
+				return Response({'status': 'success', 'username': user.username, 'user_id': user.id}, status=200)
 			else:
 				error_messages = {field: error_list for field, error_list in form.errors.items()}
 				return Response({
@@ -112,78 +122,90 @@ def login_view(request):
 				'message': 'Validation failed. Please correct the errors below.',
 				'errors': error_messages
 			}, status=400)
-	return Response({'status': 'error', 'msgError': 'request method POST not accepted'}, status=405)
+	return Response({'status': 'error', 'message': 'request method POST not accepted'}, status=405)
 
 
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([AllowAny])
 def logout_view(request):
-	logout(request)
-	username = request.data.get('username')
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': 'Le nom d\'utilisateur est requis.'
-		}, status=400)
+	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		logout(request)
+		username = request.data.get('username')
+		if not username:
+			return Response({
+				'status': 'error',
+				'message': 'Le nom d\'utilisateur est requis.'
+			}, status=400)
 
-	channel_layer = get_channel_layer()
-	for user, channel_name in user_sockets.items():
-		if user != username:
-			async_to_sync(channel_layer.send)(
-				channel_name,
-				{
-					"type": "update.logout",
-					"from_user": username,
-					"to_user": user,
-				}
-			)
-	if username in user_sockets:
-		del user_sockets[username]
-	return Response({
-		'status': 'success',
-		'redirect': True,
-		'redirect_url': reverse('login')
-	}, status=200)
+		channel_layer = get_channel_layer()
+		for user, channel_name in user_sockets.items():
+			if user != username:
+				async_to_sync(channel_layer.send)(
+					channel_name,
+					{
+						"type": "update.logout",
+						"from_user": username,
+						"to_user": user,
+					}
+				)
+		if username in user_sockets:
+			del user_sockets[username]
+		return Response({
+			'status': 'success',
+			'redirect': True,
+			'redirect_url': reverse('login')
+		}, status=200)
 
 
 @api_view(['POST'])
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-	username = request.data.get('username')
-	before_username = request.user.username
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': 'username not found',
-		}, status=400)
-	form = UpdateUsernameForm({'username': username}, instance=request.user)
-	if form.is_valid():
-		form.save()
-		if before_username in user_sockets:
-			user_sockets[username] = user_sockets.pop(before_username)
-		for user, channel_name in user_sockets.items():
-			if user != before_username and user != username:
-				channel_layer = get_channel_layer()
-				async_to_sync(channel_layer.send)(
-					channel_name,
-					{
-						"type": "update.username",
-						"from_user": before_username,
-						"to_user": user,
-						"new_username": username,
-					}
-				)
-		return Response({
-			'status': 'success',
-			'message': 'Profile updated successfully.',
-		}, status=200)
-	else:
-		return Response({
-			'status': 'error',
-			'message': form.errors.get('username', ['Erreur inconnue'])[0],
-		}, status=400)
+	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		username = request.data.get('username')
+		before_username = request.user.username
+		if not username:
+			return Response({
+				'status': 'error',
+				'message': 'username not found',
+			}, status=400)
+		form = UpdateUsernameForm({'username': username}, instance=request.user)
+		if form.is_valid():
+			form.save()
+			if before_username in user_sockets:
+				user_sockets[username] = user_sockets.pop(before_username)
+			for user, channel_name in user_sockets.items():
+				if user != before_username and user != username:
+					channel_layer = get_channel_layer()
+					async_to_sync(channel_layer.send)(
+						channel_name,
+						{
+							"type": "update.username",
+							"from_user": before_username,
+							"to_user": user,
+							"new_username": username,
+						}
+					)
+			return Response({
+				'status': 'success',
+				'message': 'Profile updated successfully.',
+			}, status=200)
+		else:
+			return Response({
+				'status': 'error',
+				'message': form.errors.get('username', ['Erreur inconnue'])[0],
+			}, status=400)
 
 
 
@@ -193,54 +215,60 @@ User = get_user_model()
 @csrf_protect
 @permission_classes([IsAuthenticated])
 def update_photo(request):
-	if 'picture' not in request.FILES:
-		return Response({
-			'status': 'error',
-			'message': 'No file received.',
-		}, status=400)
-	uploaded_file = request.FILES['picture']
-	check_file = uploaded_file.name.split('.')[-1].lower()
-	valid_extensions = ['png', 'jpg', 'jpeg', 'webp']
-	if check_file not in valid_extensions:
-		return Response({
-			'status': 'error',
-			'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
-		}, status=400)
+	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		if 'picture' not in request.FILES:
+			return Response({
+				'status': 'error',
+				'message': 'No file received.',
+			}, status=400)
+		uploaded_file = request.FILES['picture']
+		check_file = uploaded_file.name.split('.')[-1].lower()
+		valid_extensions = ['png', 'jpg', 'jpeg', 'webp']
+		if check_file not in valid_extensions:
+			return Response({
+				'status': 'error',
+				'message': 'Unsupported file extension. Only .png, .jpg, .jpeg, and .webp files are allowed.',
+			}, status=400)
 
-	try:
-		img = Image.open(uploaded_file)
-		img.verify()
-		img.close()
-	except (IOError, SyntaxError) as e:
-		return Response({
-			'status': 'error',
-			'message': 'Invalid image file.',
-		}, status=400)
-	fs = FileSystemStorage()
-	try:
-		filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
-	except ValueError as e:
-		return Response({
-			'status': 'error',
-			'message': str(e),
-		}, status=400)
-	file_url = fs.url(filename)
-	user = request.user
-	user.photo = filename
-	user.save()
-	if user.photo.url:
-		return Response({
-			'status': 'success',
-			'photo': user.photo.url,
-			'message': 'Profile picture updated successfully.',
-		}, status=200)
-	else:
-		form = UpdatePhotoForm()
-		error_messages = {field: error_list for field, error_list in form.errors.items()}
-		return Response({
-			'status': 'error',
-			'errors': error_messages,
-		}, status=400)
+		try:
+			img = Image.open(uploaded_file)
+			img.verify()
+			img.close()
+		except (IOError, SyntaxError) as e:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid image file.',
+			}, status=400)
+		fs = FileSystemStorage()
+		try:
+			filename = fs.save('photos/' + uploaded_file.name, uploaded_file)
+		except ValueError as e:
+			return Response({
+				'status': 'error',
+				'message': str(e),
+			}, status=400)
+		file_url = fs.url(filename)
+		user = request.user
+		user.photo = filename
+		user.save()
+		if user.photo.url:
+			return Response({
+				'status': 'success',
+				'photo': user.photo.url,
+				'message': 'Profile picture updated successfully.',
+			}, status=200)
+		else:
+			form = UpdatePhotoForm()
+			error_messages = {field: error_list for field, error_list in form.errors.items()}
+			return Response({
+				'status': 'error',
+				'errors': error_messages,
+			}, status=400)
 
 
 
@@ -248,30 +276,36 @@ def update_photo(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def set_language(request):
-	username = request.data.get('username')
-	language = request.data.get('language')
-	try:
-		user = User.objects.get(username=username)
-	except User.DoesNotExist:
-		return Response({
-			'status': 'error',
-			'message': 'Utilisateur introuvable.'
-		}, status=404)
+	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		username = request.data.get('username')
+		language = request.data.get('language')
+		try:
+			user = User.objects.get(username=username)
+		except User.DoesNotExist:
+			return Response({
+				'status': 'error',
+				'message': 'Utilisateur introuvable.'
+			}, status=200)
 
-	form = UpdateUserLanguageForm({'language': language})
-	if form.is_valid():
-		user.language = language
-		user.save()
-		
-		return Response({
-			'status': 'success',
-			'message': 'La langue a été changée.',
-		}, status=200)
-	else:
-		return Response({
-			'status': 'error',
-			'message': form.errors.get('language', ['Erreur inconnue'])[0],
-		}, status=400)
+		form = UpdateUserLanguageForm({'language': language})
+		if form.is_valid():
+			user.language = language
+			user.save()
+			
+			return Response({
+				'status': 'success',
+				'message': 'La langue a été changée.',
+			}, status=200)
+		else:
+			return Response({
+				'status': 'error',
+				'message': form.errors.get('language', ['Erreur inconnue'])[0],
+			}, status=400)
 
 
 
@@ -279,24 +313,30 @@ def set_language(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def get_language(request):
-	username = request.data.get('username')
+	if request.method == 'POST' or request.method == 'GET':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=200)
+		username = request.data.get('username')
 
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': 'Le nom d\'utilisateur est requis.'
-		}, status=400)
+		if not username:
+			return Response({
+				'status': 'error',
+				'message': 'Le nom d\'utilisateur est requis.'
+			}, status=200)
 
-	try:
-		to_user = User.objects.get(username=username)
-		return Response({
-			'status': 'success',
-			'language': to_user.language,
-		}, status=200)
-	except User.DoesNotExist:
-		return Response({
-			'status': 'error',
-		}, status=400)
+		try:
+			to_user = User.objects.get(username=username)
+			return Response({
+				'status': 'success',
+				'language': to_user.language,
+			}, status=200)
+		except User.DoesNotExist:
+			return Response({
+				'status': 'error',
+			}, status=200)
 
 
 
@@ -304,57 +344,63 @@ def get_language(request):
 @csrf_protect
 @permission_classes([AllowAny])
 def get_user_profile(request):
-	username = request.data.get('username')
-	if not username:
-		return Response({
-			status: 'error',
-			message: 'Le nom d\'utilisateur est requis.'
-		}, status=400)
-	try:
-		to_user = User.objects.get(username=username)
-		recent_games = to_user.recent_games()
-		games_data = []
-		for game in recent_games:
-			game_info = {
-				'player': game.player.username,
-				'opponent': game.opponent.username,
-				'player_score': game.player_score,
-				'opponent_score': game.opponent_score,
-				'date': game.date,
+	if request.method == 'POST' or request.method == 'GET':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		username = request.data.get('username')
+		if not username:
+			return Response({
+				status: 'error',
+				message: 'Le nom d\'utilisateur est requis.'
+			}, status=400)
+		try:
+			to_user = User.objects.get(username=username)
+			recent_games = to_user.recent_games()
+			games_data = []
+			for game in recent_games:
+				game_info = {
+					'player': game.player.username,
+					'opponent': game.opponent.username,
+					'player_score': game.player_score,
+					'opponent_score': game.opponent_score,
+					'date': game.date,
+				}
+				games_data.append(game_info)
+			user_info = {
+				'id': to_user.id,
+				'username': to_user.username,
+				'email': to_user.email,
+				'first_name': to_user.first_name,
+				'last_name': to_user.last_name,
+				'is_active': to_user.is_active,
+				'date_joined': to_user.date_joined,
+				'nbr_of_games': to_user.games_played,
+				'recent_games': games_data,
+				'victorie': to_user.victories,
+				'loose': to_user.loose,
+				'prime': to_user.prime,
+				'language': to_user.language,
 			}
-			games_data.append(game_info)
-		user_info = {
-			'id': to_user.id,
-			'username': to_user.username,
-			'email': to_user.email,
-			'first_name': to_user.first_name,
-			'last_name': to_user.last_name,
-			'is_active': to_user.is_active,
-			'date_joined': to_user.date_joined,
-			'nbr_of_games': to_user.games_played,
-			'recent_games': games_data,
-			'victorie': to_user.victories,
-			'loose': to_user.loose,
-			'prime': to_user.prime,
-			'language': to_user.language,
-		}
-		if to_user.photo_link:
-			user_info['photo'] = to_user.photo_link 
-		elif to_user.photo:
-			user_info['photo'] = to_user.photo.url 
-		else:
-			user_info['photo'] = None
+			if to_user.photo_link:
+				user_info['photo'] = to_user.photo_link 
+			elif to_user.photo:
+				user_info['photo'] = to_user.photo.url 
+			else:
+				user_info['photo'] = None
 
-		return Response({
-			'status': 'success',
-			'user_info': user_info,
-		}, status=200)
+			return Response({
+				'status': 'success',
+				'user_info': user_info,
+			}, status=200)
 
-	except User.DoesNotExist:
-		return Response({
-			'status': 'error',
-			'message': 'User not found',
-		}, status=404)
+		except User.DoesNotExist:
+			return Response({
+				'status': 'error',
+				'message': 'User not found',
+			}, status=404)
 
 
 @api_view(['GET'])
@@ -412,6 +458,11 @@ def profile(request):
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
 	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
 		username = request.data.get('username')
     
 		if not username:
@@ -466,6 +517,11 @@ def send_friend_request(request):
 @permission_classes([IsAuthenticated])
 def remove_friend(request):
 	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
 		username = request.data.get('username')
 		if not username:
 			response = {
@@ -537,26 +593,6 @@ def remove_friend(request):
 		}
 		return Response(response)
 
-@api_view(['POST'])
-@csrf_protect
-@permission_classes([IsAuthenticated])
-def get_user_sockets(request):
-	username = request.data.get('username')
-	if not username:
-		return Response({
-			'status': 'error',
-			'message': "'username' est requis dans la requête."
-		}, status=400)
-	if username in user_sockets:
-		return Response({
-			'status': 'success',
-			'sockets': user_sockets[username]
-		}, status=200)
-	else:
-		return Response({
-			'status': 'error',
-			'message': 'User not connected'
-		}, status=400)
 
 @api_view(['GET'])
 @csrf_protect
@@ -566,7 +602,7 @@ def get_user(request):
 		return Response({
 			'status': 'error',
 			'message': 'User is not authenticated',
-		}, status=401)
+		}, status=200)
 	return Response({
 		'status': 'success',
 		'username': request.user.username,
@@ -576,57 +612,63 @@ def get_user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def set_info_game(request):
-	if request.data.get('player') == request.data.get('winner'):
-		winner = request.data.get('player')
-		winner_score = int(request.data.get('player_score'))
-		looser = request.data.get('opponent')
-		looser_score = int(request.data.get('opponent_score'))
-	else:
-		winner = request.data.get('opponent')
-		looser = request.data.get('player')
-		winner_score = int(request.data.get('opponent_score'))
-		looser_score = int(request.data.get('player_score'))
+	if request.method == 'POST':
+		if not request.data or not isinstance(request.data, dict):
+			return Response({
+				'status': 'error',
+				'message': 'Invalid input. JSON data is required.',
+			}, status=400)
+		if request.data.get('player') == request.data.get('winner'):
+			winner = request.data.get('player')
+			winner_score = int(request.data.get('player_score'))
+			looser = request.data.get('opponent')
+			looser_score = int(request.data.get('opponent_score'))
+		else:
+			winner = request.data.get('opponent')
+			looser = request.data.get('player')
+			winner_score = int(request.data.get('opponent_score'))
+			looser_score = int(request.data.get('player_score'))
 
-	if not winner or not looser or winner_score is None or looser_score is None:
-		return Response({
-			'status': 'error',
-			'message': "Données manquantes. Assurez-vous que 'player', 'opponent', 'player_score' et 'opponent_score' sont fournis."
-		}, status=400)
-  
-	if winner == looser:
-		return Response({
-			'status': 'error',
-			'message': "Vous ne pouvez pas jouer contre vous-même."
-		}, status=400)
+		if not winner or not looser or winner_score is None or looser_score is None:
+			return Response({
+				'status': 'error',
+				'message': "Données manquantes. Assurez-vous que 'player', 'opponent', 'player_score' et 'opponent_score' sont fournis."
+			}, status=400)
 	
-	try:
-		user_win = User.objects.get(username=winner)
-		user_loose = User.objects.get(username=looser)
+		if winner == looser:
+			return Response({
+				'status': 'error',
+				'message': "Vous ne pouvez pas jouer contre vous-même."
+			}, status=400)
+		
+		try:
+			user_win = User.objects.get(username=winner)
+			user_loose = User.objects.get(username=looser)
 
-	except User.DoesNotExist:
-		return Response({'status': 'error', 'message': "Un des joueurs n'existe pas."}, status=400)
-	
+		except User.DoesNotExist:
+			return Response({'status': 'error', 'message': "Un des joueurs n'existe pas."}, status=400)
+		
 
-	game = Game.objects.create(
-		player=user_win,
-		opponent=user_loose,
-		player_score=winner_score,
-		opponent_score=looser_score,
-	)
+		game = Game.objects.create(
+			player=user_win,
+			opponent=user_loose,
+			player_score=winner_score,
+			opponent_score=looser_score,
+		)
 
-	user_loose.prime = user_loose.prime - 500 if user_loose.prime > 500 else 0
-	user_win.prime = user_win.prime + 1000
-	user_win.victories += 1
-	user_win.games_played += 1
-	user_loose.games_played += 1
-	user_loose.loose += 1
-	user_win.save()
-	user_loose.save()
+		user_loose.prime = user_loose.prime - 500 if user_loose.prime > 500 else 0
+		user_win.prime = user_win.prime + 1000
+		user_win.victories += 1
+		user_win.games_played += 1
+		user_loose.games_played += 1
+		user_loose.loose += 1
+		user_win.save()
+		user_loose.save()
 
-	return Response({
-		'status': 'success',
-		'message': 'Données de la partie enregistrées avec succès.',
-	}, status=200)
+		return Response({
+			'status': 'success',
+			'message': 'Données de la partie enregistrées avec succès.',
+		}, status=200)
 
 def perform_mfa_stage(request):
 	from allauth.headless.account.inputs import LoginInput

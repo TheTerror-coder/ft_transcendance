@@ -1,6 +1,4 @@
 
-// import * as views from './views.js';
-
 const eventManager = async (event) => {
 	const { target } = event;
 
@@ -257,30 +255,27 @@ const handleLocation = async () => {
 
 
 
-window.addEventListener('load', async () => {
-    const urlActuelle = window.location.href;
+// window.addEventListener('load', async () => {
+//     const urlActuelle = window.location.href;
 
-    if (!urlActuelle.includes('login')) {
-        const response = await getAuthenticationStatus();
+//     if (!urlActuelle.includes('login')) {
+//         const response = await getAuthenticationStatus();
 
-        if (response.find(data => data === 'user-is-authenticated')) {
-            const user = {"username" : response[2].user.display};
-            const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
-            if (resp.status === 'error'){
-                await callWebSockets();
-			}
-            // TO DO: tester la request email = mail OR 1=1 --
-        }
-        else if (response.find(data => data === 'not-authenticated')) {
-            console.log('not-authenticated');
-        }
-        else if (response.find(data => data === 'invalid-session')) 
-		{
-            window.sessionStorage.clear();
-            await replace_location(URLs.VIEWS.LOGIN_VIEW);
-        }
-    }
-});
+//         if (response.find(data => data === 'user-is-authenticated')) {
+// 			if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
+// 				await callWebSockets();
+// 			}
+//         }
+//         else if (response.find(data => data === 'not-authenticated')) {
+//             console.log('not-authenticated');
+//         }
+//         else if (response.find(data => data === 'invalid-session')) 
+// 		{
+//             window.sessionStorage.clear();
+//             await replace_location(URLs.VIEWS.LOGIN_VIEW);
+//         }
+//     }
+// });
 
 window.onpopstate = handleLocation;
 

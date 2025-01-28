@@ -12,7 +12,6 @@ urlpatterns = [
     path('remove-friend/', views.remove_friend, name='remove_friend'),
     path('profile/', views.profile, name='profile'),
     path('login/', views.login_view, name='login'),
-    path('user-socket/', views.get_user_sockets, name='user_socket'),
     path('get-user/', views.get_user, name='get_user'),
     path('get-user-profile/', views.get_user_profile, name='get_user_profile'),
     path('set-language/', views.set_language, name='setLanguage'),
