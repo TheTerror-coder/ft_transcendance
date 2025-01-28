@@ -9,6 +9,8 @@ const MAILCATCHER_BASE_URL = `http://${window.location.hostname}:1080`;
 const ON = true;
 const OFF = false;
 
+let error = null;
+
 const PATHs = Object.freeze({
 	
 	VIEWS : Object.freeze({
@@ -144,6 +146,7 @@ const ELEMENTs = Object.freeze({
 
 
 	mainPage :  () => document.getElementById("mainPage"),
+	allPage : () => document.getElementById("allPage"),
 	
 	loginPageButton :  () => document.getElementById("loginPageButton"),
 	statusDiv :  () => document.getElementById("status"),
@@ -268,10 +271,10 @@ const ELEMENTs = Object.freeze({
 
 
 	// LOBBY
-	lobbyDisplayRapidPlayPlayerOne : () => document.getElementById("lobbyDisplayRapidPlayPlayerOne"),
-	lobbyDisplayRapidPlayPlayerTwo : () => document.getElementById("lobbyDisplayRapidPlayPlayerTwo"),
-	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayerThree"),
-	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayerFour"),
+	lobbyDisplayRapidPlayPlayerOne : () => document.getElementById("lobbyDisplayRapidPlayPlayer1"),
+	lobbyDisplayRapidPlayPlayerTwo : () => document.getElementById("lobbyDisplayRapidPlayPlayer2"),
+	lobbyDisplayRapidPlayPlayerThree : () => document.getElementById("lobbyDisplayRapidPlayPlayer3"),
+	lobbyDisplayRapidPlayPlayerFour : () => document.getElementById("lobbyDisplayRapidPlayPlayer4"),
 	PlayButtonInLobby : () => document.getElementById("PlayButtonInLobby"),
 
 	// TOURNAMENT

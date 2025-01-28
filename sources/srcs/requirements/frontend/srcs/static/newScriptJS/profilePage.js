@@ -107,7 +107,7 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
     if (player > opponent)
     {
         match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
-        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')";
     }
     else
     {
@@ -477,6 +477,11 @@ document.addEventListener('click', async (event) =>
 });
 
 async function changeUsername(newUsername) {
+	if (!isAlphanumeric(newUsername))
+	{
+		alert("Invalid input.");
+		return ;
+	}
     const data = new FormData();
     data.append("username", newUsername);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.UPDATEPROFILE , data);

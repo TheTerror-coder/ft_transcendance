@@ -258,6 +258,7 @@ async def joinTournament(sid, data):
         else:
             await sio.emit('error', {'message': 'Tournament is full', 'ErrorCode': 1}, room=sid)
     else:
+        logger.info(f"Tournament not found")
         await sio.emit('error', {'message': 'Tournament not found', 'ErrorCode': 1}, room=sid)
 
 @sio.event
@@ -574,6 +575,7 @@ def createTournamentPlayerList(tournament):
     info = []
     tournamentTeams = tournament.getTournamentTeamsList()
     for team in tournamentTeams.values():
+        logger.info(f"team.getName(): {team.getName()}")
         info.append(team.getName())
     return info
 

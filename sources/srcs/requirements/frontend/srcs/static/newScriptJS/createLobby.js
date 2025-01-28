@@ -1,5 +1,17 @@
 // import socketIOClient from 'socket.io-client';
 
+let nbBlackBeard = 0;
+let nbWhiteBeard = 0;
+
+let noticeDisconnect = null;
+
+let gameStarted = false;
+let ip;
+let globalSocket = null;
+let nbPerTeam;
+
+let creator = null;
+
 let savedGameCode = 
 {
     _code: null, 
@@ -16,14 +28,6 @@ let savedGameCode =
             document.getElementById("lobbyCode").innerHTML = value;
     }
 };
-let gameStarted = false;
-let ip;
-let globalSocket = null;
-let nbPerTeam;
-
-
-let error = null;
-let creator = null;
 
 // This one is for the two player lobby when it come to chose for the team to join
 // the value 0 is for all team available, 1 is for only blackbeard available, 2 is for only whitebeard available
@@ -119,12 +123,12 @@ function initializeGlobalSocket(socket)
 
     // globalSocket.on('tournamentFull', tournamentFullEvent);
 
-    globalSocket.on('error', (data) => {
-        error = data.message;
-        alert(data.message);
-        // if (data.ErrorCode === 2)
-        //     error = null;
-    });
+    // globalSocket.on('error', (data) => {
+    //     error = data.message;
+    //     alert(data.message);
+    //     // if (data.ErrorCode === 2)
+    //     //     error = null;
+    // });
 }
 
 // const tournamentCreatedEvent = (data) => {
@@ -164,8 +168,15 @@ const AvailableOptionsEvent = (data) => {
 
 const UpdatePlayerListEvent = async (data) => {
     console.log("Reception des listes des joueurs :", data);
-    updateLobby(data);
+	data[1].length === undefined ? nbBlackBeard = 0 : nbBlackBeard = data[1].length;
+	data[2].length === undefined ? nbWhiteBeard = 0 : nbWhiteBeard = data[2].length;
 
+	if (noticeDisconnect !== null && (nbBlackBeard + nbWhiteBeard) < noticeDisconnect)
+		updateLobby(data, true);
+	else
+    	updateLobby(data, false);
+	noticeDisconnect = nbBlackBeard + nbWhiteBeard;
+	
     if (document.getElementById("lobbyCode") === null)
     {   
         if (data[1].length === 2)
@@ -208,6 +219,7 @@ const UpdatePlayerListEvent = async (data) => {
                 roleAvailableWhiteBeard.role = 1;
         }
         displayAvailableRoleAndTeamJoin();
+		flag = false;
     }
 }
 
@@ -224,8 +236,7 @@ const TeamsFullEvent = () =>
 const StartGameEvent = async (data) => 
 {
     const module = await import ('../pong/pong.js');
-    document.getElementById('background').innerHTML = "";
-    ELEMENTs.background().style.backgroundImage = '';
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     try
     {
@@ -358,7 +369,6 @@ async function createLobbyDisplay()
 		setTimeout( () => {
 			if (error)
 			{
-				alert(error);
 				error = null;
 				return ;
 			}
@@ -373,14 +383,12 @@ async function createLobbyDisplay()
             globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username, gameCode: savedGameCode.code });
         }, 20)
         setTimeout(async () => {
-            if (error !== null)
+            if (error)
             {
-                console.log("error: ", error);
                 error = null;
-                await replace_location(URLs.VIEWS.HOME);
                 return ;
             }
-        }, 70);
+        }, 50);
         savedGameCode.code = savedGameCode.code;
         refreshLanguage();
     }
@@ -396,7 +404,6 @@ async function createLobbyforTwoPlayer()
 	setTimeout(() => {
 		if (error)
 		{
-			alert(error);
 			error = null;
 			return ;
 		}
@@ -424,9 +431,7 @@ async function lobbyTwoPlayer()
     setTimeout(() => {
         if (error !== null)
         {
-            console.log("error: ", error);
             error = null;
-			replace_location(URLs.VIEWS.HOME);
             return ;
         }
     }, 20);

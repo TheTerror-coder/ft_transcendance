@@ -43,14 +43,19 @@ async function initializeSocket()
         console.log('Déconnecté du serveur pong avec l\'ip: ' + window.location.hostname + ` sur le port: ${window.location.port} avec la socket: ` + socket.id + ' connected: ' + socket.connected);
     });
 
-    socket.on('error', (error) => {
+    socket.on('error', (data) => {
         // console.error('Erreur:', error);
-        alert(error.message);
-        if (error.ErrorCode === 1 || error.ErrorCode === 2)
+		error = data.message;
+		console.log("error: ", error, ", data.message: ", data.message);
+        alert(error);
+        if (data.ErrorCode === 1 || data.ErrorCode === 2)
         {
             replace_location(URLs.VIEWS.HOME);
             socket.disconnect();
         }
+		setTimeout( ()=> {
+			error = null;
+		}, 1000)
     });
 
     return socket;

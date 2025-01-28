@@ -85,6 +85,11 @@ const eventManager = async (event) => {
 		teamAvailable.team = 0;
 		roleAvailableBlackBeard.role = 0;
 		roleAvailableWhiteBeard.role = 0;
+		nbBlackBeard = 0;
+		nbWhiteBeard = 0;
+		noticeDisconnect = null;
+		tournamentAllUsers.clearUsers();
+
 		event.preventDefault();
 		if (globalSocket !== null)
 		{
