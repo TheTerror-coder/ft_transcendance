@@ -346,7 +346,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'",
+          "curl -s http://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: Check if this is the correct healthcheck
           # "curl -s --cacert $GAMESERVER_ROOT_CA https://localhost:$GAMESERVER_PORT/healthcheck/ | grep -q 'healthy'", # TODO: In production
         ]
       start_period: 10s
