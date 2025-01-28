@@ -122,6 +122,8 @@ function initializeGlobalSocket(socket)
     globalSocket.on('error', (data) => {
         error = data.message;
         alert(data.message);
+        // if (data.ErrorCode === 2)
+        //     error = null;
     });
 }
 
