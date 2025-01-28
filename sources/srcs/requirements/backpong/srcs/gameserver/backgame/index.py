@@ -114,7 +114,9 @@ async def disconnect(sid):
                             
                             # Ne pas supprimer les autres matchs du tournoi
                             return
-                    await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
+                    else:
+                        tournament.removeTournamentTeam(tournament.getTournamentTeams(sid))
+                        await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
             
             # Gestion du jeu
             if game:
