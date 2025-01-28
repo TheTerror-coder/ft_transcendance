@@ -79,8 +79,10 @@ async def disconnect(sid):
             if room in ChannelList or room in tournamentGame:
                 if (room in ChannelList):
                     channel = ChannelList[room]
+                    logger.info(f'channel.getIsTournament() {channel.getIsTournament()} for player {sid}')
                     if (channel.getIsTournament()):
-                        continue
+                        await sio.emit('tournamentPlayerList', createTournamentPlayerList(channel.getTournament()), room=room)
+						# continue
                     else:
                         game = channel.getGame()
                 else:

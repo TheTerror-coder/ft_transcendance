@@ -235,8 +235,7 @@ const TeamsFullEvent = () =>
 const StartGameEvent = async (data) => 
 {
     const module = await import ('../pong/pong.js');
-    document.getElementById('background').innerHTML = "";
-    ELEMENTs.background().style.backgroundImage = '';
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     try
     {

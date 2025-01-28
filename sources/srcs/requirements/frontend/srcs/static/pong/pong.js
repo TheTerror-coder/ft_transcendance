@@ -232,7 +232,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 network.removeSocketListeners(socket);
                                 resolve();
                                 savedGameCode.code = null;
-                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
                                 replace_location(URLs.VIEWS.HOME);
                                 // await new Promise(resolve => setTimeout(resolve, 200));
                                 socket.disconnect();
@@ -244,7 +244,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 network.removeSocketListeners(socket);
                                 resolve();
                                 savedGameCode.code = null;
-                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
                                 if (currentPlayerTeam.getTournamentEnded() === true)
                                 {
                                     replace_location(URLs.VIEWS.TOURNAMENT_TREE);

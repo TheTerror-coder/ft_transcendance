@@ -1,5 +1,8 @@
+
+let nbPlayer = null;
 let winner = null;
 let winnerOfTournament = null;
+
 
 let tournamentAllUsers = 
 {
@@ -17,7 +20,18 @@ let tournamentAllUsers =
 	},
 	clearUsers() {
 		this._user = [];
-	}
+	},
+	removeUser(username)
+	{
+        // Remove the user from the _user array
+        this._user = this._user.filter(user => user !== username);
+        
+        // Optionally remove the user from the DOM if you have UI elements representing users
+        const userDiv = document.querySelector(`#userTournament${username}`);
+        if (userDiv) {
+            userDiv.remove();
+        }
+    }
 };
 
 let savedTournamentCode = 
@@ -74,7 +88,16 @@ const tournamentFullEvent = (data) => {
 }
 
 const tournamentPlayerListEvent = (data) => {
-    usersInTournament(data, data.length);
+	if (nbPlayer !== null && nbPlayer > data.length)
+	{
+		nbPlayer = data.length;
+		usersInTournament(data, true);
+	}
+	else
+	{
+		nbPlayer = data.length;
+		usersInTournament(data, false);
+	}
 }
 
 const tournamentMatchEvent = (data) => {
@@ -90,7 +113,7 @@ const tournamentMatchesEvent = (data) => {
 const startTournamentGameEvent = async (data) => {
     console.log("START TOURNANT Game")
     const module = await import('../pong/pong.js');
-    document.getElementById('background').innerHTML = "";
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     await module.main(data.gameCode, globalSocket, currentLanguage);
     console.log("Tournament End");
@@ -100,8 +123,6 @@ const tournamentWinnerEvent = (data) => {
     console.log("TOURNAMENT WINNER: ", data);
     winnerOfTournament = data;
     refreshWinner(winnerOfTournament);
-    
-    // Finalement, rediriger vers la page d'accueil après 10 secondes
     setTimeout(() => {
         replace_location(URLs.VIEWS.HOME);
         console.log("PASS The 10 second");
@@ -129,17 +150,8 @@ function refreshWinner(winnerOfTournament) {
             setTimeout(tryUpdateWinner, 1000);
         }
     };
-    
     tryUpdateWinner();
 }
-
-// function refreshWinner(winnerOfTournament)
-// {
-// 	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
-// 	console.log("winnerOfTournament: ", winnerOfTournament);
-// 	document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
-// 	// winnerEvent = 0;
-// }
 
 async function joinTournament(code)
 {
@@ -185,18 +197,35 @@ async function createTournament()
 
 // i sera le nombre de joueur qui ont rejoins en tout le tournois
 
-async function usersInTournament(usernameTournament, nbPlayer) // ca faut le faire avec qund c'est shuffle
+async function usersInTournament(usernameTournament, disconnect) // ca faut le faire avec qund c'est shuffle
 {
-    console.log("usersInTournament");
-    ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
+	if (ELEMENTs.numbersOfPlayersTournament())
+    	ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
 
-    usernameTournament.forEach(function(element) {
-        if (!tournamentAllUsers.users.includes(element))
-        {   
-            addUserTournament(element);
-            tournamentAllUsers.users = element;
-        }
-    });
+	// if (disconnect === false && ELEMENTs.numbersOfPlayersTournament())
+	// {
+		console.log("usernameTournament: ", usernameTournament);
+
+		usernameTournament.forEach(function(element) {
+			if (!tournamentAllUsers.users.includes(element))
+			{   
+				addUserTournament(element);
+				tournamentAllUsers.users = element;
+			}
+		});
+	// }
+	// else if (ELEMENTs.numbersOfPlayersTournament())
+	// {
+	// 	tournamentAllUsers.forEach(element => {
+	// 		console.log("usernameTournament: dans le suppr", usernameTournament, ", et element: ", element);
+	// 		const isUsernamePresent = usernameTournament.some(item => Object.values(item).includes(element)); // si il trouve pas alors je le tej et banger
+	// 		console.log("isUsernamePresent: ", isUsernamePresent);
+			// if (function(usernameTournament).includes(element))
+			// {   
+				// console.log("dans la boucle remove    element: ", element);
+				// removeUserTournament(element);
+			// }
+		// });
     if (nbPlayer === 4)
     {
         document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
@@ -210,11 +239,22 @@ async function addUserTournament(usernameTournament)
 {
     const div = document.createElement("div");
     div.className = "tournamentPlayer";
+	div.id = `userTournament${nbPlayer}`;
     const p = document.createElement("p");
     p.innerHTML = usernameTournament;
     p.className = "usernameTournament";
     div.appendChild(p);
     ELEMENTs.tournamentContent().appendChild(div);
+}
+
+
+async function removeUserTournament(usernameTournament)
+{
+	const div = document.querySelector(`#userTournament${usernameTournament}`); // marche pas je pense
+
+	if (div)
+		div.remove();
+	tournamentAllUsers.removeUser(usernameTournament);
 }
 
 function displayBinaryTree()
@@ -257,10 +297,8 @@ function startTournament()
 	setTimeout(() => {
 		if (error !== null)
 		{
-			console.log("error: ", error);
 			error = null;
 			return ;
 		}
-
 	}, 20);
 }

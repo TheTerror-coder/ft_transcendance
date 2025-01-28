@@ -88,7 +88,7 @@ function readyLocalPlay()
 
 async function localPlay()
 {
-    document.getElementById('background').innerHTML = "";
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = '';
     const module = await import('../pong/LocalPong/pong.js');
     module.main(currentLanguage);

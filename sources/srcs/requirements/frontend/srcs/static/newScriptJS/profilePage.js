@@ -107,7 +107,7 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
     if (player > opponent)
     {
         match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
-        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')";
     }
     else
     {

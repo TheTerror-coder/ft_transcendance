@@ -144,6 +144,7 @@ const ELEMENTs = Object.freeze({
 
 
 	mainPage :  () => document.getElementById("mainPage"),
+	allPage : () => document.getElementById("allPage"),
 	
 	loginPageButton :  () => document.getElementById("loginPageButton"),
 	statusDiv :  () => document.getElementById("status"),
