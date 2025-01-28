@@ -8,6 +8,7 @@ import { createHUD } from './HUD.js';
 import { BallPhysics } from './physics.js';
 import * as THREE from 'three';
 import { Box3, Box3Helper } from 'three';
+// import { replaceLocation } from '../../oauth/functions.js';
 
 const WINNING_SCORE = 10;
 const BOAT_SPEED = 2; // Augmentation de la vitesse des bateaux
@@ -114,8 +115,9 @@ export async function main(currentLanguage = 'en') {
                     hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
                     setTimeout(() => {
                         // Retour au menu après 3 secondes
+                        render.unloadScene(scene, renderer);
                         ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
-                        replaceLocation(URLs.VIEWS.HOME);
+                        replace_location(URLs.VIEWS.HOME);
                     }, 3000);
                 } else {
                     // Reset de la balle si le jeu continue
