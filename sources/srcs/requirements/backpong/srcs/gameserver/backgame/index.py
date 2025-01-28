@@ -22,9 +22,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Au début du fichier, après les imports
-# host_ip = os.getenv("HOST_IP", "localhost")
-
 
 # Création du serveur Socket.IO
 sio = socketio.AsyncServer(
@@ -41,20 +38,10 @@ sio = socketio.AsyncServer(
     ],
     cors_credentials=True,
     async_mode='asgi',
-    # logger=True,
-    # engineio_logger=True,
-    # async_handlers=True,
     ping_timeout=60000,
     ping_interval=25000,
     transports=['websocket'],
-    # allow_upgrades=True,
-    # engineio_path='/socket.io'
 )
-
-# sio.instrument(auth={
-#     'username': 'admin',
-#     'password': 'admin',
-# })
 
 logger.info("**********Server started***********")
 
@@ -93,7 +80,6 @@ async def disconnect(sid):
             # Gestion du tournoi
             if channel and channel.getIsTournament():
                 tournament = channel.getTournament()
-                await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
                 
                 if not tournament.getStart():
                     disconnected_team = None
@@ -128,6 +114,7 @@ async def disconnect(sid):
                             
                             # Ne pas supprimer les autres matchs du tournoi
                             return
+                    await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
             
             # Gestion du jeu
             if game:
@@ -424,9 +411,9 @@ async def launchGame(sid, gameCode):
                 game.setIsLaunch(True)
                 # if (not game.getPlayerById(sid).getIsLaunch()):
             else:
-                await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 1}, room=sid)
+                await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 0}, room=sid)
         else:
-            await sio.emit('error', {'message': 'Toutes les équipes ne sont pas pleines', 'ErrorCode': 1}, room=sid)
+            await sio.emit('error', {'message': 'Toutes les équipes ne sont pas pleines', 'ErrorCode': 0}, room=sid)
     else:
         await sio.emit('error', {'message': 'Partie non trouvée', 'ErrorCode': 1}, room=sid)
 
@@ -803,10 +790,3 @@ async def cleanup_tournament_game(tournament, game, gameCode, originalGameCode, 
     
     # Supprimer la partie du tournoi
     tournament.removeTournamentGame(game)
-
-# async def broadcast_tournament_update(tournament, tournamentCode):
-#     matches = tournament.getTournamentMatches()
-#     await sio.emit('tournamentMatches', {
-#         'matches': matches,
-#         'tournamentTree': tournament.getTournamentTreeData()
-#     }, room=tournamentCode)
