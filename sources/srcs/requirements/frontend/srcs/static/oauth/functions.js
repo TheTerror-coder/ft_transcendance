@@ -264,13 +264,6 @@ async function callWebSockets(params) {
 	}
 }
 
-
-function strcmp(str1, str2) {
-    return str1 === str2;
-}
-
-
-
 async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
 		// await reauthenticateJob(undefined);
