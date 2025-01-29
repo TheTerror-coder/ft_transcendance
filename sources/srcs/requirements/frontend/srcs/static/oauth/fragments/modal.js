@@ -1,5 +1,4 @@
 async function fragment_loadModalTemplate() {
-	console.log('fragment_loadModalTemplate() | load ouath modal');
 	const modalcontent_elm = ELEMENTs.oauth_modal_content();
 	if (modalcontent_elm)
 		modalcontent_elm.replaceChildren();
@@ -19,7 +18,6 @@ async function fragment_loadModalTemplate() {
 }
 
 async function fragment_loadModal2Template() {
-	console.log('fragment_loadModalTemplate() | load ouath modal');
 	const modalcontent_elm = ELEMENTs.oauth_modal2_content();
 	if (modalcontent_elm)
 		modalcontent_elm.replaceChildren();

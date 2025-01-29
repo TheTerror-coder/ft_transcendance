@@ -83,7 +83,6 @@ async function redirectToProvider()
 
 	} catch(error){
 		console.log("Error: In function redirectToProvider()", 'an error occured');
-		window.alert('an error occured');
 		return;
 	}
 }

@@ -271,10 +271,8 @@ window.addEventListener('load', async () => {
             if (resp.status === 'error'){
                 await callWebSockets();
 			}
-            // TO DO: tester la request email = mail OR 1=1 --
         }
         else if (response.find(data => data === 'not-authenticated')) {
-            console.log('not-authenticated');
         }
         else if (response.find(data => data === 'invalid-session')) 
 		{
