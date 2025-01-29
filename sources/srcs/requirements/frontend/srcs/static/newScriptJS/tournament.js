@@ -3,6 +3,7 @@ let nbPlayer = null;
 let winner = null;
 let winnerOfTournament = null;
 
+let flagCreatorStart = false;
 
 
 let creatorTournament = 
@@ -17,8 +18,6 @@ let creatorTournament =
     set id(value)
     {
         this._id = value;
-        if (document.getElementById("startTournament") !== null)
-            document.getElementById("startTournament").display = 'block';
     }
 };
 
@@ -105,8 +104,6 @@ const tournamentPlayerListEvent = (data) => {
 	if (nbPlayer !== null && nbPlayer > data.length)
 	{
 		nbPlayer = data.length;
-		// if (creator === globalSocket.id && document.getElementById("startButtonTournament") && document.getElementById("startButtonTournament").display == 'none')
-		// 	document.getElementById("startButtonTournament").display = 'none';
 		usersInTournament(data, true);
 	}
 	else
@@ -117,7 +114,6 @@ const tournamentPlayerListEvent = (data) => {
 }
 
 const tournamentMatchEvent = (data) => {
-	console.log("stp freerrrro");
 	setTimeout (() => {
 		tournamentAllUsers.users = data.team1;
 		tournamentAllUsers.users = data.team2;
@@ -260,7 +256,6 @@ function displayBinaryTree()
 	ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
 	
-	// ici remplir le tournament tournamentAllUsers
 	let i = 1;
 	refreshLanguage();
 	console.log("tournamentAllUsers.users: ", tournamentAllUsers.users);
@@ -281,15 +276,17 @@ function displayBinaryTree()
 		i++;
 	});
 	console.log("creatorTournament.id: ", creatorTournament.id, ", globalSocket.id: ", globalSocket.id);
-	if (creatorTournament.id === globalSocket.id)
+	if (creatorTournament.id === globalSocket.id && flagCreatorStart === false)
 	{
-		creatorTournament.id = globalSocket.id;
+		flagCreatorStart = true;
+		document.getElementById("startButtonTournament").display = 'block';
 		document.getElementById('startButtonTournament').onclick = () => startTournament();
 	}
 }
 
 function startTournament()
 {
+	document.getElementById("startButtonTournament").display = 'none';
     globalSocket.emit('tournamentStart', savedTournamentCode.code);
 	setTimeout(() => {
 		if (error !== null)
