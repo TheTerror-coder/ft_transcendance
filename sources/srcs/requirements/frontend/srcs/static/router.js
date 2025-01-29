@@ -89,7 +89,7 @@ const eventManager = async (event) => {
 		nbWhiteBeard = 0;
 		noticeDisconnect = null;
 		tournamentAllUsers.clearUsers();
-		flagCreatorStart = false;
+		UsersShufled.clearUsers();
 
 		event.preventDefault();
 		if (globalSocket !== null)

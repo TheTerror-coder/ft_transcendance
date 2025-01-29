@@ -3,9 +3,6 @@ let nbPlayer = null;
 let winner = null;
 let winnerOfTournament = null;
 
-let flagCreatorStart = false;
-
-
 let creatorTournament = 
 {
     _id: null, 
@@ -21,6 +18,27 @@ let creatorTournament =
     }
 };
 
+
+let UsersShufled = 
+{
+    _user: [],
+
+    get users() {
+        return this._user;
+    },
+
+    set users(value) 
+	{
+		this._user.push(value);
+		if (document.getElementById("winnerOfTheTournament"))
+			displayBinaryTree();
+	},
+	clearUsers() {
+		this._user = [];
+	},
+}
+
+
 let tournamentAllUsers = 
 {
     _user: [],
@@ -32,8 +50,6 @@ let tournamentAllUsers =
     set users(value) 
 	{
 		this._user.push(value);
-		if (document.getElementById("winnerOfTheTournament")) // ?
-			displayBinaryTree();
 	},
 	clearUsers() {
 		this._user = [];
@@ -114,11 +130,8 @@ const tournamentPlayerListEvent = (data) => {
 }
 
 const tournamentMatchEvent = (data) => {
-	setTimeout (() => {
-		tournamentAllUsers.users = data.team1;
-		tournamentAllUsers.users = data.team2;
-
-	}, 20);
+	UsersShufled.users = data.team1;
+	UsersShufled.users = data.team2;
 }
 
 
@@ -258,13 +271,14 @@ function displayBinaryTree()
 	
 	let i = 1;
 	refreshLanguage();
-	console.log("tournamentAllUsers.users: ", tournamentAllUsers.users);
-	tournamentAllUsers.users.forEach(function(elements) 
+	console.log("tournamentAllUsers.users: ", UsersShufled.users);
+	UsersShufled.users.forEach(function(elements) 
 	{
 		const user = elements;
 		document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
 		{
 			element.innerHTML = user;
+			console.log("element.innerHTML: ", element.innerHTML);
 			if (user.length > 6)
 			{
 				element.style.setProperty('--spacing', '9em');
@@ -273,20 +287,21 @@ function displayBinaryTree()
 			if (element.hasAttribute("data-translate"))
 				element.removeAttribute('data-translate');
 		});
+		console.log("i: ", i);
 		i++;
 	});
-	console.log("creatorTournament.id: ", creatorTournament.id, ", globalSocket.id: ", globalSocket.id);
-	if (creatorTournament.id === globalSocket.id && flagCreatorStart === false)
+	if (creatorTournament.id === globalSocket.id)
 	{
-		flagCreatorStart = true;
-		document.getElementById("startButtonTournament").display = 'block';
-		document.getElementById('startButtonTournament').onclick = () => startTournament();
+		console.log("CHELOU LE LOUP: ", document.getElementById("startButtonTournament"));
+		document.getElementById("startButtonTournament").style.display = 'block';
+		document.getElementById("startButtonTournament").onclick = () => startTournament();
 	}
 }
 
 function startTournament()
 {
-	document.getElementById("startButtonTournament").display = 'none';
+	document.getElementById("startButtonTournament").style.display = 'none';
+	creatorTournament.id = null;
     globalSocket.emit('tournamentStart', savedTournamentCode.code);
 	setTimeout(() => {
 		if (error !== null)

@@ -81,13 +81,13 @@ async def disconnect(sid):
             if channel and channel.getIsTournament():
                 tournament = channel.getTournament()
                 
-                if channel and channel.getCreator() == sid:
-                    await sio.emit('error', {'message': 'Creator leave the room, you will be disconnected soon', 'ErrorCode': 2}, room=room)
-                    break
                 if not tournament.getStart():
                     disconnected_team = None
                     opponent_team = None
                     
+                    if channel and channel.getCreator() == sid:
+                        await sio.emit('error', {'message': 'Creator leave the room, you will be disconnected soon', 'ErrorCode': 2}, room=room)
+                        break
                     # Trouver le match en cours pour ce joueur
                     current_match = tournament.findMatchByPlayerId(sid)
                     if current_match:
