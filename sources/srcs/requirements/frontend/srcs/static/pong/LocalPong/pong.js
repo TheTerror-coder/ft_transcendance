@@ -1,24 +1,18 @@
-// Version simplifiée du pong.js pour le mode local
 import Team from './Team.js';
 import Player from './Player.js';
-import { initDebug, setupCameraControls } from './debug.js';
 import { updatePositions, setupControls } from './controls.js';
 import * as render from './render.js';
 import { createHUD } from './HUD.js';
 import { BallPhysics } from './physics.js';
 import * as THREE from 'three';
 import { Box3, Box3Helper } from 'three';
-// import { replaceLocation } from '../../oauth/functions.js';
 
 const WINNING_SCORE = 10;
-const BOAT_SPEED = 2; // Augmentation de la vitesse des bateaux
-
+const BOAT_SPEED = 2;
 export async function main(currentLanguage = 'en') {
-    // Initialisation des équipes locales
     const team1 = new Team("Team 1", 1, 1);
     const team2 = new Team("Team 2", 1, 2);
     
-    // Création des joueurs locaux
     const player1 = new Player("player1", "captain", "Player 1", 1);
     const player2 = new Player("player2", "captain", "Player 2", 2);
     
@@ -28,26 +22,20 @@ export async function main(currentLanguage = 'en') {
     let { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display } = await render.initScene(team1, team2, team1);
     let hud = await createHUD(renderer);
 
-    // Initialisation de la physique
     const ballPhysics = new BallPhysics();
 
-    // Configuration des contrôles
     const keys = {};
     setupControls(keys);
 
-    // Remplacer la création des hitboxes par :
     let boat1BoundingBox = new Box3().setFromObject(boatGroup1);
     let boat2BoundingBox = new Box3().setFromObject(boatGroup2);
     let boat1Hitbox = new Box3Helper(boat1BoundingBox, 0xffff00);
     let boat2Hitbox = new Box3Helper(boat2BoundingBox, 0xff0000);
-    scene.add(boat1Hitbox);
-    scene.add(boat2Hitbox);
 
     function updateBoatHitboxes() {
         boat1BoundingBox.setFromObject(boatGroup1);
         boat2BoundingBox.setFromObject(boatGroup2);
 
-        // Ajuster les hitboxes comme dans le pong réseau
         boat1BoundingBox.min.x += 7;
         boat2BoundingBox.min.x += 7;
         boat1BoundingBox.max.x += 2;
@@ -65,12 +53,10 @@ export async function main(currentLanguage = 'en') {
 
     let gameOver = false;
 
-    // Boucle de jeu
     function gameLoop() {
         if (!gameOver) {
             requestAnimationFrame(gameLoop);
             
-            // Mise à jour des positions des bateaux
             if (keys['a'] || keys['d']) {
                 const boat1 = boatGroup1.getObjectByName('bateauTeam1');
                 if (keys['a'] && boat1.position.x > -55) {
@@ -91,13 +77,10 @@ export async function main(currentLanguage = 'en') {
                 }
             }
             
-            // Mise à jour des hitboxes
             updateBoatHitboxes();
             
-            // Mise à jour de la position de la balle avec les nouvelles hitboxes
             const pointScored = ballPhysics.update(ball, boat1BoundingBox, boat2BoundingBox);
             
-            // Gestion des points
             if (pointScored > 0) {
                 if (pointScored === 1) {
                     team1.setScore(team1.getScore() + 1);
@@ -105,29 +88,24 @@ export async function main(currentLanguage = 'en') {
                     team2.setScore(team2.getScore() + 1);
                 }
                 
-                // Mise à jour du score dans le HUD
                 hud.updateScore(team1.getScore(), team2.getScore());
                 
-                // Vérification de la victoire
                 if (team1.getScore() >= WINNING_SCORE || team2.getScore() >= WINNING_SCORE) {
                     gameOver = true;
                     const winner = team1.getScore() >= WINNING_SCORE ? "Team 1" : "Team 2";
                     hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
                     setTimeout(() => {
-                        // Retour au menu après 3 secondes
                         render.unloadScene(scene, renderer);
                         ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
                         replace_location(URLs.VIEWS.HOME);
                     }, 3000);
                 } else {
-                    // Reset de la balle si le jeu continue
                     ball.position.set(0, 0, 0);
                     ballPhysics.reset();
                 }
             }
         }
         
-        // Rendu
         renderer.render(scene, cameraPlayer);
         renderer.autoClear = false;
         renderer.render(hud.scene, hud.camera);
@@ -137,7 +115,6 @@ export async function main(currentLanguage = 'en') {
     gameLoop();
 }
 
-// Démarrage du jeu quand la page est chargée
 document.addEventListener('DOMContentLoaded', () => {
     main();
 }); 

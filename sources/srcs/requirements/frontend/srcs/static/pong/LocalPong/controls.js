@@ -1,7 +1,6 @@
 const BOAT_SPEED = 0.5;
 
 export function updatePositions(keys, team1, team2) {
-    // Contrôles équipe 1
     if (keys['a']) {
         const boat1 = team1.getBoat();
         if (boat1.position.x > -55) {
@@ -15,7 +14,6 @@ export function updatePositions(keys, team1, team2) {
         }
     }
 
-    // Contrôles équipe 2
     if (keys['ArrowLeft']) {
         const boat2 = team2.getBoat();
         if (boat2.position.x > -55) {

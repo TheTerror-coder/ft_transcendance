@@ -19,13 +19,12 @@ function createLoadingCircle() {
     const progressCircle = new THREE.Mesh(progressGeometry, progressMaterial);
     circleGroup.add(progressCircle);
 
-    // Adapter la taille initiale
     const scale = Math.min(window.innerWidth, window.innerHeight) * 0.01;
     circleGroup.scale.set(scale, scale, scale);
 
     let currentPercent = 0;
     let animationId = null;
-    const MAX_CHARGE_TIME = 5000; // 5 secondes pour charge complète
+    const MAX_CHARGE_TIME = 5000;
 
     function updateProgress(pressTime) {
         if (animationId !== null) {
@@ -83,34 +82,6 @@ function createLoadingCircle() {
     };
 }
 
-function createScoreText() {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    
-    canvas.width = 1024;
-    canvas.height = 1024;
-    
-    context.font = 'Bold 80px Arial';
-    context.fillStyle = 'white';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    const material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true
-    });
-    
-    const geometry = new THREE.PlaneGeometry(1, 1);
-    const mesh = new THREE.Mesh(geometry, material);
-    
-    // Ajuster la taille en fonction de la fenêtre
-    const scale = Math.min(window.innerWidth, window.innerHeight) * 0.1;
-    mesh.scale.set(scale, scale, 1);
-    
-    return { mesh, context, texture };
-}
-
 async function createEndGameText() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -132,12 +103,10 @@ async function createEndGameText() {
     const geometry = new THREE.PlaneGeometry(1, 1);
     const textMesh = new THREE.Mesh(geometry, material);
     
-    // Échelle adaptative
     const scale = Math.min(window.innerWidth, window.innerHeight) * 1.5;
     textMesh.scale.set(scale, scale, 1);
     textMesh.position.set(0, 0, 0);
     
-    // Gestionnaire de redimensionnement
     window.addEventListener('resize', () => {
         const newScale = Math.min(window.innerWidth, window.innerHeight) * 1.5;
         textMesh.scale.set(newScale, newScale, 1);
@@ -165,20 +134,17 @@ async function createEndGameText() {
 function createHealthBar(sx, sy, sz, x, y, z, isEnemyTeam = false) {
     const healthGroup = new THREE.Group();
 
-    // Ajuster la taille en fonction du type de barre
-    const width = isEnemyTeam ? 300 : 100;  // Barre ennemie plus large
-    const height = isEnemyTeam ? 20 : 10;   // Barre ennemie plus haute
+    const width = isEnemyTeam ? 300 : 100;
+    const height = isEnemyTeam ? 20 : 10;
 
-    // Créer le fond de la barre (rouge foncé)
     const backgroundGeometry = new THREE.PlaneGeometry(width, height);
     const backgroundMaterial = new THREE.MeshBasicMaterial({
-        color: isEnemyTeam ? 0x800000 : 0x660000,  // Rouge plus foncé pour l'ennemi
+        color: isEnemyTeam ? 0x800000 : 0x660000,
         side: THREE.DoubleSide
     });
     const backgroundBar = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
     healthGroup.add(backgroundBar);
 
-    // Créer la barre de vie (rouge vif pour ennemi, vert pour allié)
     const healthGeometry = new THREE.PlaneGeometry(width, height);
     const healthMaterial = new THREE.MeshBasicMaterial({
         color: isEnemyTeam ? 0xff0000 : 0x00ff00,
@@ -209,12 +175,10 @@ export async function createHUD(renderer) {
         0, 30
     );
 
-    // Créer le texte de fin de partie
     const endGameTextObject = await createEndGameText();
     hudScene.add(endGameTextObject.textMesh);
-    endGameTextObject.textMesh.visible = false;  // Caché par défaut
+    endGameTextObject.textMesh.visible = false;
 
-    // Score text
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 1024;
@@ -235,7 +199,6 @@ export async function createHUD(renderer) {
     const geometry = new THREE.PlaneGeometry(1, 1);
     const textMesh = new THREE.Mesh(geometry, material);
     
-    // Ajuster la taille en fonction de la fenêtre
     const scale = Math.min(window.innerWidth, window.innerHeight) * 0.5;
     textMesh.scale.set(scale, scale, 1);
     textMesh.position.set(0, window.innerHeight/2 - 25, 0);
@@ -247,36 +210,33 @@ export async function createHUD(renderer) {
         texture.needsUpdate = true;
     }
 
-    // Ajouter le cercle de chargement
     const loadingCircle = createLoadingCircle();
     loadingCircle.group.position.set(
-        window.innerWidth/2 - 50,  // Décalage de 50 pixels du bord droit
-        window.innerHeight/2 - 50,  // Décalage de 50 pixels du bord supérieur
+        window.innerWidth/2 - 50,
+        window.innerHeight/2 - 50,
         0
     );
     hudScene.add(loadingCircle.group);
     loadingCircle.group.visible = false;
 
-    // Ajout des barres de vie
     const YourTeamHealthBar = createHealthBar(
         0.5, 0.5, 1,
-        -window.innerWidth/2 + 50,  // Position X (gauche)
-        window.innerHeight/2 - 30,  // Position Y (Haut)
-        0,                          // Position Z
-        false                       // Barre alliée (petite)
+        -window.innerWidth/2 + 50,
+        window.innerHeight/2 - 30,
+        0,
+        false
     );
     const OpponentTeamHealthBar = createHealthBar(
-        1.0, 1.0, 1,               // Plus grande échelle
-        0,                         // Position X (centre)
-        window.innerHeight/2 - 50,  // Position Y (haut)
-        0,                         // Position Z
-        true                       // Barre ennemie (grande)
+        1.0, 1.0, 1,
+        0,
+        window.innerHeight/2 - 50,
+        0,
+        true
     );
 
     hudScene.add(YourTeamHealthBar.group);
     hudScene.add(OpponentTeamHealthBar.group);
 
-    // Modifier le gestionnaire de redimensionnement
     window.addEventListener('resize', () => {
         hudCamera.left = -window.innerWidth/2;
         hudCamera.right = window.innerWidth/2;
@@ -284,15 +244,12 @@ export async function createHUD(renderer) {
         hudCamera.bottom = -window.innerHeight/2;
         hudCamera.updateProjectionMatrix();
 
-        // Mettre à jour la taille du score
-        const newScaleScore = Math.min(window.innerWidth, window.innerHeight) * 0.5; // Augmenté pour une meilleure visibilité
+        const newScaleScore = Math.min(window.innerWidth, window.innerHeight) * 0.5;
         textMesh.scale.set(newScaleScore, newScaleScore, 1);
         textMesh.position.set(0, window.innerHeight/2 - 25, 0);
 
-        // Mettre à jour la taille du cercle de chargement
         loadingCircle.updateSize();
 
-        // Mise à jour des positions des barres de vie
         YourTeamHealthBar.group.position.set(
             -window.innerWidth/2 + 50,
             window.innerHeight/2 - 30,
@@ -304,7 +261,6 @@ export async function createHUD(renderer) {
             0
         );
 
-        // Mettre à jour la position du cercle de chargement
         loadingCircle.group.position.set(
             window.innerWidth/2 - 50,
             window.innerHeight/2 - 50,
