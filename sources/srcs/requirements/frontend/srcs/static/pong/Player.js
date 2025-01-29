@@ -85,10 +85,6 @@ class Player
             console.error('Boat or cannon is undefined in setCameraPos');
             return;
         }
-        console.log('setCameraPos : ', boat.position.x, boat.position.y, boat.position.z);
-        console.log('cannonPosInTheWorld : ', cannonPosInTheWorld.x, cannonPosInTheWorld.y, cannonPosInTheWorld.z);
-        console.log('this.TeamID : ', this.TeamID);
-        console.log('this.role : ', this.role);
         var p = 0;
         var crx = 0;
         var cry = 0;
@@ -114,22 +110,15 @@ class Player
             s = 0;
             a = -5;
         }
-        console.log('crx : ', crx);
-        console.log('cry : ', cry);
-        console.log('crz : ', crz);
         if (this.role == 'captain')
         {
             this.cameraPos = { x: 0, y: 0, z: 50 };
             this.cameraRotation = { x: 0, y: 0, z: s };
-            console.log('this.cameraPos : ', this.cameraPos);
-            console.log('this.cameraRotation : ', this.cameraRotation);
         }
         else if (this.role == 'Cannoneer')
         {
             this.cameraPos = { x: cannonPosInTheWorld.x, y: cannonPosInTheWorld.y + p, z: cannonPosInTheWorld.z + 3.8 };
             this.cameraRotation = { x: crx, y: cry, z: crz };
-            console.log('this.cameraPos : ', this.cameraPos);
-            console.log('this.cameraRotation : ', this.cameraRotation);
         }
     }
 

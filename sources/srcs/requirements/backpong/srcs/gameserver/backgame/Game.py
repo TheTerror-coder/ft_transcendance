@@ -67,13 +67,11 @@ class Game:
         self.disconnected_players = {}
 
     async def launchCheckGameFull(self, sio, gameCode):
-        logger.info(f"launchCheckGameFull dans Game.py")
         gameIsFullMsgSend = False
         while True:
             if not gameIsFullMsgSend and self.getTeam(1).getIsFull() and self.getTeam(2).getIsFull():
                 await sio.emit('TeamsFull', room=gameCode)
                 gameIsFullMsgSend = True
-                logger.info(f"TeamsFull envoyé dans Game.py")
             if ((self.getTeam(1).getNbPlayer() == 0 or self.getTeam(2).getNbPlayer() == 0) or (self.getTeam(1).getNbPlayer() == 0 and self.getTeam(2).getNbPlayer() == 0)):
                 gameIsFullMsgSend = False
             if (self.gameStarted):
@@ -94,21 +92,14 @@ class Game:
     
     def addNbPlayerInLobby(self):
         self.nbPlayerInLobby += 1
-        logger.info(f'nbPlayerInLobby : {self.nbPlayerInLobby}')
     
     def getNbPlayerInLobby(self):
-        logger.info(f'self.nbPlayerInLobby : {self.nbPlayerInLobby}')
         return self.nbPlayerInLobby
     
     def removeNbPlayerInLobby(self, nbPlayerToRemove):
-        logger.info(f'removeNbPlayerInLobby : {self.nbPlayerInLobby}')
-        logger.info(f'nbPlayerToRemove : {nbPlayerToRemove}')
-        logger.info(f'self.nbPlayerInLobby - nbPlayerToRemove >= 0 : {self.nbPlayerInLobby - nbPlayerToRemove >= 0}')
         if (self.nbPlayerInLobby - nbPlayerToRemove >= 0):
-            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
             self.nbPlayerInLobby -= nbPlayerToRemove
         else:
-            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
             self.nbPlayerInLobby = 0
 
     def getIsGameTournament(self):
@@ -309,7 +300,6 @@ class Game:
     def getPlayerByName(self, name):
         for team in self.teams.values():
             for player in team.player.values():
-                logger.info(f"player.name dans getPlayerByName {player.name}, {name}")
                 if player.name == name:
                     return player
         return None
@@ -321,21 +311,16 @@ class Game:
         return self.isPaused
 
     def addNbPlayerConnected(self):
-        logger.info("addNbPlayerConnected")
         self.nbPlayerConnected += 1
 
     def removeNbPlayerConnected(self):
-        logger.info("removeNbPlayerConnected")
         if (self.nbPlayerConnected > 0):
             self.nbPlayerConnected -= 1
 
     def addPlayerReady(self):
-        logger.info("addPlayerReady")
         self.playerReady += 1
-        logger.info(f"playerReady: {self.playerReady}")
 
     def removePlayerReady(self):
-        logger.info("removePlayerReady")
         if (self.playerReady > 0):
             self.playerReady -= 1
 
@@ -343,7 +328,6 @@ class Game:
         return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):
-        logger.info("setNbPlayerPerTeam")
         self.nbPlayerPerTeam = nbPlayerPerTeam
 
     def setTeam(self, team):
@@ -402,7 +386,6 @@ class Game:
             cannon = team.getCannon()
             if cannon:
                 team.setCannonPosition(x)
-                logger.info(f"cannon: {cannon}")
             else:
                 logger.info(f"Cannon not found for team {teamId}")
         else:
@@ -506,14 +489,12 @@ class Game:
                     team.setBoatPosClient(boat['x'], boat['y'], boat['z'])
                 if cannon:
                     team.setCannonPosClient(cannon['x'], cannon['y'], cannon['z'])
-                    logger.info(f"cannon UPDATED: {cannon}")
                 if hitbox:
                     team.setBoatHitbox(hitbox)
             else:
                 logger.error(f"Team {teamId} not found")
 
     def createConnectGameData(self):
-        logger.info("createGameData")
         team1_players = {
             player.id: {
                 'id': player.id,
@@ -555,7 +536,6 @@ class Game:
         return (teamsArray)
     
     def createReconnectGameData(self):
-        logger.info("createReconnectGameData")
         team1_players = {
             player.id: { 
                 'id': player.id,
@@ -599,9 +579,7 @@ class Game:
         }
         return (gameData)
 
-    async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):
-        logger.info(f"sendGameData to {gameCode} / {originalGameCode}")
-        
+    async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):        
         if (sid):
             gameData = self.createReconnectGameData()
             logger.info(f"Sending gameData {gameData} to the reconnected player with sid : {sid}")
@@ -742,7 +720,6 @@ class Game:
             if hit_data['teamId'] == team_id:
                 target_team = self.teams[1 if team_id == 2 else 2]
                 target_team.removePV(10)
-                logger.info(f"target_team: {target_team.getPV()}")
                 await sio.emit('damageApplied', {
                     'gameCode': gameCode,
                     'teamId': target_team.getTeamId(),

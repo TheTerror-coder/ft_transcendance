@@ -39,8 +39,6 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
         let cannon = currentPlayerTeam.getCannon();
         let cannonTube = currentPlayerTeam.getCannonTube();
 
-        console.log('currentPlayer GameStarted : ', currentPlayer.getGameStarted());
-
         if (cannon && cannonTube)
         {
             if (currentPlayer.getGameStarted())
@@ -64,7 +62,6 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 {
                                     pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
-                                    console.log('trajectoryLine : ', trajectoryLine);
                                 }
                             }
                             else
@@ -104,7 +101,6 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
                                 {
                                     pause = true;
                                     trajectoryLine = await doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID);
-                                    console.log('trajectoryLine : ', trajectoryLine);
                                 }
                             }
                             else
@@ -128,16 +124,6 @@ export function updateAndEmitCannonRotation(keys, currentPlayerTeam, currentPlay
             }
         }
     }
-}
-
-function emitBallFired(socket, gameCode, TeamID, trajectoryLine)
-{
-    console.log('PONG EMIT BALL FIRED');
-    socket.emit('BallFired', {
-        gameCode: gameCode,
-        team: TeamID,
-        trajectory: trajectoryLine,
-    });
 }
 
 export function updateAndEmitBoatPositions(gameCode, socket, keys, currentPlayerTeam, currentPlayer, BOAT_MOVE_SPEED)

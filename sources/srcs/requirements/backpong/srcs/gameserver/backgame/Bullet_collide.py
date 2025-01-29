@@ -12,16 +12,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def computeCode3d(point, hitbox):
-    """
-    Calcule un code binaire représentant la position d'un point par rapport à la hitbox
-    Chaque bit représente une région de l'espace :
-    - Bit 1 (1): Gauche
-    - Bit 2 (2): Droite
-    - Bit 3 (4): Bas
-    - Bit 4 (8): Haut
-    - Bit 5 (16): Arrière
-    - Bit 6 (32): Avant
-    """
     code = 0
     
     try:
@@ -66,11 +56,6 @@ def expandHitBox(hitbox, margin):
     }
     
 def calculateIntersection(p1, p2, axis, value):
-    """
-    Calcule le point d'intersection entre un segment et un plan
-    axis: 'x', 'y', ou 'z'
-    value
-    """
     t = (value - p1[axis]) / (p2[axis] - p1[axis])
     
     return {

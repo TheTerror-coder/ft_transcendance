@@ -4,17 +4,6 @@ import { createCannonBall } from './render.js';
 const trajectoryCanvas = document.createElement('canvas');
 trajectoryCanvas.id = 'trajectoryCanvas';
 ELEMENTs.allPage().appendChild(trajectoryCanvas);
-// document.body.appendChild(trajectoryCanvas);
-
-async function createTrajectoryLine(trajectoryData) {
-    const points = trajectoryData.map(point => new THREE.Vector3(point.x, point.y, point.z));
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ 
-        color: 0xff0000,
-        linewidth: 2
-    });
-    return new THREE.Line(geometry, material);
-}
 
 async function fireCannon(trajectoryData, scene) {
     const ballMesh = createCannonBall();
@@ -24,7 +13,6 @@ async function fireCannon(trajectoryData, scene) {
         return;
     }
 
-    // Positionner le boulet directement à la position initiale
     ballMesh.position.set(
         trajectoryData[0].x,
         trajectoryData[0].y,
@@ -49,7 +37,6 @@ async function fireCannon(trajectoryData, scene) {
                     return;
                 }
                 
-                // Calculer l'index cible et la position
                 const targetIndex = Math.floor(progress * (trajectoryData.length - 1));
                 if (targetIndex !== currentIndex) {
                     lastPosition = {
@@ -62,12 +49,10 @@ async function fireCannon(trajectoryData, scene) {
                 
                 const target = trajectoryData[currentIndex];
                 
-                // Interpolation douce
                 ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
                 ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
                 ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
                 
-                // Rotation plus douce
                 ballMesh.rotation.x += 0.05;
                 ballMesh.rotation.z += 0.05;
                 
@@ -96,7 +81,6 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, 
         });
     }
 
-    // Positionner le boulet directement à la position initiale
     ballMesh.position.set(
         trajectoryObjects[0].x,
         trajectoryObjects[0].y,
@@ -105,7 +89,7 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, 
     
     scene.add(ballMesh);
     
-    const lerpFactor = 0.15; // Facteur de lissage pour l'interpolation
+    const lerpFactor = 0.15;
     let currentIndex = 0;
     let lastPosition = trajectoryObjects[0];
     
@@ -119,7 +103,6 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, 
                 return;
             }
             
-            // Calculer l'index cible et la position
             const targetIndex = Math.floor(progress * (trajectoryObjects.length - 1));
             if (targetIndex !== currentIndex) {
                 lastPosition = {
@@ -132,12 +115,10 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, 
             
             const target = trajectoryObjects[currentIndex];
             
-            // Interpolation douce
             ballMesh.position.x += (target.x - ballMesh.position.x) * lerpFactor;
             ballMesh.position.y += (target.y - ballMesh.position.y) * lerpFactor;
             ballMesh.position.z += (target.z - ballMesh.position.z) * lerpFactor;
             
-            // Rotation plus douce
             ballMesh.rotation.x += 0.05;
             ballMesh.rotation.z += 0.05;
             
@@ -153,19 +134,16 @@ export async function fireEnnemieCannonBall(scene, trajectoryData, speed = 100, 
 }
 
 export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket, gameCode, TeamID) {
-    const v0 = 27;  // Vitesse initiale en m/s
-    let angle = -((cannonTube.rotation.y * 180 / Math.PI));  // Angle de tir en degrés
+    const v0 = 27;
+    let angle = -((cannonTube.rotation.y * 180 / Math.PI));
     const cannonPos = currentPlayerTeam.getCannonTubeTipPosition();
-    console.log('======== cannonPosTip ========= : ', cannonPos);
 
-    // Calculer la trajectoire avec gravité et direction
     const g = 9.81;
     const alpha = angle * Math.PI / 180;
     const timeStep = 0.1;
     const directionY = TeamID === 1 ? -1 : 1;
     const trajectory = [];
 
-    // Calculer la trajectoire point par point
     for (let t = 0; ; t += timeStep) {
         const y = cannonPos.y + (v0 * Math.cos(alpha) * t * directionY);
         const x = cannonPos.x;
@@ -173,13 +151,10 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
 
         if (z < -1) break;
         
-        // Stocker les points comme une liste plate de nombres
         trajectory.push(x, y, z);
     }
 
-    console.log('trajectory : ', trajectory);
 
-    // Pour l'affichage, convertir en format objet
     const trajectoryObjects = [];
     for (let i = 0; i < trajectory.length; i += 3) {
         trajectoryObjects.push({
@@ -189,39 +164,23 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
         });
     }
 
-    // Créer et afficher la ligne de trajectoire
-    const trajectoryLine = await createTrajectoryLine(trajectoryObjects);
-    // scene.add(trajectoryLine);
-
-    // Supprimer la ligne après un délai (par exemple 2 secondes)
-    setTimeout(() => {
-        scene.remove(trajectoryLine);
-    }, 2000);
-
-    // Ajouter la durée estimée de l'animation
-    const animationDuration = trajectoryObjects.length * 100; // 100ms par point
+    const animationDuration = trajectoryObjects.length * 100;
     
     socket.emit('BallFired', {
         gameCode: gameCode,
         team: TeamID,
         trajectory: trajectory,
-        animationEndTime: Date.now() + animationDuration  // Nouveau !
+        animationEndTime: Date.now() + animationDuration
     });
 
-    // Animer le projectile et attendre la fin
     try {
         await fireCannon(trajectoryObjects, scene);
         
-        // Signaler la fin de l'animation seulement après qu'elle soit terminée
         socket.emit('animationComplete', {
             gameCode: gameCode,
             team: TeamID
         });
 
-        // setTimeout(() => {
-        //     // cannonTube.rotation.y = 0;
-        //     // hud.showLoadingCircle();
-        // }, 1000);
         cannonTube.rotation.y = 0;
         hud.showLoadingCircle();
     } catch (error) {
@@ -229,18 +188,5 @@ export async function doTheCal(scene, cannonTube, currentPlayerTeam, hud, socket
     }
     
     return trajectory;
-}
-
-function interpolatePoints(start, end, steps = 10) {
-    const points = [];
-    for (let i = 0; i < steps; i++) {
-        const t = i / steps;
-        points.push({
-            x: start.x + (end.x - start.x) * t,
-            y: start.y + (end.y - start.y) * t,
-            z: start.z + (end.z - start.z) * t
-        });
-    }
-    return points;
 }
 

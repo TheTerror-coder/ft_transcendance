@@ -54,41 +54,24 @@ class Team:
         self.nbPlayer += 1
         self.setIsFull()
 
-    # def setBoatPosition(self, x, y, z):
     def setBoatPosition(self, x):
-        # Calculer le déplacement
         dx = x - self.boat['x']
-        # dy = y - self.boat['y']
-        # dz = z - self.boat['z']
         self.formerBoatPosition = {'x': self.boat['x'], 'y': self.boat['y'], 'z': self.boat['z']}
         
-        # Mettre à jour la position du bateau
         self.boat['x'] = x
-        # self.boat['y'] = y
-        # self.boat['z'] = z
-        # Mettre à jour la hitbox avec le même déplacement
         if self.hitbox:
             self.hitbox['min']['x'] += dx
-            # self.hitbox['min']['y'] += dy
-            # self.hitbox['min']['z'] += dz
             self.hitbox['max']['x'] += dx
-            # self.hitbox['max']['y'] += dy
-            # self.hitbox['max']['z'] += dz
-
-        # logger.info(f"Boat updated in setBoatPosition for team {self.TeamId}: pos={self.boat}")
 
     def setBoatPosClient(self, x, y, z):
-        # Calculer le déplacement
         dx = x - self.boat['x']
         dy = y - self.boat['y']
         dz = z - self.boat['z']
         self.formerBoatPosition = {'x': self.boat['x'], 'y': self.boat['y'], 'z': self.boat['z']}
         
-        # Mettre à jour la position du bateau
         self.boat['x'] = x
         self.boat['y'] = y
         self.boat['z'] = z
-        # Mettre à jour la hitbox avec le même déplacement
         if self.hitbox:
             self.hitbox['min']['x'] += dx
             self.hitbox['min']['y'] += dy
@@ -97,11 +80,9 @@ class Team:
             self.hitbox['max']['y'] += dy
             self.hitbox['max']['z'] += dz
 
-        logger.info(f"Boat updated in setBoatPosClient for team {self.TeamId}: pos={self.boat}")
 
     def setBoatHitbox(self, hitbox):
         self.hitbox = hitbox
-        logger.info(f"Hitbox set to: {hitbox} for team {self.TeamId}")
 
     def getBoatHitbox(self):
         return self.hitbox
@@ -110,9 +91,7 @@ class Team:
         return self.formerBoatPosition
 
     def addPoint(self):
-        logger.info(f"Team {self.TeamId} scored a point")
         self.score += 1
-        logger.info(f"Team {self.TeamId} score: {self.score}")
         
 
     def getScore(self):

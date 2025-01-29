@@ -8,7 +8,6 @@ export async function createHUD(renderer) {
         0, 30
     );
 
-    // Score text
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 1024;
@@ -29,7 +28,6 @@ export async function createHUD(renderer) {
     const geometry = new THREE.PlaneGeometry(10, 10);
     const textMesh = new THREE.Mesh(geometry, material);
 
-    // End game text
     const endGameCanvas = document.createElement('canvas');
     const endGameContext = endGameCanvas.getContext('2d');
     endGameCanvas.width = 2048;
