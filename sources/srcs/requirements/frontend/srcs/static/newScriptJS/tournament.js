@@ -4,6 +4,24 @@ let winner = null;
 let winnerOfTournament = null;
 
 
+
+let creatorTournament = 
+{
+    _id: null, 
+
+    get id()
+    {
+        return this._id;
+    },
+
+    set id(value)
+    {
+        this._id = value;
+        if (document.getElementById("startTournament") !== null)
+            document.getElementById("startTournament").display = 'block';
+    }
+};
+
 let tournamentAllUsers = 
 {
     _user: [],
@@ -15,7 +33,7 @@ let tournamentAllUsers =
     set users(value) 
 	{
 		this._user.push(value);
-		if (document.getElementById("winnerOfTheTournament"))
+		if (document.getElementById("winnerOfTheTournament")) // ?
 			displayBinaryTree();
 	},
 	clearUsers() {
@@ -70,7 +88,7 @@ async function joinTournamentDisplay()
 
 const tournamentCreatedEvent = (data) => {
     savedTournamentCode.code = data.tournamentCode;
-	creator = data.creator;
+	creatorTournament.id = data.creator;
 }
 
 const tournamentJoinedEvent = (data) => {
@@ -78,11 +96,12 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
-	if (creator === globalSocket.id)
-		document.getElementById("startButtonTournament").display = 'block';
+	console.log("tournamentFullEvent data: ", data);
 }
 
 const tournamentPlayerListEvent = (data) => {
+	if (nbPlayer)
+		console.log("nbPlayer dans tournamentPlayerListEvent:  ", nbPlayer, ", CHELOU LE LOUP data.length: ", data.length);
 	if (nbPlayer !== null && nbPlayer > data.length)
 	{
 		nbPlayer = data.length;
@@ -98,9 +117,12 @@ const tournamentPlayerListEvent = (data) => {
 }
 
 const tournamentMatchEvent = (data) => {
+	console.log("stp freerrrro");
+	setTimeout (() => {
+		tournamentAllUsers.users = data.team1;
+		tournamentAllUsers.users = data.team2;
 
-	tournamentAllUsers.users = data.team1;
-	tournamentAllUsers.users = data.team2;
+	}, 20);
 }
 
 
@@ -137,6 +159,11 @@ function refreshWinner(winnerOfTournament) {
 
 async function joinTournament(code)
 {
+	if (!Number.isFinite(Number(code)))
+	{
+		alert("Please put only numbers");
+		return ;
+	}
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
@@ -178,31 +205,28 @@ async function usersInTournament(usernameTournament, disconnect) // ca faut le f
 {
 	setTimeout(() => {
 		if (ELEMENTs.numbersOfPlayersTournament())
+		{
 			ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
-
-		if (ELEMENTs.numbersOfPlayersTournament())
+			usernameTournament.forEach(function(element) {
+				if (!tournamentAllUsers.users.includes(element))
+				{
+					addUserTournament(element);
+					tournamentAllUsers.users = element;
+				}
+			});
+			if (disconnect === true)
 			{
-				usernameTournament.forEach(function(element) {
-					if (!tournamentAllUsers.users.includes(element))
-					{
-						addUserTournament(element);
-						tournamentAllUsers.users = element;
-						if (disconnect === true)
-						{
-							tournamentAllUsers.users.forEach(userinTournamentAllUsers => {
-								if (usernameTournament.includes(userinTournamentAllUsers))
-									removeUserTournament(userinTournamentAllUsers);
-							});
-						}
-					}
+				tournamentAllUsers.users.forEach(userinTournamentAllUsers => {
+					if (!usernameTournament.includes(userinTournamentAllUsers))
+						removeUserTournament(userinTournamentAllUsers);
 				});
+			}
 			if (nbPlayer === 4)
 			{
 				document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
 				ELEMENTs.tournamentWrite().innerHTML = "";
 				tournamentAllUsers.clearUsers();
 				displayBinaryTree();
-
 			}
 		}
 	}, 20);
@@ -233,12 +257,13 @@ async function removeUserTournament(usernameToRemove)
 
 function displayBinaryTree()
 {
-    ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
-    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
-
+	ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
+	
 	// ici remplir le tournament tournamentAllUsers
-    let i = 1;
-    refreshLanguage();
+	let i = 1;
+	refreshLanguage();
+	console.log("tournamentAllUsers.users: ", tournamentAllUsers.users);
 	tournamentAllUsers.users.forEach(function(elements) 
 	{
 		const user = elements;
@@ -255,7 +280,12 @@ function displayBinaryTree()
 		});
 		i++;
 	});
-    document.getElementById('startButtonTournament').onclick = () => startTournament();
+	console.log("creatorTournament.id: ", creatorTournament.id, ", globalSocket.id: ", globalSocket.id);
+	if (creatorTournament.id === globalSocket.id)
+	{
+		creatorTournament.id = globalSocket.id;
+		document.getElementById('startButtonTournament').onclick = () => startTournament();
+	}
 }
 
 function startTournament()
