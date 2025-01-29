@@ -78,8 +78,6 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
-    console.log("TOURNAMENT FULL: ", data);
-	console.log("creator: ", creator, ", globalSocket: ", globalSocket);
 	if (creator === globalSocket.id)
 		document.getElementById("startButtonTournament").display = 'block';
 }
@@ -107,21 +105,17 @@ const tournamentMatchEvent = (data) => {
 
 
 const startTournamentGameEvent = async (data) => {
-    console.log("START TOURNANT Game")
     const module = await import('../pong/pong.js');
     ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     await module.main(data.gameCode, globalSocket, currentLanguage);
-    console.log("Tournament End");
 }
 
 const tournamentWinnerEvent = (data) => {
-    console.log("TOURNAMENT WINNER: ", data);
     winnerOfTournament = data;
     refreshWinner(winnerOfTournament);
     setTimeout(() => {
         replace_location(URLs.VIEWS.HOME);
-        console.log("PASS The 10 second");
     }, 20000);
 }
 
@@ -131,10 +125,9 @@ function refreshWinner(winnerOfTournament) {
     
     const tryUpdateWinner = () => {
         const winnerElement = document.getElementById("winnerOfTheTournament");
-        if (winnerElement) {
-            console.log("winnerElement: ", winnerElement);
+        if (winnerElement)
             winnerElement.innerHTML = winnerOfTournament;
-        } else if (attempts < maxAttempts) {
+        else if (attempts < maxAttempts) {
             attempts++;
             setTimeout(tryUpdateWinner, 1000);
         }
@@ -144,7 +137,6 @@ function refreshWinner(winnerOfTournament) {
 
 async function joinTournament(code)
 {
-    console.log("JOIN TOURNAMENT");
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
@@ -164,7 +156,6 @@ async function createTournament()
 {
     const socket = await initializeSocket();
     initializeTournamentGlobalSocket(socket);
-    console.log("CREATE TOURNAMENT");
     ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
     ELEMENTs.centerTournament().style.justifyItems = "center";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
@@ -191,7 +182,6 @@ async function usersInTournament(usernameTournament, disconnect) // ca faut le f
 
 		if (ELEMENTs.numbersOfPlayersTournament())
 			{
-				console.log("usernameTournament: ", usernameTournament);
 				usernameTournament.forEach(function(element) {
 					if (!tournamentAllUsers.users.includes(element))
 					{
@@ -215,16 +205,6 @@ async function usersInTournament(usernameTournament, disconnect) // ca faut le f
 
 			}
 		}
-		// else if (ELEMENTs.numbersOfPlayersTournament())
-		// {
-		// 	tournamentAllUsers.forEach(element => {
-		// 		if (!usernameTournament.include(element))
-		// 		{
-		// 			console.log("dans la boucle remove element: ", element);
-		// 			removeUserTournament(element, i);
-		// 		}
-		// 	});
-		// }
 	}, 20);
 }
 
@@ -246,7 +226,6 @@ async function removeUserTournament(usernameToRemove)
 	tournamentAllUsers.removeUser(usernameToRemove);
 	
 	const div = document.querySelector(`#userTournament${usernameToRemove}`);
-	console.log("div dans remove gang: ", div, ", du coup le i stp: ", i);
 	if (div)
 		div.remove();
 	tournamentAllUsers.removeUser(usernameToRemove);
@@ -262,7 +241,6 @@ function displayBinaryTree()
     refreshLanguage();
 	tournamentAllUsers.users.forEach(function(elements) 
 	{
-		// console.log("element dans tournamentAllUsers.users.forEach: ", elements);
 		const user = elements;
 		document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
 		{
@@ -282,7 +260,6 @@ function displayBinaryTree()
 
 function startTournament()
 {
-    console.log("start tournament");
     globalSocket.emit('tournamentStart', savedTournamentCode.code);
 	setTimeout(() => {
 		if (error !== null)

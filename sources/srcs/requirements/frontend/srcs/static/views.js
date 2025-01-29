@@ -35,7 +35,6 @@ async function tournamentView(title, description, data)
 
 async function UserProfileView(username, description, data)
 {
-	console.log("UserProfileView");
 	ELEMENTs.mainPage().innerHTML = usersProfilePage;
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'flex';

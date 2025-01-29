@@ -138,7 +138,6 @@ const ELEMENTs = Object.freeze({
 	franceFlag : () => document.getElementById("franceFlag"),
 	spainFlag : () => document.getElementById("spainFlag"),
 	englandFlag : () => document.getElementById("englandFlag"),
-	flag : () => document.getElementById("flag"),
 	twoFA : () => document.getElementById("twoFA"),
 	languageDiv : () => document.getElementById("languageDiv"),
 
@@ -147,23 +146,16 @@ const ELEMENTs = Object.freeze({
 
 	mainPage :  () => document.getElementById("mainPage"),
 	allPage : () => document.getElementById("allPage"),
-	
-	loginPageButton :  () => document.getElementById("loginPageButton"),
-	statusDiv :  () => document.getElementById("status"),
-	usernameDiv :  () => document.getElementById("username"),
-	firstnameDiv :  () => document.getElementById("firstname"),
-	lastnameDiv :  () => document.getElementById("lastname"),
-	emailDiv :  () => document.getElementById("email"),
-	profile_image :  () => document.getElementById("profile-image"),
+
 	refresh_session_button :  () => document.getElementById("refresh-session-button"),
 	
 	verify_email_button :  () => document.getElementById("verify-email-button"),
 	verify_email_close_error_button :  () => document.getElementById("verify-email-close-error-button"),
 	redirect_to_email_catcher_button :  () => document.getElementById("redirect-to-email-catcher-button"),
 	
-	mfa_auth_app_is_active : () => document.getElementById("mfa-auth-app-active"),
-	mfa_auth_app_not_active : () => document.getElementById("mfa-auth-app-not-active"),
-	totp_deactivate_button : () => document.getElementById("totp-deactivate-button"),
+	// mfa_auth_app_is_active : () => document.getElementById("mfa-auth-app-active"),
+	// mfa_auth_app_not_active : () => document.getElementById("mfa-auth-app-not-active"),
+	// totp_deactivate_button : () => document.getElementById("totp-deactivate-button"),
 	totp_activate_button : () => document.getElementById("totp-activate-button"),
 	skip_activate_totp_button : () => document.getElementById("skip-activate-totp-button"),
 	close_mfa_reauth_modal : () => document.getElementById("close-mfa-reauth-modal"),
@@ -179,9 +171,6 @@ const ELEMENTs = Object.freeze({
 	oauth_modal_content : () => document.getElementById("oauth-modal-content"),
 	oauth_modal2_content : () => document.getElementById("oauth-modal2-content"),
 
-	loginPage : () => document.getElementById("loginPage"),
-	
-	
 	loginButton : () => document.getElementById("loginButton"),
 	woodPresentation : () => document.getElementById("woodPresentation"),
 	background : () => document.getElementById("background"),
@@ -240,35 +229,24 @@ const ELEMENTs = Object.freeze({
 	switch2FA : () => document.getElementById("switch2FA"),
 	
 	profilePage : () => document.getElementById("profilePage"),
-	bookProfile : () => document.getElementById("bookProfile"),
 
 	circleIsConnect : () => document.getElementById("circle-is-connect"),
 
 	// createLobby
 	switchNumbersOfPlayers : () => document.getElementById("switchNumbersOfPlayers"),
-	chooseTeamSwitchDisplay : () => document.getElementById("chooseTeamSwitchDisplay"),
 	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
 	chooseRoleSwitch : () => document.getElementById("chooseRoleSwitch"),
-	teamFontOne : () => document.getElementById("teamFontOne"),
-	teamFontTwo : () => document.getElementById("teamFontTwo"),
 	luffyChibi : () => document.getElementById("luffyChibi"),
 	zoroSanjiChibi : () => document.getElementById("zoroSanjiChibi"),
 	buttonCreate : () => document.getElementById("buttonCreate"),
-	cross : () => document.getElementById("cross"),
-	chooseTeamSwitch : () => document.getElementById("chooseTeamSwitch"),
 	contentCreateLobby : () => document.getElementById("contentCreateLobby"),
 
 	
 	helmsmanRoleDisplay : () => document.getElementById("helmsmanRoleDisplay"),
 	gunnerRoleDisplay : () => document.getElementById("gunnerRoleDisplay"),
-	KurohigeTeamDisplay : () => document.getElementById("KurohigeTeamDisplay"),
-	ShirohigeTeamDisplay : () => document.getElementById("ShirohigeTeamDisplay"),
 	ShirohigeTeam : () => document.getElementById("ShirohigeTeam"),
 
-
-
 	centerLobbyDisplay : () => document.getElementById("centerLobbyDisplay"),
-
 
 	// LOBBY
 	lobbyDisplayRapidPlayPlayerOne : () => document.getElementById("lobbyDisplayRapidPlayPlayer1"),
@@ -283,10 +261,8 @@ const ELEMENTs = Object.freeze({
 	joinTournamentButton : () => document.getElementById("joinTournamentButton"),
 	centerTournament : () => document.getElementById("centerTournament"),
 	tournamentContent : () => document.getElementById("tournamentContent"),
-	startTournament : () => document.getElementById("startTournament"),
 	numbersOfPlayersTournament : () => document.getElementById("numbersOfPlayersTournament"),
 	tournamentWrite : () => document.getElementById("tournamentWrite"),
-	forLetPlaceTree : () => document.getElementById("forLetPlaceTree"),
 	joinButtonTournament : () => document.getElementById("joinButtonTournament"),
 	number : () => document.getElementById("number"),
 

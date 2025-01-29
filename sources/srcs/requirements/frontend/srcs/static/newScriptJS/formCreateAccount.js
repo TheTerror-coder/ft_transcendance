@@ -6,7 +6,6 @@ async function createAccount(instance) {
     const username = document.getElementById('createUser').value;
 	if (!isAlphanumeric(username))
 	{
-		console.log("test du bail isalphanumeric dans quel cas je dois faire le bail; ", username);
 		alert("Invalid input.");
         return;
 	}
