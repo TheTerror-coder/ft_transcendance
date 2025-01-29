@@ -11,7 +11,6 @@ async function connect()
     }
     const data = {"email": email, "password": password};
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.CONNECT, data);
-// jm custom beginning //
 	if (response.status === 401) {
 		if (response.data?.flows?.find(obj => (obj.id === FLOWs.MFA_AUTHENTICATE && obj.is_pending === true))) {
 			await mfaAuthMiddlewareJob();
@@ -21,7 +20,6 @@ async function connect()
 			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 		}
 	}
-// jm custom end //
     else if (response.status === "success")
 		await mfaAuthMiddlewareJob();
     else if (response.status === 'error')

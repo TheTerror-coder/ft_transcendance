@@ -11,11 +11,7 @@ function tournamentTreeView(title, description, data)
 		displayBinaryTree();
 	}
 	else
-	{
-		replace_location(URLs.VIEWS.HOME);
-		// error404View(title, description, data);
-	}
-
+		error404View(title, description, data);
 }
 
 
@@ -40,7 +36,6 @@ async function UserProfileView(username, description, data)
 	ELEMENTs.doorJamp().style.display = 'flex';
 
 	document.title = username +  " | " + PAGE_TITLE;
-	// window.history.pushState({}, "", URLs.VIEWS.PROFILE + username);
 	const user = {"username": username};
 	refreshLanguage();
 	document.getElementsByClassName("wantedProfileInProfilePage")[0].style.alignSelf = "center";
@@ -86,7 +81,6 @@ async function	homeView(title, description, data)
 	ELEMENTs.playButtonImg().onclick = () => playDisplayHomepage();
 	await changeMusic(ELEMENTs.homePageMusic());
 	refreshLanguage();
-	// attachLogoutEvents();
 }
 
 async function	loginView(title, description, data) {
@@ -166,12 +160,10 @@ async function	emailStatusView(title, description, data) {
 	let index;
 	let _params = {};
 	
-	// TO DO: get email verification information 
 	const verification = await getEmailVerification(data.querystring.key);
 	if (verification.find(_data => _data === 'verification-information')){
 		if (verification[2].email && verification[3].is_authenticating){
 			index = VARIABLEs.VERIFY_EMAIL.INDEXES.VERIFY_EMAIL;
-			//save email verfication key
 			window.sessionStorage.setItem(X_EMAIL_VERIFICATION_KEY, data.querystring.key)
 		}
 		else if (!verification[2].email){

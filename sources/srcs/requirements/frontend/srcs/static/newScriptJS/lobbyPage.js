@@ -97,7 +97,7 @@ async function updateLobbyOneVsOne(data)
             imgElement1.src = photoUrl1;
             document.getElementById("usernameOfWanted").innerHTML = data[1][0].name;
             document.getElementById("primeAmount").innerHTML = responseCreator.user_info.prime;
-            if (responseCreator.user_info.prime === null) // TODO: should be in the back
+            if (responseCreator.user_info.prime === null)
                 document.getElementById("primeAmount").innerHTML = 0;
         }
     }

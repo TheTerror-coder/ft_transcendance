@@ -2,7 +2,6 @@
 let translations = {};
 let currentLanguage = 'en';
 
-// Load translations from JSON
 async function loadLanguages() 
 {
     const response = await fetch('/static/newScriptJS/languages.json');
@@ -35,13 +34,11 @@ async function setLanguage(lang)
     }
 }
 
-// Translate a specific key
 function translate(key) 
 {
     return translations[currentLanguage][key] || key;
 }
 
-// Update UI with current language translations
 function updateUI(lang) 
 {
     const translateElements = document.querySelectorAll('[data-translate]');
@@ -115,7 +112,6 @@ document.addEventListener('click', async (event) =>
 {
     if(ELEMENTs.dropDownLanguage() === event.target)
     {
-        // languagePopOver();
         const popoverContainer = document.createElement('div');
         popoverContainer.id = "popOverLanguage";
         const rect = ELEMENTs.languageDiv().getBoundingClientRect();
@@ -211,9 +207,6 @@ function updatePopoverPosition()
     }
 }
 
-// Recalculate position when the window is resized
 window.addEventListener('resize', updatePopoverPosition);
 
-
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', loadLanguages);

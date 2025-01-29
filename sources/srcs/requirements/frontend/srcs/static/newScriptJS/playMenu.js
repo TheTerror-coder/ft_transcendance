@@ -1,8 +1,4 @@
 
-// import { initializeSocket } from './socketPong.js';
-
-// let globalSocket;
-
 function playDisplayHomepage()
 {
     ELEMENTs.playButton().style.display = 'none';
@@ -92,8 +88,6 @@ async function localPlay()
     ELEMENTs.background().style.backgroundImage = '';
     const module = await import('../pong/LocalPong/pong.js');
     module.main(currentLanguage);
-    // ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
-    // replaceLocation(URLs.VIEWS.HOME);
 }
 
 

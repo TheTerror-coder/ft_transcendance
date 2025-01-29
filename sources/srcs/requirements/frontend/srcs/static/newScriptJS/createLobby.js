@@ -1,5 +1,3 @@
-// import socketIOClient from 'socket.io-client';
-
 let nbBlackBeard = 0;
 let nbWhiteBeard = 0;
 
@@ -44,9 +42,6 @@ let teamAvailable = {
         this._team = value;
     }
 };
-
-// This one is for the two player lobby when it come to chose for the role in the team that we join
-// the value 0 is for all role available, 1 is for only captain is available, 2 is for only canonneer available
 
 let roleAvailableBlackBeard = 
 {
@@ -96,11 +91,11 @@ function initializeGlobalSocket(socket)
 {
     globalSocket = socket;
     globalSocket.on('gameCreated', (data) => {
-        savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
+        savedGameCode.code = data.gameCode;
         creator = data.creator;
     });
     globalSocket.on('gameJoined', (data) => {
-        savedGameCode.code = data.gameCode; // Sauvegarder le code de la partie
+        savedGameCode.code = data.gameCode;
         nbPerTeam = data.nbPlayerPerTeam;
         creator = data.creator;
         gameFound = true;
@@ -212,7 +207,7 @@ const StartGameEvent = async (data) =>
     }
     catch (error)
     {
-        console.log("error in startGame: ", error);
+        console.error("error in startGame: ", error);
     }
 }
 

@@ -87,7 +87,6 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
     globalSocket.on('tournamentWinner', tournamentWinnerEvent);
-    // globalSocket.on('tournamentMatches', tournamentMatchesEvent);
 }
 
 async function joinTournamentDisplay()
@@ -111,12 +110,9 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
-	console.log("tournamentFullEvent data: ", data);
 }
 
 const tournamentPlayerListEvent = (data) => {
-	if (nbPlayer)
-		console.log("nbPlayer dans tournamentPlayerListEvent:  ", nbPlayer, ", CHELOU LE LOUP data.length: ", data.length);
 	if (nbPlayer !== null && nbPlayer > data.length)
 	{
 		nbPlayer = data.length;
@@ -204,13 +200,10 @@ async function createTournament()
 		}
 		refreshLanguage();
 	}, 20)
-
-    // addUserTournament(user.username);
 }
 
-// i sera le nombre de joueur qui ont rejoins en tout le tournois
 
-async function usersInTournament(usernameTournament, disconnect) // ca faut le faire avec qund c'est shuffle
+async function usersInTournament(usernameTournament, disconnect)
 {
 	setTimeout(() => {
 		if (ELEMENTs.numbersOfPlayersTournament())
@@ -271,14 +264,12 @@ function displayBinaryTree()
 	
 	let i = 1;
 	refreshLanguage();
-	console.log("tournamentAllUsers.users: ", UsersShufled.users);
 	UsersShufled.users.forEach(function(elements) 
 	{
 		const user = elements;
 		document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
 		{
 			element.innerHTML = user;
-			console.log("element.innerHTML: ", element.innerHTML);
 			if (user.length > 6)
 			{
 				element.style.setProperty('--spacing', '9em');
@@ -287,12 +278,10 @@ function displayBinaryTree()
 			if (element.hasAttribute("data-translate"))
 				element.removeAttribute('data-translate');
 		});
-		console.log("i: ", i);
 		i++;
 	});
 	if (creatorTournament.id === globalSocket.id)
 	{
-		console.log("CHELOU LE LOUP: ", document.getElementById("startButtonTournament"));
 		document.getElementById("startButtonTournament").style.display = 'block';
 		document.getElementById("startButtonTournament").onclick = () => startTournament();
 	}

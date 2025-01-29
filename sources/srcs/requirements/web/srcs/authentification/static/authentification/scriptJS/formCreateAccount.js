@@ -1,5 +1,4 @@
 
-// buttonConnectionAPI42.onclick = connectAPI42;
 buttonCreateAccount.onclick = createAnAccount;
 
 
@@ -17,14 +16,11 @@ function createAnAccount()
 
 
 document.getElementById('formAccount').addEventListener('submit', function(event) {
-    // Prevent the form from submitting immediately
     event.preventDefault();
 
 
 
-    // Check if the form is valid
     if (this.checkValidity()) {
-        // Additional validation: check if passwords match
 
         const email = document.getElementById('createEmail').value;
         const username = document.getElementById('createUser').value;
@@ -34,16 +30,10 @@ document.getElementById('formAccount').addEventListener('submit', function(event
 
         parsingCreateAccount(username, email, password, confirmPassword);
 
-        // faire un parsing
-        if (password === confirmPassword) // verif s'il n'existe pas deja dans la base de donnee
+        if (password === confirmPassword)
         {
             alert('Form is valid and passwords match! Submitting...');
-            // Uncomment the line below to actually submit the form
-            // this.submit();
-            // var tgben = hashStringSHA256(email);
-            // hashStringSHA256(email).then(hashed);
 
-            console.log(registerURL);
             fetch(registerURL, {
                 method: 'POST',
                 headers: {
@@ -59,14 +49,11 @@ document.getElementById('formAccount').addEventListener('submit', function(event
             })
             refreshPage();
         }
-        else {
-            alert('Passwords do not match. Please try again.');
-        }
-        // hashStringSHA256(
-    } else {
-        // If form is not valid, show an error popup
-        alert('Some of the required information is not complete.');
+        else
+        	alert('Passwords do not match. Please try again.');
     }
+	else
+    	alert('Some of the required information is not complete.');
 });
 
 
@@ -88,8 +75,4 @@ function parsingCreateAccount(username, email, password, confirmPassword)
         checker++;
     if (password != confirmPassword)
         checker += 10;
-    
-
-
-    // alert()
 }
