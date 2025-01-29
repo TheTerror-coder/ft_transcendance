@@ -14,6 +14,7 @@ let FRAME_RATE = 50;
 
 export async function main(gameCode, socket, currentLanguage) {
 
+	socket.emit('GameStarted', gameCode);
     socket.on('disconnect', () => {
         socket.off('disconnect');
     });
@@ -136,9 +137,6 @@ export async function main(gameCode, socket, currentLanguage) {
                                 if (hud.camera) hud.camera = null;
                             }
                             
-                            if (displayInfo && displayInfo.parentNode) {
-                                displayInfo.parentNode.removeChild(displayInfo);
-                            }
                             if (ballPositionDisplay && ballPositionDisplay.parentNode) {
                                 ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
                             }

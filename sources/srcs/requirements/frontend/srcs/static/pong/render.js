@@ -23,10 +23,6 @@ export async function initScene(Team1, Team2, currentTeam) {
     
     const oceanColor = 0x1E90FF;
     scene.background = new THREE.Color(oceanColor);
-    console.log("initScene");
-    console.log("Team1: ", Team1);
-    console.log("Team2: ", Team2);
-    console.log("currentTeam: ", currentTeam);
     let {boatGroup1, boatGroup2, ocean, ball} = await initObject(scene, Team1, Team2, currentTeam);
     await loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, boatGroup1, boatGroup2);
     if (!loadScene)
@@ -103,7 +99,6 @@ async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, di
                 return;
             }
 
-            console.log('✅ All elements are loaded and visible');
             resolve(true);
         } catch (error) {
             console.error('❌ Error loading the scene:', error);
@@ -463,7 +458,6 @@ async function CreateBoatGroup(scene, bateau, cannon, teamId, boatSavedPos, cann
             boatGroup.getObjectByName(`cannonTeam${teamId}`).position.set(boatGroup.position.x - (boatGroup.scale.x / 2) - 2, boatGroup.scale.y + 2.88, boatGroup.scale.z + 3);
         boatGroup.getObjectByName(`cannonTeam${teamId}`).rotation.set(0, 0, Math.PI / 2);
     }
-    console.log('cannonTeam : ', boatGroup.getObjectByName(`cannonTeam${teamId}`).position);
     
     const boundingBox = new THREE.Box3().setFromObject(bateau);
 
