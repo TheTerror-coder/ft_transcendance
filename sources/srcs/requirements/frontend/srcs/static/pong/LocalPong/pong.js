@@ -52,6 +52,10 @@ export async function main(currentLanguage = 'en') {
     }
 
     let gameOver = false;
+	let startGame = false;
+	setTimeout(() => {
+		startGame = true;
+	}, 5000);
 
     function gameLoop() {
         if (!gameOver) {
@@ -79,31 +83,39 @@ export async function main(currentLanguage = 'en') {
             
             updateBoatHitboxes();
             
-            const pointScored = ballPhysics.update(ball, boat1BoundingBox, boat2BoundingBox);
-            
-            if (pointScored > 0) {
-                if (pointScored === 1) {
-                    team1.setScore(team1.getScore() + 1);
-                } else {
-                    team2.setScore(team2.getScore() + 1);
-                }
-                
-                hud.updateScore(team1.getScore(), team2.getScore());
-                
-                if (team1.getScore() >= WINNING_SCORE || team2.getScore() >= WINNING_SCORE) {
-                    gameOver = true;
-                    const winner = team1.getScore() >= WINNING_SCORE ? "Team 1" : "Team 2";
-                    hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
-                    setTimeout(() => {
-                        render.unloadScene(scene, renderer);
-                        ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
-                        replace_location(URLs.VIEWS.HOME);
-                    }, 3000);
-                } else {
-                    ball.position.set(0, 0, 0);
-                    ballPhysics.reset();
-                }
-            }
+			if (startGame)
+			{
+				const pointScored = ballPhysics.update(ball, boat1BoundingBox, boat2BoundingBox);
+				
+				if (pointScored > 0) {
+					if (pointScored === 1) {
+						team1.setScore(team1.getScore() + 1);
+					} else {
+						team2.setScore(team2.getScore() + 1);
+					}
+					
+					hud.updateScore(team1.getScore(), team2.getScore());
+
+					startGame = false;
+					setTimeout(() => {
+						startGame = true;
+					}, 3000);
+					
+					if (team1.getScore() >= WINNING_SCORE || team2.getScore() >= WINNING_SCORE) {
+						gameOver = true;
+						const winner = team1.getScore() >= WINNING_SCORE ? "Team 1" : "Team 2";
+						hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
+						setTimeout(() => {
+							render.unloadScene(scene, renderer);
+							ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
+							replace_location(URLs.VIEWS.HOME);
+						}, 3000);
+					} else {
+						ball.position.set(0, 0, 0);
+						ballPhysics.reset();
+					}
+				}
+			}
         }
         
         renderer.render(scene, cameraPlayer);

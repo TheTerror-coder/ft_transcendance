@@ -43,5 +43,3 @@ USER ${IMAGE_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "sh", "-c", "${CONTAINER_HOME}/container-init.d/script.sh" ]
-
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

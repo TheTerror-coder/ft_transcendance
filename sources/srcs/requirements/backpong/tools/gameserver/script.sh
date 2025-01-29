@@ -1,6 +1,5 @@
 #!/bin/sh -e
 
-# tail -f /dev/null
 python manage.py makemigrations backgame --no-input
 python manage.py makemigrations --no-input
 python manage.py migrate --no-input

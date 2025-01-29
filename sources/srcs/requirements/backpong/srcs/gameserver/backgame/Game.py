@@ -615,18 +615,11 @@ class Game:
             self.gameStarted = False
             self.winner = self.teams[2]
             self.loser = self.teams[1]
-            await self.sendGameInfo(sio, gameCode, False)                
+            await self.sendGameInfo(sio, gameCode, False)
 
     def createEndGamePayload(self, isForfeit):
-        team1_player = next(iter(self.getTeam(1).player.values()))
-        team2_player = next(iter(self.getTeam(2).player.values()))
-        
-        if (team1_player.TeamID == self.winner.getTeamId()):
-            winner = team1_player.name
-            loser = team2_player.name
-        else:
-            winner = team2_player.name
-            loser = team1_player.name
+        winner = list(self.winner.player.values())[0].name
+        loser = list(self.loser.player.values())[0].name
         
         if (isForfeit):
             payload = {

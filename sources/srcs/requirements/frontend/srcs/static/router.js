@@ -39,11 +39,11 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
-		await logout_views();
+		await logout();
 	}
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
 		event.preventDefault();
-		await logout_views();
+		await logout();
 	}
 	else if (target.id === ELEMENTs.buttonConnec()?.id){
 		event.preventDefault();

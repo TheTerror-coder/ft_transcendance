@@ -32,5 +32,3 @@ USER ${REDIS_UID}
 
 ENTRYPOINT [ "dumb-init", "--" ]
 CMD [ "/usr/share/redis/container-init.d/script.sh" ]
-# CMD [ "docker-entrypoint.sh", "redis-server" ]
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

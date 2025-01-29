@@ -245,6 +245,12 @@ async def joinTournament(sid, data):
     if tournamentCode in ChannelList:
         channel = ChannelList[tournamentCode]
         tournament = channel.getTournament()
+        if (not channel.getIsTournament()):
+            await sio.emit('error', {'message': 'This is not a tournament code', 'ErrorCode': 1}, room=sid)
+            return
+        if (tournament.getIsFull()):
+            await sio.emit('error', {'message': 'Tournament is full', 'ErrorCode': 1}, room=sid)
+            return
         if (tournament.getStart()):
             await sio.emit('error', {'message': 'Tournament already started', 'ErrorCode': 1}, room=sid)
             return
@@ -256,6 +262,7 @@ async def joinTournament(sid, data):
             await sio.emit('tournamentJoined', {'tournamentCode': tournamentCode, 'creator': channel.getCreator()}, room=sid)
             await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
             if (tournament.getNbTeam() == 4):
+                tournament.setIsFull(True)
                 logger.info(f"Starting tournament {tournamentCode}")
                 sio.emit('tournamentFull', room=tournamentCode)
                 await startTournament(sio, tournament, tournamentCode, True)

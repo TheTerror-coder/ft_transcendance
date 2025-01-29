@@ -25,10 +25,17 @@ class Tournament:
         self.nbTeam = 0
         self.start = False
         self.tournamentGameNumber = 0
+        self.isFull = False
 
         self.nodes = []
         self.root = None
         self.returned_matches = set()
+
+    def getIsFull(self):
+        return self.isFull
+
+    def setIsFull(self, isFull):
+        self.isFull = isFull
 
     def getStart(self):
         return self.start
