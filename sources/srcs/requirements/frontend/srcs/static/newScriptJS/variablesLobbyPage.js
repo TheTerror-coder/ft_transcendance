@@ -35,45 +35,15 @@ const wantedPlayerFour =
     </button>
 </div>`
 
-
-// il faudra en faire un pour chaque joueur (sauf joueur 1)
-const waitingPlayer2 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerTwo">
-    <div class="wrapper">
+const waitingPlayer =
+`    <div class="wrapper">
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="shadow"></div>
         <div class="shadow"></div>
         <div class="shadow"></div>
-    </div>
-</div>`
-
-const waitingPlayer3 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerThree">
-    <div class="wrapper">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-    </div>
-</div>`
-
-const waitingPlayer4 =
-`<div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerFour">
-    <div class="wrapper">
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-        <div class="shadow"></div>
-    </div>
-</div>`
-
-
+    </div>`;
 
 const lobbyTwoPlayerDisplayVAR = 
 `<div>
@@ -89,7 +59,7 @@ const lobbyTwoPlayerDisplayVAR =
                 </div>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
-                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerOne">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer1">
                     <div class="wrapper">
                         <div class="circle"></div>
                         <div class="circle"></div>
@@ -99,7 +69,7 @@ const lobbyTwoPlayerDisplayVAR =
                         <div class="shadow"></div>
                     </div>
                 </div>
-                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerTwo">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer2">
                     <div class="wrapper">
                         <div class="circle"></div>
                         <div class="circle"></div>
@@ -112,7 +82,7 @@ const lobbyTwoPlayerDisplayVAR =
                 <div class="versus" id="versus">
                     <img src="/photos/picturePng/lobbyPage/versusLogo.png" alt="versus">
                 </div>
-                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerThree">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer3">
                     <div class="wrapper">
                         <div class="circle"></div>
                         <div class="circle"></div>
@@ -122,7 +92,7 @@ const lobbyTwoPlayerDisplayVAR =
                         <div class="shadow"></div>
                     </div>
                 </div>
-                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerFour">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer4">
                     <div class="wrapper">
                         <div class="circle"></div>
                         <div class="circle"></div>
@@ -155,7 +125,7 @@ const lobbyPageDisplayVAR =
                 </div>
             </div>
             <div class="centerLobbyDisplay" id="centerLobbyDisplay">
-                <div class="lobbyDisplayRapidPlayPlayerOne" id="lobbyDisplayRapidPlayPlayerOne">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer1">
                     <div class="wantedFriendHomePageDisplay">
                         <button class="wantedProfile" id="wantedProfile">
                             <img id="pictureOfWanted" alt="profile picture" class="profilePicture">
@@ -167,7 +137,7 @@ const lobbyPageDisplayVAR =
                 <div class="versus" id="versus">
                     <img src="../photos/picturePng/lobbyPage/versusLogo.png" alt="versus">
                 </div>
-                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayerTwo">
+                <div class="lobbyDisplayRapidPlayPlayerTwo" id="lobbyDisplayRapidPlayPlayer2">
                     <div class="wrapper">
                         <div class="circle"></div>
                         <div class="circle"></div>

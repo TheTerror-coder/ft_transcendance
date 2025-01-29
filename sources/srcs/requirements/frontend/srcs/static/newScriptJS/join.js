@@ -15,7 +15,6 @@ async function joinLobbyGame(gameCode, teamID, role)
     globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username, gameCode: gameCode});
     if (error !== null)
     {
-		alert(error);
         error = null;
         return ;
     }

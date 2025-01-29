@@ -232,7 +232,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 network.removeSocketListeners(socket);
                                 resolve();
                                 savedGameCode.code = null;
-                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
                                 replace_location(URLs.VIEWS.HOME);
                                 // await new Promise(resolve => setTimeout(resolve, 200));
                                 socket.disconnect();
@@ -244,7 +244,7 @@ export async function main(gameCode, socket, currentLanguage) {
                                 network.removeSocketListeners(socket);
                                 resolve();
                                 savedGameCode.code = null;
-                                ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                                ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
                                 if (currentPlayerTeam.getTournamentEnded() === true)
                                 {
                                     replace_location(URLs.VIEWS.TOURNAMENT_TREE);
@@ -522,21 +522,11 @@ function setupEventListeners(socket, keys, cameraPlayer, renderer) {
 }
 
 // Fonction pour mettre à jour la position de la balle
-function updateBallPosition(ballPosition, ball) {
-    if (ball) {
-        ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
-    }
-}
-
-// Fonction pour afficher la position de la balle
-function displayBallPosition(ballPosition, displayElement) {
-    displayElement.innerText = `Ball Position - X: ${ballPosition.x.toFixed(2)}, Y: ${ballPosition.y.toFixed(2)}, Z: ${ballPosition.z.toFixed(2)}`;
-}
-
-// Fonction pour afficher la direction de la balle
-function displayBallDirection(ballDirection, displayElement) {
-    displayElement.innerText = `Ball Direction - X: ${ballDirection.x.toFixed(2)}, Y: ${ballDirection.y.toFixed(2)}, Z: ${ballDirection.z.toFixed(2)}`;
-}
+// function updateBallPosition(ballPosition, ball) {
+//     if (ball) {
+//         ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
+//     }
+// }
 
 function predictBallPosition(ball, velocity, deltaTime) {
     if (!ball.userData.lastServerPosition) {

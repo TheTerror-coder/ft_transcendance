@@ -3,7 +3,8 @@ import { createCannonBall } from './render.js';
 
 const trajectoryCanvas = document.createElement('canvas');
 trajectoryCanvas.id = 'trajectoryCanvas';
-document.body.appendChild(trajectoryCanvas);
+ELEMENTs.allPage().appendChild(trajectoryCanvas);
+// document.body.appendChild(trajectoryCanvas);
 
 async function createTrajectoryLine(trajectoryData) {
     const points = trajectoryData.map(point => new THREE.Vector3(point.x, point.y, point.z));

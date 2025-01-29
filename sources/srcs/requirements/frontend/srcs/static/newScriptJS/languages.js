@@ -15,13 +15,9 @@ async function refreshLanguage()
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     const response = await makeRequest('POST', URLs.USERMANAGEMENT.GETLANGUAGE, user);
     if (response.status === 'success')
-    {
         currentLanguage = response.language;
-    }
     if (translations[currentLanguage])
         updateUI(currentLanguage);
-    else
-        console.log('Language not found');
 }
 
 async function setLanguage(lang) 

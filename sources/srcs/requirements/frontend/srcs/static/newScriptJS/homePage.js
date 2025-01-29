@@ -57,7 +57,6 @@ function waitForSocketOpen() {
 
 
 function sendInvitation(username) {
-	console.log('****************sendInvitation()*************');
 	try {
 		ONE_SOCKET.send(JSON.stringify({
 			'username': username,

@@ -1,5 +1,17 @@
 // import socketIOClient from 'socket.io-client';
 
+let nbBlackBeard = 0;
+let nbWhiteBeard = 0;
+
+let noticeDisconnect = null;
+
+let gameStarted = false;
+let ip;
+let globalSocket = null;
+let nbPerTeam;
+
+let creator = null;
+
 let savedGameCode = 
 {
     _code: null, 
@@ -16,14 +28,6 @@ let savedGameCode =
             document.getElementById("lobbyCode").innerHTML = value;
     }
 };
-let gameStarted = false;
-let ip;
-let globalSocket = null;
-let nbPerTeam;
-
-
-let error = null;
-let creator = null;
 
 // This one is for the two player lobby when it come to chose for the team to join
 // the value 0 is for all team available, 1 is for only blackbeard available, 2 is for only whitebeard available
@@ -111,39 +115,9 @@ function initializeGlobalSocket(socket)
 
     globalSocket.on('TeamsNotFull', TeamsNotFullEvent);
 
-    // globalSocket.on('CreatorLeave', CreatorLeaveEvent);
-
-    // globalSocket.on('tournamentCreated', tournamentCreatedEvent);
-
-    // globalSocket.on('tournamentJoined', tournamentJoinedEvent);
-
-    // globalSocket.on('tournamentFull', tournamentFullEvent);
-
-    globalSocket.on('error', (data) => {
-        error = data.message;
-        alert(data.message);
-    });
 }
 
-// const tournamentCreatedEvent = (data) => {
-//     savedGameCode.code = data.tournamentCode;
-// }
-
-// const tournamentJoinedEvent = (data) => {
-//     savedGameCode.code = data.tournamentCode;
-// }
-
-// const tournamentFullEvent = (data) => {
-//     console.log("TOURNAMENT FULL: ", data);
-// }
-
-// const CreatorLeaveEvent = () => {
-
-// }
-
 const TeamsNotFullEvent = () => {
-    // console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
-    // creator = data.creator;
     if (creator === globalSocket.id)
     {
         if (ELEMENTs.PlayButtonInLobby())
@@ -152,7 +126,6 @@ const TeamsNotFullEvent = () => {
 }
 
 const AvailableOptionsEvent = (data) => {
-    console.log("AvailableOptionsEvent", data);
     if (nbPerTeam == 2 && document.getElementById("lobbyCode") === null)
     {
         initializeTeamAvailableJoinLobbyInfo(data)
@@ -161,9 +134,15 @@ const AvailableOptionsEvent = (data) => {
 }
 
 const UpdatePlayerListEvent = async (data) => {
-    console.log("Reception des listes des joueurs :", data);
-    updateLobby(data);
+	data[1].length === undefined ? nbBlackBeard = 0 : nbBlackBeard = data[1].length;
+	data[2].length === undefined ? nbWhiteBeard = 0 : nbWhiteBeard = data[2].length;
 
+	if (noticeDisconnect !== null && (nbBlackBeard + nbWhiteBeard) < noticeDisconnect)
+		updateLobby(data, true);
+	else
+    	updateLobby(data, false);
+	noticeDisconnect = nbBlackBeard + nbWhiteBeard;
+	
     if (document.getElementById("lobbyCode") === null)
     {   
         if (data[1].length === 2)
@@ -181,7 +160,6 @@ const UpdatePlayerListEvent = async (data) => {
         }
         else if (data[2].length === 2)
         {
-            console.log("!!!!!data[2] dans updatePlayerList: ", data[2][0])
             teamAvailable.team = 1;
             if (data[1].length === 0)
                 roleAvailableBlackBeard.role = 0;
@@ -206,12 +184,12 @@ const UpdatePlayerListEvent = async (data) => {
                 roleAvailableWhiteBeard.role = 1;
         }
         displayAvailableRoleAndTeamJoin();
+		flag = false;
     }
 }
 
 const TeamsFullEvent = () => 
 {
-    console.log("creator: ", creator, ", globalSocket.id: ", globalSocket.id);
     if (creator === globalSocket.id)
     {
         if (ELEMENTs.PlayButtonInLobby())
@@ -222,14 +200,11 @@ const TeamsFullEvent = () =>
 const StartGameEvent = async (data) => 
 {
     const module = await import ('../pong/pong.js');
-    document.getElementById('background').innerHTML = "";
-    ELEMENTs.background().style.backgroundImage = '';
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     try
     {
         const isFinish = await module.main(savedGameCode.code, globalSocket, currentLanguage);
-        console.log("globalSocket dans startGame: ", globalSocket);
-        console.log("isFinish dans startGame: ", isFinish);
         globalSocket.off('startGame', StartGameEvent);
         globalSocket.off('TeamsFull', TeamsFullEvent);
         globalSocket.off('updatePlayerLists', UpdatePlayerListEvent);
@@ -237,7 +212,7 @@ const StartGameEvent = async (data) =>
     }
     catch (error)
     {
-        console.log("error dans startGame: ", error);
+        console.log("error in startGame: ", error);
     }
 }
 
@@ -304,8 +279,6 @@ async function displayAvailableRoleAndTeamJoin()
 
 function initializeWhiteBeardRoleAvailable(whiteBeardTeam)
 {
-    console.log("dans TeamAvailable.team: ", teamAvailable, ", whiteBeardTeam.roles: ", whiteBeardTeam.roles);
-
     if (whiteBeardTeam.roles[1] === undefined)
     {
         if (whiteBeardTeam.roles[0] !== undefined)
@@ -318,15 +291,10 @@ function initializeWhiteBeardRoleAvailable(whiteBeardTeam)
     }
     else
         roleAvailableWhiteBeard.role = 0;
-    console.log("WHITEEEE Apres initializewHITEBeardRoleAvailable: ", roleAvailableWhiteBeard.role);
-
 }
 
 function initializeBlackBeardRoleAvailable(blackBeardTeam)
 {
-    console.log("dans TeamAvailable.team: ", teamAvailable, ", blackBeardTeam.roles: ", blackBeardTeam.roles);
-    console.log("blackBeardTeam.roles[1]: ", blackBeardTeam.roles[1]);
-
     if (blackBeardTeam.roles[1] === undefined)
     {
         if (blackBeardTeam.roles[0] !== undefined)
@@ -339,7 +307,6 @@ function initializeBlackBeardRoleAvailable(blackBeardTeam)
     }
     else
         roleAvailableBlackBeard.role = 0;
-    console.log("Apres initializeBlackBeardRoleAvailable: ", roleAvailableBlackBeard.role);
 }
 
 async function createLobbyDisplay()
@@ -356,7 +323,6 @@ async function createLobbyDisplay()
 		setTimeout( () => {
 			if (error)
 			{
-				alert(error);
 				error = null;
 				return ;
 			}
@@ -371,14 +337,12 @@ async function createLobbyDisplay()
             globalSocket.emit('confirmChoicesCreateGame', { teamID: 1, role: "captain", userName: response.username, gameCode: savedGameCode.code });
         }, 20)
         setTimeout(async () => {
-            if (error !== null)
+            if (error)
             {
-                console.log("error: ", error);
                 error = null;
-                await replace_location(URLs.VIEWS.HOME);
                 return ;
             }
-        }, 70);
+        }, 50);
         savedGameCode.code = savedGameCode.code;
         refreshLanguage();
     }
@@ -388,13 +352,11 @@ async function createLobbyDisplay()
 
 async function createLobbyforTwoPlayer()
 {
-    console.log("GLOBAL SOCKET: ", globalSocket);
     nbPerTeam = 2;
     globalSocket.emit('createGame', { numPlayersPerTeam: nbPerTeam });
 	setTimeout(() => {
 		if (error)
 		{
-			alert(error);
 			error = null;
 			return ;
 		}
@@ -422,9 +384,7 @@ async function lobbyTwoPlayer()
     setTimeout(() => {
         if (error !== null)
         {
-            console.log("error: ", error);
             error = null;
-			replace_location(URLs.VIEWS.HOME);
             return ;
         }
     }, 20);
