@@ -96,7 +96,7 @@ export async function main(currentLanguage = 'en') {
                     hud.showEndGameText(team1.getScore() >= WINNING_SCORE, currentLanguage);
                     setTimeout(() => {
                         render.unloadScene(scene, renderer);
-                        ELEMENTs.background().innerHTML = resetBaseHtmlVAR;
+                        ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
                         replace_location(URLs.VIEWS.HOME);
                     }, 3000);
                 } else {

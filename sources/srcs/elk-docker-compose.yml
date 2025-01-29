@@ -48,7 +48,6 @@ services:
       - discovery.type=single-node
       - cluster.name=${CLUSTER_NAME}
       - ELASTIC_PASSWORD=${SECRET_ELASTIC_PASSWORD}
-      # - ELASTIC_KEYSTORE_PASSWORD_FILE=${ELASTIC_KEYSTORE_PASSWORD_FILE}
       - ES_JAVA_OPTS=${ES_JAVA_OPTS}
       - bootstrap.memory_lock=false
       - xpack.security.enabled=true
@@ -58,7 +57,6 @@ services:
       - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.license.self_generated.type=${LICENSE}
     volumes:
-      # - ./requirements/elk/elasticsearch/conf/log4j2.properties:/usr/share/elasticsearch/config/log4j2.properties
       - certs:/usr/share/elasticsearch/config/certs
       - eslogs:/usr/share/elasticsearch/logs/
       - esdata:/usr/share/elasticsearch/data
@@ -69,9 +67,6 @@ services:
     mem_limit: ${ES_MEMLIMIT}
     ulimits:
       nofile: 65535
-    #   memlock:
-    #     soft: -1
-    #     hard: -1
     healthcheck:
       test:
         [
@@ -109,8 +104,6 @@ services:
       - TELEMETRY_ENABLED=false
       - SECRET_RANDOM_ENCRYPT_KEY=${SECRET_RANDOM_ENCRYPT_KEY}
     volumes:
-      # - ./requirements/elk/kibana/conf/kibana-docker:/usr/local/bin/kibana-docker
-      # - ./requirements/elk/kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
       - certs:/usr/share/kibana/config/certs/
       - kibanadata:/usr/share/kibana/data/
       - kibanalogs:/usr/share/kibana/logs/
@@ -143,15 +136,6 @@ services:
         - LOGSTASH_DIRS_TO_MAKE=${LOGSTASH_DIRS_TO_MAKE}
         - SHARED_GID=${SHARED_GID}
     volumes:
-      # - ./requirements/elk/logstash/conf/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
-      # - ./requirements/elk/logstash/conf/log4j2.properties:/usr/share/logstash/config/log4j2.properties
-      # - ./requirements/elk/logstash/conf/my-logstash.yml:/usr/share/logstash/config/my-logstash.yml:ro
-      # - ./requirements/elk/logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-      # - ./requirements/elk/logstash/conf/11-logstash.conf:/usr/share/logstash/pipeline1/11-logstash.conf:ro
-      # - ./requirements/elk/logstash/conf/12-logstash.conf:/usr/share/logstash/pipeline2/12-logstash.conf:ro
-      # - ./requirements/elk/logstash/conf/13-logstash.conf:/usr/share/logstash/pipeline3/13-logstash.conf:ro
-      # - ./requirements/elk/logstash/conf/14-logstash.conf:/usr/share/logstash/pipeline4/14-logstash.conf:ro
-      # - ./test.log:/tmp/test.log # TODO rm
       - certs:/usr/share/logstash/config/certs/
       - logstashdata:/usr/share/logstash/data/
       - logstashlogs:/usr/share/logstash/logs/
@@ -223,19 +207,18 @@ services:
       - KIBANAWAF_HTTP_PORT=${KIBANAWAF_HTTP_PORT}
       - KIBANAWAF_HTTPS_PORT=${KIBANAWAF_HTTPS_PORT}
       - MODSEC_AUDIT_LOG=${MODSEC_AUDIT_LOG}
-      # - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
-      # - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
+      - MODSEC_DEBUG_LOG=${MODSEC_DEBUG_LOG}
+      - MODSEC_DEBUG_LOGLEVEL=${MODSEC_DEBUG_LOGLEVEL}
       - KIBANA_PORT=${KIBANA_PORT}
       - KIBANA_CONTAINER=${KIBANA_CONTAINER}
       - HOST_IP=${HOST_IP}
       - CONTAINER_HTTP_PORT=${KIBANAWAF_HTTP_PORT}
       - CONTAINER_HTTPS_PORT=${KIBANAWAF_HTTPS_PORT}
     volumes:
-      # - ./requirements/waf/conf/modsecurity-override.conf.template:/etc/nginx/templates/modsecurity.d/modsecurity-override.conf.template
       - modsec_data:${MODSEC_DATA_DIR}
-      # - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
-      # - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
-      # - nginx_logs:${NGINX_LOG_FILES_DIR}
+      - modsec_audit_logs:${MODSEC_AUDIT_LOG_DIR}
+      - modsec_debug_logs:${MODSEC_DEBUG_LOG_DIR}
+      - nginx_logs:${NGINX_LOG_FILES_DIR}
       - nginx_certs:${MODSEC_HOME}/volumes/nginx/certs
       - vault_certs:${MODSEC_HOME}/volumes/vault/certs
       - certs:${MODSEC_HOME}/volumes/elk/certs/
