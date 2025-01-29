@@ -89,7 +89,7 @@ const URLs = Object.freeze({
 	OAUTH : Object.freeze({
 		GENERATE_TOTP_QRCODE : BACKEND_BASE_URL + '/oauth' + '/qr/generate-totp-qrcode/',
 		JWT_TOKEN : BACKEND_BASE_URL + '/oauth' + '/jwt/token/',
-		AUTH_STATUS : BACKEND_BASE_URL + '/oauth' + '/social/jwt/token/',
+		AUTH_STATUS : BACKEND_BASE_URL + '/oauth' + '/account/jwt/',
 	}),
 	// allauth \\
 	ALLAUTH : Object.freeze({

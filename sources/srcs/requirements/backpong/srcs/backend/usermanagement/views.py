@@ -46,7 +46,7 @@ def register(request):
 				if ret:
 					adapter.stash_verified_email(request, email)
 				login(request, user)
-				customObtainJwtTokenPair(request, user)
+				# customObtainJwtTokenPair(request, user)
 				record_authentication(request, "password", username=user.username)
 			return Response({'status': 'success'})
 		else:
@@ -83,7 +83,7 @@ def login_view(request):
 					}, status=400)
 				login(request, user)
 				record_authentication(request, "password", email=user.email, username=user.username)
-				customObtainJwtTokenPair(request, user)
+				# customObtainJwtTokenPair(request, user)
 
 				for username, channel_name in user_sockets.items():
 					if username != user:

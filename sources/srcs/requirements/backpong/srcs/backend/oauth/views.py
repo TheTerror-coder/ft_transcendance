@@ -21,7 +21,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from backend import parameters
 
-class socilaJwtToken(SessionView):
+class accountJWT(SessionView):
 	permission_classes = [IsAuthenticated]
 	
 	def get(self, request, *args, **kwargs):
@@ -36,20 +36,20 @@ class socilaJwtToken(SessionView):
 		# sys.stderr.write("*******DEBUG******* sociallogin: " + '\n')
 		# sys.stderr.write(str(request))
 		# sys.stderr.write(str(self))
-		sys.stderr.write("*******DEBUG******* socilaJwtToken access token: " + (access_token or 'null') + '\n')
-		sys.stderr.write("*******DEBUG******* socilaJwtToken refresh token: " + (refresh_token or 'null') + '\n')
+		sys.stderr.write("*******DEBUG******* accountJWT access token: " + (access_token or 'null') + '\n')
+		sys.stderr.write("*******DEBUG******* accountJWT refresh token: " + (refresh_token or 'null') + '\n')
 		
 		if not (access_token and refresh_token):
-			sys.stderr.write("*******DEBUG******* socilaJwtToken exited!!" + '\n')
+			sys.stderr.write("*******DEBUG******* accountJWT exited!!" + '\n')
 			return response
 		
-		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(response.content) + '\n')
+		# sys.stderr.write("*******DEBUG******* accountJWT current content: " + str(response.content) + '\n')
 		current_content = json.loads(response.content.decode('utf-8'))
-		# sys.stderr.write("*******DEBUG******* socilaJwtToken current content: " + str(current_content) + '\n')
+		# sys.stderr.write("*******DEBUG******* accountJWT current content: " + str(current_content) + '\n')
 		
 		status = current_content['status']
 		if status != 200 and status != 401 :
-			sys.stderr.write("*******DEBUG******* socilaJwtToken exited with current content status=" + str(current_content['status']) + '\n')
+			sys.stderr.write("*******DEBUG******* accountJWT exited with current content status=" + str(current_content['status']) + '\n')
 			return response
 		jwt['access_token'] = access_token
 		jwt['refresh_token'] = refresh_token
@@ -63,7 +63,7 @@ class socilaJwtToken(SessionView):
 		if refresh_token:
 			del request.session['jwt_refresh_token']
 		
-		sys.stderr.write("*******DEBUG******* socilaJwtToken succeeded" + '\n')
+		sys.stderr.write("*******DEBUG******* accountJWT succeeded" + '\n')
 		print('*****DEBUG******: user photo link: ' + str(request.user.photo_link), file=sys.stderr)
 
 		return response
