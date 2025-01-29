@@ -62,7 +62,7 @@ services:
       - esdata:/usr/share/elasticsearch/data
     networks:
       - ${NETWORK_NAME}
-    ports:
+    expose:
       - ${ELASTICSEARCH_PORT}:9200
     mem_limit: ${ES_MEMLIMIT}
     ulimits:
@@ -109,7 +109,7 @@ services:
       - kibanalogs:/usr/share/kibana/logs/
     networks:
       - ${NETWORK_NAME}
-    ports:
+    expose:
       - ${KIBANA_PORT}:${KIBANA_PORT}
     mem_limit: ${KIBANA_MEMLIMIT}
     healthcheck:
