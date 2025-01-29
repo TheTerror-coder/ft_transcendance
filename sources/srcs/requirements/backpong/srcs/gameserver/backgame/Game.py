@@ -204,9 +204,9 @@ class Game:
         margin_y = 1.0
         margin_x = 2.0
 
-        isInZRange = (adjusted_hitbox['min']['z'] - margin_z) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin_z)
-        if not isInZRange:
-            return 0
+        # isInZRange = (adjusted_hitbox['min']['z'] - margin_z) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin_z)
+        # if not isInZRange:
+        #     return 0
         
         isInYRange = (adjusted_hitbox['min']['y'] - margin_y) <= self.ballPosition['y'] <= (adjusted_hitbox['max']['y'] + margin_y)
         if not isInYRange:
@@ -254,10 +254,26 @@ class Game:
         if collision == 1:
             hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
             
+            # Calcul du point le plus proche à l'extérieur de la hitbox
+            offset = 1.0  # Distance de décalage pour s'assurer que la balle est bien à l'extérieur
+            
+            # Déterminer si la balle arrive par le haut ou le bas
+            if self.ballDirection["y"] > 0:  # Balle monte
+                self.ballPosition["y"] = hitbox["min"]["y"] - offset
+            else:  # Balle descend
+                self.ballPosition["y"] = hitbox["max"]["y"] + offset
+                
+            # Ajuster la position x si nécessaire pour éviter les coins
+            if self.ballPosition["x"] < hitbox["min"]["x"]:
+                self.ballPosition["x"] = hitbox["min"]["x"] - offset
+            elif self.ballPosition["x"] > hitbox["max"]["x"]:
+                self.ballPosition["x"] = hitbox["max"]["x"] + offset
+            
+            # Calcul de l'angle de rebond
             relativeIntersectX = self.ballPosition["x"] - (hitbox["min"]["x"] + (hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             normalizedIntersect = relativeIntersectX / ((hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             
-            bounceAngle = normalizedIntersect * (math.pi / 4)  # 45 degrés maximum
+            bounceAngle = normalizedIntersect * (math.pi / 4)
             
             self.ballDirection["x"] = math.sin(bounceAngle)
             self.ballDirection["y"] = -sign(self.ballDirection["y"]) * math.cos(bounceAngle)

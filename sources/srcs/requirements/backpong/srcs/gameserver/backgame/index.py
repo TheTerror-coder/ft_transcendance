@@ -279,7 +279,7 @@ async def createGame(sid, data):
     game = channel.getGame()
     game.setNbPlayerPerTeam(int(numPlayersPerTeam))
     if game.getNbPlayerPerTeam() == 2:
-        game.WINNING_SCORE = 30
+        game.WINNING_SCORE = 10
     
     team1 = Team("Black-Beard", int(numPlayersPerTeam), None, 1)
     team2 = Team("White-Beard", int(numPlayersPerTeam), None, 2)

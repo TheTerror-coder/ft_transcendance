@@ -137,10 +137,6 @@ export async function main(gameCode, socket, currentLanguage) {
                                 if (hud.camera) hud.camera = null;
                             }
                             
-                            if (ballPositionDisplay && ballPositionDisplay.parentNode) {
-                                ballPositionDisplay.parentNode.removeChild(ballPositionDisplay);
-                            }
-                            
                             render.unloadScene(ball, scene, boatGroup1, boatGroup2, display, renderer);
                             
                             scene = null;
