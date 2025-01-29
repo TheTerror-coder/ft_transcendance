@@ -81,6 +81,9 @@ async def disconnect(sid):
             if channel and channel.getIsTournament():
                 tournament = channel.getTournament()
                 
+                if channel and channel.getCreator() == sid:
+                    await sio.emit('error', {'message': 'Creator leave the room, you will be disconnected soon', 'ErrorCode': 2}, room=room)
+                    break
                 if not tournament.getStart():
                     disconnected_team = None
                     opponent_team = None
@@ -136,10 +139,7 @@ async def disconnect(sid):
                             team.setIsFull()
                             
                             if channel and channel.getCreator() == sid:
-                                await sio.emit('error', {
-                                    'message': 'Creator leave the room, you will be disconnected soon',
-                                    'ErrorCode': 2
-                                }, room=room)
+                                await sio.emit('error', {'message': 'Creator leave the room, you will be disconnected soon', 'ErrorCode': 2}, room=room)
                                 break
                                 
                             await sio.emit('TeamsNotFull', room=room)
@@ -256,6 +256,7 @@ async def joinTournament(sid, data):
             await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
             if (tournament.getNbTeam() == 4):
                 logger.info(f"Starting tournament {tournamentCode}")
+                sio.emit('tournamentFull', room=tournamentCode)
                 await startTournament(sio, tournament, tournamentCode, True)
         else:
             await sio.emit('error', {'message': 'Tournament is full', 'ErrorCode': 1}, room=sid)
