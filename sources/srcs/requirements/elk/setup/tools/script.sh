@@ -88,6 +88,64 @@ logstash_user() {
 		}"
 }
 
+onepong-logs-ilm-policy() {
+	echo "creating onepong logs ILM policy";
+	curl -X PUT --cacert config/certs/ca/ca.crt \
+		-u "${ELASTIC_USER}:${ELASTIC_PASSWORD}" \
+		-H "Content-Type: application/json" \
+		${ELASTICSEARCH_HOSTXPORT}/_ilm/policy/onepong-logs-ilm-policy \
+		-d '{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_size": "50kb",
+            "max_age": "1d"
+          }
+        }
+      },
+      "warm": {
+        "min_age": "7d",
+        "actions": {
+          "allocate": {
+            "number_of_replicas": 1,
+            "include": {
+              "box_type": "warm"
+            },
+            "exclude": {},
+            "require": {}
+          },
+          "shrink": {
+            "number_of_shards": 1
+          }
+        }
+      },
+      "cold": {
+        "min_age": "14d",
+        "actions": {
+          "allocate": {
+            "number_of_replicas": 0,
+            "include": {
+              "box_type": "cold"
+            },
+            "exclude": {},
+            "require": {}
+          }
+        }
+      },
+      "delete": {
+        "min_age": "30d",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}
+'
+}
+
 if	! test -e $HEALTHFLAG_FILE
 then
 	essentials_checking
@@ -95,6 +153,7 @@ then
 	permissions
 	wait_elastic
 	logstash_user
+	onepong-logs-ilm-policy
 	echo -e "\nAll done!";
 	touch $HEALTHFLAG_FILE && chmod 400 $HEALTHFLAG_FILE
 else
