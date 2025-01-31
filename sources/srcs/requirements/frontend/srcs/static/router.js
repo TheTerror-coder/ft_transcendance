@@ -1,6 +1,4 @@
 
-// import * as views from './views.js';
-
 const eventManager = async (event) => {
 	const { target } = event;
 
