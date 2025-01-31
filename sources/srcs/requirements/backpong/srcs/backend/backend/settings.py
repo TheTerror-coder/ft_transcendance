@@ -34,7 +34,7 @@ SECRET_KEY = str(
 )
 
 # SECURITY WARNING: TODO don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', f'{EnvVariables.HOST_IP}', '127.0.0.1']
 

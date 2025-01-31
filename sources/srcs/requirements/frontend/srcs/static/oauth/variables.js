@@ -153,9 +153,6 @@ const ELEMENTs = Object.freeze({
 	verify_email_close_error_button :  () => document.getElementById("verify-email-close-error-button"),
 	redirect_to_email_catcher_button :  () => document.getElementById("redirect-to-email-catcher-button"),
 	
-	// mfa_auth_app_is_active : () => document.getElementById("mfa-auth-app-active"),
-	// mfa_auth_app_not_active : () => document.getElementById("mfa-auth-app-not-active"),
-	// totp_deactivate_button : () => document.getElementById("totp-deactivate-button"),
 	totp_activate_button : () => document.getElementById("totp-activate-button"),
 	skip_activate_totp_button : () => document.getElementById("skip-activate-totp-button"),
 	close_mfa_reauth_modal : () => document.getElementById("close-mfa-reauth-modal"),

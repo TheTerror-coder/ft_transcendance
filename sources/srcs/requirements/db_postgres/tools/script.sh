@@ -1,6 +1,5 @@
 #!/bin/sh -e
 
-# tail -f /dev/null
 < /usr/local/share/postgresql/postgresql.conf.sample.template envsubst '$POSTGRES_PORT' > /usr/local/share/postgresql/postgresql.conf.sample
 
 if	! test -e $HEALTHFLAG_FILE

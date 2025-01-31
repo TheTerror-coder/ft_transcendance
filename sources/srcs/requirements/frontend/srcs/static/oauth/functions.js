@@ -262,8 +262,7 @@ async function callWebSockets(params) {
 
 async function reauthenticateFirst(flows) {
 	if (flows?.find(data => data.id === FLOWs.REAUTHENTICATE)) {
-		// await reauthenticateJob(undefined);
-		await logout_views();
+		await logout();
 		return (true);
 	}
 	else if (flows?.find(data => data.id === FLOWs.MFA_REAUTHENTICATE)) {

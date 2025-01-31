@@ -33,7 +33,7 @@ class Tournament:
 
     def getIsFull(self):
         return self.isFull
-    
+
     def setIsFull(self, isFull):
         self.isFull = isFull
 

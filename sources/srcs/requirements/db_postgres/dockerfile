@@ -33,5 +33,3 @@ USER ${POSTGRES_UID}
 
 ENTRYPOINT [ "dumb-init", "--" ]
 CMD [ "/usr/share/postgres/container-init.d/script.sh" ]
-# ENTRYPOINT [ "docker-entrypoint.sh", "postgres" ]
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

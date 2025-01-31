@@ -244,7 +244,6 @@ else
 	create_gameserver_secret_key
 	create_tls_certs
 	create_tokens
-# tail -f /dev/null
 	vault token revoke -mode="orphan" $(grep 'Initial Root Token:' $VAULT_HOME/volumes/vault/file/keys | awk '{print $NF}') >> /dev/null
 fi
 

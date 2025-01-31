@@ -30,5 +30,3 @@ USER ${VAULT_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "sh", "-c", "${VAULT_HOME}/container-init.d/script.sh" ]
-# CMD [ "/usr/local/bin/docker-entrypoint.sh", "server" ]
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]
