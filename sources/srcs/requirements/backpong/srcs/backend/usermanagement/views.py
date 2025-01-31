@@ -91,7 +91,6 @@ def login_view(request):
 			sanitized_data = {key: bleach.clean(value) for key, value in request.data.items()}
       
 			form = CustomAuthenticationForm(data=sanitized_data)
-			# form = CustomAuthenticationForm(data=request.data)
 			if form.is_valid():
 				password = form.cleaned_data.get('password')
 				email = form.cleaned_data.get('email')
@@ -197,7 +196,7 @@ def update_profile(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		username = bleach.clear(request.data.get('username', ''))
+		username = bleach.clean(request.data.get('username'))
 		before_username = request.user.username
 		if not username:
 			return Response({
@@ -307,8 +306,8 @@ def set_language(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		username = bleach.clear(request.data.get('username'))
-		language = bleach.clear(request.data.get('language'))
+		username = bleach.clean(request.data.get('username'))
+		language = bleach.clean(request.data.get('language'))
 		try:
 			user = User.objects.get(username=username)
 		except User.DoesNotExist:
@@ -350,7 +349,7 @@ def get_language(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		username = bleach.clear(request.data.get('username'))
+		username = bleach.clean(request.data.get('username'))
 
 		if not username:
 			return Response({
@@ -387,7 +386,7 @@ def get_user_profile(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		username = bleach.clear(request.data.get('username'))
+		username = bleach.clean(request.data.get('username'))
 		if not username:
 			return Response({
 				status: 'error',
@@ -510,7 +509,7 @@ def send_friend_request(request):
 					'status': 'error',
 					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 				}, status=400)
-			username = bleach.clear(request.data.get('username'))
+			username = bleach.clean(request.data.get('username'))
 		
 			if not username:
 				return Response({
@@ -576,7 +575,7 @@ def remove_friend(request):
 					'status': 'error',
 					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 				}, status=400)
-			username = bleach.clear(request.data.get('username'))
+			username = bleach.clean(request.data.get('username'))
 			if not username:
 				response = {
 					'status': 'error',
@@ -662,7 +661,7 @@ def get_user_sockets(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		username = bleach.clear(request.data.get('username'))
+		username = bleach.clean(request.data.get('username'))
 		if not username:
 			return Response({
 				'status': 'error',
@@ -713,15 +712,15 @@ def set_info_game(request):
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
 		if request.data.get('player') == request.data.get('winner'):
-			winner = bleach.clear(request.data.get('player'))
-			winner_score = bleach.clear(int(request.data.get('player_score')))
-			looser = bleach.clear(request.data.get('opponent'))
-			looser_score = bleach.clear(int(request.data.get('opponent_score')))
+			winner = bleach.clean(request.data.get('player'))
+			winner_score = bleach.clean(int(request.data.get('player_score')))
+			looser = bleach.clean(request.data.get('opponent'))
+			looser_score = bleach.clean(int(request.data.get('opponent_score')))
 		else:
-			winner = bleach.clear(request.data.get('opponent'))
-			looser = bleach.clear(request.data.get('player'))
-			winner_score = bleach.clear(int(request.data.get('opponent_score')))
-			looser_score = bleach.clear(int(request.data.get('player_score')))
+			winner = bleach.clean(request.data.get('opponent'))
+			looser = bleach.clean(request.data.get('player'))
+			winner_score = bleach.clean(int(request.data.get('opponent_score')))
+			looser_score = bleach.clean(int(request.data.get('player_score')))
 
 		if not winner or not looser or winner_score is None or looser_score is None:
 			return Response({
