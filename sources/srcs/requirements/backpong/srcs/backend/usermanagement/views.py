@@ -80,7 +80,7 @@ def login_view(request):
 		if request.method == 'POST':
 			invalide_field = {
 				key: value for key, value in request.data.items()
-				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+				if ('<' in str(value) or  '>' in str(value))
 			}
 			if invalide_field:
 				return Response({
@@ -145,7 +145,7 @@ def logout_view(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -189,7 +189,7 @@ def update_profile(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -299,7 +299,7 @@ def set_language(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -342,7 +342,7 @@ def get_language(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -379,7 +379,7 @@ def get_user_profile(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -502,7 +502,7 @@ def send_friend_request(request):
 		if request.method == 'POST':
 			invalide_field = {
 				key: value for key, value in request.data.items()
-				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+				if ('<' in str(value) or  '>' in str(value))
 			}
 			if invalide_field:
 				return Response({
@@ -568,7 +568,7 @@ def remove_friend(request):
 		if request.method == 'POST':
 			invalide_field = {
 				key: value for key, value in request.data.items()
-				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+				if ('<' in str(value) or  '>' in str(value))
 			}
 			if invalide_field:
 				return Response({
@@ -654,7 +654,7 @@ def get_user_sockets(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
@@ -704,7 +704,7 @@ def set_info_game(request):
 	try:
 		invalide_field = {
 			key: value for key, value in request.data.items()
-			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			if ('<' in str(value) or  '>' in str(value))
 		}
 		if invalide_field:
 			return Response({
