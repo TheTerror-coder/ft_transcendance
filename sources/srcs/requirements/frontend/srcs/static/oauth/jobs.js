@@ -4,11 +4,9 @@ async function mfaAuthMiddlewareJob() {
 
 		if (await isUserAuthenticated(params)){
 			if (!await isTotpEnabled()){
-				console.log("****DEBUG**** mfaAuthMiddlewareJob(): totp is enabled");
 				await mfaJob(undefined, totp_active=false);
 				return ;
 			}
-			console.log("****DEBUG**** mfaAuthMiddlewareJob(): totp is not enabled");
 			await postAuthMiddlewareJob();
 		}
 		else {
@@ -21,7 +19,6 @@ async function mfaAuthMiddlewareJob() {
 }
 
 async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
-	console.log("****DEBUG**** post auth middleware job")
 	try {
 		await jwt_authenticate();
 		await callWebSockets();
@@ -40,12 +37,10 @@ async function postAuthMiddlewareJob(params, routeMatched, _storage, skip_mfa) {
 }
 
 async function render_next(params, routeMatched, _storage) {
-	console.log("****DEBUG**** render_next()");
 	
 	try {
 		
 		if (!window.localStorage.getItem('jwt_access_token')){
-			console.log("****DEBUG**** jwt credentials missing, calling once again jwt_authenticate()");
 			await jwt_authenticate();
 		}
 
@@ -81,7 +76,6 @@ async function	verifyEmailJob(params) {
 
 	const _response = await verifyEmail(key);
 	if (_response.find(_data => _data === 'user-is-authenticated')){
-		console.log('Function verifyEmailJob(): verification-information');
 		if (_response[3].is_authenticated){
 			if (!await isTotpEnabled()){
 				await mfaJob(undefined, totp_active=false);
@@ -96,24 +90,19 @@ async function	verifyEmailJob(params) {
 		// }
 	}
 	else if (_response.find(_data => _data === 'input-error')){
-		console.log('Function verifyEmailJob(): input-error');
 		index = VARIABLEs.VERIFY_EMAIL.INDEXES.INPUT_ERROR;
 		_params.error_message = _response[2][0].message;
 	}
 	else if (_response.find(_data => _data === 'not-authenticated')){
-		console.log('Function verifyEmailJob(): not-authenticated');
 		await doPendingFlows({}, flows=_response[2].flows);
 		return ;
 	}
 	else if (_response.find(_data => _data === 'email-verification-not-pending')){
-		console.log('Function verifyEmailJob(): email-verification-not-pending');
-		console.log("Error 409: email-verification-not-pending");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Email', 'Email verification is not pending');
 		await askRefreshSession();
 		return ;
 	}
 	else {
-		console.log('Function verifyEmailJob(): Error somewhere');
 		return;
 	}
 
@@ -132,7 +121,6 @@ async function mfaJob(params, totp_active) {
 	let _params = [];
 
 	if (totp_active) {
-		console.log("****DEBUG**** mfaJob(): totp is active");
 		_params.push('totp');
 	}
 	await fragment_loadModalTemplate();
@@ -145,7 +133,6 @@ async function mfaJob(params, totp_active) {
 }
 
 async function	activateTotpJob(params) {
-	console.log('activate totp job');
 	const _params = {};
 	const response = await getTotpAuthenticatorStatus();
 	if (response.find(data => data === 'no-totp-authenticator-set')){
@@ -170,7 +157,6 @@ async function	activateTotpJob(params) {
 		return ;
 	} else { //'account-prohibits-authenticator'
 		// reauthentication needed
-		console.log("account prohibits authenticator");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Time-based One Time Password', 'account prohibits authenticator');
 		await askRefreshSession();
 		return ;
@@ -178,7 +164,6 @@ async function	activateTotpJob(params) {
 }
 
 async function	validateTotpValueJob(params) {
-	console.log('validate totp value job');
 	
 	const _input = ELEMENTs.totp_value_input();
 	_input.disabled = true;
@@ -191,13 +176,12 @@ async function	validateTotpValueJob(params) {
 	} else if (response.find(data => data === 'totp-authenticator-information')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout_views();
+			await logout();
 		}
 		await postAuthMiddlewareJob();
 		return ;
 	} else { //'account-prohibits-authenticator'
 		// reauthentication needed
-		console.log("account prohibits authenticator: reauthentication needed");
 		await onePongAlerter(ALERT_CLASSEs.INFO, 'Time-based One Time Password', 'account prohibits authenticator');
 		await askRefreshSession();
 		return ;
@@ -205,7 +189,6 @@ async function	validateTotpValueJob(params) {
 }
 
 async function	twoFaAuthenticateJob(params) {
-	console.log('validate 2fa value job');
 	
 	const _input = ELEMENTs.two_fa_value_input();
 	_input.disabled = true;
@@ -218,17 +201,15 @@ async function	twoFaAuthenticateJob(params) {
 	} else if (response.find(data => data === 'authenticated')){
 		// go to ?next
 		if (!await isUserAuthenticated({})){
-			await logout_views();
+			await logout();
 		}
 		await postAuthMiddlewareJob();
 		return ;
 	} else if (response.find(data => data === 'not-authenticated')){
-		console.log('Function twoFaAuthenticateJob(): not-authenticated');
 		await doPendingFlows({}, flows=response[2].flows);
 		return ;
 	}
 	else {
-		console.log('Function twoFaAuthenticateJob(): Error somewhere');
 		return;
 	}
 }
@@ -239,7 +220,6 @@ async function	deactivateTotpJob(params) {
 		return ;
 	} else {
 		window.localStorage.setItem('skip_switch2FA_flag', 'true');
-		console.log('*********DEBUG********* in deactivateTotpJob(): reauthentication needed')
 		await reauthenticateFirst(response[2].flows);
 		return ;
 	}
@@ -267,7 +247,7 @@ async function	mfaReauthenticateJob(params) {
 		return ;
 	} else if (response.find(data => data === 'reauthenticated')){
 		if (!await isUserAuthenticated({})){
-			await logout_views();
+			await logout();
 		}
 		const _modal = await bootstrap.Modal.getInstance('#oauth-modal2');
 		await _modal.dispose();

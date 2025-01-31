@@ -37,8 +37,6 @@ find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
 find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;
 EOF
 
-# COPY --chown=${NGINX_UID}:${NGINX_GID}  ./frontend_waf/srcs/templates/base.html ${MODSEC_HOME}/html/
-# COPY --chown=${NGINX_UID}:${NGINX_GID}  ./frontend_waf/srcs/static/ ${MODSEC_HOME}/volumes/www/static/
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ${REVERSEPROXY_CONF_FILE} /etc/nginx/templates/conf.d/default.conf.template
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendshared_conf.conf /etc/nginx/includes/backendshared_conf.conf
 COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/gameservershared_conf.conf /etc/nginx/includes/gameservershared_conf.conf
@@ -57,5 +55,3 @@ USER ${NGINX_UID}
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "sh", "-c", "${MODSEC_HOME}/container-init.d/script.sh" ]
-# CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

@@ -37,11 +37,11 @@ const eventManager = async (event) => {
 	}
 	else if (target.id === ELEMENTs.verify_email_close_error_button()?.id){
 		event.preventDefault();
-		await logout_views();
+		await logout();
 	}
 	else if (target.id === ELEMENTs.refresh_session_button()?.id){
 		event.preventDefault();
-		await logout_views();
+		await logout();
 	}
 	else if (target.id === ELEMENTs.buttonConnec()?.id){
 		event.preventDefault();
@@ -86,6 +86,8 @@ const eventManager = async (event) => {
 		nbBlackBeard = 0;
 		nbWhiteBeard = 0;
 		noticeDisconnect = null;
+		tournamentAllUsers.clearUsers();
+		UsersShufled.clearUsers();
 
 		event.preventDefault();
 		if (globalSocket !== null)
@@ -261,21 +263,22 @@ const handleLocation = async () => {
 //     if (!urlActuelle.includes('login')) {
 //         const response = await getAuthenticationStatus();
 
-//         if (response.find(data => data === 'user-is-authenticated')) {
-// 			if (ONE_SOCKET?.readyState !== 0 && ONE_SOCKET?.readyState !== 1) {
-// 				await callWebSockets();
-// 			}
-//         }
-//         else if (response.find(data => data === 'not-authenticated')) {
-//             console.log('not-authenticated');
-//         }
-//         else if (response.find(data => data === 'invalid-session')) 
-// 		{
-//             window.sessionStorage.clear();
-//             await replace_location(URLs.VIEWS.LOGIN_VIEW);
-//         }
-//     }
-// });
+        if (response.find(data => data === 'user-is-authenticated')) {
+            const user = {"username" : response[2].user.display};
+            const resp = await makeRequest('POST', URLs.USERMANAGEMENT.USERSOCKET, user);
+            if (resp.status === 'error'){
+                await callWebSockets();
+			}
+        }
+        else if (response.find(data => data === 'not-authenticated')) {
+        }
+        else if (response.find(data => data === 'invalid-session')) 
+		{
+            window.sessionStorage.clear();
+            await replace_location(URLs.VIEWS.LOGIN_VIEW);
+        }
+    }
+});
 
 window.onpopstate = handleLocation;
 

@@ -15,9 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import HttpResponseNotFound
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from . import health, views
 from rest_framework_simplejwt.views import (
@@ -45,5 +47,10 @@ urlpatterns = [
     path('backpong/oauth/', include('oauth.urls')),
     path('backpong/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('backpong/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+	re_path(r'^admin/.*$', lambda request: redirect('/error-404/', permanent=True)),
+	re_path(r'^backpong/.*$', lambda request: redirect('/error-404/', permanent=True)),
+	re_path(r'^_allauth/.*$', lambda request: redirect('/error-404/', permanent=True)),
+	re_path(r'^accounts/.*$', lambda request: redirect('/error-404/', permanent=True)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

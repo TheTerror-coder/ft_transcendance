@@ -15,7 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.shortcuts import redirect
+from django.urls import path, include, re_path
 from . import views
 
 urlpatterns = [
@@ -24,4 +25,9 @@ urlpatterns = [
     path('backgame/health/', views.test, name="healthcheck"),
     path('admin/', admin.site.urls),
     path('backgame/', include('backgame.urls')),
+
+	re_path(r'^backgame/.*$', lambda request: redirect('/error-404/', permanent=True)),
+	re_path(r'^gameserver/.*$', lambda request: redirect('/error-404/', permanent=True)),
+	re_path(r'^socket.io/.*$', lambda request: redirect('/error-404/', permanent=True)),
+
 ]

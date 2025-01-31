@@ -1,6 +1,5 @@
 #!/bin/sh -e
 
-# tail -f /dev/null
 python manage.py makemigrations usermanagement --no-input
 python manage.py makemigrations --no-input
 python manage.py migrate --no-input
@@ -14,4 +13,3 @@ then
 fi
 
 $CONTAINER_ENTRYPOINT
-# tail -f /dev/null

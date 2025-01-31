@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-# tail -f /dev/null
-
 echo "envsubst redis.conf ..."
 < $REDIS_HOME/container-init.d/redis.conf.template envsubst '$REDIS_PORT $REDIS_DATA $REDIS_HOME' > $REDIS_HOME/container-init.d/redis.conf
 

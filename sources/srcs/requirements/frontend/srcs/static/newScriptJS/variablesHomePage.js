@@ -1,6 +1,3 @@
-//HOME PAGE INFORMATION
-
-
 const joinTwoPlayersVAR = 
 
 `<div class="crossPlayMenu" id="cross">

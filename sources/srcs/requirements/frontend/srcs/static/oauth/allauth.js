@@ -261,6 +261,7 @@ async function getJwtToken(url) {
 }
 
 async function logout() {
+	await closeWebSocket();
 	await makeRequest('DELETE', URLs.ALLAUTH.AUTH_STATUS);
 	window.sessionStorage.clear();
 	clear_jwt();

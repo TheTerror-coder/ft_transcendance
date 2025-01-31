@@ -45,4 +45,3 @@ USER 1000
 
 ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
 CMD [ "/bin/bash", "-c", "/usr/share/logstash/script.sh" ]
-# ENTRYPOINT [ "tail", "-f", "/dev/null" ]

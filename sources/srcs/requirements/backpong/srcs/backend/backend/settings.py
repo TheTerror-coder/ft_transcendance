@@ -34,7 +34,7 @@ SECRET_KEY = str(
 )
 
 # SECURITY WARNING: TODO don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'backend', f'{EnvVariables.HOST_IP}', '127.0.0.1']
 
@@ -62,7 +62,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 INSTALLED_APPS = [
 
-	'daphne', #TODO JM: Remove in production, uvicorn will be the asgi server instead
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -212,8 +211,6 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-			# "hosts": [(str(os.environ.get('REDIS_CONTAINER')), os.environ.get('REDIS_PORT'))],
-			### TODO: IN production
             "hosts": [
 				{
 					"address": tools.get_RedisBackendUri(),
@@ -229,7 +226,6 @@ REST_FRAMEWORK = {
 		'rest_framework_simplejwt.authentication.JWTAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': [
-		# 'rest_framework.permissions.AllowAny',
 		'rest_framework.permissions.IsAuthenticated',
 	],
 }
@@ -238,7 +234,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-	# It will work instead of the default serializer(TokenObtainPairSerializer).
 	"TOKEN_OBTAIN_SERIALIZER": "oauth.serializers.MyTokenObtainPairSerializer",
 	"ACCESS_TOKEN_CLASS": "oauth.tokens.CustomAccessToken",
 }
@@ -276,10 +271,6 @@ AUTHENTICATION_BACKENDS = [
 
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "/frontpong/account/verify-email/?key={key}",
-    # "account_reset_password": "/frontpong/account/password/reset",
-    # "account_reset_password_from_key": "/frontpong/account/password/reset/key/{key}",
-    # "account_signup": "/frontpong/account/signup",
-    # "socialaccount_login_error": parameters.CALLBACK_URL,
 }
 
 

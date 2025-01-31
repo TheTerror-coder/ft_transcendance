@@ -10,7 +10,6 @@ from .Team import Team
 from .Player import Player
 from .Bullet_collide import *
 
-# Configuration du logging au début du fichier
 logging.basicConfig(
     filename='game.log',
     level=logging.INFO,
@@ -22,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class Game:
     def __init__(self, gameId, isGameTournament, tournament):
+        # Variable de la game
         self.gameId = gameId
         self.gameInterval = None
         self.tickRate = 1000 / 60
@@ -40,15 +40,16 @@ class Game:
         self.isLaunch = False
         
         # Constantes pour la balle
-        self.BALL_INITIAL_SPEED = 1.5     # Vitesse initiale
+        self.BALL_INITIAL_SPEED = 1.5
         self.BALL_SPEED = self.BALL_INITIAL_SPEED
-        self.SPEED_INCREASE_FACTOR = 1.1  # Facteur d'augmentation (réduit de 1.2 à 1.1)
-        self.BALL_MAX_SPEED = 3.0         # Vitesse maximale augmentée
-        self.BALL_MIN_SPEED = 1.0         # Vitesse minimale
-        self.BALL_UPDATE_INTERVAL = 33    # ~30fps
+        self.SPEED_INCREASE_FACTOR = 1.1
+        self.BALL_MAX_SPEED = 3.0
+        self.BALL_MIN_SPEED = 1.0
+        self.BALL_UPDATE_INTERVAL = 33
         self.FIELD_WIDTH = 150
         self.FIELD_HEIGHT = 105
 
+        # Score de victoire
         self.WINNING_SCORE = 5
 
         # État de la balle
@@ -56,23 +57,21 @@ class Game:
         self.ballDirection = self.initializeBallDirection()
         self.last_ball_update = 0
         self.ball_velocity = {'x': 0, 'y': 0, 'z': 0}
-        self.collision_cooldown = 50  # ms
+        self.collision_cooldown = 50
         self.last_collision_time = 0
-        self.PREDICTION_BUFFER = []  # Pour stocker les positions futures
-        self.MAX_PREDICTIONS = 3  # Nombre de prédictions à maintenir
-        self.pending_hits = {}  # {gameCode: {teamId: {timestamp, damage, animationEndTime}}}
-        self.DISCONNECT_TIMEOUT = 30  # 30 secondes
-        self.disconnect_timers = {}  # {team_id: {sid: timer}}
-        self.disconnected_players = {}  # {team_id: [sid]}
+        self.PREDICTION_BUFFER = []  
+        self.MAX_PREDICTIONS = 3 
+        self.pending_hits = {} 
+        self.DISCONNECT_TIMEOUT = 30
+        self.disconnect_timers = {}
+        self.disconnected_players = {}
 
     async def launchCheckGameFull(self, sio, gameCode):
-        logger.info(f"launchCheckGameFull dans Game.py")
         gameIsFullMsgSend = False
         while True:
             if not gameIsFullMsgSend and self.getTeam(1).getIsFull() and self.getTeam(2).getIsFull():
                 await sio.emit('TeamsFull', room=gameCode)
                 gameIsFullMsgSend = True
-                logger.info(f"TeamsFull envoyé dans Game.py")
             if ((self.getTeam(1).getNbPlayer() == 0 or self.getTeam(2).getNbPlayer() == 0) or (self.getTeam(1).getNbPlayer() == 0 and self.getTeam(2).getNbPlayer() == 0)):
                 gameIsFullMsgSend = False
             if (self.gameStarted):
@@ -93,21 +92,14 @@ class Game:
     
     def addNbPlayerInLobby(self):
         self.nbPlayerInLobby += 1
-        logger.info(f'nbPlayerInLobby : {self.nbPlayerInLobby}')
     
     def getNbPlayerInLobby(self):
-        logger.info(f'self.nbPlayerInLobby : {self.nbPlayerInLobby}')
         return self.nbPlayerInLobby
     
     def removeNbPlayerInLobby(self, nbPlayerToRemove):
-        logger.info(f'removeNbPlayerInLobby : {self.nbPlayerInLobby}')
-        logger.info(f'nbPlayerToRemove : {nbPlayerToRemove}')
-        logger.info(f'self.nbPlayerInLobby - nbPlayerToRemove >= 0 : {self.nbPlayerInLobby - nbPlayerToRemove >= 0}')
         if (self.nbPlayerInLobby - nbPlayerToRemove >= 0):
-            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
             self.nbPlayerInLobby -= nbPlayerToRemove
         else:
-            logger.info(f'remove nbPlayerInLobby : {self.nbPlayerInLobby}')
             self.nbPlayerInLobby = 0
 
     def getIsGameTournament(self):
@@ -154,25 +146,21 @@ class Game:
             if delta_time < self.BALL_UPDATE_INTERVAL:
                 return self.ballPosition
             
-            # Calculer la vélocité avec plus de précision
             self.ball_velocity = {
                 'x': self.ballDirection['x'] * self.BALL_SPEED,
                 'y': self.ballDirection['y'] * self.BALL_SPEED,
                 'z': 0
             }
             
-            # Mise à jour de la position avec la vélocité
             new_position = {
                 'x': self.ballPosition['x'] + self.ball_velocity['x'],
                 'y': self.ballPosition['y'] + self.ball_velocity['y'],
                 'z': self.ballDirection['z']
             }
             
-            # Mettre à jour la position actuelle
             self.ballPosition = new_position
             self.last_ball_update = current_time
             
-            # Générer quelques positions futures pour la prédiction
             self.PREDICTION_BUFFER = [
                 {
                     'x': new_position['x'] + self.ball_velocity['x'] * i,
@@ -212,15 +200,8 @@ class Game:
         if adjusted_hitbox == -1:
             return 0
         
-        # Marges de collision
-        margin_z = 2.5
         margin_y = 1.0
         margin_x = 2.0
-
-        # Vérification des collisions sur les trois axes
-        isInZRange = (adjusted_hitbox['min']['z'] - margin_z) <= self.ballPosition['z'] <= (adjusted_hitbox['max']['z'] + margin_z)
-        if not isInZRange:
-            return 0
         
         isInYRange = (adjusted_hitbox['min']['y'] - margin_y) <= self.ballPosition['y'] <= (adjusted_hitbox['max']['y'] + margin_y)
         if not isInYRange:
@@ -230,11 +211,9 @@ class Game:
         if not isInXRange:
             return 0
 
-        # Calculer le point d'impact relatif par rapport au centre du paddle
         relativeIntersectX = self.ballPosition['x'] - (adjusted_hitbox['min']['x'] + (adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x'])/2)
         normalizedIntersect = relativeIntersectX / ((adjusted_hitbox['max']['x'] - adjusted_hitbox['min']['x'])/2)
         
-        # Retourner 1 pour une collision normale
         return 1
 
     async def detectCollisionWithBoats(self):
@@ -256,7 +235,6 @@ class Game:
         if not self.gameStarted:
             return
 
-        # Gestion des collisions avec les murs latéraux
         if self.ballPosition["x"] <= -self.FIELD_WIDTH / 2:
             self.ballPosition["x"] = -self.FIELD_WIDTH / 2 + 0.5
             self.ballDirection["x"] = -self.ballDirection["x"]
@@ -266,32 +244,37 @@ class Game:
             self.ballDirection["x"] = -self.ballDirection["x"]
             self.BALL_SPEED = min(self.BALL_SPEED * self.SPEED_INCREASE_FACTOR, self.BALL_MAX_SPEED)
 
-        # Détection des collisions avec les paddles
         collision = await self.detectCollisionWithBoats()
         
-        if collision == 1:  # Collision normale
+        if collision == 1:
             hitbox = self.getAdjustedHitbox(self.teams[1 if self.ballPosition["y"] > 0 else 2])
             
-            # Calculer l'angle de rebond basé sur le point d'impact
+            offset = 1.0
+            
+            if self.ballDirection["y"] > 0:
+                self.ballPosition["y"] = hitbox["min"]["y"] - offset
+            else:
+                self.ballPosition["y"] = hitbox["max"]["y"] + offset
+                
+            if self.ballPosition["x"] < hitbox["min"]["x"]:
+                self.ballPosition["x"] = hitbox["min"]["x"] - offset
+            elif self.ballPosition["x"] > hitbox["max"]["x"]:
+                self.ballPosition["x"] = hitbox["max"]["x"] + offset
+            
             relativeIntersectX = self.ballPosition["x"] - (hitbox["min"]["x"] + (hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             normalizedIntersect = relativeIntersectX / ((hitbox["max"]["x"] - hitbox["min"]["x"])/2)
             
-            # Limiter l'angle de rebond
-            bounceAngle = normalizedIntersect * (math.pi / 4)  # 45 degrés maximum
+            bounceAngle = normalizedIntersect * (math.pi / 4)
             
-            # Mettre à jour la direction
             self.ballDirection["x"] = math.sin(bounceAngle)
             self.ballDirection["y"] = -sign(self.ballDirection["y"]) * math.cos(bounceAngle)
             
-            # Normaliser le vecteur direction
             length = math.sqrt(self.ballDirection["x"]**2 + self.ballDirection["y"]**2)
             self.ballDirection["x"] /= length
             self.ballDirection["y"] /= length
             
-            # Augmenter la vitesse
             self.BALL_SPEED = min(self.BALL_SPEED * self.SPEED_INCREASE_FACTOR, self.BALL_MAX_SPEED)
 
-        # Gestion des points
         if self.ballPosition["y"] <= -self.FIELD_HEIGHT / 2:
             self.resetBall()
             self.teams[1].addPoint()
@@ -316,7 +299,7 @@ class Game:
     def resetBall(self):
         self.ballPosition = self.initializeBallPosition()
         self.ballDirection = self.initializeBallDirection()
-        self.BALL_SPEED = self.BALL_INITIAL_SPEED  # Réinitialiser la vitesse
+        self.BALL_SPEED = self.BALL_INITIAL_SPEED
 
     def getBallPosition(self):
         return self.ballPosition
@@ -324,7 +307,6 @@ class Game:
     def getPlayerByName(self, name):
         for team in self.teams.values():
             for player in team.player.values():
-                logger.info(f"player.name dans getPlayerByName {player.name}, {name}")
                 if player.name == name:
                     return player
         return None
@@ -336,21 +318,16 @@ class Game:
         return self.isPaused
 
     def addNbPlayerConnected(self):
-        logger.info("addNbPlayerConnected")
         self.nbPlayerConnected += 1
 
     def removeNbPlayerConnected(self):
-        logger.info("removeNbPlayerConnected")
         if (self.nbPlayerConnected > 0):
             self.nbPlayerConnected -= 1
 
     def addPlayerReady(self):
-        logger.info("addPlayerReady")
         self.playerReady += 1
-        logger.info(f"playerReady: {self.playerReady}")
 
     def removePlayerReady(self):
-        logger.info("removePlayerReady")
         if (self.playerReady > 0):
             self.playerReady -= 1
 
@@ -358,7 +335,6 @@ class Game:
         return self.playerReady
 
     def setNbPlayerPerTeam(self, nbPlayerPerTeam):
-        logger.info("setNbPlayerPerTeam")
         self.nbPlayerPerTeam = nbPlayerPerTeam
 
     def setTeam(self, team):
@@ -417,7 +393,6 @@ class Game:
             cannon = team.getCannon()
             if cannon:
                 team.setCannonPosition(x)
-                logger.info(f"cannon: {cannon}")
             else:
                 logger.info(f"Cannon not found for team {teamId}")
         else:
@@ -441,7 +416,6 @@ class Game:
         game_code = data.get('gameCode')
 
         try:
-            # Vérifier les collisions comme avant
             collision_detected = False
             collision_point = None
             
@@ -463,15 +437,14 @@ class Game:
                     break
 
             if collision_detected:
-                # Au lieu d'appliquer les dégâts immédiatement, les stocker
                 self.pending_hits[game_code] = {
                     'teamId': team.getTeamId(),
                     'timestamp': time.time(),
                     'animationEndTime': animation_end_time,
                     'collision_point': collision_point
                 }
-                return 1  # Collision détectée
-            return 0  # Pas de collision
+                return 1
+            return 0
 
         except Exception as e:
             logger.error(f"Erreur dans updateBallFired: {e}")
@@ -481,19 +454,16 @@ class Game:
         target_team = self.teams[1 if firing_team.getTeamId() == 2 else 2]
         current_hitbox = self.getAdjustedHitbox(target_team)
         
-        # Vérifier la collision avec la position actuelle
         collision, point = checkCollision(p1, p2, current_hitbox)
         if collision:
             return True
         
-        # Vérifier avec les positions futures du bateau
         boat_velocity = {
             'x': target_team.getBoat()['x'] - target_team.getFormerBoatPosition()['x'],
             'y': target_team.getBoat()['y'] - target_team.getFormerBoatPosition()['y']
         }
         
-        # Vérifier quelques positions futures
-        for i in range(1, 5):  # Vérifier 5 positions futures
+        for i in range(1, 5):
             future_hitbox = {
                 'min': {
                     'x': current_hitbox['min']['x'] + boat_velocity['x'] * i,
@@ -526,16 +496,14 @@ class Game:
                     team.setBoatPosClient(boat['x'], boat['y'], boat['z'])
                 if cannon:
                     team.setCannonPosClient(cannon['x'], cannon['y'], cannon['z'])
-                    logger.info(f"cannon UPDATED: {cannon}")
                 if hitbox:
                     team.setBoatHitbox(hitbox)
             else:
                 logger.error(f"Team {teamId} not found")
 
     def createConnectGameData(self):
-        logger.info("createGameData")
         team1_players = {
-            player.id: {  # Utiliser directement l'id comme clé
+            player.id: {
                 'id': player.id,
                 'role': player.role,
                 'name': player.name
@@ -543,7 +511,7 @@ class Game:
         }
         
         team2_players = {
-            player.id: {  # Utiliser directement l'id comme clé
+            player.id: {
                 'id': player.id,
                 'role': player.role,
                 'name': player.name
@@ -575,9 +543,8 @@ class Game:
         return (teamsArray)
     
     def createReconnectGameData(self):
-        logger.info("createReconnectGameData")
         team1_players = {
-            player.id: {  # Utiliser directement l'id comme clé
+            player.id: { 
                 'id': player.id,
                 'role': player.role,
                 'name': player.name
@@ -585,7 +552,7 @@ class Game:
         }
         
         team2_players = {
-            player.id: {  # Utiliser directement l'id comme clé
+            player.id: { 
                 'id': player.id,
                 'role': player.role,
                 'name': player.name
@@ -619,15 +586,11 @@ class Game:
         }
         return (gameData)
 
-    async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):
-        logger.info(f"sendGameData to {gameCode} / {originalGameCode}")
-        # Convertir les objets Player en format attendu par le client
-        
+    async def sendGameData(self, sio, gameCode, sid, originalGameCode, isTournament):        
         if (sid):
             gameData = self.createReconnectGameData()
             logger.info(f"Sending gameData {gameData} to the reconnected player with sid : {sid}")
             await sio.emit('gameData', gameData, room=sid)
-            # player.setIsInit(True)
         else:
             teamsArray = self.createConnectGameData()
             logger.info(f'Sending gameData: {teamsArray} to the gameCode: {gameCode} / {originalGameCode}')
@@ -652,18 +615,11 @@ class Game:
             self.gameStarted = False
             self.winner = self.teams[2]
             self.loser = self.teams[1]
-            await self.sendGameInfo(sio, gameCode, False)                
+            await self.sendGameInfo(sio, gameCode, False)
 
     def createEndGamePayload(self, isForfeit):
-        team1_player = next(iter(self.getTeam(1).player.values()))
-        team2_player = next(iter(self.getTeam(2).player.values()))
-        
-        if (team1_player.TeamID == self.winner.getTeamId()):
-            winner = team1_player.name
-            loser = team2_player.name
-        else:
-            winner = team2_player.name
-            loser = team1_player.name
+        winner = list(self.winner.player.values())[0].name
+        loser = list(self.loser.player.values())[0].name
         
         if (isForfeit):
             payload = {
@@ -704,28 +660,23 @@ class Game:
         logger.info(f"Joueurs prêts: {self.playerReady}")
         logger.info(f"Partie en pause: {'Oui' if self.isPaused else 'Non'}")
         
-        # Informations sur la balle
         logger.info("--- État de la balle ---")
         logger.info(f"Position: x={self.ballPosition['x']:.2f}, y={self.ballPosition['y']:.2f}, z={self.ballPosition['z']:.2f}")
         logger.info(f"Vitesse actuelle: {self.BALL_SPEED:.2f}")
         logger.info(f"Direction: x={self.ballDirection['x']:.2f}, y={self.ballDirection['y']:.2f}, z={self.ballDirection['z']:.2f}")
         
-        # Informations sur les équipes
         for team_id, team in self.teams.items():
             logger.info(f"--- ÉQUIPE {team_id} ---")
             logger.info(f"Nom: {team.name}")
             logger.info(f"Score: {team.getScore()}")
             logger.info(f"Nombre de joueurs: {team.nbPlayer}/{team.maxNbPlayer}")
             
-            # Position du bateau
             boat_pos = team.getBoat()
             logger.info(f"Position du bateau: x={boat_pos['x']:.2f}, y={boat_pos['y']:.2f}, z={boat_pos['z']:.2f}")
             
-            # Position du canon
             cannon_pos = team.getCannon()
             logger.info(f"Position du canon: x={cannon_pos['x']:.2f}, y={cannon_pos['y']:.2f}, z={cannon_pos['z']:.2f}")
             
-            # Détails des joueurs
             logger.info("Joueurs:")
             for player_id, player in team.player.items():
                 logger.info(f"  - ID: {player.id}")
@@ -755,7 +706,6 @@ class Game:
         self.tournament = None
         self.isGameTournament = False
         
-        # Réinitialiser les équipes
         for team in self.teams.values():
             team.resetPosition()
             team.PV = 100
@@ -768,11 +718,8 @@ class Game:
         if gameCode in self.pending_hits:
             hit_data = self.pending_hits[gameCode]
             if hit_data['teamId'] == team_id:
-                # Appliquer les dégâts
                 target_team = self.teams[1 if team_id == 2 else 2]
                 target_team.removePV(10)
-                logger.info(f"target_team: {target_team.getPV()}")
-                # Envoyer la mise à jour aux clients
                 await sio.emit('damageApplied', {
                     'gameCode': gameCode,
                     'teamId': target_team.getTeamId(),
@@ -787,12 +734,10 @@ class Game:
                     await self.sendGameInfo(sio, gameCode, True)
                     await sio.emit('winner', self.winner.getName(), room=gameCode)
                 
-                # Nettoyer les données
                 del self.pending_hits[gameCode]
 
     async def handle_disconnect(self, sid, sio, gameCode):
         if self.isGameTournament:
-            # Pour les tournois : forfait immédiat
             for team in self.teams.values():
                 if team.getPlayerById(sid):
                     self.loser = team
@@ -800,10 +745,9 @@ class Game:
                     self.gameStarted = False
                     await self.sendGameInfo(sio, gameCode, True)
                     await sio.emit('winner', self.winner.getName(), room=gameCode)
-                    return True  # Indique que c'est une déconnexion de tournoi
+                    return True
             return True
 
-        # Trouver l'équipe du joueur
         player_team = None
         for team_id, team in self.teams.items():
             if team.getPlayerById(sid):
@@ -814,20 +758,16 @@ class Game:
         if not player_team:
             return False
 
-        # Initialiser les structures pour cette équipe si nécessaire
         if team_id not in self.disconnect_timers:
             self.disconnect_timers[team_id] = {}
             self.disconnected_players[team_id] = []
 
-        # Ajouter le joueur à la liste des déconnectés
         self.disconnected_players[team_id].append(sid)
         
-        # Créer un timer pour ce joueur
         self.disconnect_timers[team_id][sid] = asyncio.create_task(
             self.disconnect_countdown(team_id, sid, sio, gameCode)
         )
 
-        # Si toute l'équipe est déconnectée, démarrer un timer plus court
         if len(self.disconnected_players[team_id]) == player_team.nbPlayer:
             for sid in self.disconnected_players[team_id]:
                 if sid in self.disconnect_timers[team_id]:
@@ -839,22 +779,17 @@ class Game:
         return False
 
     async def disconnect_countdown(self, team_id, sid, sio, gameCode):
-        """Compte à rebours pour un joueur"""
         try:
             await asyncio.sleep(self.DISCONNECT_TIMEOUT)
             
-            # Vérifier si le joueur est toujours déconnecté
             player = self.teams[team_id].getPlayerById(sid)
             if player and not player.getOnline():
-                # Mettre à jour allowedToReconnect quand le timer expire
                 player.setAllowedToReconnect(False)
                 
-                # Déclarer l'autre équipe gagnante
                 self.loser = self.teams[team_id]
                 self.winner = self.teams[1 if team_id == 2 else 2]
                 self.gameStarted = False
                 
-                # Notifier tous les joueurs de la fin de la partie
                 await self.sendGameInfo(sio, gameCode, True)
                 await sio.emit('winner', self.winner.getName(), room=gameCode)
 
@@ -862,7 +797,6 @@ class Game:
             self.cleanup_player_disconnect(team_id, sid)
 
     def cleanup_player_disconnect(self, team_id, sid):
-        """Nettoie les données de déconnexion d'un joueur"""
         if team_id in self.disconnect_timers:
             if sid in self.disconnect_timers[team_id]:
                 del self.disconnect_timers[team_id][sid]
@@ -870,15 +804,12 @@ class Game:
                 self.disconnected_players[team_id].remove(sid)
 
     def cleanup_team_disconnect(self, team_id):
-        """Nettoie toutes les données de déconnexion d'une équipe"""
         if team_id in self.disconnect_timers:
             del self.disconnect_timers[team_id]
         if team_id in self.disconnected_players:
             del self.disconnected_players[team_id]
 
     def handle_reconnect(self, sid):
-        """Gère la reconnexion d'un joueur"""
-        # Trouver le joueur par son nouveau sid
         reconnecting_player = None
         reconnecting_team_id = None
         
@@ -894,35 +825,29 @@ class Game:
         if not reconnecting_player:
             return False
 
-        # D'abord vérifier si le joueur est autorisé à se reconnecter
         if not reconnecting_player.getAllowedToReconnect():
             return False
 
-        # Ensuite vérifier si le timer est toujours actif
         if reconnecting_team_id in self.disconnect_timers:
             for disconnected_sid in self.disconnected_players.get(reconnecting_team_id, []):
-                if team_id == reconnecting_team_id:  # Même équipe
-                    # Annuler les timers
+                if team_id == reconnecting_team_id:
                     if disconnected_sid in self.disconnect_timers[team_id]:
                         self.disconnect_timers[team_id][disconnected_sid].cancel()
                     if 'team' in self.disconnect_timers[team_id]:
                         self.disconnect_timers[team_id]['team'].cancel()
                     
-                    # Nettoyer les données de déconnexion
                     self.cleanup_player_disconnect(team_id, disconnected_sid)
                     return True
 
         return False
 
     async def team_disconnect_countdown(self, team_id, sio, gameCode):
-        """Compte à rebours plus court pour une équipe entière déconnectée"""
         try:
-            await asyncio.sleep(10)  # Timer plus court pour une équipe complète
+            await asyncio.sleep(10)
             self.loser = self.teams[team_id]
             self.winner = self.teams[1 if team_id == 2 else 2]
             self.gameStarted = False
             
-            # Notifier tous les joueurs de la fin de la partie
             await self.sendGameInfo(sio, gameCode, True)
             await sio.emit('winner', self.winner.getName(), room=gameCode)
             

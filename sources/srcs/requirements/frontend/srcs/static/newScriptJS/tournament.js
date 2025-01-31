@@ -1,7 +1,25 @@
+
+let nbPlayer = null;
 let winner = null;
 let winnerOfTournament = null;
 
-let tournamentAllUsers = 
+let creatorTournament = 
+{
+    _id: null, 
+
+    get id()
+    {
+        return this._id;
+    },
+
+    set id(value)
+    {
+        this._id = value;
+    }
+};
+
+
+let UsersShufled = 
 {
     _user: [],
 
@@ -17,7 +35,29 @@ let tournamentAllUsers =
 	},
 	clearUsers() {
 		this._user = [];
-	}
+	},
+}
+
+
+let tournamentAllUsers = 
+{
+    _user: [],
+
+    get users() {
+        return this._user;
+    },
+
+    set users(value) 
+	{
+		this._user.push(value);
+	},
+	clearUsers() {
+		this._user = [];
+	},
+	removeUser(username)
+	{
+        this._user = this._user.filter(user => user !== username);
+    }
 };
 
 let savedTournamentCode = 
@@ -47,7 +87,6 @@ async function initializeTournamentGlobalSocket(socket)
     globalSocket.on('tournamentMatch', tournamentMatchEvent);
     globalSocket.on('startTournamentGame', startTournamentGameEvent);
     globalSocket.on('tournamentWinner', tournamentWinnerEvent);
-    globalSocket.on('tournamentMatches', tournamentMatchesEvent);
 }
 
 async function joinTournamentDisplay()
@@ -63,6 +102,7 @@ async function joinTournamentDisplay()
 
 const tournamentCreatedEvent = (data) => {
     savedTournamentCode.code = data.tournamentCode;
+	creatorTournament.id = data.creator;
 }
 
 const tournamentJoinedEvent = (data) => {
@@ -70,49 +110,40 @@ const tournamentJoinedEvent = (data) => {
 }
 
 const tournamentFullEvent = (data) => {
-    console.log("TOURNAMENT FULL: ", data);
 }
 
 const tournamentPlayerListEvent = (data) => {
-    usersInTournament(data, data.length);
+	if (nbPlayer !== null && nbPlayer > data.length)
+	{
+		nbPlayer = data.length;
+		usersInTournament(data, true);
+	}
+	else
+	{
+		nbPlayer = data.length;
+		usersInTournament(data, false);
+	}
 }
 
 const tournamentMatchEvent = (data) => {
-
-	tournamentAllUsers.users = data.team1;
-	tournamentAllUsers.users = data.team2;
+	UsersShufled.users = data.team1;
+	UsersShufled.users = data.team2;
 }
 
-const tournamentMatchesEvent = (data) => {
-    console.log("TOURNAMENT MATCHES: ", data);
-}
 
 const startTournamentGameEvent = async (data) => {
-    console.log("START TOURNANT Game")
     const module = await import('../pong/pong.js');
-    document.getElementById('background').innerHTML = "";
+    ELEMENTs.allPage().innerHTML = "";
     ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/lobbyPage/luffyBoat.png')";
     await module.main(data.gameCode, globalSocket, currentLanguage);
-    console.log("Tournament End");
 }
 
 const tournamentWinnerEvent = (data) => {
-    console.log("TOURNAMENT WINNER: ", data);
     winnerOfTournament = data;
     refreshWinner(winnerOfTournament);
-    
-    // Finalement, rediriger vers la page d'accueil après 10 secondes
     setTimeout(() => {
         replace_location(URLs.VIEWS.HOME);
-        console.log("PASS The 10 second");
     }, 20000);
-}
-
-
-const errorTournamentEvent = (data) => {
-	console.log("ERROR TOURNAMENT: ", data);
-    alert(data.message);
-    error = data.message;
 }
 
 function refreshWinner(winnerOfTournament) {
@@ -121,51 +152,42 @@ function refreshWinner(winnerOfTournament) {
     
     const tryUpdateWinner = () => {
         const winnerElement = document.getElementById("winnerOfTheTournament");
-        if (winnerElement) {
-            console.log("winnerElement: ", winnerElement);
+        if (winnerElement)
             winnerElement.innerHTML = winnerOfTournament;
-        } else if (attempts < maxAttempts) {
+        else if (attempts < maxAttempts) {
             attempts++;
             setTimeout(tryUpdateWinner, 1000);
         }
     };
-    
     tryUpdateWinner();
 }
 
-// function refreshWinner(winnerOfTournament)
-// {
-// 	console.log("document.getElementById(winnerOfTheTournament): ", document.getElementById("winnerOfTheTournament"));
-// 	console.log("winnerOfTournament: ", winnerOfTournament);
-// 	document.getElementById("winnerOfTheTournament").innerHTML = winnerOfTournament;
-// 	// winnerEvent = 0;
-// }
-
 async function joinTournament(code)
 {
-    console.log("JOIN TOURNAMENT");
+	if (!Number.isFinite(Number(code)))
+	{
+		alert("Please put only numbers");
+		return ;
+	}
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
     globalSocket.emit('joinTournament', {teamName: user.username, tournamentCode: code});
     setTimeout(() => {
-        if (error !== null)
-        {
-            console.log("error: ", error);
-			alert(error)
-            error = null;
-			replace_location(URLs.VIEWS.TOURNAMENT);   
-            return ;
-        }
+		if (error === null)
+		{
+			ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
+			ELEMENTs.centerTournament().style.justifyItems = "center";
+			savedTournamentCode.code = code
+			refreshLanguage();
+		}
+		else
+			error = null;
     }, 20);
-    ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
-    ELEMENTs.centerTournament().style.justifyItems = "center";
-	refreshLanguage();
 }
 
 async function createTournament()
 {
     const socket = await initializeSocket();
     initializeTournamentGlobalSocket(socket);
-    console.log("CREATE TOURNAMENT");
     ELEMENTs.centerTournament().innerHTML = tournamentPageDisplayVAR;
     ELEMENTs.centerTournament().style.justifyItems = "center";
     const user = await makeRequest('GET', URLs.USERMANAGEMENT.GETUSER);
@@ -173,61 +195,77 @@ async function createTournament()
 	setTimeout(() => {
 		if (error)
 		{
-			alert(error);
 			error = null;
 			return ;
 		}
 		refreshLanguage();
 	}, 20)
-
-    // addUserTournament(user.username);
 }
 
-// i sera le nombre de joueur qui ont rejoins en tout le tournois
 
-async function usersInTournament(usernameTournament, nbPlayer) // ca faut le faire avec qund c'est shuffle
+async function usersInTournament(usernameTournament, disconnect)
 {
-    console.log("usersInTournament");
-    ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
-
-    usernameTournament.forEach(function(element) {
-        if (!tournamentAllUsers.users.includes(element))
-        {   
-            addUserTournament(element);
-            tournamentAllUsers.users = element;
-        }
-    });
-    if (nbPlayer === 4)
-    {
-        document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
-        ELEMENTs.tournamentWrite().innerHTML = "";
-		tournamentAllUsers.clearUsers();
-        displayBinaryTree();
-    }
+	setTimeout(() => {
+		if (ELEMENTs.numbersOfPlayersTournament())
+		{
+			ELEMENTs.numbersOfPlayersTournament().innerHTML = nbPlayer;
+			usernameTournament.forEach(function(element) {
+				if (!tournamentAllUsers.users.includes(element))
+				{
+					addUserTournament(element);
+					tournamentAllUsers.users = element;
+				}
+			});
+			if (disconnect === true)
+			{
+				tournamentAllUsers.users.forEach(userinTournamentAllUsers => {
+					if (!usernameTournament.includes(userinTournamentAllUsers))
+						removeUserTournament(userinTournamentAllUsers);
+				});
+			}
+			if (nbPlayer === 4)
+			{
+				document.getElementsByClassName("writeNumbersOfPlayers")[0].style.color = "rgba(51, 201, 6, 0.9)";
+				ELEMENTs.tournamentWrite().innerHTML = "";
+				tournamentAllUsers.clearUsers();
+				displayBinaryTree();
+			}
+		}
+	}, 20);
 }
 
 async function addUserTournament(usernameTournament)
 {
     const div = document.createElement("div");
     div.className = "tournamentPlayer";
+	div.id = `userTournament${usernameTournament}`;
     const p = document.createElement("p");
     p.innerHTML = usernameTournament;
     p.className = "usernameTournament";
     div.appendChild(p);
-    ELEMENTs.tournamentContent().appendChild(div);
+	ELEMENTs.tournamentContent().appendChild(div);
+}
+
+
+async function removeUserTournament(usernameToRemove)
+{
+	tournamentAllUsers.removeUser(usernameToRemove);
+	
+	const div = document.querySelector(`#userTournament${usernameToRemove}`);
+	if (div)
+		div.remove();
+	tournamentAllUsers.removeUser(usernameToRemove);
 }
 
 function displayBinaryTree()
 {
-    ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
-    ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
-
-	// ici remplir le tournament tournamentAllUsers
-    let i = 1;
-    refreshLanguage();
-	tournamentAllUsers.users.forEach(function(elements) 
+	ELEMENTs.mainPage().innerHTML = binaryTreeVAR;
+	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/tournament/colosseum.png')";
+	
+	let i = 1;
+	refreshLanguage();
+	UsersShufled.users.forEach(function(elements) 
 	{
-		// console.log("element dans tournamentAllUsers.users.forEach: ", elements);
 		const user = elements;
 		document.querySelectorAll(`[data-match="${i}"]`).forEach(function(element) 
 		{
@@ -242,25 +280,23 @@ function displayBinaryTree()
 		});
 		i++;
 	});
-	// if (winner)
-	// {
-	// 	document.getElementById("winnerOfTheTournament").innerHTML = winner;
-	// 	winner = null;
-	// }
-    document.getElementById('startButtonTournament').onclick = () => startTournament();
+	if (creatorTournament.id === globalSocket.id)
+	{
+		document.getElementById("startButtonTournament").style.display = 'block';
+		document.getElementById("startButtonTournament").onclick = () => startTournament();
+	}
 }
 
 function startTournament()
 {
-    console.log("start tournament");
+	document.getElementById("startButtonTournament").style.display = 'none';
+	creatorTournament.id = null;
     globalSocket.emit('tournamentStart', savedTournamentCode.code);
 	setTimeout(() => {
 		if (error !== null)
 		{
-			console.log("error: ", error);
 			error = null;
 			return ;
 		}
-
 	}, 20);
 }

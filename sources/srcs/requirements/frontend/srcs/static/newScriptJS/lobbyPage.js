@@ -14,10 +14,8 @@ async function updateLobby(data, disconnect)
 				{
 					for (let it = 0; it < data[1].length; it++) 
 					{
-						console.log("premiere boucle gang: ", element.textContent);
 						if (element.textContent === data[1][it].name) 
 						{
-							console.log('Found in data[0]');
 							flag = true;
 							break;
 						}
@@ -29,10 +27,8 @@ async function updateLobby(data, disconnect)
 					{
 						for (let it = 0; it < data[2].length; it++) 
 						{
-							console.log("deuxieme boucle: ", element.textContent);
 							if (element.textContent === data[2][it].name) 
 							{
-								console.log('Found in data[1]');
 								flag = true;
 								break;
 							}
@@ -45,10 +41,8 @@ async function updateLobby(data, disconnect)
 
 					toDelete.forEach(del => {
 						if (del.textContent === element.textContent)
-						{		
-							console.log("dans le supprimer: `del.id`", del.id);
+						{
 							const num = del.id[del.id.length - 1];
-							console.log("num ta capter: ", num);
 							document.getElementById(`lobbyDisplayRapidPlayPlayer${num}`).innerHTML = waitingPlayer;
 						}
 					});
@@ -103,7 +97,7 @@ async function updateLobbyOneVsOne(data)
             imgElement1.src = photoUrl1;
             document.getElementById("usernameOfWanted").innerHTML = data[1][0].name;
             document.getElementById("primeAmount").innerHTML = responseCreator.user_info.prime;
-            if (responseCreator.user_info.prime === null) // TODO: should be in the back
+            if (responseCreator.user_info.prime === null)
                 document.getElementById("primeAmount").innerHTML = 0;
         }
     }
@@ -125,7 +119,6 @@ async function setwantedProfileInLobby(user, position)
 
 async function updateLobbyTwoVsTwo(data)
 {
-	console.log("dans update twovstwo lobby: ", data);
     if (data[1] && data[1][0] && data[1][0].name !== undefined)
     {
         const user = {"username": data[1][0].name};

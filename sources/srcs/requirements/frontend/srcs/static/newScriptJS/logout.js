@@ -44,13 +44,11 @@ function applyAnimationLogoutButton(isHovered)
    }
 }
 
- // Mouse enter event (hover starts)
 ELEMENTs.logoutDoor().addEventListener('mouseenter', function() 
 {
    applyAnimationLogoutButton(true);
 });
 
- // Mouse leave event (hover ends)
 ELEMENTs.logoutDoor().addEventListener('mouseleave', function() 
 {
    applyAnimationLogoutButton(false); 

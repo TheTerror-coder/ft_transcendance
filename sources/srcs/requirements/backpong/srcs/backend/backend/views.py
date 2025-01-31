@@ -7,7 +7,10 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def csrf(request):
-	payload = {}
-	csrfToken = get_token(request)
-	payload ["csrf_token"] = csrfToken if csrfToken else None
-	return(Response(payload))
+	try:
+		payload = {}
+		csrfToken = get_token(request)
+		payload ["csrf_token"] = csrfToken if csrfToken else None
+		return(Response(payload))
+	except Exception as e:
+		return(Response({"error": str(e)}))

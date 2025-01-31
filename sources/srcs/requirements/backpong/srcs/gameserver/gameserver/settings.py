@@ -31,7 +31,7 @@ SECRET_KEY = str(
 )
 
 # SECURITY WARNING: TODO don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [ 'localhost', 'proxy_waf', 'gameserver', f'{EnvVariables.HOST_IP}', '127.0.0.1']
 
@@ -47,7 +47,6 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 INSTALLED_APPS = [
-    'daphne',
 
     'django.contrib.admin',
     'django.contrib.auth',

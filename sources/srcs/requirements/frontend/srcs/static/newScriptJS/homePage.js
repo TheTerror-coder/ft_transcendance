@@ -31,7 +31,7 @@ async function addFriend()
 			alert(response.message);
 		}
 	} catch (error) {
-		console.log(`addFriend() an exception happened:` + error);
+		console.error("addFriend() an exception happened: ", error);
 	}
 }
 
@@ -51,13 +51,12 @@ function waitForSocketOpen() {
 			}
 		});
 	} catch (error) {
-		console.log(`waitForSocketOpen() an exception happened:` + error);
+		console.error(`waitForSocketOpen() an exception happened:` + error);
 	}
 }
 
 
 function sendInvitation(username) {
-	console.log('****************sendInvitation()*************');
 	try {
 		ONE_SOCKET.send(JSON.stringify({
 			'username': username,
@@ -65,6 +64,6 @@ function sendInvitation(username) {
 			'room_name': 'add_friend'
 		}));
 	} catch (error) {
-		console.log('sendInvitation() an exception happenned ' + error);
+		console.error('sendInvitation() an exception happenned ' + error);
 	}
 }

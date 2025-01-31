@@ -17,20 +17,17 @@ class UltimApiProvider(OAuth2Provider):
 		return str(data["id"])
 	
 	def extract_common_fields(self, data):
-		sys.stderr.write("username=" + data.get("login") + '\n')
-		sys.stderr.write("first_name=" + data.get("first_name") + '\n')
-		sys.stderr.write("last_name=" + data.get("last_name") + '\n')
-		sys.stderr.write("email=" + data.get("email") + '\n')
-		sys.stderr.write("name=" + data.get("usual_full_name") + '\n')
-		sys.stderr.write("image=" + data.get("image").get("link") + '\n')
-		return dict(
-			username=data.get("login"),
-			first_name=data.get("first_name"),
-			last_name=data.get("last_name"),
-			email=data.get("email"),
-			name=data.get("usual_full_name"),
-			image=data.get("image").get("link"),
-		)
+		try:
+			return dict(
+				username=data.get("login"),
+				first_name=data.get("first_name"),
+				last_name=data.get("last_name"),
+				email=data.get("email"),
+				name=data.get("usual_full_name"),
+				image=data.get("image").get("link"),
+			)
+		except Exception as e:
+			return None
 
 	def extract_extra_data(self, data):
 		return data

@@ -107,7 +107,7 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
     if (player > opponent)
     {
         match.style.backgroundColor = "rgba(0, 228, 0, 0.3)";
-        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')"; // TO DO: change the background image
+        winOrLoseDiv.style.backgroundImage = "url('/static/photos/picturePng/profilePage/luffyWin.png')";
     }
     else
     {
@@ -119,7 +119,6 @@ function statDisplayWinOrLose(winOrLoseDiv, player, opponent, match)
 async function displayWaitingListFriend(friends) {
     const dropdownMenu = document.getElementById('waitingFriendDropdownMenu');
 
-    // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
 
     if (friends.length === 0) {
@@ -163,11 +162,9 @@ async function displayWaitingListFriend(friends) {
             divForButton.appendChild(actionAddButton);
             divForButton.appendChild(actionRemoveButton);
 
-            // Gérer l'acceptation de l'invitation
             actionAddButton.addEventListener('click', async () => {
                 alert(`add ${friends[i].from_user}`);
 
-                // Envoi de l'invitation acceptée au serveur
                 ONE_SOCKET.send(JSON.stringify({
                     type: 'response.invitation',
                     to_user: friends[i].from_user,
@@ -175,14 +172,10 @@ async function displayWaitingListFriend(friends) {
                     friend_request_id: friends[i].friend_request_id
                 }));
 
-                // 1. Supprimer l'invitation de la liste d'attente
                 dropdownMenu.removeChild(listItem);
 
-                // 2. Mettre à jour la liste des amis (soit dynamiquement, soit via une API)
-                // Exemple de mise à jour dynamique : 
                 await addFriendToFriendList(friends[i]);
 
-                // 3. Vérifier si la liste des invitations est vide après l'acceptation
                 if (dropdownMenu.children.length === 0) {
                     const noInvitationsItem = document.createElement('li');
                     noInvitationsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
@@ -193,7 +186,6 @@ async function displayWaitingListFriend(friends) {
                 }
             });
 
-            // Gérer le rejet de l'invitation
             actionRemoveButton.addEventListener('click', () => {
                 alert(`remove ${friends[i].from_user}`);
                 ONE_SOCKET.send(JSON.stringify({
@@ -249,24 +241,20 @@ async function addFriendToFriendList(friend) {
 
     actionButton.appendChild(imgButton);
 
-    // Ajouter l'ami à la liste des amis dans le DOM
     buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
     buttonDisplayFriend.appendChild(nameSpan);
     listItem.appendChild(circleIsConnect);
     listItem.appendChild(buttonDisplayFriend);
     listItem.appendChild(actionButton);
 
-    // Ajouter l'ami dans la liste
     friendListMenu.appendChild(listItem);
 }
 
 async function displayFriend(friends, user_socket) {
     const dropdownMenu = document.getElementById('friendDropdownMenu');
     
-    // Vider le menu avant de le mettre à jour
     dropdownMenu.innerHTML = '';
 
-    // Vérification si la liste d'amis est vide
     if (friends.length === 0) {
         const listItem = document.createElement('li');
         listItem.id = "noFriends";
@@ -277,7 +265,6 @@ async function displayFriend(friends, user_socket) {
         listItem.appendChild(nameSpan);
         dropdownMenu.appendChild(listItem);
     } else {
-        // Ajouter chaque ami à la liste
         for (let i = 0; i < friends.length; i++) {
             const listItem = document.createElement('li');
             listItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
@@ -292,7 +279,6 @@ async function displayFriend(friends, user_socket) {
             imgButton.alt = "removeFriend";
             imgButton.style.display = "flex";
             imgButton.style.flexDirection = "flex-end";
-            // Indicateur de connexion de l'ami
             const circleIsConnect = document.createElement('div');
             circleIsConnect.className = 'circleIsConnect';
             if (friends[i].username in user_socket) {
@@ -303,18 +289,14 @@ async function displayFriend(friends, user_socket) {
                 circleIsConnect.style.border = '1px solid white';
             }
 
-            // Ajouter l'événement pour le bouton de suppression
             actionButton.appendChild(imgButton);
             actionButton.addEventListener('click', async () => {
                 try {
-                    // Suppression de l'ami via une requête
                     const response = await makeRequest('POST', URLs.USERMANAGEMENT.REMOVEFRIEND, { username: friends[i].username });
                     alert(`${friends[i].username} ne fait plus partie de vos amis`);
 
-                    // Retirer l'ami de la liste affichée
                     dropdownMenu.removeChild(listItem);
 
-                    // Vérifier si la liste est vide après la suppression
                     if (dropdownMenu.children.length === 0) {
                         const noFriendsItem = document.createElement('li');
                         noFriendsItem.className = 'dropdown-item d-flex justify-content-between align-items-center info-dropdownMenu';
@@ -329,7 +311,6 @@ async function displayFriend(friends, user_socket) {
                 }
             });
 
-            // Afficher le profil de l'ami
             buttonDisplayFriend.onclick = () => UserProfileView(nameSpan.textContent);
             buttonDisplayFriend.appendChild(nameSpan);
             listItem.appendChild(circleIsConnect);
@@ -340,10 +321,8 @@ async function displayFriend(friends, user_socket) {
     }
 }
 
-// Change Username
 const popUpUsernameVAR = `<input type="text" id="usernameChange" place-holder="Change Username">`;
 
-// Change Picture
 const popUpProfilPictureVAR = 
 `<div class="popover">
     <input type="file" id="formFile" hidden>
@@ -353,7 +332,6 @@ const popUpProfilPictureVAR =
     
 const togglePopover = (event) => 
 {
-    // Check if popover already exists
     let existingPopover = document.getElementById('dynamicPopover');
 
 
@@ -361,11 +339,9 @@ const togglePopover = (event) =>
         existingPopover.remove();
     else 
     {
-        // Create a container div and set its content
         const popoverContainer = document.createElement('div');
         popoverContainer.id = 'dynamicPopover';
         popoverContainer.innerHTML = popUpProfilPictureVAR;
-        // Style and position the popover
         const rect = ELEMENTs.changeProfilePhotoButton().getBoundingClientRect();
         popoverContainer.style.top = `${rect.bottom + window.scrollY}px`;
         popoverContainer.style.position = 'absolute';
@@ -373,13 +349,11 @@ const togglePopover = (event) =>
         popoverContainer.style.zIndex = 1;
         popoverContainer.style.width = '233px';
         
-        // Append the popover to the body
         ELEMENTs.changeProfilePhotoButton().appendChild(popoverContainer);
     }
 };
 
 
-///changePicture
 document.addEventListener('click', (event) => 
 {
     let profilePhoto;
@@ -432,7 +406,6 @@ async function changePicture(picture) {
     }
 }
 
-// Change Username
 document.addEventListener('click', async (event) => 
 {
     if (ELEMENTs.changeUsernameButton() !== null)

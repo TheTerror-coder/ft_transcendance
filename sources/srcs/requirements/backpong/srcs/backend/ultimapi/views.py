@@ -21,18 +21,16 @@ class UltimApiOAuth2Adapter(OAuth2Adapter):
 	profile_url = parameters.OAUTH2_PROFILE_URL
 
 	def complete_login(self, request, app, token, **kwargs):
-		sys.stderr.write("*******DEBUG******* In UltimApiOAuth2Adapter.complete_login() " + '\n')
-		headers = {"Authorization": "Bearer {}".format(token.token)}
-		resp = (
-			get_adapter().get_requests_session().get(self.profile_url, headers=headers)
-		)
-		resp.raise_for_status()
-		extra_data = resp.json()
-		# print("*******DEBUG******* self: " + str(self), file=sys.stderr)
-		# print("*******DEBUG******* user: " + str(request.user), file=sys.stderr)
-		# print("*******DEBUG******* token: " + str(token), file=sys.stderr)
-		# print("*******DEBUG******* extra data: " + str(extra_data), file=sys.stderr)
-		return self.get_provider().sociallogin_from_response(request, extra_data)
+		try:
+			headers = {"Authorization": "Bearer {}".format(token.token)}
+			resp = (
+				get_adapter().get_requests_session().get(self.profile_url, headers=headers)
+			)
+			resp.raise_for_status()
+			extra_data = resp.json()
+			return self.get_provider().sociallogin_from_response(request, extra_data)
+		except Exception as e:
+			return None
 
 
 oauth2_login = OAuth2LoginView.adapter_view(UltimApiOAuth2Adapter)

@@ -5,7 +5,7 @@ async function joinLobbyGame(gameCode, teamID, role)
 		replace_location(URLs.VIEWS.LOGIN_VIEW);
     if (nbPerTeam == 2)
     {
-        ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR; // TODO surement a mettre apres le confirmChoices 
+        ELEMENTs.mainPage().innerHTML = lobbyTwoPlayerDisplayVAR;
         ELEMENTs.centerLobbyDisplay().style.marginLeft = "0px";
         ELEMENTs.centerLobbyDisplay().style.marginRight = "0px";
     }
@@ -15,7 +15,6 @@ async function joinLobbyGame(gameCode, teamID, role)
     globalSocket.emit('confirmChoicesJoinGame', { teamID: teamID, role: role, userName: user.username, gameCode: gameCode});
     if (error !== null)
     {
-		alert(error);
         error = null;
         return ;
     }
