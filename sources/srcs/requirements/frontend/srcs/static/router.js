@@ -257,11 +257,11 @@ const handleLocation = async () => {
 
 
 
-// window.addEventListener('load', async () => {
-//     const urlActuelle = window.location.href;
+window.addEventListener('load', async () => {
+    const urlActuelle = window.location.href;
 
-//     if (!urlActuelle.includes('login')) {
-//         const response = await getAuthenticationStatus();
+    if (!urlActuelle.includes('login')) {
+        const response = await getAuthenticationStatus();
 
         if (response.find(data => data === 'user-is-authenticated')) {
             const user = {"username" : response[2].user.display};

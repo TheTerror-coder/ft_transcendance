@@ -21,6 +21,7 @@ from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser
 from asgiref.sync import async_to_sync
 from PIL import Image
+import bleach
 
 
 @api_view(['POST'])
@@ -29,7 +30,19 @@ from PIL import Image
 def register(request):
 	try:
 		if request.method == 'POST':
-			form = CustomUserCreationForm(request.data, request.FILES)
+			invalide_field = {
+				key: value for key, value in request.data.items()
+				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			}
+			if invalide_field:
+				return Response({
+					'status': 'error',
+					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+				}, status=400)
+
+			sanitized_data = {key: bleach.clean(value) for key, value in request.data.items()}
+
+			form = CustomUserCreationForm(sanitized_data, request.FILES)
 			if form.is_valid():
 				form.save()
 				user = authenticate(email=request.data['email'], password=request.data['password1'])
@@ -65,7 +78,20 @@ def connect(request):
 def login_view(request):
 	try:
 		if request.method == 'POST':
-			form = CustomAuthenticationForm(data=request.data)
+			invalide_field = {
+				key: value for key, value in request.data.items()
+				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			}
+			if invalide_field:
+				return Response({
+					'status': 'error',
+					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+				}, status=400)
+
+			sanitized_data = {key: bleach.clean(value) for key, value in request.data.items()}
+      
+			form = CustomAuthenticationForm(data=sanitized_data)
+			# form = CustomAuthenticationForm(data=request.data)
 			if form.is_valid():
 				password = form.cleaned_data.get('password')
 				email = form.cleaned_data.get('email')
@@ -118,8 +144,17 @@ def login_view(request):
 @permission_classes([AllowAny])
 def logout_view(request):
 	try:
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+				}, status=400)
 		logout(request)
-		username = request.data.get('username')
+		username = bleach.clean(request.data.get('username'))
 		if not username:
 			return Response({
 				'status': 'error',
@@ -153,7 +188,16 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def update_profile(request):
 	try:
-		username = request.data.get('username')
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
+		username = bleach.clear(request.data.get('username', ''))
 		before_username = request.user.username
 		if not username:
 			return Response({
@@ -240,11 +284,9 @@ def update_photo(request):
 				'message': 'Profile picture updated successfully.',
 			}, status=200)
 		else:
-			form = UpdatePhotoForm()
-			error_messages = {field: error_list for field, error_list in form.errors.items()}
 			return Response({
 				'status': 'error',
-				'errors': error_messages,
+				'errors': 'Error updating profile picture.',
 			}, status=400)
 	except Exception as e:
 		return Response({'error': str(e)})
@@ -256,8 +298,17 @@ def update_photo(request):
 @permission_classes([AllowAny])
 def set_language(request):
 	try:
-		username = request.data.get('username')
-		language = request.data.get('language')
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
+		username = bleach.clear(request.data.get('username'))
+		language = bleach.clear(request.data.get('language'))
 		try:
 			user = User.objects.get(username=username)
 		except User.DoesNotExist:
@@ -290,7 +341,16 @@ def set_language(request):
 @permission_classes([AllowAny])
 def get_language(request):
 	try:
-		username = request.data.get('username')
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
+		username = bleach.clear(request.data.get('username'))
 
 		if not username:
 			return Response({
@@ -318,7 +378,16 @@ def get_language(request):
 @permission_classes([AllowAny])
 def get_user_profile(request):
 	try:
-		username = request.data.get('username')
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
+		username = bleach.clear(request.data.get('username'))
 		if not username:
 			return Response({
 				status: 'error',
@@ -432,7 +501,16 @@ def profile(request):
 def send_friend_request(request):
 	try:
 		if request.method == 'POST':
-			username = request.data.get('username')
+			invalide_field = {
+				key: value for key, value in request.data.items()
+				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			}
+			if invalide_field:
+				return Response({
+					'status': 'error',
+					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+				}, status=400)
+			username = bleach.clear(request.data.get('username'))
 		
 			if not username:
 				return Response({
@@ -489,7 +567,16 @@ def send_friend_request(request):
 def remove_friend(request):
 	try:
 		if request.method == 'POST':
-			username = request.data.get('username')
+			invalide_field = {
+				key: value for key, value in request.data.items()
+				if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+			}
+			if invalide_field:
+				return Response({
+					'status': 'error',
+					'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+				}, status=400)
+			username = bleach.clear(request.data.get('username'))
 			if not username:
 				response = {
 					'status': 'error',
@@ -566,7 +653,16 @@ def remove_friend(request):
 @permission_classes([IsAuthenticated])
 def get_user_sockets(request):
 	try:
-		username = request.data.get('username')
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
+		username = bleach.clear(request.data.get('username'))
 		if not username:
 			return Response({
 				'status': 'error',
@@ -607,16 +703,25 @@ def get_user(request):
 @permission_classes([AllowAny])
 def set_info_game(request):
 	try:
+		invalide_field = {
+			key: value for key, value in request.data.items()
+			if ('<' in str(value) or  '>' in str(value)) and key != 'photo'
+		}
+		if invalide_field:
+			return Response({
+				'status': 'error',
+				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
+			}, status=400)
 		if request.data.get('player') == request.data.get('winner'):
-			winner = request.data.get('player')
-			winner_score = int(request.data.get('player_score'))
-			looser = request.data.get('opponent')
-			looser_score = int(request.data.get('opponent_score'))
+			winner = bleach.clear(request.data.get('player'))
+			winner_score = bleach.clear(int(request.data.get('player_score')))
+			looser = bleach.clear(request.data.get('opponent'))
+			looser_score = bleach.clear(int(request.data.get('opponent_score')))
 		else:
-			winner = request.data.get('opponent')
-			looser = request.data.get('player')
-			winner_score = int(request.data.get('opponent_score'))
-			looser_score = int(request.data.get('player_score'))
+			winner = bleach.clear(request.data.get('opponent'))
+			looser = bleach.clear(request.data.get('player'))
+			winner_score = bleach.clear(int(request.data.get('opponent_score')))
+			looser_score = bleach.clear(int(request.data.get('player_score')))
 
 		if not winner or not looser or winner_score is None or looser_score is None:
 			return Response({

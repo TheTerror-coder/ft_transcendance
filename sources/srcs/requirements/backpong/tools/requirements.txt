@@ -59,3 +59,4 @@ uvicorn-worker==0.2.0
 wsproto==1.2.0
 yarl==1.18.0
 zope.interface==7.0.3
+bleach==6.2.0
