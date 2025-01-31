@@ -1,5 +1,6 @@
         
 import json
+import bleach
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
@@ -44,7 +45,7 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
     async def receive(self, text_data=None):
         try:
-            text_data_json = json.loads(text_data)
+            text_data_json = bleach.clean(json.loads(text_data))
             if text_data_json['type'] == 'invitation':
                 await self.send_invitation(text_data_json['username'])
             elif text_data_json['type'] == 'response.invitation':
