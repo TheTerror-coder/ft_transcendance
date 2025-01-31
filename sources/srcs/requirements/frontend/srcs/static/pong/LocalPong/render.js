@@ -46,14 +46,14 @@ async function initObjects(scene) {
 }
 
 function createBall() {
-    const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    const ballGeometry = new THREE.SphereGeometry(1, 32, 32);
     const ballMaterial = new THREE.MeshPhongMaterial({ 
         color: 0xff0000,
         shininess: 100,
         specular: 0xffffff
     });
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-    ball.position.set(0, 0, 0);
+    ball.position.set(0, 0, 1);
     return ball;
 }
 

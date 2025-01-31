@@ -245,6 +245,12 @@ async def joinTournament(sid, data):
     if tournamentCode in ChannelList:
         channel = ChannelList[tournamentCode]
         tournament = channel.getTournament()
+        if (not channel.getIsTournament()):
+            await sio.emit('error', {'message': 'This is not a tournament code', 'ErrorCode': 1}, room=sid)
+            return
+        if (tournament.getIsFull()):
+            await sio.emit('error', {'message': 'Tournament is full', 'ErrorCode': 1}, room=sid)
+            return
         if (tournament.getStart()):
             await sio.emit('error', {'message': 'Tournament already started', 'ErrorCode': 1}, room=sid)
             return
@@ -256,6 +262,7 @@ async def joinTournament(sid, data):
             await sio.emit('tournamentJoined', {'tournamentCode': tournamentCode, 'creator': channel.getCreator()}, room=sid)
             await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=tournamentCode)
             if (tournament.getNbTeam() == 4):
+                tournament.setIsFull(True)
                 logger.info(f"Starting tournament {tournamentCode}")
                 sio.emit('tournamentFull', room=tournamentCode)
                 await startTournament(sio, tournament, tournamentCode, True)
@@ -699,10 +706,8 @@ async def startTournament(sio, tournament, tournamentCode, start):
         if (not start):
             await asyncio.sleep(10)
         for gameCode in tournament.getTournamentGamesList():
-            # Vérifier si la game existe toujours dans le tournoi et dans tournamentGame
             if (gameCode in tournamentGame and gameCode in tournament.getTournamentGamesList()):
                 game = tournamentGame[gameCode]
-                # Vérifier que la game n'a pas été marquée comme terminée
                 if game and not game.gameStarted and game.getGameInLobby():
                     await sio.emit('startTournamentGame', {'gameCode': gameCode}, room=gameCode)
     
@@ -757,7 +762,6 @@ async def handle_tournament_end(game, gameCode):
     originalGameCode = gameCode[:-1]
     await cleanup_tournament_game(tournament, game, gameCode, originalGameCode, loser)
     
-    # Vérifier s'il reste des joueurs pour continuer le tournoi
     remaining_players = [team.getTournamentTeamId() for team in tournament.tournamentTeams.values() 
                         if team.getTournamentTeamId() in sio.manager.rooms['/']]
     

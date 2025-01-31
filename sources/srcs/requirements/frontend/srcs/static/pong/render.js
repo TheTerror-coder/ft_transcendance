@@ -31,34 +31,6 @@ export async function initScene(Team1, Team2, currentTeam) {
     return { scene, cameraPlayer, renderer, boatGroup1, boatGroup2, ball, display };
 }
 
-function initBoundaryLines() {
-    const material = new THREE.LineBasicMaterial({ color: 0xFF69B4 }); // Rose
-    const lines = new THREE.Group();
-
-    const verticalGeometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(-80, -55, 0),
-        new THREE.Vector3(-80, 55, 0)
-    ]);
-    const verticalLine1 = new THREE.Line(verticalGeometry, material);
-    const verticalLine2 = new THREE.Line(verticalGeometry.clone(), material);
-    verticalLine2.position.x = 160;
-
-    const horizontalGeometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(-80, -55, 0),
-        new THREE.Vector3(80, -55, 0)
-    ]);
-    const horizontalLine1 = new THREE.Line(horizontalGeometry, material);
-    const horizontalLine2 = new THREE.Line(horizontalGeometry.clone(), material);
-    horizontalLine2.position.y = 110;
-
-    lines.add(verticalLine1);
-    lines.add(verticalLine2);
-    lines.add(horizontalLine1);
-    lines.add(horizontalLine2);
-
-    return lines;
-}
-
 async function loadScene(ball, ocean, scene, ambientLight, directionalLight1, directionalLight2, bateau1, bateau2) {
     return new Promise((resolve, reject) => {
         

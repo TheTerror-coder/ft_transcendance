@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export class BallPhysics {
     constructor() {
-        this.velocity = { x: 5, y: 5 };
+        this.velocity = { x: 1, y: 1 };
         this.speed = 1;
         this.FIELD_WIDTH = 150;
         this.FIELD_HEIGHT = 105;
