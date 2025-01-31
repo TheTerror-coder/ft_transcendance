@@ -62,11 +62,11 @@ async def disconnect(sid):
         for room in rooms_to_process:
             logger.info(f'Cleaning up room {room} for player {sid}')
             await sio.leave_room(sid, room)
-            
+
             # Initialisation des variables
             channel = None
             game = None
-            
+
             # Récupération du channel et du game
             if room in ChannelList:
                 channel = ChannelList[room]
@@ -88,10 +88,31 @@ async def disconnect(sid):
                     if channel and channel.getCreator() == sid:
                         await sio.emit('error', {'message': 'Creator leave the room, you will be disconnected soon', 'ErrorCode': 2}, room=room)
                         break
-                    # Trouver le match en cours pour ce joueur
+                    # Trouver le match en cours pour ce joueur et verifier si l'autre joueur est déjà déconnecté
                     current_match = tournament.findMatchByPlayerId(sid)
                     if current_match:
                         team1, team2 = current_match
+                        other_team = team2 if team1.getTournamentTeamId() == sid else team1
+                        other_player_id = other_team.getTournamentTeamId()
+                        
+                        # Si l'autre joueur n'est plus connecté
+                        if not sio.manager.rooms.get('/', {}).get(other_player_id):
+                            logger.info(f"Les deux joueurs sont déconnectés pour le match {room}")
+                            gameCode = tournament.findGameByTeams(team1.getTournamentTeamId(), team2.getTournamentTeamId())
+                            if gameCode and gameCode in tournamentGame:
+                                game = tournamentGame[gameCode]
+                                game.gameStarted = False
+                                game.setGameInLobby(False)
+                                tournament.removeTournamentGame(game)
+                                del tournamentGame[gameCode]
+                            
+                            # Supprimer les deux équipes
+                            tournament.removeTournamentTeam(team1)
+                            tournament.removeTournamentTeam(team2)
+                            # await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
+                            
+                            logger.info(f"tournament.tournamentTeams {tournament.tournamentTeams}")
+                            return
                         
                         # Identifier quelle équipe se déconnecte
                         if team1.getTournamentTeamId() == sid:
@@ -114,8 +135,11 @@ async def disconnect(sid):
                             # Mettre à jour l'arbre du tournoi pour ce match spécifique
                             tournament.removeTournamentTeam(disconnected_team)
                             tournament.updateTournamentTree(opponent_team)
-                            
-                            # Ne pas supprimer les autres matchs du tournoi
+                            if (len(tournament.tournamentTeams) == 1):
+                                winner_team = next(iter(tournament.tournamentTeams.values()))
+                                await sio.emit('tournamentWinner', winner_team.getName(), room=room)
+                                logger.info(f"Tournament {room} ended with winner {winner_team.getName()}")
+                                await sio.emit('tournamentEnded', room=room)
                             return
                     else:
                         tournament.removeTournamentTeam(tournament.getTournamentTeams(sid))
@@ -182,6 +206,9 @@ async def cleanup_game(gameCode, game):
     logger.info(f"Cleaning up game {gameCode}")
     game.gameStarted = False
     
+    while (not game.payloadSend):
+        await asyncio.sleep(1)
+
     for team in game.teams.values():
         for player in list(team.player.values()):
             if player.getId() in player_rooms:

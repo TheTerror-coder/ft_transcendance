@@ -7,7 +7,7 @@ import { BallPhysics } from './physics.js';
 import * as THREE from 'three';
 import { Box3, Box3Helper } from 'three';
 
-const WINNING_SCORE = 10;
+const WINNING_SCORE = 5;
 const BOAT_SPEED = 2;
 export async function main(currentLanguage = 'en') {
     const team1 = new Team("Team 1", 1, 1);
