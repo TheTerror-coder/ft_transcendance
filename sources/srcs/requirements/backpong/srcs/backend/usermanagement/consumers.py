@@ -45,7 +45,8 @@ class FriendInviteConsumer(AsyncJsonWebsocketConsumer):
    
     async def receive(self, text_data=None):
         try:
-            text_data_json = json.loads(text_data).items()
+            sanitized_text_data = bleach.clean(text_data)
+            text_data_json = json.loads(sanitized_text_data)
             if text_data_json['type'] == 'invitation':
                 await self.send_invitation(text_data_json['username'])
             elif text_data_json['type'] == 'response.invitation':
