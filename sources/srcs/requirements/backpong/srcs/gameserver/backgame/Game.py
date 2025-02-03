@@ -413,20 +413,38 @@ class Game:
     async def updateBallFired(self, data):
         trajectory = data.get('trajectory')
         team = self.getTeam(data.get('team'))
+        animation_end_time = data.get('animationEndTime')
         game_code = data.get('gameCode')
-        
+
         try:
-            # Stocker la trajectoire et les positions initiales pour vérification ultérieure
-            self.pending_hits[game_code] = {
-                'trajectory': trajectory,
-                'firing_team': team.getTeamId(),
-                'initial_positions': {
-                    1: self.teams[1].getBoat().copy(),
-                    2: self.teams[2].getBoat().copy()
-                },
-                'clients_completed': set(),
-                'collision_detected': False
-            }
+            collision_detected = False
+            collision_point = None
+            
+            for i in range(0, len(trajectory) - 3, 3):
+                p1 = {
+                    'x': float(trajectory[i]),
+                    'y': float(trajectory[i+1]),
+                    'z': float(trajectory[i+2])
+                }
+                p2 = {
+                    'x': float(trajectory[i+3]),
+                    'y': float(trajectory[i+4]),
+                    'z': float(trajectory[i+5])
+                }
+
+                if self.checkCollisionSegment(p1, p2, team):
+                    collision_detected = True
+                    collision_point = p2
+                    break
+
+            if collision_detected:
+                self.pending_hits[game_code] = {
+                    'teamId': team.getTeamId(),
+                    'timestamp': time.time(),
+                    'animationEndTime': animation_end_time,
+                    'collision_point': collision_point
+                }
+                return 1
             return 0
 
         except Exception as e:
@@ -696,57 +714,29 @@ class Game:
             team.score = 0
 
     async def handleAnimationComplete(self, sio, data, sid):
-        game_code = data.get('gameCode')
+        gameCode = data.get('gameCode')
         team_id = data.get('team')
         
-        if game_code not in self.pending_hits:
-            return
-        
-        hit_data = self.pending_hits[game_code]
-        hit_data['clients_completed'].add(sid)
-        
-        # Si tous les clients ont terminé l'animation
-        if len(hit_data['clients_completed']) == self.nbPlayerConnected:
-            trajectory = hit_data['trajectory']
-            firing_team_id = hit_data['firing_team']
-            target_team_id = 1 if firing_team_id == 2 else 2
-            
-            # Recalculer la collision avec les positions finales
-            collision_detected = False
-            for i in range(0, len(trajectory) - 3, 3):
-                p1 = {
-                    'x': float(trajectory[i]),
-                    'y': float(trajectory[i+1]),
-                    'z': float(trajectory[i+2])
-                }
-                p2 = {
-                    'x': float(trajectory[i+3]),
-                    'y': float(trajectory[i+4]),
-                    'z': float(trajectory[i+5])
-                }
-                
-                if self.checkCollisionSegment(p1, p2, self.teams[firing_team_id]):
-                    collision_detected = True
-                    break
-            
-            if collision_detected:
-                target_team = self.teams[target_team_id]
+        if gameCode in self.pending_hits:
+            hit_data = self.pending_hits[gameCode]
+            if hit_data['teamId'] == team_id:
+                target_team = self.teams[1 if team_id == 2 else 2]
                 target_team.removePV(10)
                 await sio.emit('damageApplied', {
-                    'gameCode': game_code,
-                    'teamId': target_team_id,
+                    'gameCode': gameCode,
+                    'teamId': target_team.getTeamId(),
                     'damage': 10,
                     'health': target_team.getPV()
-                }, room=game_code)
-                
-                if target_team.getPV() <= 0:
-                    self.winner = self.teams[firing_team_id]
-                    self.loser = target_team
+                }, room=gameCode)
+
+                if (target_team.getPV() <= 0):
+                    self.winner = self.teams[1 if target_team.getTeamId() == 2 else 2]
+                    self.loser = self.teams[1 if target_team.getTeamId() == 1 else 2]
                     self.gameStarted = False
-                    await self.sendGameInfo(sio, game_code, True)
-                    await sio.emit('winner', self.winner.getName(), room=game_code)
-            
-            del self.pending_hits[game_code]
+                    await self.sendGameInfo(sio, gameCode, True)
+                    await sio.emit('winner', self.winner.getName(), room=gameCode)
+                
+                del self.pending_hits[gameCode]
 
     async def handle_disconnect(self, sid, sio, gameCode):
         if self.isGameTournament:   
