@@ -43,11 +43,11 @@ async function UserProfileView(username, description, data)
 	const photoUrl = response.user_info.photo;
 	const imgElement = ELEMENTs.photoUser();
 	imgElement.src = photoUrl;
-	ELEMENTs.nameUser().innerHTML = username;
+	ELEMENTs.nameUser().innerText = username;
 	if (response.user_info.prime === null)
-		ELEMENTs.prime().innerHTML = "0";
+		ELEMENTs.prime().innerText = "0";
 	else
-		ELEMENTs.prime().innerHTML = response.user_info.prime;
+		ELEMENTs.prime().innerText = response.user_info.prime;
 	await getHistoric(response.user_info.recent_games, response.user_info.username);
 	await statsInProfilePage(response.user_info.nbr_of_games, response.user_info.victorie, response.user_info.loose);
 	refreshMusic();
@@ -69,11 +69,11 @@ async function	homeView(title, description, data)
 	
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/homePage/luffyBackground.png')";
 	
-	ELEMENTs.usernameOfWanted().innerHTML = response.username;
+	ELEMENTs.usernameOfWanted().innerText = response.username;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.pictureOfWanted();
 	imgElement.src = photoUrl;
-	ELEMENTs.primeAmount().innerHTML = response.prime;
+	ELEMENTs.primeAmount().innerText = response.prime;
 	ELEMENTs.wantedProfile().onclick = async () => {
 		let ret = await assign_location(URLs.VIEWS.PROFILE);
 		return ;
@@ -91,7 +91,7 @@ async function	loginView(title, description, data) {
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = loginPageDisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/loginPage/landscapeOnePiece.png')";
-	// refreshLanguage();
+	refreshLanguage();
 	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.doorJamp().style.display = 'none';
 	await changeMusic(ELEMENTs.loginMusic());
@@ -109,8 +109,8 @@ async function	profileView(title, description, data)
 	const response = await makeRequest('GET', URLs.USERMANAGEMENT.PROFILE);
 
 	const responseJWT = await getAuthenticationStatus();
-	ELEMENTs.changeUsernameButton().innerHTML = responseJWT[2].user.display;
-	ELEMENTs.primeAmount().innerHTML = response.prime;
+	ELEMENTs.changeUsernameButton().innerText = responseJWT[2].user.display;
+	ELEMENTs.primeAmount().innerText = response.prime;
 	const photoUrl = response.photo;
 	const imgElement = ELEMENTs.profilPhotoInProfilePage();
 	imgElement.src = photoUrl;
@@ -201,6 +201,7 @@ async function	error404View(title, description, data)
 	document.title = title;
 	ELEMENTs.mainPage().innerHTML = Page404DisplayVAR;
 	ELEMENTs.background().style.backgroundImage = "url('/static/photos/picturePng/404Page/Background404.jpeg')";
+	ELEMENTs.twoFA().style.display = 'none';
 	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.LOGIN_VIEW);
 	refreshLanguage();
 }

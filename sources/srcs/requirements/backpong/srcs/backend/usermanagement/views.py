@@ -711,16 +711,17 @@ def set_info_game(request):
 				'status': 'error',
 				'message': 'Invalid characters in fields: ' + ', '.join(invalide_field.keys())
 			}, status=400)
-		if request.data.get('player') == request.data.get('winner'):
-			winner = bleach.clean(request.data.get('player'))
-			winner_score = bleach.clean(int(request.data.get('player_score')))
-			looser = bleach.clean(request.data.get('opponent'))
-			looser_score = bleach.clean(int(request.data.get('opponent_score')))
+		sanitized_data = {key: bleach.clean(value) for key, value in request.data.items()}
+		if sanitized_data.get('player') == sanitized_data.get('winner'):
+			winner = sanitized_data.get('player')
+			winner_score = sanitized_data.get('player_score')
+			looser = sanitized_data.get('opponent')
+			looser_score = sanitized_data.get('opponent_score')
 		else:
-			winner = bleach.clean(request.data.get('opponent'))
-			looser = bleach.clean(request.data.get('player'))
-			winner_score = bleach.clean(int(request.data.get('opponent_score')))
-			looser_score = bleach.clean(int(request.data.get('player_score')))
+			winner = sanitized_data.get('opponent')
+			looser = sanitized_data.get('player')
+			winner_score = sanitized_data.get('opponent_score')
+			looser_score = sanitized_data.get('player_score')
 
 		if not winner or not looser or winner_score is None or looser_score is None:
 			return Response({

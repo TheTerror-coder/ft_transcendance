@@ -1,11 +1,20 @@
 
 const eventManager = async (event) => {
 	const { target } = event;
+	const selection = window.getSelection();
 
 	if (target.matches('a')){
 		await urlRoute(event);
 	}
-	
+	if (ELEMENTs.buttonRefreshPage() && !selection.toString())
+	{
+		if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) )
+		{
+			event.preventDefault();
+			if (ELEMENTs.createAccountChange().hasAttribute('style') || ELEMENTs.formConnect().hasAttribute('style'))
+				await replace_location(URLs.VIEWS.LOGIN_VIEW);
+		}
+	}
 	if (target.id === ELEMENTs.signInWith42Button()?.id){
 		event.preventDefault();
 		await redirectToProvider();
@@ -50,11 +59,6 @@ const eventManager = async (event) => {
 	else if (target.id === ELEMENTs.buttonCreateAccount()?.id){
 		event.preventDefault();
 		putFormRegister();
-	}
-	else if (target.id === ELEMENTs.buttonRefreshPage()?.id || target.id === ELEMENTs.woodPresentation()?.id || target.id === ELEMENTs.loginButton()?.id || (target.id === ELEMENTs.headPage()?.id && ELEMENTs.woodPresentation() !== null) ){
-		event.preventDefault();
-		if (ELEMENTs.createAccountChange().hasAttribute('style') || ELEMENTs.formConnect().hasAttribute('style'))
-			await replace_location(URLs.VIEWS.LOGIN_VIEW);
 	}
 	else if (target.id === ELEMENTs.connexion_confirm_button()?.id){
 		event.preventDefault();

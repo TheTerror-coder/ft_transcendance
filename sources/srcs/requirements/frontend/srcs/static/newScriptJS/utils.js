@@ -37,8 +37,8 @@ const resetBaseHtmlVAR =
 					</div>
 				</button>
 			</div>
-        <div id="mainPage" style="flex: 1;">
-        </div>
+		<div id="mainPage" style="flex: 1;">
+		</div>
 `;
 
 
@@ -62,3 +62,29 @@ const getLogOutPopUp =
 		</div>
 	</div>
 	`;
+
+
+window.addEventListener('popstate', function(event) {
+	
+	teamAvailable.team = 0;
+	roleAvailableBlackBeard.role = 0;
+	roleAvailableWhiteBeard.role = 0;
+	nbBlackBeard = 0;
+	nbWhiteBeard = 0;
+	noticeDisconnect = null;
+	tournamentAllUsers.clearUsers();
+	UsersShufled.clearUsers();
+	if (globalSocket !== null)
+	{
+		globalSocket.disconnect();
+		globalSocket.close();
+		globalSocket = null;
+	}
+	const canvases = document.querySelectorAll('canvas');
+	if (canvases)
+	{
+		canvases.forEach(canvas => canvas.remove());
+		ELEMENTs.allPage().innerHTML = resetBaseHtmlVAR;
+		handleLocation();
+	}
+});
