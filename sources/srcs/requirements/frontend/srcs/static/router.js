@@ -161,6 +161,11 @@ primaryRoutes[PATHs.VIEWS.ERROR404] = {
 	title : "Not Found | " + PAGE_TITLE,
 	description : "",
 };
+primaryRoutes[PATHs.VIEWS.SOCIAL_ACCOUNT_LOGIN_ERROR] = {
+	view : socialAccountLoginError,
+	title : "Social Account Login Error | " + PAGE_TITLE,
+	description : "",
+};
 
 const urlRoutes = {
 	"404" : {

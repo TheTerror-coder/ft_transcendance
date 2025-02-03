@@ -271,6 +271,7 @@ AUTHENTICATION_BACKENDS = [
 
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "/frontpong/account/verify-email/?key={key}",
+	"socialaccount_login_error": f"https://{EnvVariables.HOST_IP}:{EnvVariables.PROXYWAF_HTTPS_PORT}/frontpong/socialaccount-login-error/",
 }
 
 

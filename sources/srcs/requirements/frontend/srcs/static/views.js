@@ -204,3 +204,9 @@ async function	error404View(title, description, data)
 	ELEMENTs.redirectButton().onclick = () => replace_location(URLs.VIEWS.LOGIN_VIEW);
 	refreshLanguage();
 }
+
+async function	socialAccountLoginError(title, description, data) {
+	document.title = title;
+	await onePongAlerter(ALERT_CLASSEs.DANGER, 'Social Account', 'Social account login error');
+	await replace_location(URLs.VIEWS.LOGIN_VIEW);
+}

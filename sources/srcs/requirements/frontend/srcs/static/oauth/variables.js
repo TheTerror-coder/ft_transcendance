@@ -26,7 +26,8 @@ const PATHs = Object.freeze({
 		LOBBY : '/lobby/',
 		PROFILE : '/profile/',
 		TOURNAMENT_TREE : '/tournament-tree/',
-		ERROR404 : '/error-404/'
+		ERROR404 : '/error-404/',
+		SOCIAL_ACCOUNT_LOGIN_ERROR : '/frontpong/socialaccount-login-error/',
 	}),
 
 });
@@ -53,6 +54,7 @@ const URLs = Object.freeze({
 		LOBBY : BASE_URL + PATHs.VIEWS.LOBBY,
 		PROFILE : BASE_URL + PATHs.VIEWS.PROFILE,
 		ERROR404 : BASE_URL + PATHs.VIEWS.ERROR404,
+		SOCIAL_ACCOUNT_LOGIN_ERROR : BASE_URL + PATHs.VIEWS.SOCIAL_ACCOUNT_LOGIN_ERROR,
 		// TOTP
 		// TOTP_VIEWs : Object.freeze({
 			// 	// Activate TOTP authentication
