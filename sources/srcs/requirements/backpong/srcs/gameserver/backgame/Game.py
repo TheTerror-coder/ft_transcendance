@@ -51,7 +51,7 @@ class Game:
         self.FIELD_HEIGHT = 105
 
         # Score de victoire
-        self.WINNING_SCORE = 50
+        self.WINNING_SCORE = 5
 
         # État de la balle
         self.ballPosition = self.initializeBallPosition()
