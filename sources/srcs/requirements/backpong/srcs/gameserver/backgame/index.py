@@ -109,7 +109,6 @@ async def disconnect(sid):
                             # Supprimer les deux équipes
                             tournament.removeTournamentTeam(team1)
                             tournament.removeTournamentTeam(team2)
-                            # await sio.emit('tournamentPlayerList', createTournamentPlayerList(tournament), room=room)
                             
                             logger.info(f"tournament.tournamentTeams {tournament.tournamentTeams}")
                             return
@@ -123,8 +122,8 @@ async def disconnect(sid):
                             opponent_team = team1
                             
                         if disconnected_team and opponent_team:
-                            # Supprimer uniquement la partie spécifique du tournoi
                             gameCode = tournament.findGameByTeams(team1.getTournamentTeamId(), team2.getTournamentTeamId())
+                            # Supprimer uniquement la partie spécifique du tournoi
                             if gameCode and gameCode in tournamentGame:
                                 game = tournamentGame[gameCode]
                                 game.gameStarted = False
@@ -239,6 +238,74 @@ def findGame(gameCode, originalGameCode):
     logger.info(f"Game {gameCode} / {originalGameCode} not found")
     return None
 
+def validateRecvGameData(data, eventType):
+    validationSchemas = {
+        'createGame': ['numPlayersPerTeam'],
+        'joinGame': ['gameCode'],
+        'playerChoices': ['gameCode', 'userName', 'teamID', 'role'],
+        'clientData': ['gameCode', 'team', 'boat', 'cannon', 'boatHitbox'],
+        'ballFired': ['gameCode', 'team', 'trajectory', 'animationEndTime'],
+        'createTournament': ['teamName'],
+        'joinTournament': ['tournamentCode', 'teamName'],
+        'boatPosition': {
+            'required': ['gameCode', 'team', 'boatPosition'],
+            'nested': {
+                'boatPosition': {
+                    'required': ['x']
+                }
+            }
+        },
+        'cannonPosition': {
+            'required': ['gameCode', 'team', 'cannonPosition'],
+            'nested': {
+                'cannonPosition': {
+                    'required': ['x']
+                }
+            }
+        },
+        'animationComplete': ['gameCode', 'team'],
+        'tournamentStart': ['tournamentCode'],
+        'confirmChoicesCreateGame': ['gameCode', 'userName', 'teamID', 'role'],
+        'confirmChoicesJoinGame': ['gameCode', 'userName', 'teamID', 'role'],
+    }
+
+    if eventType not in validationSchemas:
+        return False, "Type d'événement invalide"
+
+    schema = validationSchemas[eventType]
+    
+    if not isinstance(data, dict):
+        return False, "Les données doivent être un dictionnaire"
+
+    # Validation pour les schémas simples (liste de champs requis)
+    if isinstance(schema, list):
+        for field in schema:
+            if field not in data:   
+                return False, f"Champ requis manquant : {field}"
+        return True, None
+
+    # Validation pour les schémas complexes (avec champs imbriqués)
+    if isinstance(schema, dict):
+        # Vérification des champs requis de premier niveau
+        for field in schema['required']:
+            if field not in data:
+                return False, f"Champ requis manquant : {field}"
+
+        # Vérification des champs imbriqués
+        if 'nested' in schema:
+            for field, nested_schema in schema['nested'].items():
+                if field not in data:
+                    return False, f"Champ imbriqué manquant : {field}"
+                
+                if not isinstance(data[field], dict):
+                    return False, f"Le champ {field} doit être un dictionnaire"
+                
+                for nested_field in nested_schema['required']:
+                    if nested_field not in data[field]:
+                        return False, f"Champ requis manquant dans {field} : {nested_field}"
+
+    return True, None
+
 # Connexion to server event
 @sio.event
 async def connect(sid, environ=None, auth=None):
@@ -249,6 +316,9 @@ async def connect(sid, environ=None, auth=None):
 @sio.event
 async def createTournament(sid, data):
     logger.info(f"createTournament {sid}, {data}")
+    is_valid, _ = validateRecvGameData(data, 'createTournament')
+    if not is_valid:
+        return 
     tournamentCode = generateGameCode()
     while tournamentCode in ChannelList:
         tournamentCode = generateGameCode()
@@ -268,6 +338,9 @@ async def createTournament(sid, data):
 @sio.event
 async def joinTournament(sid, data):
     logger.info(f"joinTournament {sid}, {data}")
+    is_valid, _ = validateRecvGameData(data, 'joinTournament')
+    if not is_valid:
+        return
     tournamentCode = data.get('tournamentCode')
     if tournamentCode in ChannelList:
         channel = ChannelList[tournamentCode]
@@ -303,6 +376,10 @@ async def joinTournament(sid, data):
 @sio.event
 async def createGame(sid, data):
     logger.info(f"createGame {sid}, {data}")
+    is_valid, _ = validateRecvGameData(data, 'createGame')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
     numPlayersPerTeam = data.get('numPlayersPerTeam')
     gameCode = generateGameCode()
     while gameCode in ChannelList:
@@ -334,7 +411,11 @@ async def createGame(sid, data):
 @sio.event
 async def confirmChoicesCreateGame(sid, choices):
     logger.info(f"confirmChoicesCreateGame {sid}, {choices}")
-    gameCode = choices.get('gameCode')
+    is_valid, _ = validateRecvGameData(choices, 'confirmChoicesCreateGame')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(choices.get('gameCode'))
     logger.info(f"Player {sid}, {choices['userName']} has chosen {choices['teamID']} as their team and {choices['role']} as their role for the game {gameCode}.")
     if (gameCode in ChannelList):
         channel = ChannelList[gameCode]
@@ -358,7 +439,11 @@ async def confirmChoicesCreateGame(sid, choices):
 @sio.event
 async def joinGame(sid, data):
     logger.info(f"joinGame {sid}, {data}")
-    gameCode = data.get('gameCode')
+    is_valid, _ = validateRecvGameData(data, 'joinGame')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(data.get('gameCode'))
     if gameCode in ChannelList:
         logger.info(f"Player {sid} joined game {gameCode}")
         channel = ChannelList[gameCode]
@@ -383,7 +468,11 @@ async def joinGame(sid, data):
 # Event to confirme the choices when join a normal game (1v1 or 2v2)
 @sio.event
 async def confirmChoicesJoinGame(sid, choices):
-    gameCode = choices.get('gameCode')
+    is_valid, _ = validateRecvGameData(choices, 'confirmChoicesJoinGame')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(choices.get('gameCode'))
     logger.info(f"Player {sid}, {choices['userName']} has chosen {choices['teamID']} as their team and {choices['role']} as their role for the game {gameCode}.")
     if (gameCode in ChannelList):
         channel = ChannelList[gameCode]
@@ -450,7 +539,6 @@ async def launchGame(sid, gameCode):
                 logger.info(f"Starting game {gameCode} in launchGame")
                 await sio.emit('startGame', room=gameCode)
                 game.setIsLaunch(True)
-                # if (not game.getPlayerById(sid).getIsLaunch()):
             else:
                 await sio.emit('error', {'message': 'Vous n\'êtes pas le créateur de la partie', 'ErrorCode': 0}, room=sid)
         else:
@@ -505,7 +593,11 @@ async def GameStarted(sid, gameCode):
 
 @sio.event
 async def ClientData(sid, data):
-    gameCode = data.get('gameCode')
+    is_valid, _ = validateRecvGameData(data, 'clientData')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(data.get('gameCode'))
     logger.info(f"ClientData {gameCode}")
     originalGameCode = None
     if (len(gameCode) == 5):
@@ -520,7 +612,12 @@ async def ClientData(sid, data):
 
 @sio.event
 async def cannonPosition(sid, data):
-    gameCode = data.get('gameCode')
+    is_valid, _ = validateRecvGameData(data, 'cannonPosition')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    
+    gameCode = str(data.get('gameCode'))
     originalGameCode = None
     if (len(gameCode) == 5):
         originalGameCode = gameCode
@@ -537,7 +634,11 @@ async def cannonPosition(sid, data):
 
 @sio.event
 async def boatPosition(sid, data):
-    gameCode = data.get('gameCode')
+    is_valid, _ = validateRecvGameData(data, 'boatPosition')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(data.get('gameCode'))
     originalGameCode = None
     if (len(gameCode) == 5):
         originalGameCode = gameCode
@@ -562,7 +663,11 @@ async def boatPosition(sid, data):
 
 @sio.event
 async def BallFired(sid, data):
-    gameCode = data.get('gameCode')
+    is_valid, _ = validateRecvGameData(data, 'ballFired')
+    if not is_valid:
+        logger.info(f"Error : {_}")
+        return
+    gameCode = str(data.get('gameCode'))
     team = data.get('team')
 
     game = findGame(gameCode, None)
@@ -580,6 +685,8 @@ async def BallFired(sid, data):
 
 @sio.event
 async def tournamentStart(sid, tournamentCode):
+    if not validateRecvGameData(tournamentCode, 'tournamentStart'):
+        return
     if (tournamentCode in ChannelList):
         channel = ChannelList[tournamentCode]
         if (channel.getCreator() == sid):
@@ -592,7 +699,9 @@ async def tournamentStart(sid, tournamentCode):
         
 @sio.event
 async def animationComplete(sid, data):
-    gameCode = data.get('gameCode')
+    if not validateRecvGameData(data, 'animationComplete'):
+        return
+    gameCode = str(data.get('gameCode'))
     game = findGame(gameCode, None)
     if game:
         await game.handleAnimationComplete(sio, data, sid)

@@ -240,11 +240,6 @@ const handleLocation = async () => {
 		key : params.get('key'),
 	};
 
-	// if (globalSocket != null)
-	// {
-	// 	globalSocket.disconnect();
-	// }
-
 	if (pathname.length === 0)
 		pathname = '/';
 	pathname += pathname.endsWith('/') ? '' : '/';
