@@ -1,0 +1,25 @@
+
+ARG STACK_VERSION=8.14.1
+
+FROM kibana:${STACK_VERSION}
+
+ARG SHARED_GID=1010
+
+USER 0
+
+RUN <<EOF
+apt-get update && apt-get install -y dumb-init
+addgroup --gid ${SHARED_GID} transcendance
+addgroup kibana transcendance
+chown -R 1000:1000 /usr/share/kibana
+find /usr/share/kibana -maxdepth 1 -type d -exec chmod 00750 \{\} \;
+find /usr/share/kibana -maxdepth 2 -type f -exec chmod o-rwx \{\} \;
+EOF
+
+COPY --chown=1000:1000 --chmod=777 ./conf/kibana-docker /usr/local/bin/kibana-docker
+COPY --chown=1000:1000 --chmod=777 ./conf/kibana.yml /usr/share/kibana/config/kibana.yml
+
+USER 1000
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/usr/local/bin/kibana-docker" ]

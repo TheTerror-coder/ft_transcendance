@@ -1,0 +1,34 @@
+# NB: ARG default values are overriden at build time
+
+ARG REDIS_TAG=alpine3.20
+
+FROM redis:${REDIS_TAG}
+
+ARG REDIS_UID=999
+ARG REDIS_GID=1000
+ARG SHARED_GID=1010
+ARG REDIS_HOME=/usr/share/redis
+ARG REDIS_DIRS_TO_MAKE=.
+
+USER 0
+
+WORKDIR ${REDIS_HOME}
+
+RUN <<EOF
+addgroup -g ${SHARED_GID} transcendance
+addgroup redis transcendance
+apk add --update --no-cache dumb-init curl jq envsubst
+mkdir -p ${REDIS_DIRS_TO_MAKE}
+chmod 0700 ${REDIS_HOME} ${REDIS_HOME}/container-init.d ${REDIS_HOME}/volumes
+chmod 1500 ${REDIS_HOME}/secrets
+chown -R ${REDIS_UID}:${SHARED_GID} ${REDIS_HOME}
+chown ${REDIS_UID}:${REDIS_GID} ${REDIS_HOME}/secrets
+EOF
+
+COPY --chown=${REDIS_UID}:${REDIS_GID} --chmod=700 ./tools/script.sh ${REDIS_HOME}/container-init.d/
+COPY --chown=${REDIS_UID}:${REDIS_GID} --chmod=700 ./conf/redis.conf ${REDIS_HOME}/container-init.d/redis.conf.template
+
+USER ${REDIS_UID}
+
+ENTRYPOINT [ "dumb-init", "--" ]
+CMD [ "/usr/share/redis/container-init.d/script.sh" ]

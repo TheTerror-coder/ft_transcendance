@@ -1,0 +1,47 @@
+
+ARG STACK_VERSION=8.14.1
+
+FROM logstash:${STACK_VERSION}
+
+ARG LOGSTASH_DIRS_TO_MAKE=.
+ARG SHARED_GID=1010
+
+USER 0
+
+RUN <<EOF
+apt-get update && apt-get install -y dumb-init
+addgroup --gid ${SHARED_GID} transcendance
+addgroup logstash transcendance
+mkdir -p ${LOGSTASH_DIRS_TO_MAKE}
+chown -R 1000:1000 /usr/share/logstash
+find /usr/share/logstash -maxdepth 1 -type d -exec chmod 00750 \{\} \;
+find /usr/share/logstash -maxdepth 1 -type f -exec chmod o-rwx \{\} \;
+EOF
+#In '00777' file permission, 00 allows to unset eventual SUID,GUID,STICKY bit privilegies
+
+COPY --chown=1000:1000 --chmod=500 ./tools/script.sh /usr/share/logstash/script.sh
+COPY --chown=1000:1000 --chmod=777 ./conf/pipelines.yml			/usr/share/logstash/config/pipelines.yml
+COPY --chown=1000:1000 --chmod=777 ./conf/log4j2.properties		/usr/share/logstash/config/log4j2.properties
+COPY --chown=1000:1000 --chmod=777 ./conf/my-logstash.yml		/usr/share/logstash/config/my-logstash.yml
+COPY --chown=1000:1000 --chmod=777 ./conf/logstash.conf			/usr/share/logstash/pipeline/logstash.conf
+
+COPY --chown=1000:1000 --chmod=777 ./conf/1-inputs.conf			/usr/share/logstash/pipeline1/1-inputs.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/1-filters.conf		/usr/share/logstash/pipeline1/1-filters.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/1-outputs.conf		/usr/share/logstash/pipeline1/1-outputs.conf
+
+COPY --chown=1000:1000 --chmod=777 ./conf/2-inputs.conf			/usr/share/logstash/pipeline2/2-inputs.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/2-filters.conf		/usr/share/logstash/pipeline2/2-filters.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/2-outputs.conf		/usr/share/logstash/pipeline2/2-outputs.conf
+
+COPY --chown=1000:1000 --chmod=777 ./conf/3-inputs.conf			/usr/share/logstash/pipeline3/3-inputs.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/3-filters.conf		/usr/share/logstash/pipeline3/3-filters.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/3-outputs.conf		/usr/share/logstash/pipeline3/3-outputs.conf
+
+COPY --chown=1000:1000 --chmod=777 ./conf/4-inputs.conf			/usr/share/logstash/pipeline4/4-inputs.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/4-filters.conf		/usr/share/logstash/pipeline4/4-filters.conf
+COPY --chown=1000:1000 --chmod=777 ./conf/4-outputs.conf		/usr/share/logstash/pipeline4/4-outputs.conf
+
+USER 1000
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/bin/bash", "-c", "/usr/share/logstash/script.sh" ]

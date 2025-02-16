@@ -1,0 +1,603 @@
+@font-face {
+    font-family: wantedFont;
+    src: url(/static/wantedFont.ttf);
+
+}
+
+@font-face {
+    font-family: papyrusFont;
+    src: url(/static/papyrus.ttf);
+}
+
+
+#dropDownLanguage
+{
+    width: 30px;
+    height: 30px;
+}
+
+#englandFlag
+{
+    width: 30px;
+    height: 30px;
+}
+
+#spainFlag
+{
+    width: 30px;
+    height: 30px;
+}
+
+#franceFlag
+{
+    width: 30px;
+    height: 30px;
+}
+
+/* From Uiverse.io by Cksunandh */ 
+.switch {
+    height: 24px;
+    display: block;
+    position: relative;
+    cursor: pointer;
+  }
+  .switch input {
+    display: none;
+  }
+  .switch input + span {
+    padding-left: 50px;
+    min-height: 24px;
+    line-height: 24px;
+    display: block;
+    color: #99a3ba;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+  }
+  .switch input + span:before,
+  .switch input + span:after {
+    content: "";
+    display: block;
+    position: absolute;
+    border-radius: 12px;
+  }
+  .switch input + span:before {
+    top: 0;
+    left: 0;
+    width: 42px;
+    height: 24px;
+    background: #e4ecfa;
+    transition: all 0.3s ease;
+  }
+  .switch input + span:after {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    top: 3px;
+    left: 3px;
+    box-shadow: 0 1px 3px rgba(18, 22, 33, 0.1);
+    transition: all 0.45s ease;
+  }
+  .switch input + span em {
+    width: 8px;
+    height: 7px;
+    background: #99a3ba;
+    position: absolute;
+    left: 8px;
+    bottom: 7px;
+    border-radius: 2px;
+    display: block;
+    z-index: 1;
+    transition: all 0.45s ease;
+  }
+  .switch input + span em:before {
+    content: "";
+    width: 2px;
+    height: 2px;
+    border-radius: 1px;
+    background: #fff;
+    position: absolute;
+    display: block;
+    left: 50%;
+    top: 50%;
+    margin: -1px 0 0 -1px;
+  }
+  .switch input + span em:after {
+    content: "";
+    display: block;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: 1px solid #99a3ba;
+    border-bottom: 0;
+    width: 6px;
+    height: 4px;
+    left: 1px;
+    bottom: 6px;
+    position: absolute;
+    z-index: 1;
+    transform-origin: 0 100%;
+    transition: all 0.45s ease;
+    transform: rotate(-35deg) translate(0, 1px);
+  }
+  .switch input + span strong {
+    font-weight: normal;
+    position: relative;
+    display: block;
+    top: 1px;
+  }
+  .switch input + span strong:before,
+  .switch input + span strong:after {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    font-family: "Mukta Malar", Arial;
+    -webkit-backface-visibility: hidden;
+  }
+  .switch input + span strong:before {
+    transition: all 0.3s ease 0.2s;
+  }
+  .switch input + span strong:after 
+  {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #02923c;
+    transition: all 0.3s ease;
+    transform: translate(2px, 0);
+  }
+  .switch input:checked + span:before {
+    background: #eae7e7;
+  }
+  .switch input:checked + span:after {
+    background: #fff;
+    transform: translate(18px, 0);
+  }
+  .switch input:checked + span em {
+    transform: translate(18px, 0);
+    background: #02923c;
+  }
+  .switch input:checked + span em:after {
+    border-color: #02923c;
+    transform: rotate(0deg) translate(0, 0);
+  }
+  .switch input:checked + span strong:before {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    transform: translate(-2px, 0);
+  }
+  .switch input:checked + span strong:after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(0, 0);
+    transition: all 0.3s ease 0.2s;
+  }
+  
+  .switch :before,
+  :after {
+    box-sizing: border-box;
+  }
+  
+
+/* From Uiverse.io by akshat-patel28 */ 
+.button-container {
+    display: flex;
+    background-color: rgb(255, 255, 255, 0.3);
+    width: 250px;
+    height: 40px;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px,
+          rgba(245, 73, 144, 0.5) 5px 10px 15px;
+  }
+  
+  .buttonHeadPage {
+    outline: 0 !important;
+    border: 0 !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: all ease-in-out 0.3s;
+    cursor: pointer;
+  }
+  
+  /* .buttonHeadPage:hover {
+    transform: translateY(-3px);
+  } */
+  
+  .icon {
+    font-size: 20px;
+  }
+
+
+/* il est partout lui lol */
+.headPage
+{
+    display: flex;
+    justify-content: space-between;
+}
+
+/* #logoutButton
+{
+    display: none;
+} */
+
+.wantedFriendHomePageDisplay
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: -webkit-fill-available;
+}
+
+.profilePicture
+{
+    min-width: 243px;
+    min-height: 182px;
+    max-width: 243px;
+    max-height: 182px;
+    margin-right: -5px;
+    margin-top: 53px;
+    background-color: rgb(152, 231, 241);
+}
+
+.wantedProfile
+{
+    display: block;
+    background-image: url('/photos/picturePng/homePage/Wanted_connexion.png');
+    width: 302px;
+    height: 442px;
+    opacity: 90%;
+    align-self: end;
+}
+
+.wantedProfile:hover
+{
+    opacity: 100%;
+}
+
+.wantedProfile p
+{
+    font-family: wantedFont;
+    font-size: 200%;
+    margin-top: 32px;
+    margin-bottom: -2px;
+    margin-left: 10px;
+    margin-right: 10px;
+    text-align: center;
+    color: #493B3A;
+    font-weight: 700;
+    opacity: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wantedProfile span
+{
+    font-family: wantedFont;
+    font-size: 165%;
+    opacity: 85%;
+    color: #493B3A;
+}
+
+
+.centerHomepage
+{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center; /* Center vertically */
+    z-index: 2;
+    margin-top: 150px;
+}
+
+.homepageFlag
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.homepageFlag button
+{
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+}
+
+.homepageFlag button img
+{
+    height: 100%;
+    width: auto;
+}
+
+.profileDisplay
+{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+
+/* From Uiverse.io by eslam-hany */ 
+.book 
+{
+    position: relative;
+    border-radius: 10px;
+    width: 220px;
+    height: 300px;
+    background-color: whitesmoke;
+    box-shadow: 1px 1px 12px #000;
+    -webkit-perspective: 2000px;
+    perspective: 2000px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-box-pack: center;
+    color: #000;
+    margin-left: 10px;
+}
+/* .book p
+{
+    font-size: 20px;
+} */
+.cover p
+{
+    font-size: 50px;
+    font-weight: 10;
+}
+  
+.cover {
+    top: 0;
+    position: absolute;
+    background-image: url('/photos/picturePng/homePage/socialBackground.png');
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.5s;
+    transform-origin: 0;
+    box-shadow: 1px 1px 12px #000;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+}
+
+.book:hover .cover {
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    -webkit-transform: rotatey(-80deg);
+    -ms-transform: rotatey(-80deg);
+    transform: rotatey(-80deg);
+}
+  
+p {
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+
+.sideBar {
+    height: 100%; /* Full height */
+    width: 40px;
+}
+
+.chopperDoor
+{
+    width: 30px;
+    height: 55px;
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    opacity: 0.9;
+    z-index: -5;
+}
+
+.logoutDoor 
+{
+    position: relative;
+    border-radius: 10px;
+    -webkit-perspective: 2000px;
+    perspective: 2000px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-box-pack: center;
+    margin-left: 10px;
+    height: -webkit-fill-available;
+    width: 60px;
+}
+
+.logoutDoorPng p
+{
+    font-size: 50px;
+    font-weight: 10;
+}
+  
+.doorJamb
+{
+    display:none;
+    position: absolute;
+    background-image: url('/photos/picturePng/doorJamb.png');
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.logoutDoorPng {
+    position: absolute;
+    background-image: url('/photos/picturePng/door.png');
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.5s;
+    transform-origin: 0;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+@keyframes openDoor
+{
+    0% {
+        transform: rotateY(0deg) translateX(0px);
+    }
+    25% {
+        transform: rotateY(30deg) translateX(2px);
+    }
+    50% {
+        transform: rotateY(48deg) translateX(5px); 
+    }
+    75% {
+        transform: rotateY(60deg) translateX(8px);
+    }
+    100% {
+        transform: rotateY(70deg) translateX(10px);
+    }
+}
+
+@keyframes closeDoor
+{
+    0% {
+        transform: rotateY(70deg) translateX(10px);
+    }
+    25% {
+        transform: rotateY(60deg) translateX(8px);
+    }
+    50% {
+        transform: rotateY(48deg) translateX(5px);
+    }
+    75% {
+        transform: rotateY(30deg) translateX(2px);
+    }
+    100% {
+        transform: rotateY(10deg) translateX(0px);
+    }
+}
+
+.teamChooseFontHomePage
+{
+    font-size: 25px;
+    font-weight: bold;
+    color: #dc2700;
+    align-self: center;
+    margin: 0;
+    letter-spacing: 3px;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8;
+    opacity: 0.85;
+}
+  
+
+
+
+
+
+.labelJoin {
+    height: 40px;
+    width: 110px;
+    background-color: #ffffff;
+    border-radius: 30px;
+    box-shadow: inset 0 0 5px 4px rgba(255, 255, 255, 1),
+    inset 0 0 20px 1px rgba(0, 0, 0, 0.488), 10px 20px 30px rgba(0, 0, 0, 0.096),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.3);
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.4s;
+}
+
+.labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+    transform: perspective(100px) rotateX(5deg) rotateY(-5deg);
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#switchNumbersOfPlayers {
+    display: none;
+}
+
+#switchNumbersOfPlayers:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseTeamSwitch {
+    display: none;
+}
+
+#chooseTeamSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin:hover {
+    -webkit-transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+    transform: perspective(100px) rotateX(-5deg) rotateY(5deg);
+}
+
+#chooseRoleSwitch {
+    display: none;
+}
+
+#chooseRoleSwitch:checked ~ .labelJoin::before {
+    left: 70px;
+    background-color: #000000;
+    background-image: linear-gradient(315deg, #000000 0%, #414141 70%);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+.labelJoin::before {
+    position: absolute;
+    content: "";
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: #000000;
+    background-image: linear-gradient(
+    130deg,
+    #757272 10%,
+    #ffffff 11%,
+    #726f6f 62%
+    );
+    left: 10px;
+    -webkit-box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3),
+    10px 10px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 1px rgba(0, 0, 0, 0.3), 10px 10px 10px rgba(0, 0, 0, 0.3);
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}

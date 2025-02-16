@@ -1,0 +1,57 @@
+# ARG default values are overriden at build time
+
+ARG MODSECURITY_TAG=4.6-nginx-alpine-202408280908
+
+FROM owasp/modsecurity-crs:${MODSECURITY_TAG}
+
+ARG MODSEC_DEBUG_LOG_DIR=/var/log
+ARG MODSEC_AUDIT_LOG_DIR=/var/log
+ARG NGINX_LOG_FILES=/var/log/access.log
+ARG MODSEC_AUDIT_LOG=/var/log/access.log
+ARG MODSEC_HOME=/usr/share/nginx
+ARG NGINX_STATICFILES_DIR=${MODSEC_HOME}/volumes/www/static
+ARG NGINX_UID=101
+ARG NGINX_GID=101
+ARG SHARED_GID=1010
+ARG MODSEC_DIRS_TO_MAKE=.
+ARG MODSEC_LOGS_ROOT=/var/log
+ARG REVERSEPROXY_CONF_FILE=./conf/backend.conf.template
+
+USER 0
+
+WORKDIR ${MODSEC_HOME}
+
+RUN <<EOF
+apk add --update --no-cache dumb-init jq
+addgroup -g ${SHARED_GID} transcendance
+addgroup nginx transcendance
+mkdir -p ${MODSEC_DEBUG_LOG_DIR} ${MODSEC_AUDIT_LOG_DIR} ${MODSEC_DIRS_TO_MAKE}
+touch ${NGINX_LOG_FILES} ${MODSEC_AUDIT_LOG}
+chmod 700 ${MODSEC_HOME} ${MODSEC_HOME}/volumes ${MODSEC_HOME}/container-init.d
+chmod 770 ${NGINX_STATICFILES_DIR}
+chmod 777 ${MODSEC_HOME}/volumes/elk/certs
+chown -R ${NGINX_UID}:${SHARED_GID} ${MODSEC_HOME}
+find ${MODSEC_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
+find ${MODSEC_LOGS_ROOT} -type f -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;
+find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
+find ${MODSEC_LOGS_ROOT} -mindepth 1 -type d -exec chown ${NGINX_UID}:${SHARED_GID} \{\} \;
+EOF
+
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ${REVERSEPROXY_CONF_FILE} /etc/nginx/templates/conf.d/default.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendshared_conf.conf /etc/nginx/includes/backendshared_conf.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/gameservershared_conf.conf /etc/nginx/includes/gameservershared_conf.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendshared_conf.conf /etc/nginx/includes/frontendshared_conf.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/frontendproxy_backend.conf /etc/nginx/includes/frontendproxy_backend.conf
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/backendproxy_backend.conf /etc/nginx/templates/includes/backendproxy_backend.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./proxy_waf/conf/gameserverproxy.conf /etc/nginx/templates/includes/gameserverproxy.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/location_common.conf.template /etc/nginx/templates/includes/location_common.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 ./conf/logging.conf.template /etc/nginx/templates/conf.d/logging.conf.template
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=600 \
+	./conf/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf \
+	/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf.example
+COPY --chown=${NGINX_UID}:${NGINX_GID} --chmod=500 ./tools/script.sh ${MODSEC_HOME}/container-init.d/
+
+USER ${NGINX_UID}
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "sh", "-c", "${MODSEC_HOME}/container-init.d/script.sh" ]

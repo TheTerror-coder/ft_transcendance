@@ -1,0 +1,46 @@
+# ARG default values are overriden at build time
+
+ARG FRONTEND_TAG=4.6-nginx-alpine-202408280908
+
+FROM nginx:${FRONTEND_TAG}
+
+ARG FRONTEND_LOG_FILES=/var/log/access.log
+ARG FRONTEND_HOME=/usr/share/frontend
+ARG FRONTEND_STATICFILES_DIR=${FRONTEND_HOME}/volumes/www/static
+ARG FRONTEND_UID=101
+ARG FRONTEND_GID=101
+ARG FRONTEND_USER=nginx
+ARG SHARED_GID=1010
+ARG FRONTEND_DIRS_TO_MAKE=.
+ARG FRONTEND_LOGS_ROOT=/var/log
+
+USER 0
+
+WORKDIR ${FRONTEND_HOME}
+
+RUN <<EOF
+apk add --update --no-cache dumb-init jq
+addgroup -g ${SHARED_GID} transcendance
+addgroup ${FRONTEND_USER} transcendance
+mkdir -p ${FRONTEND_DIRS_TO_MAKE}
+touch ${FRONTEND_LOG_FILES}
+chmod 700 /etc/nginx /var/cache/nginx ${FRONTEND_HOME} ${FRONTEND_HOME}/volumes
+chmod 777 /etc/nginx/*
+chmod 770 ${FRONTEND_STATICFILES_DIR}
+chown -R ${FRONTEND_UID}:${SHARED_GID} /etc/nginx /var/cache/nginx ${FRONTEND_HOME}
+find ${FRONTEND_LOGS_ROOT} -type f -exec chmod 640 \{\} \;
+find ${FRONTEND_LOGS_ROOT} -type f -exec chown ${FRONTEND_UID}:${SHARED_GID} \{\} \;
+find ${FRONTEND_LOGS_ROOT} -mindepth 1 -type d -exec chmod 750 \{\} \;
+find ${FRONTEND_LOGS_ROOT} -mindepth 1 -type d -exec chown ${FRONTEND_UID}:${SHARED_GID} \{\} \;
+EOF
+
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/templates/base.html ${FRONTEND_HOME}/html/
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID}  ./srcs/static/ ${FRONTEND_HOME}/volumes/www/static/
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/nginx.conf /etc/nginx/nginx.conf
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/frontend.conf /etc/nginx/templates/default.conf.template
+COPY --chown=${FRONTEND_UID}:${FRONTEND_GID} --chmod=600 ./conf/location_common.conf /etc/nginx/location_common.conf
+
+USER ${FRONTEND_UID}
+
+ENTRYPOINT [ "/usr/bin/dumb-init", "--" ]
+CMD [ "/docker-entrypoint.sh", "nginx", "-g", "daemon off;" ]

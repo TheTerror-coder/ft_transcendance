@@ -1,0 +1,3 @@
+# SecRule  REQUEST_HEADERS:X-Vault-Token "@streq myroot" "id:2555,phase:5,t:none,allow,nolog,ctl:auditEngine=Off"
+# SecRule  REQUEST_HEADERS:X-Vault-Token "@streq myroot" "id:2555,phase:5,t:none,sanitiseArg:X-Vault-Token"
+# SecRule REQUEST_HEADERS "password" "nolog,pass,id:132,sanitiseMatched"

@@ -1,0 +1,10 @@
+<div class="loginPage" id="loginPage">
+	<div class="woodPresentation" id="woodPresentation">
+		<img src="/static/oauth/photos/picturePng/loginPage/woodPresentation.png" alt="woodPresentation" style="margin-top: auto;">
+		<div class="woodPresentationContent" id="connect">
+			<button class="fontConnexionWith42" id="signInWith42Button" type="button"> Sign in with <img src="/static/oauth/photos/picturePng/logo42.png" alt="42-logo"  class="logo42"></button>
+			
+			<!-- <button type="button" class="btn btn-primary" id="live-alert">Show live alert</button> -->
+
+		</div>
+</div>
