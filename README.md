@@ -9,9 +9,9 @@ A web based Platform designed with an "One Piece" theme to provide an immersive 
 The project is designed to be scalable, accessible, and user-friendly, supporting a wide range of user preferences. It also incorporates a modern architecture using microservices and DevOps tools to ensure high performance and maintainability.
 
 <p align="center">
-  <img src="media/1744301604416.gif" alt="Alt text" />
+  <img src="media/1744368472212.gif" alt="Alt text" />
 </p>
-<!-- ![Alt text](media/1744301604416.gif) -->
+<!-- ![Alt text](media/1744368472212.gif) -->
 
 Key Features
 1. Multiplayer Modes
