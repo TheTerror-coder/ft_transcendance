@@ -8,6 +8,8 @@ A web based Platform designed with an "One Piece" theme to provide an immersive 
 
 The project is designed to be scalable, accessible, and user-friendly, supporting a wide range of user preferences. It also incorporates a modern architecture using microservices and DevOps tools to ensure high performance and maintainability.
 
+---
+
 <div style="display: flex; justify-content: center; align-items: center;">
 	<div style="margin: 0 10px;">
 		<img src="system-charts/1745161175700.gif" alt="Alt text" style="width: auto; max-height: 100vh; display: block;" />
@@ -20,94 +22,123 @@ The project is designed to be scalable, accessible, and user-friendly, supportin
 </p> -->
 <!-- ![Alt text](media/1744368472212.gif) -->
 
-Key Features
-1. Multiplayer Modes
+---
 
-    • **Remote Players**: Play the classic Pong game with friends across different devices, maintaining an optimized user experience despite potential network issues (lag, disconnection, etc.).
-    
-	• **Multiple Players**: Supports games with more than two players. Customizable modes allow for dynamic gameplay (e.g., a 4-player game on a square board).
+## 🚀 Key Features
 
-3. Customization Options
+### 🎮 1. Multiplayer Game Modes
 
-    • **Power-ups & Custom Maps**: Customize gameplay with power-ups, special abilities, and different game maps to enhance the gaming experience.
-    
-	• **Default Simpler Version**: For those who prefer a straightforward experience, players can select a basic version of any game.
+- **Remote Multiplayer**  
+  Play classic Pong with friends across different devices, regardless of location. Our network-optimized system is designed to handle real-world challenges like latency, packet loss, and intermittent disconnections while maintaining a smooth gameplay experience.
 
-4. Matchmaking & User History
+- **Beyond 1v1: Multiplayer Expansion**  
+  Experience new ways to enjoy Pong with support for more than two players. Choose from creative, non-traditional layouts—like a 4-player battle on a square or circular board—for dynamic and chaotic matches that keep the gameplay fresh.
 
-    • **Game History**: Track and display your gameplay stats and progress, including win/loss records and performance metrics.
-    
-	• **Matchmaking System**: Find opponents for fair and balanced matches, ensuring everyone has a competitive gaming experience.
+---
 
-5. Live Chat
-    
-	• **Player Profiles**: Access player profiles and interact with others through the chat interface.
+### ⚙️ 2. Customization & Gameplay Options
 
-6. Robust Security
+- **Power-ups and Special Maps**  
+  Inject fun and strategy into each game with power-ups like speed boosts, ball splitters, shields, and more. Choose from various maps with unique layouts and obstacles for a tailored game experience.
 
-    • **ModSecurity Web Application Firewall (WAF)**: Secure the platform against web-based attacks and threats.
+- **Minimalist Mode**  
+  Prefer the good old Pong? Opt for the default, simplified version for pure, distraction-free gameplay without bells and whistles.
 
-    • **HashiCorp Vault**: Securely manage and store sensitive information, such as API keys, credentials, and environment variables, ensuring that these secrets are properly encrypted and isolated.
-    
-	• **Two-Factor Authentication (2FA) and JWT**: Secure user accounts with an added layer of security through 2FA, and manage user authentication and sessions using JWT.
+---
 
-7. Infrastructure and DevOps
+### 🔍 3. Matchmaking & Player History
 
-    • **ELK Stack for Logging**: Efficiently manage and analyze log data using Elasticsearch, Logstash, and Kibana (ELK).
-    
-	• **Microservices Architecture**: The backend is designed with microservices, enabling flexibility, scalability, and easy maintenance.
+- **Smart Matchmaking**  
+  Automatically pair players based on skill level and performance, ensuring balanced and engaging matches for everyone.
 
-8. Advanced Graphics
+- **Player Progress & Stats**  
+  Track wins, losses, high scores, longest rallies, and more. Build your profile and watch your skills grow over time with detailed analytics and historical records.
 
-    • **3D Visuals with Three.js**: Enhance the visual experience of the Pong game by introducing advanced 3D techniques, immersing players in the game environment.
+---
 
-9. Accessibility
-    
-	• **Browser and Language Support**: The platform is compatible with multiple browsers and offers multilingual support for a broader international audience.
+### 🔐 4. Security & Data Protection
 
-10. Server-Side Pong
+- **Enterprise-Grade Protection**  
+  Using **ModSecurity (WAF)**, the platform is safeguarded from common web-based threats, including SQL injection, XSS, and DDoS attacks.
 
-    • **Server-Side Logic**: Move the core gameplay mechanics (like ball movement and player actions) to the server, ensuring smoother experiences, faster responses, and better scalability.
+- **Secure Secrets Management**  
+  All sensitive data (API keys, DB credentials, environment variables) are securely managed using **HashiCorp Vault**, with strong encryption and access policies.
 
-## Skills and Technologies
+- **Modern Authentication Stack**  
+  Users are protected through **JWT-based session management**, and **2FA** adds an extra layer of login security.
 
-This project requires a broad range of skills across various domains. The key technologies and tools involved in its development include:
+---
 
-### Frontend Development
+### 🛠️ 5. DevOps & Infrastructure
 
-    HTML/CSS/JavaScript: Building the core web interface user-friendly gameplay.
+- **Microservices-Based Architecture**  
+  The backend is composed of independently deployable services, making the platform highly modular, scalable, and easier to maintain.
 
-    Three.js: Implementing advanced 3D graphics to enhance the visuals of the Pong game.
+- **Comprehensive Logging with ELK Stack**  
+  Real-time log aggregation, monitoring, and visualization using **Elasticsearch**, **Logstash**, and **Kibana**.
 
-### Backend Development
+- **Containerized Deployment**  
+  Microservices are containerized for efficient deployment, scaling, and orchestration across environments.
 
-    Django: Implementing server-side logic for gaming, multiplayer support, game state management and user management.
+---
 
-    RESTful APIs: Designing APIs to allow interaction with the Pong game and additional games.
+### 🎨 6. Advanced Visuals & Graphics
 
-    WebSocket: For real-time multiplayer interactions, enabling seamless communication between remote players.
+- **3D Experience with Three.js**  
+  The classic game receives a modern facelift with 3D visuals, lighting effects, animations, and immersive environments powered by **Three.js**.
 
-### Database and Data Storage
+---
 
-    Postgresql: Storing user profiles, game history, and matchmaking data securely.
+### 🌐 7. Accessibility & Cross-Platform Support
 
-    Redis: For fast, in-memory data storage, especially for information exchange state synchronization.
+- **Browser Compatibility & Language Support**  
+  Play on all modern browsers with a responsive UI and multilingual support to cater to global audiences.
 
-### DevOps and Infrastructure
+- **Server-Side Rendering (SSR)**  
+  Improve SEO, load times, and accessibility with pre-rendered content delivered server-side.
 
-    Architecture: Containerizing microservices for easy deployment and scalability.
+---
 
-    ELK Stack: Using Elasticsearch, Logstash, and Kibana for logging and real-time data analysis.
+### 🧠 8. Server-Side Game Logic
 
-### Security
+- **Smooth, Centralized Game Control**  
+  Core gameplay logic, including ball movement, physics, collision detection, and scoring, runs on the server for consistent, cheat-resistant multiplayer interactions.
 
-    HashiCorp Vault: Secure storage of sensitive information (e.g., API keys, database credentials).
+---
 
-    OAuth, JWT: For managing user authentication and authorization.
+## 🧰 Skills & Technologies Used
 
-    Two-Factor Authentication (2FA): Enhancing security by requiring multiple verification methods.
+This project spans full-stack development, game design, DevOps, and security. Here's a breakdown of the tools and technologies:
 
-### Accessibility and SEO
+### 🌐 Frontend Development
 
-    Server-Side Rendering (SSR): Using SSR for faster page load times, improved SEO, and better performance.
-  
+- **HTML/CSS/JavaScript** – Building the responsive UI and game canvas.
+- **Three.js** – Rendering dynamic 3D graphics and animations in the browser.
+
+### 🧩 Backend Development
+
+- **Django** – Server-side logic for gameplay, user authentication, and API endpoints.
+- **RESTful APIs** – Structured API design for extensibility and third-party integrations.
+- **WebSocket** – Real-time communication for synchronous multiplayer gameplay.
+
+### 🗄️ Data Storage & Caching
+
+- **PostgreSQL** – Persistent storage for users, match history, and performance data.
+- **Redis** – In-memory data store for quick access and game state synchronization.
+
+### ⚙️ DevOps & Infrastructure
+
+- **Microservices** – Decoupled services for modularity and performance.
+- **ELK Stack (Elastic, Logstash, Kibana)** – Real-time monitoring, analytics, and diagnostics.
+- **Containerization** – Docker for deployment, environment consistency, and scalability.
+
+### 🔐 Security Stack
+
+- **HashiCorp Vault** – Encryption and secure management of secrets.
+- **JWT & OAuth** – Token-based authentication for secure, scalable user sessions.
+- **Two-Factor Authentication (2FA)** – Optional, but recommended, user identity verification.
+
+### ♿ Accessibility & SEO
+
+- **Server-Side Rendering (SSR)** – Fast page loads and better SEO performance, especially for multilingual support.
+
